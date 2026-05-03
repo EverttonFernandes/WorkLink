@@ -1,7 +1,7 @@
 COMPOSE_ENV_FILE ?= .env
 DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) docker compose --env-file $(COMPOSE_ENV_FILE)
 
-.PHONY: up down restart logs api db redis storage migrate clean backend-unit-test backend-integration-test backend-test mobile-unit-test mobile-screen-test mobile-test functional-test test-unit test-integration test-functional db-up db-down db-logs db-migrate test
+.PHONY: up down restart logs api db redis storage migrate clean backend-static-analysis mobile-static-analysis static-analysis backend-unit-test backend-integration-test backend-test mobile-unit-test mobile-screen-test mobile-test functional-test test-unit test-integration test-functional db-up db-down db-logs db-migrate test
 
 $(COMPOSE_ENV_FILE):
 	cp .env.example $(COMPOSE_ENV_FILE)
@@ -33,6 +33,14 @@ migrate: db-migrate
 clean: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) down -v --remove-orphans
 	rm -rf worklink-api/target worklink-mobile/build worklink-mobile/.dart_tool worklink-mobile/coverage
+
+backend-static-analysis: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) run --rm backend-tests mvn checkstyle:check
+
+mobile-static-analysis: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && flutter analyze"
+
+static-analysis: backend-static-analysis mobile-static-analysis
 
 backend-unit-test: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm backend-tests mvn test
@@ -71,4 +79,4 @@ db-logs: $(COMPOSE_ENV_FILE)
 db-migrate: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm database-migrations
 
-test: backend-test mobile-test functional-test
+test: static-analysis backend-test mobile-test functional-test

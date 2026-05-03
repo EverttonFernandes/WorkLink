@@ -1,0 +1,20 @@
+WLT-006 — Qualidade estática e clean code
+
+Status: DONE
+
+Checklist:
+- [x] Ler história técnica e ordem oficial.
+- [x] Configurar análise estática do backend.
+- [x] Configurar análise estática do mobile.
+- [x] Expor comandos de qualidade no Makefile.
+- [x] Atualizar documentação operacional.
+- [x] Validar gates em containers Docker.
+- [x] Registrar entrega versionável.
+
+Evidências:
+- make backend-static-analysis
+- make mobile-static-analysis
+- make backend-test
+- make mobile-test functional-test
+- WORKLINK_ENV_FILE=.env.example docker compose --env-file .env.example config
+- git diff --check

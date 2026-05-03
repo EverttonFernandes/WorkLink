@@ -13,6 +13,7 @@ Pasta reservada para containerizacao e ambiente local do WorkLink.
 - `make restart` reinicia o ambiente local.
 - `make logs` acompanha logs dos servicos.
 - `make clean` remove containers, volumes e artefatos gerados.
+- `make static-analysis` executa analise estatica backend e mobile em containers.
 - `make backend-unit-test` executa testes unitarios backend em container.
 - `make backend-integration-test` executa o ciclo Maven `verify`, reservado para testes de integracao quando existirem.
 - `make mobile-unit-test` executa testes mobile em container.

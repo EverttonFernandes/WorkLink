@@ -21,6 +21,9 @@ make api
 make logs
 make down
 make clean
+make backend-static-analysis
+make mobile-static-analysis
+make static-analysis
 make backend-unit-test
 make backend-integration-test
 make backend-test
@@ -42,6 +45,9 @@ gerados de build.
 
 Na primeira execucao, o Makefile cria `.env` a partir de `.env.example` quando o arquivo local ainda nao existir.
 O `.env` real fica ignorado pelo Git; somente o exemplo com valores ficticios e versionado.
+
+`make static-analysis` agrega os gates de qualidade estatica do backend e mobile. Violacoes criticas de nomenclatura,
+lint ou analise bloqueiam a continuidade da entrega.
 
 `make test` e a agregacao oficial para a matriz esperada do projeto: testes unitarios backend, integracao backend,
 unitarios mobile, testes de tela mobile e testes funcionais. Enquanto uma suite ainda nao existir, o alvo correspondente

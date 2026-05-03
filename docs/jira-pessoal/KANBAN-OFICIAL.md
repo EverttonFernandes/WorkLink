@@ -23,7 +23,6 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História | Tipo | Título | Relação com outras histórias | Execução | Versão |
 |-------|----------|------|--------|-------------------------------|----------|--------|
-| 06 | [WLT-006](historias-tecnicas/WLT-006-qualidade-estatica-backend-mobile.md) | Técnica | Qualidade estática e clean code | Pré-requisito para gates de qualidade | Separada | MINOR |
 | 07 | [WLT-007](historias-tecnicas/WLT-007-testabilidade-backend.md) | Técnica | Testabilidade backend | Pré-requisito para histórias backend e cobertura unitária mínima de 95% | Separada | MINOR |
 | 08 | [WLT-008](historias-tecnicas/WLT-008-testabilidade-mobile.md) | Técnica | Testabilidade mobile | Pré-requisito para telas, fluxos mobile e cobertura unitária mínima de 95% | Separada | MINOR |
 | 09 | [WLT-017](historias-tecnicas/WLT-017-cicd-builds-scans.md) | Técnica | CI/CD, builds e scans | Sustenta validação contínua e bloqueia cobertura unitária abaixo de 95% | Separada | MINOR |
@@ -71,6 +70,7 @@ _Vazio._
 | 03 | [WLT-003](historias-tecnicas/WLT-003-banco-postgresql-consistencia.md) | Técnica | PostgreSQL e consistência transacional | Pré-requisito para dados funcionais | Separada | MINOR | [Entrega WLT-003](../entregas/WLT-003-postgresql-consistencia-transacional.md) |
 | 04 | [WLT-004](historias-tecnicas/WLT-004-ambiente-local-docker-makefile.md) | Técnica | Ambiente local reproduzível | Pré-requisito para execução local e testes | Separada | MINOR | [Entrega WLT-004](../entregas/WLT-004-ambiente-local-docker-makefile.md) |
 | 05 | [WLT-005](historias-tecnicas/WLT-005-configuracao-segura-env-secrets.md) | Técnica | Configuração segura e secrets | Pré-requisito para backend, storage, auth e CI | Separada | MINOR | [Entrega WLT-005](../entregas/WLT-005-configuracao-segura-env-secrets.md) |
+| 06 | [WLT-006](historias-tecnicas/WLT-006-qualidade-estatica-backend-mobile.md) | Técnica | Qualidade estática e clean code | Pré-requisito para gates de qualidade | Separada | MINOR | [Entrega WLT-006](../entregas/WLT-006-qualidade-estatica-clean-code.md) |
 
 ## Histórias técnicas que podem ser executadas separadamente
 
