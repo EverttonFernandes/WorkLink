@@ -23,7 +23,6 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História | Tipo | Título | Relação com outras histórias | Execução | Versão |
 |-------|----------|------|--------|-------------------------------|----------|--------|
-| 01 | [WLT-001](historias-tecnicas/WLT-001-monorepo-stack-base.md) | Técnica | Monorepo e stack base | Pré-requisito geral | Separada | MINOR |
 | 02 | [WLT-002](historias-tecnicas/WLT-002-arquitetura-modular-hexagonal.md) | Técnica | Arquitetura modular hexagonal | Pré-requisito geral | Separada | MINOR |
 | 03 | [WLT-003](historias-tecnicas/WLT-003-banco-postgresql-consistencia.md) | Técnica | PostgreSQL e consistência transacional | Pré-requisito para dados funcionais | Separada | MINOR |
 | 04 | [WLT-004](historias-tecnicas/WLT-004-ambiente-local-docker-makefile.md) | Técnica | Ambiente local reproduzível | Pré-requisito para execução local e testes | Separada | MINOR |
@@ -69,7 +68,9 @@ _Vazio._
 
 ## Done
 
-_Vazio._
+| Ordem | História | Tipo | Título | Relação com outras histórias | Execução | Versão | Entrega |
+|-------|----------|------|--------|-------------------------------|----------|--------|---------|
+| 01 | [WLT-001](historias-tecnicas/WLT-001-monorepo-stack-base.md) | Técnica | Monorepo e stack base | Pré-requisito geral | Separada | MINOR | [Entrega WLT-001](../entregas/WLT-001-monorepo-stack-base.md) |
 
 ## Histórias técnicas que podem ser executadas separadamente
 

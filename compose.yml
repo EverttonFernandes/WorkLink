@@ -1,0 +1,20 @@
+services:
+  backend-tests:
+    image: maven:3.9.9-eclipse-temurin-21
+    working_dir: /workspace/worklink-api
+    volumes:
+      - .:/workspace
+      - maven-cache:/root/.m2
+    command: mvn verify
+
+  mobile-tests:
+    image: ghcr.io/cirruslabs/flutter:3.24.5
+    working_dir: /workspace/worklink-mobile
+    volumes:
+      - .:/workspace
+      - flutter-pub-cache:/root/.pub-cache
+    command: sh -lc "flutter pub get && flutter test --coverage"
+
+volumes:
+  maven-cache:
+  flutter-pub-cache:
