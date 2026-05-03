@@ -1,7 +1,7 @@
 COMPOSE_ENV_FILE ?= .env
 DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) docker compose --env-file $(COMPOSE_ENV_FILE)
 
-.PHONY: up down restart logs api db redis storage migrate clean backend-static-analysis mobile-static-analysis static-analysis backend-unit-test backend-integration-test backend-test mobile-unit-test mobile-screen-test mobile-test functional-test test-unit test-integration test-functional db-up db-down db-logs db-migrate test
+.PHONY: up down restart logs api db redis storage migrate clean backend-static-analysis mobile-static-analysis static-analysis backend-unit-test backend-integration-test backend-test mobile-unit-test mobile-screen-test mobile-integration-test mobile-test functional-test test-unit test-integration test-functional db-up db-down db-logs db-migrate test
 
 $(COMPOSE_ENV_FILE):
 	cp .env.example $(COMPOSE_ENV_FILE)
@@ -51,19 +51,22 @@ backend-integration-test: $(COMPOSE_ENV_FILE)
 backend-test: backend-unit-test backend-integration-test
 
 mobile-unit-test: $(COMPOSE_ENV_FILE)
-	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && flutter test --coverage"
+	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && flutter test test/unit --coverage && awk -F: '/^LF:/{lf+=\$$2}/^LH:/{lh+=\$$2} END { if (lf == 0) { print \"N/A: cobertura mobile sem linhas rastreaveis.\"; exit 0 } coverage=(lh/lf)*100; printf \"Cobertura mobile unitarios: %.2f%%\\n\", coverage; if (coverage < 95) exit 1 }' coverage/lcov.info"
 
 mobile-screen-test: $(COMPOSE_ENV_FILE)
-	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && if find test -type f \( -path '*/screen/*' -o -path '*/screens/*' -o -path '*/tela/*' -o -path '*/telas/*' -o -name '*screen_test.dart' -o -name '*tela_test.dart' \) | grep -q .; then flutter test test --coverage; else echo 'N/A: testes de tela ainda nao foram criados.'; fi"
+	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && if find test -type f \( -path '*/widget/*' -o -path '*/widgets/*' -o -path '*/screen/*' -o -path '*/screens/*' -o -path '*/tela/*' -o -path '*/telas/*' -o -name '*widget_test.dart' -o -name '*screen_test.dart' -o -name '*tela_test.dart' \) | grep -q .; then flutter test test/widget --coverage; else echo 'N/A: testes de tela ainda nao foram criados.'; fi"
 
-mobile-test: mobile-unit-test mobile-screen-test
+mobile-integration-test: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "./tool/run_mobile_integration_tests.sh"
+
+mobile-test: mobile-unit-test mobile-screen-test mobile-integration-test
 
 functional-test: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm functional-tests
 
 test-unit: backend-unit-test mobile-unit-test
 
-test-integration: backend-integration-test
+test-integration: backend-integration-test mobile-integration-test
 
 test-functional: functional-test
 

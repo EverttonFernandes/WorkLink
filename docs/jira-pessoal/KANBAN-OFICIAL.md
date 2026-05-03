@@ -23,7 +23,6 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História | Tipo | Título | Relação com outras histórias | Execução | Versão |
 |-------|----------|------|--------|-------------------------------|----------|--------|
-| 08 | [WLT-008](historias-tecnicas/WLT-008-testabilidade-mobile.md) | Técnica | Testabilidade mobile | Pré-requisito para telas, fluxos mobile e cobertura unitária mínima de 95% | Separada | MINOR |
 | 09 | [WLT-017](historias-tecnicas/WLT-017-cicd-builds-scans.md) | Técnica | CI/CD, builds e scans | Sustenta validação contínua e bloqueia cobertura unitária abaixo de 95% | Separada | MINOR |
 | 10 | [WL-001](historias/WL-001-fundacao-categorias-cidades-profissionais.md) | Negócio | Fundação de categorias, cidades e profissionais mínimos | Usa base técnica inicial | Separada | MINOR |
 | 11 | [WL-002](historias/WL-002-selecao-cidades-localizacao.md) | Negócio | Seleção de cidades e localização atual | Depende de fundação de cidades | Separada | MINOR |
@@ -71,6 +70,7 @@ _Vazio._
 | 05 | [WLT-005](historias-tecnicas/WLT-005-configuracao-segura-env-secrets.md) | Técnica | Configuração segura e secrets | Pré-requisito para backend, storage, auth e CI | Separada | MINOR | [Entrega WLT-005](../entregas/WLT-005-configuracao-segura-env-secrets.md) |
 | 06 | [WLT-006](historias-tecnicas/WLT-006-qualidade-estatica-backend-mobile.md) | Técnica | Qualidade estática e clean code | Pré-requisito para gates de qualidade | Separada | MINOR | [Entrega WLT-006](../entregas/WLT-006-qualidade-estatica-clean-code.md) |
 | 07 | [WLT-007](historias-tecnicas/WLT-007-testabilidade-backend.md) | Técnica | Testabilidade backend | Pré-requisito para histórias backend e cobertura unitária mínima de 95% | Separada | MINOR | [Entrega WLT-007](../entregas/WLT-007-testabilidade-backend.md) |
+| 08 | [WLT-008](historias-tecnicas/WLT-008-testabilidade-mobile.md) | Técnica | Testabilidade mobile | Pré-requisito para telas, fluxos mobile e cobertura unitária mínima de 95% | Separada | MINOR | [Entrega WLT-008](../entregas/WLT-008-testabilidade-mobile.md) |
 
 ## Histórias técnicas que podem ser executadas separadamente
 

@@ -29,6 +29,7 @@ make backend-integration-test
 make backend-test
 make mobile-unit-test
 make mobile-screen-test
+make mobile-integration-test
 make mobile-test
 make functional-test
 make db-up
@@ -51,6 +52,8 @@ lint ou analise bloqueiam a continuidade da entrega.
 
 `make backend-unit-test` executa testes unitarios Java com relatorio JaCoCo e gate minimo de 95%.
 `make backend-integration-test` executa o ciclo Maven `verify`, incluindo testes `*IntegrationTest` contra PostgreSQL em container.
+`make mobile-unit-test` executa testes unitarios Flutter com coverage e gate minimo de 95%.
+`make mobile-integration-test` executa testes de integracao mobile quando houver device suportado no container.
 `make functional-test` executa a suite funcional HTTP em Node dentro de container quando houver cenarios reais.
 
 `make test` e a agregacao oficial para a matriz esperada do projeto: testes unitarios backend, integracao backend,
