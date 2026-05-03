@@ -1,0 +1,15 @@
+.git
+.idea
+.gradle
+.dart_tool
+build
+coverage
+target
+**/target
+worklink-mobile/build
+worklink-mobile/.dart_tool
+worklink-mobile/coverage
+.env
+.env.*
+!.env.example
+*.log

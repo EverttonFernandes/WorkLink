@@ -16,6 +16,11 @@ As ferramentas de build nao precisam ser instaladas diretamente na maquina. A va
 containers Docker:
 
 ```bash
+make up
+make api
+make logs
+make down
+make clean
 make backend-unit-test
 make backend-integration-test
 make backend-test
@@ -30,6 +35,10 @@ make test
 ```
 
 Os comandos usam `compose.yml` e caches em volumes Docker para Maven e Pub.
+
+`make up` sobe as dependencias locais principais: PostgreSQL, Redis e MinIO. `make api` sobe a API em imagem
+multi-stage, aguardando as dependencias saudaveis antes do runtime. `make clean` remove containers, volumes e artefatos
+gerados de build.
 
 `make test` e a agregacao oficial para a matriz esperada do projeto: testes unitarios backend, integracao backend,
 unitarios mobile, testes de tela mobile e testes funcionais. Enquanto uma suite ainda nao existir, o alvo correspondente
