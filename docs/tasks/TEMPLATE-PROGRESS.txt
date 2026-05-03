@@ -1,0 +1,21 @@
+TASK_KEY=<KEY>
+FASE=PLANEJAMENTO
+
+ULTIMA_HIPOTESE:
+- História ainda não executada.
+
+ULTIMO_RESULTADO:
+- IMPLEMENTATION.md criado ou aguardando criação.
+
+GATES_OBSERVADOS:
+- QA: PENDING
+- SRE: PENDING
+- SECURITY: PENDING
+- ARCH_REVIEW: PENDING
+- FINAL_REVIEW: PENDING
+
+PROXIMA_ACAO_RECOMENDADA:
+- Iniciar execução técnica a partir do IMPLEMENTATION.md aprovado.
+
+RISCOS_ABERTOS:
+- Nenhum risco observado ainda.
