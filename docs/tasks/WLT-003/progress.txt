@@ -1,0 +1,35 @@
+TASK_KEY=WLT-003
+FASE=DONE
+
+ULTIMA_HIPOTESE:
+- A próxima história elegível do Kanban Oficial é WLT-003.
+- A entrega deve habilitar PostgreSQL e migrations sem criar domínio artificial.
+
+ULTIMO_RESULTADO:
+- História WLT-003 lida.
+- Diretrizes de consistência e containers lidas.
+- Plano inicial criado para PostgreSQL e consistência transacional.
+- Serviço PostgreSQL adicionado ao `compose.yml`.
+- Serviço `database-migrations` com Flyway adicionado ao `compose.yml`.
+- Alvos `db-up`, `db-down`, `db-logs` e `db-migrate` adicionados ao `Makefile`.
+- Migration `V001__create_worklink_schema.sql` criada.
+- Documento `docs/arquitetura/postgresql-consistencia-transacional.md` criado.
+- `docker compose config` passou.
+- `make -n db-migrate` passou.
+- `git diff --check` passou.
+- `make db-migrate` aplicou 1 migration com sucesso.
+- Consulta via psql confirmou `public.flyway_schema_history` e `worklink.database_migration_marker`.
+
+GATES_OBSERVADOS:
+- QA: PASS
+- SRE: PASS
+- SECURITY: PASS
+- ARCH_REVIEW: PASS
+- FINAL_REVIEW: PASS
+
+PROXIMA_ACAO_RECOMENDADA:
+- Criar entrega, atualizar Kanban, commitar e taguear a WLT-003.
+
+RISCOS_ABERTOS:
+- Gestão segura de secrets e `.env.example` será tratada em WLT-005.
+- Modelagem funcional de tabelas deve acontecer nas histórias `WL-*`.

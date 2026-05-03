@@ -1,4 +1,4 @@
-.PHONY: backend-unit-test backend-integration-test backend-test mobile-unit-test mobile-screen-test mobile-test functional-test test
+.PHONY: backend-unit-test backend-integration-test backend-test mobile-unit-test mobile-screen-test mobile-test functional-test db-up db-down db-logs db-migrate test
 
 backend-unit-test:
 	docker compose run --rm backend-tests mvn test
@@ -18,5 +18,17 @@ mobile-test: mobile-unit-test mobile-screen-test
 
 functional-test:
 	docker compose run --rm functional-tests
+
+db-up:
+	docker compose up -d postgres
+
+db-down:
+	docker compose down --remove-orphans
+
+db-logs:
+	docker compose logs -f postgres
+
+db-migrate:
+	docker compose run --rm database-migrations
 
 test: backend-test mobile-test functional-test

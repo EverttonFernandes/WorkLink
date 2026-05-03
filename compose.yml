@@ -1,4 +1,34 @@
 services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: worklink
+      POSTGRES_USER: worklink
+      POSTGRES_PASSWORD: worklink_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U worklink -d worklink"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  database-migrations:
+    image: flyway/flyway:10-alpine
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./worklink-api/src/main/resources/db/migration:/flyway/sql:ro
+    command:
+      - -url=jdbc:postgresql://postgres:5432/worklink
+      - -user=worklink
+      - -password=worklink_dev_password
+      - -connectRetries=10
+      - migrate
+
   backend-tests:
     image: maven:3.9.9-eclipse-temurin-21
     working_dir: /workspace/worklink-api
@@ -26,5 +56,6 @@ services:
       - "if [ -x functional-tests/run.sh ]; then functional-tests/run.sh; else echo 'N/A: functional-tests/run.sh ainda nao foi criado.'; fi"
 
 volumes:
+  postgres-data:
   maven-cache:
   flutter-pub-cache:

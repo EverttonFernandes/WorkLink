@@ -10,6 +10,9 @@ Pasta reservada para containerizacao e ambiente local do WorkLink.
 - `make mobile-unit-test` executa testes mobile em container.
 - `make mobile-screen-test` executa testes de tela mobile quando a suite existir.
 - `make functional-test` executa o runner de testes funcionais quando `functional-tests/run.sh` existir.
+- `make db-up` sobe o PostgreSQL local.
+- `make db-migrate` aplica migrations no PostgreSQL usando Flyway em container.
+- `make db-down` derruba os servicos Docker do projeto.
 - `make test` agrega a matriz oficial de testes.
 - Docker Compose operacional completo com banco e servicos auxiliares sera tratado na historia `WLT-004`.
 - Imagem Docker multi-stage da API sera tratada quando a aplicacao tiver runtime empacotavel.

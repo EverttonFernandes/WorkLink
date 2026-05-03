@@ -23,6 +23,9 @@ make mobile-unit-test
 make mobile-screen-test
 make mobile-test
 make functional-test
+make db-up
+make db-migrate
+make db-down
 make test
 ```
 
@@ -31,6 +34,8 @@ Os comandos usam `compose.yml` e caches em volumes Docker para Maven e Pub.
 `make test` e a agregacao oficial para a matriz esperada do projeto: testes unitarios backend, integracao backend,
 unitarios mobile, testes de tela mobile e testes funcionais. Enquanto uma suite ainda nao existir, o alvo correspondente
 registra `N/A` sem exigir instalacao de ferramentas no host.
+
+`make db-migrate` sobe PostgreSQL em Docker e executa as migrations versionadas do backend via Flyway.
 
 ## Fontes de verdade
 
