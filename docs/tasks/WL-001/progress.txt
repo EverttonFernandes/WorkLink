@@ -1,0 +1,20 @@
+WL-001 — Fundação de categorias, cidades e profissionais mínimos
+
+Status: DONE
+
+Checklist:
+- [x] Ler história de negócio e requisitos relacionados.
+- [x] Criar migration de categorias, cidades e profissionais.
+- [x] Implementar domínio sem dependência de framework.
+- [x] Implementar casos de uso e portas.
+- [x] Implementar adapters JDBC.
+- [x] Implementar endpoints REST versionados.
+- [x] Cobrir domínio, aplicação, API, adapters e arquitetura com testes.
+- [x] Validar cobertura unitária mínima de 95%.
+- [x] Validar migrations em PostgreSQL real via Docker.
+- [x] Registrar entrega versionável.
+
+Evidências:
+- make backend-static-analysis
+- make backend-unit-test
+- make backend-integration-test

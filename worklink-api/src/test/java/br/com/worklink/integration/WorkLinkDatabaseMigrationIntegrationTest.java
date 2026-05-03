@@ -16,6 +16,9 @@ class WorkLinkDatabaseMigrationIntegrationTest {
 
     private static final String WORKLINK_SCHEMA = "worklink";
     private static final String MIGRATION_MARKER_TABLE = "database_migration_marker";
+    private static final String SERVICE_CATEGORIES_TABLE = "service_categories";
+    private static final String SERVICE_CITIES_TABLE = "service_cities";
+    private static final String PROFESSIONALS_TABLE = "professionals";
     private static final String DATABASE_URL = System.getenv().getOrDefault(
             "WORKLINK_DATABASE_URL",
             "jdbc:postgresql://postgres:5432/worklink"
@@ -47,11 +50,14 @@ class WorkLinkDatabaseMigrationIntegrationTest {
 
         // THEN
         assertThat(migrateResult.success).isTrue();
-        assertThat(migrateResult.migrationsExecuted).isGreaterThanOrEqualTo(1);
-        assertThat(migrationMarkerTableExists()).isTrue();
+        assertThat(migrateResult.migrationsExecuted).isGreaterThanOrEqualTo(2);
+        assertThat(tableExists(MIGRATION_MARKER_TABLE)).isTrue();
+        assertThat(tableExists(SERVICE_CATEGORIES_TABLE)).isTrue();
+        assertThat(tableExists(SERVICE_CITIES_TABLE)).isTrue();
+        assertThat(tableExists(PROFESSIONALS_TABLE)).isTrue();
     }
 
-    private boolean migrationMarkerTableExists() throws Exception {
+    private boolean tableExists(String tableName) throws Exception {
         try (Connection connection = DriverManager.getConnection(
                 DATABASE_URL,
                 DATABASE_USERNAME,
@@ -66,7 +72,7 @@ class WorkLinkDatabaseMigrationIntegrationTest {
                      )
                      """)) {
             preparedStatement.setString(1, WORKLINK_SCHEMA);
-            preparedStatement.setString(2, MIGRATION_MARKER_TABLE);
+            preparedStatement.setString(2, tableName);
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 assertThat(resultSet.next()).isTrue();

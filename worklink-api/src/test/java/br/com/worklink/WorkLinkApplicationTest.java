@@ -25,7 +25,8 @@ import static org.assertj.core.api.Assertions.assertThat;
         "WORKLINK_SMS_PROVIDER_API_KEY=change-me-test-sms-provider-api-key",
         "WORKLINK_CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080",
         "WORKLINK_FEATURE_SMS_ENABLED=false",
-        "WORKLINK_FEATURE_STORAGE_ENABLED=true"
+        "WORKLINK_FEATURE_STORAGE_ENABLED=true",
+        "spring.flyway.enabled=false"
 })
 class WorkLinkApplicationTest {
 
