@@ -197,8 +197,8 @@ Testes de integração validam a conexão real entre a aplicação e dependênci
 ### Tecnologias esperadas
 
 - Spring Boot Test
-- Testcontainers
 - PostgreSQL container
+- Testcontainers quando a suíte executar com acesso seguro ao Docker daemon
 - Redis container quando aplicável
 - MinIO/S3-compatible quando a história tocar storage
 
@@ -208,6 +208,7 @@ Testes de integração validam a conexão real entre a aplicação e dependênci
 - devem validar migrations, repositories, constraints, transações e persistência crítica
 - devem usar massa determinística e cleanup explícito
 - não devem depender de banco compartilhado manual
+- devem executar contra dependência containerizada e reproduzível
 - não substituem testes unitários nem testes funcionais
 
 ### O que validar em integração

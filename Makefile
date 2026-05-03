@@ -43,7 +43,7 @@ mobile-static-analysis: $(COMPOSE_ENV_FILE)
 static-analysis: backend-static-analysis mobile-static-analysis
 
 backend-unit-test: $(COMPOSE_ENV_FILE)
-	$(DOCKER_COMPOSE) run --rm backend-tests mvn test
+	$(DOCKER_COMPOSE) run --rm backend-tests mvn test jacoco:report jacoco:check@check
 
 backend-integration-test: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm backend-tests mvn verify

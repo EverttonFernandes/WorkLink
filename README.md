@@ -49,6 +49,10 @@ O `.env` real fica ignorado pelo Git; somente o exemplo com valores ficticios e 
 `make static-analysis` agrega os gates de qualidade estatica do backend e mobile. Violacoes criticas de nomenclatura,
 lint ou analise bloqueiam a continuidade da entrega.
 
+`make backend-unit-test` executa testes unitarios Java com relatorio JaCoCo e gate minimo de 95%.
+`make backend-integration-test` executa o ciclo Maven `verify`, incluindo testes `*IntegrationTest` contra PostgreSQL em container.
+`make functional-test` executa a suite funcional HTTP em Node dentro de container quando houver cenarios reais.
+
 `make test` e a agregacao oficial para a matriz esperada do projeto: testes unitarios backend, integracao backend,
 unitarios mobile, testes de tela mobile e testes funcionais. Enquanto uma suite ainda nao existir, o alvo correspondente
 registra `N/A` sem exigir instalacao de ferramentas no host.

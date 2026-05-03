@@ -79,6 +79,9 @@ services:
 
   backend-tests:
     image: maven:3.9.9-eclipse-temurin-21
+    depends_on:
+      postgres:
+        condition: service_healthy
     env_file:
       - ${WORKLINK_ENV_FILE:-.env}
     working_dir: /workspace/worklink-api
@@ -96,17 +99,19 @@ services:
     command: sh -lc "flutter pub get && flutter test --coverage"
 
   functional-tests:
-    image: alpine:3.20
-    working_dir: /workspace
+    image: node:20-alpine
+    working_dir: /workspace/functional-tests
     volumes:
       - .:/workspace
+      - functional-node-modules:/workspace/functional-tests/node_modules
     command:
       - sh
       - -lc
-      - "if [ -x functional-tests/run.sh ]; then functional-tests/run.sh; else echo 'N/A: functional-tests/run.sh ainda nao foi criado.'; fi"
+      - "./run.sh"
 
 volumes:
   postgres-data:
   minio-data:
   maven-cache:
   flutter-pub-cache:
+  functional-node-modules:

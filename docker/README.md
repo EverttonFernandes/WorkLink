@@ -15,10 +15,10 @@ Pasta reservada para containerizacao e ambiente local do WorkLink.
 - `make clean` remove containers, volumes e artefatos gerados.
 - `make static-analysis` executa analise estatica backend e mobile em containers.
 - `make backend-unit-test` executa testes unitarios backend em container.
-- `make backend-integration-test` executa o ciclo Maven `verify`, reservado para testes de integracao quando existirem.
+- `make backend-integration-test` executa o ciclo Maven `verify`, incluindo testes `*IntegrationTest` contra PostgreSQL em container.
 - `make mobile-unit-test` executa testes mobile em container.
 - `make mobile-screen-test` executa testes de tela mobile quando a suite existir.
-- `make functional-test` executa o runner de testes funcionais quando `functional-tests/run.sh` existir.
+- `make functional-test` executa a suite funcional HTTP em Node quando houver cenarios reais, ou registra `N/A`.
 - `make db-up` sobe o PostgreSQL local.
 - `make db-migrate` aplica migrations no PostgreSQL usando Flyway em container.
 - `make db-down` derruba os servicos Docker do projeto.

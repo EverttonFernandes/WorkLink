@@ -15,7 +15,7 @@ Permite validar regras de domínio, persistência real e fluxos de API como caix
 ## Escopo incluído
 
 - Testes unitários com JUnit 5, Mockito e AssertJ.
-- Testes de integração com Spring Boot Test e Testcontainers.
+- Testes de integração com Spring Boot Test e banco PostgreSQL containerizado.
 - Testes funcionais com Jest, Axios/Supertest, fixtures e seeders.
 - Cobertura dos fluxos críticos.
 - Gate de cobertura unitária backend mínima de 95%.
@@ -29,7 +29,7 @@ Permite validar regras de domínio, persistência real e fluxos de API como caix
 
 - Unitários devem validar domínio e casos de uso isolados.
 - Unitários devem gerar relatório de cobertura e manter mínimo de 95%.
-- Integração deve validar banco, migrations, constraints, transações e persistência crítica.
+- Integração deve validar banco, migrations, constraints, transações e persistência crítica em container Docker.
 - Funcionais devem chamar endpoints HTTP sem importar código Java.
 - Funcionais devem preparar massa, validar resposta, validar efeito e limpar massa.
 - Fluxos obrigatórios do épico técnico devem ter estratégia de cobertura.

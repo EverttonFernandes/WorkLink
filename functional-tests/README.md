@@ -10,7 +10,10 @@ Esta estrutura sera evoluida quando a API e os fluxos de negocio estiverem dispo
 make functional-test
 ```
 
-O alvo usa Docker. Quando a suite funcional for criada, ela deve expor `functional-tests/run.sh` como ponto de entrada.
+O alvo usa Docker e executa `functional-tests/run.sh` como ponto de entrada.
+
+Enquanto nao houver cenarios reais em `functional-tests/src/**/*.spec.js`, o runner registra `N/A` e encerra com sucesso.
+Quando houver cenarios, o runner executa `npm ci` e `npm test` dentro do container.
 
 ## Diretrizes
 

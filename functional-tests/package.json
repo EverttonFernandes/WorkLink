@@ -1,0 +1,15 @@
+{
+  "name": "worklink-functional-tests",
+  "version": "0.7.0",
+  "private": true,
+  "description": "Functional HTTP tests for WorkLink.",
+  "scripts": {
+    "test": "jest --runInBand"
+  },
+  "dependencies": {
+    "axios": "1.16.0"
+  },
+  "devDependencies": {
+    "jest": "29.7.0"
+  }
+}

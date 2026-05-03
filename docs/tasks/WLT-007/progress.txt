@@ -1,0 +1,20 @@
+WLT-007 — Testabilidade backend
+
+Status: DONE
+
+Checklist:
+- [x] Ler história técnica e ordem oficial.
+- [x] Separar unitários e integração no Maven.
+- [x] Garantir JaCoCo mínimo de 95% no alvo unitário.
+- [x] Criar teste de integração de migration em PostgreSQL containerizado.
+- [x] Criar base funcional HTTP em Node/Jest/Axios.
+- [x] Validar comandos em containers Docker.
+- [x] Registrar entrega versionável.
+
+Evidências:
+- make backend-static-analysis
+- make backend-unit-test
+- make backend-integration-test
+- make functional-test
+- npm audit --audit-level=moderate
+- git diff --check
