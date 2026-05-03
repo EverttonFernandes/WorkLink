@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'app/worklink_app_configuration.dart';
-import 'features/city_selection/city_selection_city.dart';
-import 'features/city_selection/city_selection_controller.dart';
-import 'features/city_selection/city_selection_screen.dart';
+import 'features/discovery/discovery_controller.dart';
+import 'features/discovery/discovery_professional.dart';
+import 'features/discovery/discovery_screen.dart';
 
 // coverage:ignore-start
 void main() {
@@ -23,16 +23,25 @@ class WorkLinkApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: applicationConfiguration.applicationName,
-      home: CitySelectionScreen(
-        citySelectionController: CitySelectionController(
-          availableCities: const [
-            CitySelectionCity(cityIdentifier: 'canoas-rs', cityName: 'Canoas', stateCode: 'RS'),
-            CitySelectionCity(cityIdentifier: 'esteio-rs', cityName: 'Esteio', stateCode: 'RS'),
-            CitySelectionCity(cityIdentifier: 'porto-alegre-rs', cityName: 'Porto Alegre', stateCode: 'RS'),
-          ],
-          nearbySuggestedCities: const [
-            CitySelectionCity(cityIdentifier: 'esteio-rs', cityName: 'Esteio', stateCode: 'RS'),
-            CitySelectionCity(cityIdentifier: 'porto-alegre-rs', cityName: 'Porto Alegre', stateCode: 'RS'),
+      home: DiscoveryScreen(
+        discoveryController: DiscoveryController(
+          availableProfessionals: const [
+            DiscoveryProfessional(
+              professionalIdentifier: 'maria-eletricista',
+              professionalName: 'Maria Eletricista',
+              categoryName: 'Eletricista',
+              cityName: 'Canoas',
+              stateCode: 'RS',
+              shortDescription: 'Atendimento residencial.',
+            ),
+            DiscoveryProfessional(
+              professionalIdentifier: 'ana-pintora',
+              professionalName: 'Ana Pintora',
+              categoryName: 'Pintora',
+              cityName: 'Porto Alegre',
+              stateCode: 'RS',
+              shortDescription: 'Pintura interna e acabamento.',
+            ),
           ],
         ),
       ),

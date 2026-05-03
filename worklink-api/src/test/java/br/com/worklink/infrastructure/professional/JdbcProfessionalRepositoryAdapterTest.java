@@ -11,6 +11,7 @@ import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,7 +66,33 @@ class JdbcProfessionalRepositoryAdapterTest {
         });
         ProfessionalSearchCriteria professionalSearchCriteria = new ProfessionalSearchCriteria(
                 Optional.of(CATEGORY_IDENTIFIER),
-                Optional.of(CITY_IDENTIFIER)
+                Set.of(CITY_IDENTIFIER),
+                Optional.empty()
+        );
+
+        // WHEN
+        List<Professional> professionals = adapter.listProfessionals(professionalSearchCriteria);
+
+        // THEN
+        assertThat(professionals).containsExactly(professional);
+    }
+
+    @Test
+    @DisplayName("Deve listar profissionais filtrando por palavra-chave usando JdbcTemplate")
+    void shouldListProfessionalsFilteringByKeywordUsingJdbcTemplate() throws Exception {
+        // GIVEN
+        JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
+        JdbcProfessionalRepositoryAdapter adapter = new JdbcProfessionalRepositoryAdapter(jdbcTemplate);
+        Professional professional = validProfessional();
+        ResultSet resultSet = professionalResultSet(professional);
+        when(jdbcTemplate.query(any(String.class), any(RowMapper.class), any(Object[].class))).thenAnswer(invocation -> {
+            RowMapper<Professional> rowMapper = invocation.getArgument(1);
+            return List.of(rowMapper.mapRow(resultSet, 0));
+        });
+        ProfessionalSearchCriteria professionalSearchCriteria = new ProfessionalSearchCriteria(
+                Optional.empty(),
+                Set.of(),
+                Optional.of("residencial")
         );
 
         // WHEN

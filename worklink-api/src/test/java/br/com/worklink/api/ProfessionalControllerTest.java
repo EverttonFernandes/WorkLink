@@ -18,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -80,7 +81,8 @@ class ProfessionalControllerTest {
         // WHEN / THEN
         mockMvc.perform(get("/api/v1/professionals")
                         .param("categoryIdentifier", CATEGORY_IDENTIFIER.toString())
-                        .param("cityIdentifier", CITY_IDENTIFIER.toString()))
+                        .param("cityIdentifiers", CITY_IDENTIFIER.toString())
+                        .param("keyword", "residencial"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].professionalName").value("Maria Eletricista"))
                 .andExpect(jsonPath("$[0].qualityGuarantee").value(false));
@@ -103,7 +105,8 @@ class ProfessionalControllerTest {
 
     private boolean matchesExpectedSearchCriteria(ProfessionalSearchCriteria professionalSearchCriteria) {
         return professionalSearchCriteria.categoryIdentifier().equals(java.util.Optional.of(CATEGORY_IDENTIFIER))
-                && professionalSearchCriteria.cityIdentifier().equals(java.util.Optional.of(CITY_IDENTIFIER));
+                && professionalSearchCriteria.cityIdentifiers().equals(Set.of(CITY_IDENTIFIER))
+                && professionalSearchCriteria.keyword().equals(java.util.Optional.of("residencial"));
     }
 
     private ProfessionalResponse validProfessionalResponse() {

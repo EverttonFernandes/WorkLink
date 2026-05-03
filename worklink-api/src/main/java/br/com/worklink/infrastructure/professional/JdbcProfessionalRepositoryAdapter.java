@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Repository
 public class JdbcProfessionalRepositoryAdapter implements SaveProfessionalPort, ListProfessionalsPort {
@@ -70,9 +71,18 @@ public class JdbcProfessionalRepositoryAdapter implements SaveProfessionalPort, 
             sqlBuilder.append(" AND category_identifier = ?");
             queryParameters.add(categoryIdentifier);
         });
-        professionalSearchCriteria.cityIdentifier().ifPresent(cityIdentifier -> {
-            sqlBuilder.append(" AND city_identifier = ?");
-            queryParameters.add(cityIdentifier);
+        if (!professionalSearchCriteria.cityIdentifiers().isEmpty()) {
+            String cityIdentifierPlaceholders = professionalSearchCriteria.cityIdentifiers().stream()
+                    .map(cityIdentifier -> "?")
+                    .collect(Collectors.joining(","));
+            sqlBuilder.append(" AND city_identifier IN (%s)".formatted(cityIdentifierPlaceholders));
+            queryParameters.addAll(professionalSearchCriteria.cityIdentifiers());
+        }
+        professionalSearchCriteria.keyword().ifPresent(keyword -> {
+            sqlBuilder.append(" AND (LOWER(professional_name) LIKE ? OR LOWER(short_description) LIKE ?)");
+            String keywordPattern = "%" + keyword.toLowerCase() + "%";
+            queryParameters.add(keywordPattern);
+            queryParameters.add(keywordPattern);
         });
         sqlBuilder.append(" ORDER BY professional_name ASC");
 

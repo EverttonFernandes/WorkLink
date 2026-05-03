@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 @RestController
@@ -52,14 +54,28 @@ public class ProfessionalController {
     @GetMapping
     List<ProfessionalHttpResponse> listProfessionals(
             @RequestParam(required = false) UUID categoryIdentifier,
-            @RequestParam(required = false) UUID cityIdentifier
+            @RequestParam(required = false) UUID cityIdentifier,
+            @RequestParam(required = false) List<UUID> cityIdentifiers,
+            @RequestParam(required = false) String keyword
     ) {
         ProfessionalSearchCriteria professionalSearchCriteria = new ProfessionalSearchCriteria(
                 Optional.ofNullable(categoryIdentifier),
-                Optional.ofNullable(cityIdentifier)
+                selectedCityIdentifiers(cityIdentifier, cityIdentifiers),
+                Optional.ofNullable(keyword)
         );
         return listProfessionalsUseCase.listProfessionals(professionalSearchCriteria).stream()
                 .map(ProfessionalHttpResponse::fromProfessionalResponse)
                 .toList();
+    }
+
+    private Set<UUID> selectedCityIdentifiers(UUID cityIdentifier, List<UUID> cityIdentifiers) {
+        Set<UUID> selectedCityIdentifiers = new LinkedHashSet<>();
+        if (cityIdentifier != null) {
+            selectedCityIdentifiers.add(cityIdentifier);
+        }
+        if (cityIdentifiers != null) {
+            selectedCityIdentifiers.addAll(cityIdentifiers);
+        }
+        return selectedCityIdentifiers;
     }
 }

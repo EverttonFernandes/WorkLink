@@ -17,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -119,7 +120,8 @@ class ProfessionalUseCaseTest {
         ListProfessionalsUseCase listProfessionalsUseCase = new ListProfessionalsUseCase(inMemoryProfessionalPort);
         ProfessionalSearchCriteria professionalSearchCriteria = new ProfessionalSearchCriteria(
                 Optional.of(CATEGORY_IDENTIFIER),
-                Optional.of(CITY_IDENTIFIER)
+                Set.of(CITY_IDENTIFIER),
+                Optional.of("residencial")
         );
 
         // WHEN
@@ -173,8 +175,11 @@ class ProfessionalUseCaseTest {
                     .filter(professional -> professionalSearchCriteria.categoryIdentifier()
                             .map(professional.categoryIdentifier()::equals)
                             .orElse(true))
-                    .filter(professional -> professionalSearchCriteria.cityIdentifier()
-                            .map(professional.cityIdentifier()::equals)
+                    .filter(professional -> professionalSearchCriteria.cityIdentifiers().isEmpty()
+                            || professionalSearchCriteria.cityIdentifiers().contains(professional.cityIdentifier()))
+                    .filter(professional -> professionalSearchCriteria.keyword()
+                            .map(keyword -> professional.professionalName().toLowerCase().contains(keyword.toLowerCase())
+                                    || professional.shortDescription().toLowerCase().contains(keyword.toLowerCase()))
                             .orElse(true))
                     .toList();
         }
