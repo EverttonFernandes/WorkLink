@@ -3,7 +3,7 @@ import 'package:worklink_mobile/app/worklink_app_configuration.dart';
 import 'package:worklink_mobile/main.dart';
 
 void main() {
-  testWidgets('GIVEN app inicial WHEN renderizar THEN deve exibir nome WorkLink', (tester) async {
+  testWidgets('GIVEN app inicial WHEN renderizar THEN deve exibir tela de selecao de cidades', (tester) async {
     // GIVEN
     const application = WorkLinkApp();
 
@@ -11,10 +11,11 @@ void main() {
     await tester.pumpWidget(application);
 
     // THEN
-    expect(find.text('WorkLink'), findsOneWidget);
+    expect(find.text('Selecionar cidades'), findsOneWidget);
+    expect(find.text('Canoas - RS'), findsOneWidget);
   });
 
-  testWidgets('GIVEN nome configurado WHEN renderizar THEN deve exibir nome configurado', (tester) async {
+  testWidgets('GIVEN nome configurado WHEN renderizar THEN deve manter fluxo de cidades', (tester) async {
     // GIVEN
     const applicationConfiguration = WorkLinkAppConfiguration(applicationName: 'WorkLink Local');
     const application = WorkLinkApp(applicationConfiguration: applicationConfiguration);
@@ -23,6 +24,7 @@ void main() {
     await tester.pumpWidget(application);
 
     // THEN
-    expect(find.text('WorkLink Local'), findsOneWidget);
+    expect(find.text('Selecionar cidades'), findsOneWidget);
+    expect(find.text('Porto Alegre - RS'), findsOneWidget);
   });
 }

@@ -30,6 +30,22 @@ class ServiceCityTest {
     }
 
     @Test
+    @DisplayName("Deve criar cidade de atendimento com coordenadas quando campos forem validos")
+    void shouldCreateServiceCityWithCoordinatesWhenFieldsAreValid() {
+        // GIVEN
+        double latitude = -29.9177;
+        double longitude = -51.1836;
+
+        // WHEN
+        ServiceCity serviceCity = ServiceCity.createServiceCity("Canoas", "RS", latitude, longitude);
+
+        // THEN
+        assertThat(serviceCity.hasCoordinates()).isTrue();
+        assertThat(serviceCity.latitude()).isEqualTo(latitude);
+        assertThat(serviceCity.longitude()).isEqualTo(longitude);
+    }
+
+    @Test
     @DisplayName("Deve rejeitar cidade de atendimento quando UF possuir formato invalido")
     void shouldRejectServiceCityWhenStateCodeHasInvalidFormat() {
         // GIVEN
@@ -67,5 +83,29 @@ class ServiceCityTest {
         assertThatThrownBy(() -> ServiceCity.createServiceCity(cityName, "RS"))
                 .isInstanceOf(BusinessRuleViolationException.class)
                 .hasMessage("O nome da cidade e obrigatorio.");
+    }
+
+    @Test
+    @DisplayName("Deve rejeitar cidade de atendimento quando latitude for invalida")
+    void shouldRejectServiceCityWhenLatitudeIsInvalid() {
+        // GIVEN
+        double invalidLatitude = -91.0;
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> ServiceCity.createServiceCity("Canoas", "RS", invalidLatitude, -51.1836))
+                .isInstanceOf(BusinessRuleViolationException.class)
+                .hasMessage("A latitude da cidade deve estar entre -90 e 90.");
+    }
+
+    @Test
+    @DisplayName("Deve rejeitar cidade de atendimento quando longitude for invalida")
+    void shouldRejectServiceCityWhenLongitudeIsInvalid() {
+        // GIVEN
+        double invalidLongitude = 181.0;
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> ServiceCity.createServiceCity("Canoas", "RS", -29.9177, invalidLongitude))
+                .isInstanceOf(BusinessRuleViolationException.class)
+                .hasMessage("A longitude da cidade deve estar entre -180 e 180.");
     }
 }

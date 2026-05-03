@@ -10,27 +10,52 @@ public record ServiceCity(
         UUID cityIdentifier,
         String cityName,
         String stateCode,
-        String citySlug
+        String citySlug,
+        Double latitude,
+        Double longitude
 ) {
 
     public static ServiceCity createServiceCity(String cityName, String stateCode) {
+        return createServiceCity(cityName, stateCode, null, null);
+    }
+
+    public static ServiceCity createServiceCity(String cityName, String stateCode, Double latitude, Double longitude) {
         String normalizedCityName = requireMeaningfulText(cityName, "O nome da cidade e obrigatorio.");
         String normalizedStateCode = requireStateCode(stateCode);
         return new ServiceCity(
                 UUID.randomUUID(),
                 normalizedCityName,
                 normalizedStateCode,
-                createSlugFromCityAndState(normalizedCityName, normalizedStateCode)
+                createSlugFromCityAndState(normalizedCityName, normalizedStateCode),
+                validateLatitude(latitude),
+                validateLongitude(longitude)
         );
     }
 
     public static ServiceCity restoreServiceCity(UUID cityIdentifier, String cityName, String stateCode, String citySlug) {
+        return restoreServiceCity(cityIdentifier, cityName, stateCode, citySlug, null, null);
+    }
+
+    public static ServiceCity restoreServiceCity(
+            UUID cityIdentifier,
+            String cityName,
+            String stateCode,
+            String citySlug,
+            Double latitude,
+            Double longitude
+    ) {
         return new ServiceCity(
                 requireIdentifier(cityIdentifier, "O identificador da cidade e obrigatorio."),
                 requireMeaningfulText(cityName, "O nome da cidade e obrigatorio."),
                 requireStateCode(stateCode),
-                requireMeaningfulText(citySlug, "O slug da cidade e obrigatorio.")
+                requireMeaningfulText(citySlug, "O slug da cidade e obrigatorio."),
+                validateLatitude(latitude),
+                validateLongitude(longitude)
         );
+    }
+
+    public boolean hasCoordinates() {
+        return latitude != null && longitude != null;
     }
 
     private static UUID requireIdentifier(UUID identifier, String message) {
@@ -53,6 +78,20 @@ public record ServiceCity(
             throw new BusinessRuleViolationException("A UF da cidade deve possuir exatamente duas letras.");
         }
         return normalizedStateCode;
+    }
+
+    private static Double validateLatitude(Double latitude) {
+        if (latitude != null && (latitude < -90.0 || latitude > 90.0)) {
+            throw new BusinessRuleViolationException("A latitude da cidade deve estar entre -90 e 90.");
+        }
+        return latitude;
+    }
+
+    private static Double validateLongitude(Double longitude) {
+        if (longitude != null && (longitude < -180.0 || longitude > 180.0)) {
+            throw new BusinessRuleViolationException("A longitude da cidade deve estar entre -180 e 180.");
+        }
+        return longitude;
     }
 
     private static String createSlugFromCityAndState(String cityName, String stateCode) {

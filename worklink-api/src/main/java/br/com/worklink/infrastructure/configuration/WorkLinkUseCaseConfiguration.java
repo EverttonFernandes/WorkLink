@@ -2,6 +2,7 @@ package br.com.worklink.infrastructure.configuration;
 
 import br.com.worklink.application.catalog.port.ListServiceCategoriesPort;
 import br.com.worklink.application.catalog.port.ListServiceCitiesPort;
+import br.com.worklink.application.catalog.port.LoadServiceCitiesByIdentifiersPort;
 import br.com.worklink.application.catalog.port.LoadServiceCategoryByIdentifierPort;
 import br.com.worklink.application.catalog.port.LoadServiceCityByIdentifierPort;
 import br.com.worklink.application.catalog.port.SaveServiceCategoryPort;
@@ -12,6 +13,8 @@ import br.com.worklink.application.catalog.usecase.RegisterServiceCategoryUseCas
 import br.com.worklink.application.catalog.usecase.RegisterServiceCityUseCase;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
+import br.com.worklink.application.location.port.SuggestNearbyServiceCitiesPort;
+import br.com.worklink.application.location.usecase.PreviewCitySelectionUseCase;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
 
@@ -39,6 +42,14 @@ public class WorkLinkUseCaseConfiguration {
     @Bean
     ListServiceCitiesUseCase listServiceCitiesUseCase(ListServiceCitiesPort listServiceCitiesPort) {
         return new ListServiceCitiesUseCase(listServiceCitiesPort);
+    }
+
+    @Bean
+    PreviewCitySelectionUseCase previewCitySelectionUseCase(
+            LoadServiceCitiesByIdentifiersPort loadServiceCitiesByIdentifiersPort,
+            SuggestNearbyServiceCitiesPort suggestNearbyServiceCitiesPort
+    ) {
+        return new PreviewCitySelectionUseCase(loadServiceCitiesByIdentifiersPort, suggestNearbyServiceCitiesPort);
     }
 
     @Bean
