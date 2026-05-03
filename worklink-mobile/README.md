@@ -10,11 +10,12 @@ Aplicativo mobile do WorkLink.
 ## Comandos esperados
 
 ```bash
-flutter pub get
-flutter test
-flutter analyze
+make mobile-unit-test
+make mobile-screen-test
+make mobile-test
 ```
 
 ## Observacao
 
-O Flutter SDK deve estar instalado no ambiente local para executar validacoes mobile. Esta historia cria a base minima do modulo mobile sem implementar telas funcionais.
+As validacoes mobile devem rodar em Docker pelo `compose.yml`, sem exigir Flutter SDK instalado diretamente na maquina.
+Esta historia cria a base minima do modulo mobile sem implementar telas funcionais.

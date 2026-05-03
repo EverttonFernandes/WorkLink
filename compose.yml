@@ -15,6 +15,16 @@ services:
       - flutter-pub-cache:/root/.pub-cache
     command: sh -lc "flutter pub get && flutter test --coverage"
 
+  functional-tests:
+    image: alpine:3.20
+    working_dir: /workspace
+    volumes:
+      - .:/workspace
+    command:
+      - sh
+      - -lc
+      - "if [ -x functional-tests/run.sh ]; then functional-tests/run.sh; else echo 'N/A: functional-tests/run.sh ainda nao foi criado.'; fi"
+
 volumes:
   maven-cache:
   flutter-pub-cache:

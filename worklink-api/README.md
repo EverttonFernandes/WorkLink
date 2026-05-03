@@ -11,10 +11,12 @@ Backend do WorkLink.
 ## Comandos esperados
 
 ```bash
-mvn test
-mvn spring-boot:run
+make backend-unit-test
+make backend-integration-test
+make backend-test
 ```
 
 ## Observacao
 
-O projeto exige JDK 21. Executar build com JDK inferior deve falhar e ser tratado como lacuna de ambiente, nao como motivo para reduzir a versao alvo.
+O projeto exige JDK 21. As validacoes devem rodar em Docker pelo `compose.yml`, sem exigir JDK 21 ou Maven instalados
+diretamente na maquina.

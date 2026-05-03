@@ -1,9 +1,22 @@
-.PHONY: backend-test mobile-test test
+.PHONY: backend-unit-test backend-integration-test backend-test mobile-unit-test mobile-screen-test mobile-test functional-test test
 
-backend-test:
-	docker compose run --rm backend-tests
+backend-unit-test:
+	docker compose run --rm backend-tests mvn test
 
-mobile-test:
-	docker compose run --rm mobile-tests
+backend-integration-test:
+	docker compose run --rm backend-tests mvn verify
 
-test: backend-test mobile-test
+backend-test: backend-unit-test backend-integration-test
+
+mobile-unit-test:
+	docker compose run --rm mobile-tests sh -lc "flutter pub get && flutter test --coverage"
+
+mobile-screen-test:
+	docker compose run --rm mobile-tests sh -lc "flutter pub get && if find test -type f \( -path '*/screen/*' -o -path '*/screens/*' -o -path '*/tela/*' -o -path '*/telas/*' -o -name '*screen_test.dart' -o -name '*tela_test.dart' \) | grep -q .; then flutter test test --coverage; else echo 'N/A: testes de tela ainda nao foram criados.'; fi"
+
+mobile-test: mobile-unit-test mobile-screen-test
+
+functional-test:
+	docker compose run --rm functional-tests
+
+test: backend-test mobile-test functional-test
