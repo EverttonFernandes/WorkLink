@@ -16,9 +16,11 @@ Pasta reservada para containerizacao e ambiente local do WorkLink.
 - `make static-analysis` executa analise estatica backend e mobile em containers.
 - `make backend-unit-test` executa testes unitarios backend em container.
 - `make backend-integration-test` executa o ciclo Maven `verify`, incluindo testes `*IntegrationTest` contra PostgreSQL em container.
+- `make backend-image-build` valida o build da imagem multi-stage da API.
 - `make mobile-unit-test` executa testes mobile em container.
 - `make mobile-screen-test` executa testes de tela mobile quando a suite existir.
 - `make mobile-integration-test` executa testes de integracao mobile quando houver device suportado no container.
+- `make mobile-android-build` executa build Android quando o projeto Android existir.
 - `make functional-test` executa a suite funcional HTTP em Node quando houver cenarios reais, ou registra `N/A`.
 - `make db-up` sobe o PostgreSQL local.
 - `make db-migrate` aplica migrations no PostgreSQL usando Flyway em container.

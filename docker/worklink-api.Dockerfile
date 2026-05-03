@@ -3,6 +3,7 @@ FROM maven:3.9.9-eclipse-temurin-21 AS build
 WORKDIR /workspace/worklink-api
 
 COPY worklink-api/pom.xml ./pom.xml
+COPY worklink-api/config ./config
 RUN mvn -B -q dependency:go-offline
 
 COPY worklink-api/src ./src

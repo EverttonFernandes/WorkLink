@@ -1,0 +1,111 @@
+name: WorkLink CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: worklink-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    name: Backend quality gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare environment
+        run: cp .env.example .env
+
+      - name: Static analysis
+        run: make backend-static-analysis
+
+      - name: Unit tests and coverage
+        run: make backend-unit-test
+
+      - name: Integration tests
+        run: make backend-integration-test
+
+      - name: Functional tests
+        run: make functional-test
+
+      - name: Cleanup
+        if: always()
+        run: make clean
+
+  mobile:
+    name: Mobile quality gates
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare environment
+        run: cp .env.example .env
+
+      - name: Static analysis
+        run: make mobile-static-analysis
+
+      - name: Mobile tests and coverage
+        run: make mobile-test
+
+      - name: Android build strategy
+        run: make mobile-android-build
+
+      - name: Cleanup
+        if: always()
+        run: make clean
+
+  docker-image:
+    name: API Docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build multi-stage API image
+        run: docker build -f docker/worklink-api.Dockerfile -t worklink-api:${{ github.sha }} .
+
+      - name: Validate runtime image contract
+        run: |
+          docker image inspect worklink-api:${{ github.sha }} --format '{{json .Config.Healthcheck}}'
+          docker run --rm --entrypoint sh worklink-api:${{ github.sha }} -lc \
+            "test -f /app/worklink-api.jar && ! command -v mvn && ! command -v javac"
+
+  dependency-scan:
+    name: Dependency scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Functional test dependencies audit
+        run: |
+          docker run --rm \
+            -v "$PWD/functional-tests:/workspace/functional-tests" \
+            -w /workspace/functional-tests \
+            node:20-alpine npm audit --audit-level=moderate
+
+      - name: Backend dependency resolution
+        run: |
+          cp .env.example .env
+          docker compose --env-file .env run --rm backend-tests mvn -B dependency:tree
+
+      - name: Cleanup
+        if: always()
+        run: make clean
