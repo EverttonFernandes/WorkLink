@@ -1,51 +1,57 @@
+COMPOSE_ENV_FILE ?= .env
+DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) docker compose --env-file $(COMPOSE_ENV_FILE)
+
 .PHONY: up down restart logs api db redis storage migrate clean backend-unit-test backend-integration-test backend-test mobile-unit-test mobile-screen-test mobile-test functional-test test-unit test-integration test-functional db-up db-down db-logs db-migrate test
 
-up:
-	docker compose up -d postgres redis minio
+$(COMPOSE_ENV_FILE):
+	cp .env.example $(COMPOSE_ENV_FILE)
 
-down:
-	docker compose down --remove-orphans
+up: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) up -d postgres redis minio
+
+down: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) down --remove-orphans
 
 restart: down up
 
-logs:
-	docker compose logs -f
+logs: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) logs -f
 
-api:
-	docker compose up -d worklink-api
+api: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) up -d worklink-api
 
 db: db-up
 
-redis:
-	docker compose up -d redis
+redis: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) up -d redis
 
-storage:
-	docker compose up -d minio
+storage: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) up -d minio
 
 migrate: db-migrate
 
-clean:
-	docker compose down -v --remove-orphans
+clean: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) down -v --remove-orphans
 	rm -rf worklink-api/target worklink-mobile/build worklink-mobile/.dart_tool worklink-mobile/coverage
 
-backend-unit-test:
-	docker compose run --rm backend-tests mvn test
+backend-unit-test: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) run --rm backend-tests mvn test
 
-backend-integration-test:
-	docker compose run --rm backend-tests mvn verify
+backend-integration-test: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) run --rm backend-tests mvn verify
 
 backend-test: backend-unit-test backend-integration-test
 
-mobile-unit-test:
-	docker compose run --rm mobile-tests sh -lc "flutter pub get && flutter test --coverage"
+mobile-unit-test: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && flutter test --coverage"
 
-mobile-screen-test:
-	docker compose run --rm mobile-tests sh -lc "flutter pub get && if find test -type f \( -path '*/screen/*' -o -path '*/screens/*' -o -path '*/tela/*' -o -path '*/telas/*' -o -name '*screen_test.dart' -o -name '*tela_test.dart' \) | grep -q .; then flutter test test --coverage; else echo 'N/A: testes de tela ainda nao foram criados.'; fi"
+mobile-screen-test: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && if find test -type f \( -path '*/screen/*' -o -path '*/screens/*' -o -path '*/tela/*' -o -path '*/telas/*' -o -name '*screen_test.dart' -o -name '*tela_test.dart' \) | grep -q .; then flutter test test --coverage; else echo 'N/A: testes de tela ainda nao foram criados.'; fi"
 
 mobile-test: mobile-unit-test mobile-screen-test
 
-functional-test:
-	docker compose run --rm functional-tests
+functional-test: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) run --rm functional-tests
 
 test-unit: backend-unit-test mobile-unit-test
 
@@ -53,16 +59,16 @@ test-integration: backend-integration-test
 
 test-functional: functional-test
 
-db-up:
-	docker compose up -d postgres
+db-up: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) up -d postgres
 
-db-down:
-	docker compose down --remove-orphans
+db-down: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) down --remove-orphans
 
-db-logs:
-	docker compose logs -f postgres
+db-logs: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) logs -f postgres
 
-db-migrate:
-	docker compose run --rm database-migrations
+db-migrate: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) run --rm database-migrations
 
 test: backend-test mobile-test functional-test

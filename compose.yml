@@ -10,8 +10,10 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+    env_file:
+      - ${WORKLINK_ENV_FILE:-.env}
     environment:
-      SPRING_PROFILES_ACTIVE: local
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
     ports:
       - "8080:8080"
     healthcheck:
@@ -23,11 +25,11 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: worklink
-      POSTGRES_USER: worklink
-      POSTGRES_PASSWORD: worklink_dev_password
+      POSTGRES_DB: ${WORKLINK_POSTGRES_DATABASE}
+      POSTGRES_USER: ${WORKLINK_POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${WORKLINK_POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${WORKLINK_POSTGRES_PORT}:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -48,8 +50,8 @@ services:
     image: minio/minio@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: worklink
-      MINIO_ROOT_PASSWORD: worklink_dev_password
+      MINIO_ROOT_USER: ${WORKLINK_MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${WORKLINK_MINIO_ROOT_PASSWORD}
     ports:
       - "9000:9000"
       - "9001:9001"
@@ -69,14 +71,16 @@ services:
     volumes:
       - ./worklink-api/src/main/resources/db/migration:/flyway/sql:ro
     command:
-      - -url=jdbc:postgresql://postgres:5432/worklink
-      - -user=worklink
-      - -password=worklink_dev_password
+      - -url=jdbc:postgresql://postgres:5432/${WORKLINK_POSTGRES_DATABASE}
+      - -user=${WORKLINK_POSTGRES_USERNAME}
+      - -password=${WORKLINK_POSTGRES_PASSWORD}
       - -connectRetries=10
       - migrate
 
   backend-tests:
     image: maven:3.9.9-eclipse-temurin-21
+    env_file:
+      - ${WORKLINK_ENV_FILE:-.env}
     working_dir: /workspace/worklink-api
     volumes:
       - .:/workspace

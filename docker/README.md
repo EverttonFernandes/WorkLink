@@ -5,6 +5,8 @@ Pasta reservada para containerizacao e ambiente local do WorkLink.
 ## Diretrizes
 
 - A validacao local usa Docker Compose no arquivo raiz `compose.yml`.
+- O Compose deve receber variaveis por `.env`; o Makefile cria esse arquivo a partir de `.env.example` quando ausente.
+- `.env` nunca deve ser versionado; `.env.example` deve conter apenas valores ficticios.
 - `make up` sobe PostgreSQL, Redis e MinIO.
 - `make api` sobe a API containerizada e aguarda dependencias saudaveis.
 - `make down` derruba os servicos do projeto.

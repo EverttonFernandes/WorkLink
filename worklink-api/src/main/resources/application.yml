@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: worklink-api
+  datasource:
+    url: ${WORKLINK_DATABASE_URL}
+    username: ${WORKLINK_DATABASE_USERNAME}
+    password: ${WORKLINK_DATABASE_PASSWORD}
+  data:
+    redis:
+      host: ${WORKLINK_REDIS_HOST}
+      port: ${WORKLINK_REDIS_PORT}
+      password: ${WORKLINK_REDIS_PASSWORD}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health
+
+worklink:
+  storage:
+    endpoint: ${WORKLINK_STORAGE_ENDPOINT}
+    bucket: ${WORKLINK_STORAGE_BUCKET}
+    access-key: ${WORKLINK_STORAGE_ACCESS_KEY}
+    secret-key: ${WORKLINK_STORAGE_SECRET_KEY}
+  security:
+    jwt-secret: ${WORKLINK_JWT_SECRET}
+    encryption-key: ${WORKLINK_ENCRYPTION_KEY}
+    otp-signing-secret: ${WORKLINK_OTP_SIGNING_SECRET}
+  integrations:
+    sms-provider-api-key: ${WORKLINK_SMS_PROVIDER_API_KEY}
+  cors:
+    allowed-origins: ${WORKLINK_CORS_ALLOWED_ORIGINS}
+  features:
+    sms-enabled: ${WORKLINK_FEATURE_SMS_ENABLED}
+    storage-enabled: ${WORKLINK_FEATURE_STORAGE_ENABLED}

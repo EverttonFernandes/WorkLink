@@ -40,6 +40,9 @@ Os comandos usam `compose.yml` e caches em volumes Docker para Maven e Pub.
 multi-stage, aguardando as dependencias saudaveis antes do runtime. `make clean` remove containers, volumes e artefatos
 gerados de build.
 
+Na primeira execucao, o Makefile cria `.env` a partir de `.env.example` quando o arquivo local ainda nao existir.
+O `.env` real fica ignorado pelo Git; somente o exemplo com valores ficticios e versionado.
+
 `make test` e a agregacao oficial para a matriz esperada do projeto: testes unitarios backend, integracao backend,
 unitarios mobile, testes de tela mobile e testes funcionais. Enquanto uma suite ainda nao existir, o alvo correspondente
 registra `N/A` sem exigir instalacao de ferramentas no host.
