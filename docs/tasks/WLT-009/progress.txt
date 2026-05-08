@@ -1,0 +1,34 @@
+TASK_KEY=WLT-009
+FASE=DONE
+
+ULTIMA_HIPOTESE:
+- A base segura de autenticação pode ser entregue sem tela mobile e sem provedor SMS definitivo, desde que OTP e refresh token nunca sejam persistidos em claro.
+
+ULTIMO_RESULTADO:
+- Autenticação por OTP entregue com access token assinado, refresh token opaco, hash de OTP/refresh token, expiração, bloqueio por falhas, rotação e revogação.
+
+GATES_OBSERVADOS:
+- QA: PASS
+- SRE: PASS
+- SECURITY: PASS
+- ARCH_REVIEW: PASS
+- FINAL_REVIEW: PASS
+
+EVIDENCIAS:
+- make backend-unit-test: PASS, 111 testes, cobertura JaCoCo validada.
+- make backend-static-analysis: PASS.
+- make backend-integration-test: PASS, Flyway v008 aplicado.
+- make mobile-static-analysis: PASS.
+- make mobile-unit-test: PASS, cobertura 99.51%.
+- make mobile-screen-test: PASS, 22 testes.
+- make mobile-integration-test: N/A, sem emulator/simulator/Chrome disponivel.
+- make functional-test: N/A, sem cenarios funcionais reais.
+- git diff --check: PASS.
+- secret scan: PASS, somente placeholder esperado em compose.yml.
+
+PROXIMA_ACAO_RECOMENDADA:
+- Fechar WLT-009 com commit/tag v0.20.0 e iniciar WLT-010.
+
+RISCOS_ABERTOS:
+- O envio real de SMS será substituído por provedor definitivo em história posterior.
+- Autorização por perfil/ownership permanece fora desta entrega e será tratada na WLT-010.

@@ -11,6 +11,22 @@ import br.com.worklink.application.catalog.usecase.ListServiceCategoriesUseCase;
 import br.com.worklink.application.catalog.usecase.ListServiceCitiesUseCase;
 import br.com.worklink.application.catalog.usecase.RegisterServiceCategoryUseCase;
 import br.com.worklink.application.catalog.usecase.RegisterServiceCityUseCase;
+import br.com.worklink.application.authentication.port.CurrentTimePort;
+import br.com.worklink.application.authentication.port.GenerateOneTimePasswordPort;
+import br.com.worklink.application.authentication.port.GenerateSecureTokenPort;
+import br.com.worklink.application.authentication.port.IssueAccessTokenPort;
+import br.com.worklink.application.authentication.port.LoadActiveAuthenticationOtpChallengePort;
+import br.com.worklink.application.authentication.port.LoadCustomerAccountByPhoneNumberPort;
+import br.com.worklink.application.authentication.port.LoadRefreshSessionByTokenHashPort;
+import br.com.worklink.application.authentication.port.SaveAuthenticationOtpChallengePort;
+import br.com.worklink.application.authentication.port.SaveCustomerAccountPort;
+import br.com.worklink.application.authentication.port.SaveRefreshSessionPort;
+import br.com.worklink.application.authentication.port.UpdateAuthenticationOtpChallengePort;
+import br.com.worklink.application.authentication.port.UpdateRefreshSessionPort;
+import br.com.worklink.application.authentication.usecase.RefreshAuthenticationSessionUseCase;
+import br.com.worklink.application.authentication.usecase.RequestAuthenticationOtpUseCase;
+import br.com.worklink.application.authentication.usecase.RevokeAuthenticationSessionUseCase;
+import br.com.worklink.application.authentication.usecase.VerifyAuthenticationOtpUseCase;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
@@ -24,8 +40,11 @@ import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
 import br.com.worklink.application.storage.usecase.PrepareFileUploadUseCase;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.time.Duration;
 
 @Configuration
 public class WorkLinkUseCaseConfiguration {
@@ -94,5 +113,85 @@ public class WorkLinkUseCaseConfiguration {
             SaveStoredFileMetadataPort saveStoredFileMetadataPort
     ) {
         return new PrepareFileUploadUseCase(saveStoredFileMetadataPort);
+    }
+
+    @Bean
+    RequestAuthenticationOtpUseCase requestAuthenticationOtpUseCase(
+            GenerateOneTimePasswordPort generateOneTimePasswordPort,
+            ProtectSensitiveValuePort protectSensitiveValuePort,
+            SaveAuthenticationOtpChallengePort saveAuthenticationOtpChallengePort,
+            CurrentTimePort currentTimePort,
+            @Value("${worklink.security.otp-expiration-minutes}") long otpExpirationMinutes
+    ) {
+        return new RequestAuthenticationOtpUseCase(
+                generateOneTimePasswordPort,
+                protectSensitiveValuePort,
+                saveAuthenticationOtpChallengePort,
+                currentTimePort,
+                Duration.ofMinutes(otpExpirationMinutes)
+        );
+    }
+
+    @Bean
+    VerifyAuthenticationOtpUseCase verifyAuthenticationOtpUseCase(
+            LoadActiveAuthenticationOtpChallengePort loadActiveAuthenticationOtpChallengePort,
+            UpdateAuthenticationOtpChallengePort updateAuthenticationOtpChallengePort,
+            LoadCustomerAccountByPhoneNumberPort loadCustomerAccountByPhoneNumberPort,
+            SaveCustomerAccountPort saveCustomerAccountPort,
+            ProtectSensitiveValuePort protectSensitiveValuePort,
+            CurrentTimePort currentTimePort,
+            IssueAccessTokenPort issueAccessTokenPort,
+            GenerateSecureTokenPort generateSecureTokenPort,
+            SaveRefreshSessionPort saveRefreshSessionPort,
+            @Value("${worklink.security.refresh-token-expiration-days}") long refreshTokenExpirationDays
+    ) {
+        return new VerifyAuthenticationOtpUseCase(
+                loadActiveAuthenticationOtpChallengePort,
+                updateAuthenticationOtpChallengePort,
+                loadCustomerAccountByPhoneNumberPort,
+                saveCustomerAccountPort,
+                protectSensitiveValuePort,
+                currentTimePort,
+                issueAccessTokenPort,
+                generateSecureTokenPort,
+                saveRefreshSessionPort,
+                Duration.ofDays(refreshTokenExpirationDays)
+        );
+    }
+
+    @Bean
+    RefreshAuthenticationSessionUseCase refreshAuthenticationSessionUseCase(
+            LoadRefreshSessionByTokenHashPort loadRefreshSessionByTokenHashPort,
+            UpdateRefreshSessionPort updateRefreshSessionPort,
+            ProtectSensitiveValuePort protectSensitiveValuePort,
+            CurrentTimePort currentTimePort,
+            IssueAccessTokenPort issueAccessTokenPort,
+            GenerateSecureTokenPort generateSecureTokenPort,
+            SaveRefreshSessionPort saveRefreshSessionPort,
+            @Value("${worklink.security.refresh-token-expiration-days}") long refreshTokenExpirationDays
+    ) {
+        return new RefreshAuthenticationSessionUseCase(
+                loadRefreshSessionByTokenHashPort,
+                updateRefreshSessionPort,
+                protectSensitiveValuePort,
+                currentTimePort,
+                issueAccessTokenPort,
+                generateSecureTokenPort,
+                saveRefreshSessionPort,
+                Duration.ofDays(refreshTokenExpirationDays)
+        );
+    }
+
+    @Bean
+    RevokeAuthenticationSessionUseCase revokeAuthenticationSessionUseCase(
+            LoadRefreshSessionByTokenHashPort loadRefreshSessionByTokenHashPort,
+            UpdateRefreshSessionPort updateRefreshSessionPort,
+            ProtectSensitiveValuePort protectSensitiveValuePort
+    ) {
+        return new RevokeAuthenticationSessionUseCase(
+                loadRefreshSessionByTokenHashPort,
+                updateRefreshSessionPort,
+                protectSensitiveValuePort
+        );
     }
 }

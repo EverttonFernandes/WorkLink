@@ -6,6 +6,19 @@ import br.com.worklink.application.catalog.port.LoadServiceCategoryByIdentifierP
 import br.com.worklink.application.catalog.port.LoadServiceCityByIdentifierPort;
 import br.com.worklink.application.catalog.port.SaveServiceCategoryPort;
 import br.com.worklink.application.catalog.port.SaveServiceCityPort;
+import br.com.worklink.application.authentication.port.CurrentTimePort;
+import br.com.worklink.application.authentication.port.GenerateOneTimePasswordPort;
+import br.com.worklink.application.authentication.port.GenerateSecureTokenPort;
+import br.com.worklink.application.authentication.port.IssueAccessTokenPort;
+import br.com.worklink.application.authentication.port.IssuedAccessToken;
+import br.com.worklink.application.authentication.port.LoadActiveAuthenticationOtpChallengePort;
+import br.com.worklink.application.authentication.port.LoadCustomerAccountByPhoneNumberPort;
+import br.com.worklink.application.authentication.port.LoadRefreshSessionByTokenHashPort;
+import br.com.worklink.application.authentication.port.SaveAuthenticationOtpChallengePort;
+import br.com.worklink.application.authentication.port.SaveCustomerAccountPort;
+import br.com.worklink.application.authentication.port.SaveRefreshSessionPort;
+import br.com.worklink.application.authentication.port.UpdateAuthenticationOtpChallengePort;
+import br.com.worklink.application.authentication.port.UpdateRefreshSessionPort;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
@@ -16,6 +29,7 @@ import br.com.worklink.application.professional.usecase.RegisterBasicProfessiona
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +52,19 @@ class WorkLinkUseCaseConfigurationTest {
         LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort = professionalIdentifier -> Optional.empty();
         UpdateProfessionalPort updateProfessionalPort = professional -> professional;
         ProtectSensitiveValuePort protectSensitiveValuePort = (rawSensitiveValue, purpose) -> "protected-value";
+        GenerateOneTimePasswordPort generateOneTimePasswordPort = () -> "123456";
+        SaveAuthenticationOtpChallengePort saveAuthenticationOtpChallengePort = challenge -> challenge;
+        CurrentTimePort currentTimePort = () -> Instant.parse("2026-05-08T20:00:00Z");
+        LoadActiveAuthenticationOtpChallengePort loadActiveAuthenticationOtpChallengePort = phoneNumber -> Optional.empty();
+        UpdateAuthenticationOtpChallengePort updateAuthenticationOtpChallengePort = challenge -> challenge;
+        LoadCustomerAccountByPhoneNumberPort loadCustomerAccountByPhoneNumberPort = phoneNumber -> Optional.empty();
+        SaveCustomerAccountPort saveCustomerAccountPort = customerAccount -> customerAccount;
+        IssueAccessTokenPort issueAccessTokenPort = (customerIdentifier, profile, issuedAt) ->
+                new IssuedAccessToken("access-token", issuedAt.plusSeconds(900));
+        GenerateSecureTokenPort generateSecureTokenPort = () -> "refresh-token";
+        SaveRefreshSessionPort saveRefreshSessionPort = refreshSession -> refreshSession;
+        LoadRefreshSessionByTokenHashPort loadRefreshSessionByTokenHashPort = refreshTokenHash -> Optional.empty();
+        UpdateRefreshSessionPort updateRefreshSessionPort = refreshSession -> refreshSession;
 
         // WHEN
         RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase = configuration.registerBasicProfessionalUseCase(
@@ -56,6 +83,40 @@ class WorkLinkUseCaseConfigurationTest {
         assertThat(configuration.completeProfessionalProfileUseCase(
                 loadProfessionalByIdentifierPort,
                 updateProfessionalPort,
+                protectSensitiveValuePort
+        )).isNotNull();
+        assertThat(configuration.requestAuthenticationOtpUseCase(
+                generateOneTimePasswordPort,
+                protectSensitiveValuePort,
+                saveAuthenticationOtpChallengePort,
+                currentTimePort,
+                5
+        )).isNotNull();
+        assertThat(configuration.verifyAuthenticationOtpUseCase(
+                loadActiveAuthenticationOtpChallengePort,
+                updateAuthenticationOtpChallengePort,
+                loadCustomerAccountByPhoneNumberPort,
+                saveCustomerAccountPort,
+                protectSensitiveValuePort,
+                currentTimePort,
+                issueAccessTokenPort,
+                generateSecureTokenPort,
+                saveRefreshSessionPort,
+                30
+        )).isNotNull();
+        assertThat(configuration.refreshAuthenticationSessionUseCase(
+                loadRefreshSessionByTokenHashPort,
+                updateRefreshSessionPort,
+                protectSensitiveValuePort,
+                currentTimePort,
+                issueAccessTokenPort,
+                generateSecureTokenPort,
+                saveRefreshSessionPort,
+                30
+        )).isNotNull();
+        assertThat(configuration.revokeAuthenticationSessionUseCase(
+                loadRefreshSessionByTokenHashPort,
+                updateRefreshSessionPort,
                 protectSensitiveValuePort
         )).isNotNull();
     }

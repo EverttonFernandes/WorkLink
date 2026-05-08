@@ -25,6 +25,9 @@ worklink:
     secret-key: ${WORKLINK_STORAGE_SECRET_KEY}
   security:
     jwt-secret: ${WORKLINK_JWT_SECRET}
+    access-token-expiration-minutes: ${WORKLINK_ACCESS_TOKEN_EXPIRATION_MINUTES}
+    refresh-token-expiration-days: ${WORKLINK_REFRESH_TOKEN_EXPIRATION_DAYS}
+    otp-expiration-minutes: ${WORKLINK_OTP_EXPIRATION_MINUTES}
     encryption-key: ${WORKLINK_ENCRYPTION_KEY}
     otp-signing-secret: ${WORKLINK_OTP_SIGNING_SECRET}
     sensitive-value-pepper: ${WORKLINK_SENSITIVE_VALUE_PEPPER}
