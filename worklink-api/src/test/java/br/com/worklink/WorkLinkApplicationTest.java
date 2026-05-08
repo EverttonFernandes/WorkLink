@@ -22,6 +22,7 @@ import static org.assertj.core.api.Assertions.assertThat;
         "WORKLINK_JWT_SECRET=change-me-test-jwt-secret-with-at-least-32-characters",
         "WORKLINK_ENCRYPTION_KEY=change-me-test-encryption-key",
         "WORKLINK_OTP_SIGNING_SECRET=change-me-test-otp-signing-secret",
+        "WORKLINK_SENSITIVE_VALUE_PEPPER=change-me-test-sensitive-value-pepper",
         "WORKLINK_SMS_PROVIDER_API_KEY=change-me-test-sms-provider-api-key",
         "WORKLINK_CORS_ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080",
         "WORKLINK_FEATURE_SMS_ENABLED=false",

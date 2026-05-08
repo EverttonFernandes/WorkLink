@@ -49,7 +49,7 @@ class JdbcProfessionalRepositoryAdapterTest {
                 eq(professional.categoryIdentifier()),
                 eq(professional.shortDescription()),
                 eq(professional.profilePhotoFileIdentifier()),
-                eq(professional.documentNumber()),
+                eq(professional.documentNumberHash()),
                 eq(professional.usefulLink()),
                 eq(professional.portfolioDescription()),
                 eq(professional.serviceDescription()),
@@ -89,7 +89,7 @@ class JdbcProfessionalRepositoryAdapterTest {
         JdbcProfessionalRepositoryAdapter adapter = new JdbcProfessionalRepositoryAdapter(jdbcTemplate);
         Professional professional = validProfessional().completeProgressiveProfile(
                 UUID.randomUUID(),
-                "12345678900",
+                "protected-document-hash",
                 "https://worklink.example/maria-eletricista",
                 "Portifolio residencial.",
                 "Instalacoes eletricas.",
@@ -104,7 +104,7 @@ class JdbcProfessionalRepositoryAdapterTest {
         verify(jdbcTemplate).update(
                 any(String.class),
                 eq(professional.profilePhotoFileIdentifier()),
-                eq(professional.documentNumber()),
+                eq(professional.documentNumberHash()),
                 eq(professional.usefulLink()),
                 eq(professional.portfolioDescription()),
                 eq(professional.serviceDescription()),
@@ -205,7 +205,7 @@ class JdbcProfessionalRepositoryAdapterTest {
         when(resultSet.getObject("category_identifier", UUID.class)).thenReturn(professional.categoryIdentifier());
         when(resultSet.getString("short_description")).thenReturn(professional.shortDescription());
         when(resultSet.getObject("profile_photo_file_identifier", UUID.class)).thenReturn(professional.profilePhotoFileIdentifier());
-        when(resultSet.getString("document_number")).thenReturn(professional.documentNumber());
+        when(resultSet.getString("document_number_hash")).thenReturn(professional.documentNumberHash());
         when(resultSet.getString("useful_link")).thenReturn(professional.usefulLink());
         when(resultSet.getString("portfolio_description")).thenReturn(professional.portfolioDescription());
         when(resultSet.getString("service_description")).thenReturn(professional.serviceDescription());

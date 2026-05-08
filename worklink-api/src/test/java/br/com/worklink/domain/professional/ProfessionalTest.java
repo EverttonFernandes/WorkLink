@@ -58,7 +58,7 @@ class ProfessionalTest {
         // WHEN
         Professional completedProfessional = professional.completeProgressiveProfile(
                 profilePhotoFileIdentifier,
-                "12345678900",
+                "document-hash",
                 "https://worklink.example/maria-eletricista",
                 "Instalacoes residenciais recentes.",
                 "Instalacoes, manutencao e emergencias eletricas.",
@@ -69,7 +69,7 @@ class ProfessionalTest {
         assertThat(completedProfessional.profileCompletenessPercentage()).isEqualTo(100);
         assertThat(completedProfessional.profileClassification()).isEqualTo(ProfessionalProfileClassification.COMPLETE_PROFILE);
         assertThat(completedProfessional.profilePhotoFileIdentifier()).isEqualTo(profilePhotoFileIdentifier);
-        assertThat(completedProfessional.documentNumber()).isEqualTo("12345678900");
+        assertThat(completedProfessional.documentNumberHash()).isEqualTo("document-hash");
         assertThat(completedProfessional.availabilityStatus()).isEqualTo(ProfessionalAvailabilityStatus.AVAILABLE_TODAY);
         assertThat(completedProfessional.qualityGuarantee()).isFalse();
     }
@@ -99,7 +99,7 @@ class ProfessionalTest {
         // THEN
         assertThat(updatedProfessional.profileCompletenessPercentage()).isEqualTo(50);
         assertThat(updatedProfessional.profileClassification()).isEqualTo(ProfessionalProfileClassification.BASIC_PROFILE);
-        assertThat(updatedProfessional.documentNumber()).isNull();
+        assertThat(updatedProfessional.documentNumberHash()).isNull();
     }
 
     @Test

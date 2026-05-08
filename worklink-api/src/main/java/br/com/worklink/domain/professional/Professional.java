@@ -12,7 +12,7 @@ public record Professional(
         UUID categoryIdentifier,
         String shortDescription,
         UUID profilePhotoFileIdentifier,
-        String documentNumber,
+        String documentNumberHash,
         String usefulLink,
         String portfolioDescription,
         String serviceDescription,
@@ -56,7 +56,7 @@ public record Professional(
             UUID categoryIdentifier,
             String shortDescription,
             UUID profilePhotoFileIdentifier,
-            String documentNumber,
+            String documentNumberHash,
             String usefulLink,
             String portfolioDescription,
             String serviceDescription,
@@ -73,7 +73,7 @@ public record Professional(
                 requireIdentifier(categoryIdentifier, "A categoria do profissional e obrigatoria."),
                 requireMeaningfulText(shortDescription, "A descricao curta do profissional e obrigatoria."),
                 profilePhotoFileIdentifier,
-                normalizeOptionalText(documentNumber),
+                normalizeOptionalText(documentNumberHash),
                 normalizeOptionalText(usefulLink),
                 normalizeOptionalText(portfolioDescription),
                 normalizeOptionalText(serviceDescription),
@@ -86,7 +86,7 @@ public record Professional(
 
     public Professional completeProgressiveProfile(
             UUID newProfilePhotoFileIdentifier,
-            String newDocumentNumber,
+            String newDocumentNumberHash,
             String newUsefulLink,
             String newPortfolioDescription,
             String newServiceDescription,
@@ -94,7 +94,7 @@ public record Professional(
     ) {
         int newCompletenessPercentage = calculateCompletenessPercentage(
                 newProfilePhotoFileIdentifier,
-                newDocumentNumber,
+                newDocumentNumberHash,
                 newUsefulLink,
                 newPortfolioDescription,
                 newServiceDescription
@@ -107,7 +107,7 @@ public record Professional(
                 categoryIdentifier,
                 shortDescription,
                 newProfilePhotoFileIdentifier,
-                normalizeOptionalText(newDocumentNumber),
+                normalizeOptionalText(newDocumentNumberHash),
                 normalizeOptionalText(newUsefulLink),
                 normalizeOptionalText(newPortfolioDescription),
                 normalizeOptionalText(newServiceDescription),
@@ -127,7 +127,7 @@ public record Professional(
                 categoryIdentifier,
                 shortDescription,
                 profilePhotoFileIdentifier,
-                documentNumber,
+                documentNumberHash,
                 usefulLink,
                 portfolioDescription,
                 serviceDescription,
@@ -175,7 +175,7 @@ public record Professional(
 
     private static int calculateCompletenessPercentage(
             UUID profilePhotoFileIdentifier,
-            String documentNumber,
+            String documentNumberHash,
             String usefulLink,
             String portfolioDescription,
             String serviceDescription
@@ -184,7 +184,7 @@ public record Professional(
         if (profilePhotoFileIdentifier != null) {
             completenessPercentage += 10;
         }
-        if (normalizeOptionalText(documentNumber) != null) {
+        if (normalizeOptionalText(documentNumberHash) != null) {
             completenessPercentage += 10;
         }
         if (normalizeOptionalText(usefulLink) != null) {

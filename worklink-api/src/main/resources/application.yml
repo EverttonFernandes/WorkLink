@@ -27,6 +27,7 @@ worklink:
     jwt-secret: ${WORKLINK_JWT_SECRET}
     encryption-key: ${WORKLINK_ENCRYPTION_KEY}
     otp-signing-secret: ${WORKLINK_OTP_SIGNING_SECRET}
+    sensitive-value-pepper: ${WORKLINK_SENSITIVE_VALUE_PEPPER}
   integrations:
     sms-provider-api-key: ${WORKLINK_SMS_PROVIDER_API_KEY}
   cors:

@@ -10,6 +10,7 @@ import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
 import br.com.worklink.application.professional.port.UpdateProfessionalPort;
+import br.com.worklink.application.security.port.ProtectSensitiveValuePort;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
 
 import org.junit.jupiter.api.DisplayName;
@@ -36,6 +37,7 @@ class WorkLinkUseCaseConfigurationTest {
         ListProfessionalsPort listProfessionalsPort = professionalSearchCriteria -> java.util.List.of();
         LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort = professionalIdentifier -> Optional.empty();
         UpdateProfessionalPort updateProfessionalPort = professional -> professional;
+        ProtectSensitiveValuePort protectSensitiveValuePort = (rawSensitiveValue, purpose) -> "protected-value";
 
         // WHEN
         RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase = configuration.registerBasicProfessionalUseCase(
@@ -53,7 +55,8 @@ class WorkLinkUseCaseConfigurationTest {
         assertThat(configuration.listProfessionalsUseCase(listProfessionalsPort)).isNotNull();
         assertThat(configuration.completeProfessionalProfileUseCase(
                 loadProfessionalByIdentifierPort,
-                updateProfessionalPort
+                updateProfessionalPort,
+                protectSensitiveValuePort
         )).isNotNull();
     }
 }

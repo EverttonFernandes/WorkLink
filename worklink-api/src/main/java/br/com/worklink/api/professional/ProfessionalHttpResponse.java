@@ -33,7 +33,7 @@ public record ProfessionalHttpResponse(
                 professionalResponse.categoryIdentifier(),
                 professionalResponse.shortDescription(),
                 professionalResponse.profilePhotoFileIdentifier(),
-                professionalResponse.documentNumber() != null,
+                professionalResponse.documentNumberHash() != null,
                 professionalResponse.usefulLink(),
                 professionalResponse.portfolioDescription(),
                 professionalResponse.serviceDescription(),

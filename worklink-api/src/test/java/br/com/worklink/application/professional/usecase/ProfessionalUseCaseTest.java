@@ -6,6 +6,7 @@ import br.com.worklink.application.ApplicationRuleViolationException;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
+import br.com.worklink.application.security.port.ProtectedSensitiveValuePurpose;
 import br.com.worklink.domain.catalog.ServiceCategory;
 import br.com.worklink.domain.catalog.ServiceCity;
 import br.com.worklink.domain.professional.Professional;
@@ -148,7 +149,8 @@ class ProfessionalUseCaseTest {
         ));
         CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase = new CompleteProfessionalProfileUseCase(
                 inMemoryProfessionalPort,
-                inMemoryProfessionalPort
+                inMemoryProfessionalPort,
+                (rawSensitiveValue, purpose) -> "protected-%s-%s".formatted(purpose.name(), rawSensitiveValue)
         );
 
         // WHEN
@@ -167,6 +169,8 @@ class ProfessionalUseCaseTest {
         // THEN
         assertThat(professionalResponse.profileCompletenessPercentage()).isEqualTo(100);
         assertThat(professionalResponse.profileClassification()).isEqualTo(ProfessionalProfileClassification.COMPLETE_PROFILE.name());
+        assertThat(professionalResponse.documentNumberHash())
+                .isEqualTo("protected-%s-12345678900".formatted(ProtectedSensitiveValuePurpose.DOCUMENT_NUMBER.name()));
         assertThat(professionalResponse.availabilityBadgeLabel()).isEqualTo("Disponível esta semana");
         assertThat(professionalResponse.qualityGuarantee()).isFalse();
     }
@@ -177,7 +181,8 @@ class ProfessionalUseCaseTest {
         // GIVEN
         CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase = new CompleteProfessionalProfileUseCase(
                 professionalIdentifier -> Optional.empty(),
-                professional -> professional
+                professional -> professional,
+                (rawSensitiveValue, purpose) -> "protected-value"
         );
 
         // WHEN / THEN
@@ -210,7 +215,8 @@ class ProfessionalUseCaseTest {
         ));
         CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase = new CompleteProfessionalProfileUseCase(
                 inMemoryProfessionalPort,
-                inMemoryProfessionalPort
+                inMemoryProfessionalPort,
+                (rawSensitiveValue, purpose) -> "protected-value"
         );
 
         // WHEN / THEN
