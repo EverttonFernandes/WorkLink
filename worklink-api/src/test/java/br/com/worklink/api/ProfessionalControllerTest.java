@@ -72,6 +72,8 @@ class ProfessionalControllerTest {
                 .andExpect(jsonPath("$.cityIdentifier").value(CITY_IDENTIFIER.toString()))
                 .andExpect(jsonPath("$.categoryIdentifier").value(CATEGORY_IDENTIFIER.toString()))
                 .andExpect(jsonPath("$.shortDescription").value("Atendimento residencial."))
+                .andExpect(jsonPath("$.documentProvided").value(false))
+                .andExpect(jsonPath("$.documentNumber").doesNotExist())
                 .andExpect(jsonPath("$.profileCompletenessPercentage").value(50))
                 .andExpect(jsonPath("$.profileClassification").value("BASIC_PROFILE"))
                 .andExpect(jsonPath("$.qualityGuarantee").value(false));
@@ -92,6 +94,8 @@ class ProfessionalControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.profileCompletenessPercentage").value(100))
                 .andExpect(jsonPath("$.profileClassification").value("COMPLETE_PROFILE"))
+                .andExpect(jsonPath("$.documentProvided").value(true))
+                .andExpect(jsonPath("$.documentNumber").doesNotExist())
                 .andExpect(jsonPath("$.qualityGuarantee").value(false));
     }
 

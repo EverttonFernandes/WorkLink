@@ -16,7 +16,9 @@ void main() {
     serviceNames: ['Instalações', 'Manutenção'],
     usefulLinks: ['https://worklink.example/roberto'],
     portfolioItemDescriptions: ['Quadro elétrico residencial'],
-    profileBadgeLabels: ['Perfil verificado'],
+    profileCompletenessPercentage: 100,
+    phoneNumberVerified: true,
+    documentProvided: true,
     availabilityLabel: 'Disponível esta semana',
     reviewSummary: '4.9 em 128 avaliações',
   );
@@ -53,7 +55,9 @@ void main() {
     expect(find.text('Eletricista Residencial'), findsOneWidget);
     expect(find.text('Charqueadas - RS'), findsOneWidget);
     expect(find.text('Atendimento em: São Jerônimo, Triunfo'), findsOneWidget);
-    expect(find.text('Perfil verificado'), findsOneWidget);
+    expect(find.text('Perfil completo'), findsOneWidget);
+    expect(find.text('Telefone verificado'), findsOneWidget);
+    expect(find.text('Documento informado'), findsOneWidget);
     expect(find.text('Disponível esta semana'), findsOneWidget);
     expect(find.text('Instalações'), findsOneWidget);
     await widgetTester.scrollUntilVisible(
@@ -65,6 +69,7 @@ void main() {
       find.text('Completude do perfil não garante qualidade do serviço.'),
       findsOneWidget,
     );
+    expect(find.text('Garantia de qualidade'), findsNothing);
   });
 
   testWidgets(

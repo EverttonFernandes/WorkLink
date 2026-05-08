@@ -68,6 +68,9 @@ void main() {
       usefulLinks: ['https://worklink.example/roberto'],
       portfolioItemDescriptions: ['Instalação de quadro elétrico'],
       profileBadgeLabels: [' Perfil completo ', ''],
+      profileCompletenessPercentage: 100,
+      phoneNumberVerified: true,
+      documentProvided: true,
       availabilityLabel: 'Disponível hoje',
       reviewSummary: '4 avaliações positivas',
     );
@@ -86,6 +89,37 @@ void main() {
     expect(professionalProfile.hasPortfolioItems, isTrue);
     expect(professionalProfile.hasAvailability, isTrue);
     expect(professionalProfile.hasReviewSummary, isTrue);
-    expect(visibleProfileBadgeLabels, [' Perfil completo ']);
+    expect(visibleProfileBadgeLabels, [
+      'Perfil completo',
+      'Telefone verificado',
+      'Documento informado',
+    ]);
+  });
+
+  test(
+      'GIVEN perfil minimo com documento informado WHEN consultar badges THEN deve expor apenas sinal seguro',
+      () {
+    // GIVEN
+    const professionalProfile = ProfessionalProfile(
+      professionalIdentifier: 'roberto-eletricista',
+      professionalName: 'Roberto Silva',
+      categoryName: 'Eletricista Residencial',
+      baseCityName: 'Charqueadas',
+      baseStateCode: 'RS',
+      attendedCityNames: [],
+      aboutDescription: '',
+      serviceNames: [],
+      documentProvided: true,
+    );
+
+    // WHEN
+    final visibleProfileBadgeLabels =
+        professionalProfile.visibleProfileBadgeLabels;
+
+    // THEN
+    expect(visibleProfileBadgeLabels, [
+      'Perfil básico',
+      'Documento informado',
+    ]);
   });
 }

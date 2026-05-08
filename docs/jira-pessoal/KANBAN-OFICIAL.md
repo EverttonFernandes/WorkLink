@@ -23,7 +23,6 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História | Tipo | Título | Relação com outras histórias | Execução | Versão |
 |-------|----------|------|--------|-------------------------------|----------|--------|
-| 17 | [WL-007](historias/WL-007-badges-confianca-completude.md) | Negócio | Badges de confiança e completude | Depende de cadastro progressivo | Separada | MINOR |
 | 18 | [WL-008](historias/WL-008-disponibilidade-profissional.md) | Negócio | Disponibilidade do profissional | Depende de perfil profissional | Separada | MINOR |
 | 19 | [WLT-013](historias-tecnicas/WLT-013-criptografia-protecao-dados.md) | Técnica | Criptografia e proteção de dados | Pré-requisito para auth, documentos, denúncias e tokens | Separada | MINOR |
 | 20 | [WLT-009](historias-tecnicas/WLT-009-autenticacao-sessoes-tokens.md) | Técnica | Autenticação segura, sessões e tokens | Pré-requisito técnico para autenticação do cliente | Separada | MINOR |
@@ -71,6 +70,7 @@ _Vazio._
 | 14 | [WL-005](historias/WL-005-perfil-publico-profissional.md) | Negócio | Perfil público detalhado do profissional | Depende de listagem | Separada | MINOR | [Entrega WL-005](../entregas/WL-005-perfil-publico-profissional.md) |
 | 15 | [WLT-014](historias-tecnicas/WLT-014-storage-seguro-arquivos.md) | Técnica | Storage seguro de arquivos | Pré-requisito para foto, portfólio e evidências | Separada | MINOR | [Entrega WLT-014](../entregas/WLT-014-storage-seguro-arquivos.md) |
 | 16 | [WL-006](historias/WL-006-cadastro-progressivo-profissional.md) | Negócio | Cadastro progressivo do profissional | Usa storage para foto/portfólio quando aplicável | Junto de validações de storage | MINOR | [Entrega WL-006](../entregas/WL-006-cadastro-progressivo-profissional.md) |
+| 17 | [WL-007](historias/WL-007-badges-confianca-completude.md) | Negócio | Badges de confiança e completude | Depende de cadastro progressivo | Separada | MINOR | [Entrega WL-007](../entregas/WL-007-badges-confianca-completude.md) |
 
 ## Histórias técnicas que podem ser executadas separadamente
 

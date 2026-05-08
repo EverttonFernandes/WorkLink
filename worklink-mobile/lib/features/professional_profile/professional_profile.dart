@@ -12,6 +12,9 @@ class ProfessionalProfile {
     this.usefulLinks = const [],
     this.portfolioItemDescriptions = const [],
     this.profileBadgeLabels = const [],
+    this.profileCompletenessPercentage = 50,
+    this.phoneNumberVerified = false,
+    this.documentProvided = false,
     this.availabilityLabel,
     this.reviewSummary,
   });
@@ -28,6 +31,9 @@ class ProfessionalProfile {
   final List<String> usefulLinks;
   final List<String> portfolioItemDescriptions;
   final List<String> profileBadgeLabels;
+  final int profileCompletenessPercentage;
+  final bool phoneNumberVerified;
+  final bool documentProvided;
   final String? availabilityLabel;
   final String? reviewSummary;
 
@@ -52,8 +58,18 @@ class ProfessionalProfile {
       reviewSummary != null && reviewSummary!.trim().isNotEmpty;
 
   List<String> get visibleProfileBadgeLabels {
-    return profileBadgeLabels
-        .where((profileBadgeLabel) => profileBadgeLabel.trim().isNotEmpty)
+    return [
+      if (profileCompletenessPercentage >= 100)
+        'Perfil completo'
+      else
+        'Perfil básico',
+      if (phoneNumberVerified) 'Telefone verificado',
+      if (documentProvided) 'Documento informado',
+      ...profileBadgeLabels,
+    ]
+        .map((profileBadgeLabel) => profileBadgeLabel.trim())
+        .where((profileBadgeLabel) => profileBadgeLabel.isNotEmpty)
+        .toSet()
         .toList();
   }
 }
