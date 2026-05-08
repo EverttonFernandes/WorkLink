@@ -7,6 +7,7 @@ public record CompleteProfessionalProfileHttpRequest(
         String documentNumber,
         String usefulLink,
         String portfolioDescription,
-        String serviceDescription
+        String serviceDescription,
+        String availabilityStatus
 ) {
 }

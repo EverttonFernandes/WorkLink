@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:worklink_mobile/features/professional_availability/professional_availability_status.dart';
 import 'package:worklink_mobile/features/professional_profile/professional_profile.dart';
 import 'package:worklink_mobile/features/professional_profile/professional_profile_screen.dart';
 
@@ -19,7 +20,7 @@ void main() {
     profileCompletenessPercentage: 100,
     phoneNumberVerified: true,
     documentProvided: true,
-    availabilityLabel: 'Disponível esta semana',
+    availabilityStatus: ProfessionalAvailabilityStatus.availableThisWeek,
     reviewSummary: '4.9 em 128 avaliações',
   );
 

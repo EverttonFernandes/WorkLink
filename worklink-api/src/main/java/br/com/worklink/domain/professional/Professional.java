@@ -18,6 +18,7 @@ public record Professional(
         String serviceDescription,
         int profileCompletenessPercentage,
         ProfessionalProfileClassification profileClassification,
+        ProfessionalAvailabilityStatus availabilityStatus,
         boolean qualityGuarantee
 ) {
 
@@ -42,6 +43,7 @@ public record Professional(
                 null,
                 calculateCompletenessPercentage(null, null, null, null, null),
                 ProfessionalProfileClassification.BASIC_PROFILE,
+                ProfessionalAvailabilityStatus.ACCEPTING_NEW_CLIENTS,
                 false
         );
     }
@@ -60,6 +62,7 @@ public record Professional(
             String serviceDescription,
             int profileCompletenessPercentage,
             ProfessionalProfileClassification profileClassification,
+            ProfessionalAvailabilityStatus availabilityStatus,
             boolean qualityGuarantee
     ) {
         return new Professional(
@@ -76,6 +79,7 @@ public record Professional(
                 normalizeOptionalText(serviceDescription),
                 requireCompletenessPercentage(profileCompletenessPercentage),
                 requireClassification(profileClassification),
+                requireAvailabilityStatus(availabilityStatus),
                 qualityGuarantee
         );
     }
@@ -85,7 +89,8 @@ public record Professional(
             String newDocumentNumber,
             String newUsefulLink,
             String newPortfolioDescription,
-            String newServiceDescription
+            String newServiceDescription,
+            ProfessionalAvailabilityStatus newAvailabilityStatus
     ) {
         int newCompletenessPercentage = calculateCompletenessPercentage(
                 newProfilePhotoFileIdentifier,
@@ -108,6 +113,27 @@ public record Professional(
                 normalizeOptionalText(newServiceDescription),
                 newCompletenessPercentage,
                 classifyCompleteness(newCompletenessPercentage),
+                requireAvailabilityStatus(newAvailabilityStatus),
+                false
+        );
+    }
+
+    public Professional updateAvailabilityStatus(ProfessionalAvailabilityStatus newAvailabilityStatus) {
+        return new Professional(
+                professionalIdentifier,
+                professionalName,
+                whatsappNumber,
+                cityIdentifier,
+                categoryIdentifier,
+                shortDescription,
+                profilePhotoFileIdentifier,
+                documentNumber,
+                usefulLink,
+                portfolioDescription,
+                serviceDescription,
+                profileCompletenessPercentage,
+                profileClassification,
+                requireAvailabilityStatus(newAvailabilityStatus),
                 false
         );
     }
@@ -131,6 +157,13 @@ public record Professional(
             throw new BusinessRuleViolationException("A classificacao do perfil profissional e obrigatoria.");
         }
         return profileClassification;
+    }
+
+    private static ProfessionalAvailabilityStatus requireAvailabilityStatus(ProfessionalAvailabilityStatus availabilityStatus) {
+        if (availabilityStatus == null) {
+            throw new BusinessRuleViolationException("A disponibilidade do profissional e obrigatoria.");
+        }
+        return availabilityStatus;
     }
 
     private static String normalizeOptionalText(String text) {

@@ -38,7 +38,17 @@ class DiscoveryFilterState {
           (professional) => professional.matchesCity(selectedCityDisplayName),
         )
         .where((professional) => professional.matchesKeyword(keyword))
-        .toList();
+        .toList()
+      ..sort((firstProfessional, secondProfessional) {
+        final priorityComparison = firstProfessional
+            .availabilityStatus.listingPriority
+            .compareTo(secondProfessional.availabilityStatus.listingPriority);
+        if (priorityComparison != 0) {
+          return priorityComparison;
+        }
+        return firstProfessional.professionalName
+            .compareTo(secondProfessional.professionalName);
+      });
   }
 
   bool get hasActiveFilters {

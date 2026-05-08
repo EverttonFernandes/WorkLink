@@ -76,6 +76,9 @@ class ProfessionalControllerTest {
                 .andExpect(jsonPath("$.documentNumber").doesNotExist())
                 .andExpect(jsonPath("$.profileCompletenessPercentage").value(50))
                 .andExpect(jsonPath("$.profileClassification").value("BASIC_PROFILE"))
+                .andExpect(jsonPath("$.availabilityStatus").value("ACCEPTING_NEW_CLIENTS"))
+                .andExpect(jsonPath("$.availabilityBadgeLabel").value("Aceitando novos clientes"))
+                .andExpect(jsonPath("$.availabilityReducesListingHighlight").value(false))
                 .andExpect(jsonPath("$.qualityGuarantee").value(false));
     }
 
@@ -94,6 +97,8 @@ class ProfessionalControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.profileCompletenessPercentage").value(100))
                 .andExpect(jsonPath("$.profileClassification").value("COMPLETE_PROFILE"))
+                .andExpect(jsonPath("$.availabilityStatus").value("AVAILABLE_TODAY"))
+                .andExpect(jsonPath("$.availabilityBadgeLabel").value("Disponível hoje"))
                 .andExpect(jsonPath("$.documentProvided").value(true))
                 .andExpect(jsonPath("$.documentNumber").doesNotExist())
                 .andExpect(jsonPath("$.qualityGuarantee").value(false));
@@ -114,6 +119,7 @@ class ProfessionalControllerTest {
                         .param("keyword", "residencial"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].professionalName").value("Maria Eletricista"))
+                .andExpect(jsonPath("$[0].availabilityBadgeLabel").value("Aceitando novos clientes"))
                 .andExpect(jsonPath("$[0].qualityGuarantee").value(false));
     }
 
@@ -153,6 +159,9 @@ class ProfessionalControllerTest {
                 null,
                 50,
                 "BASIC_PROFILE",
+                "ACCEPTING_NEW_CLIENTS",
+                "Aceitando novos clientes",
+                false,
                 false
         );
     }
@@ -172,6 +181,9 @@ class ProfessionalControllerTest {
                 "Instalacoes e manutencoes eletricas.",
                 100,
                 "COMPLETE_PROFILE",
+                "AVAILABLE_TODAY",
+                "Disponível hoje",
+                false,
                 false
         );
     }
@@ -192,7 +204,8 @@ class ProfessionalControllerTest {
                 "12345678900",
                 "https://worklink.example/maria-eletricista",
                 "Instalacoes residenciais recentes.",
-                "Instalacoes e manutencoes eletricas."
+                "Instalacoes e manutencoes eletricas.",
+                "AVAILABLE_TODAY"
         );
     }
 
@@ -210,7 +223,8 @@ class ProfessionalControllerTest {
             String documentNumber,
             String usefulLink,
             String portfolioDescription,
-            String serviceDescription
+            String serviceDescription,
+            String availabilityStatus
     ) {
     }
 }

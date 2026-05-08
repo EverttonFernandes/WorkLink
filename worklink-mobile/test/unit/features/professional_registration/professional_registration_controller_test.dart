@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:worklink_mobile/features/professional_availability/professional_availability_status.dart';
 import 'package:worklink_mobile/features/professional_registration/professional_registration_controller.dart';
 
 void main() {
@@ -41,6 +42,22 @@ void main() {
     expect(
       controller.draft.usefulLink,
       'https://worklink.example/roberto',
+    );
+  });
+
+  test(
+      'GIVEN controlador vazio WHEN selecionar disponibilidade THEN deve atualizar rascunho',
+      () {
+    // GIVEN
+    final controller = ProfessionalRegistrationController();
+
+    // WHEN
+    controller.changeAvailabilityStatusByLabel('Atendimento emergencial');
+
+    // THEN
+    expect(
+      controller.draft.availabilityStatus,
+      ProfessionalAvailabilityStatus.emergencyService,
     );
   });
 

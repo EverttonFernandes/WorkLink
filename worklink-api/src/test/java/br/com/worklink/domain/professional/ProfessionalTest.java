@@ -61,7 +61,8 @@ class ProfessionalTest {
                 "12345678900",
                 "https://worklink.example/maria-eletricista",
                 "Instalacoes residenciais recentes.",
-                "Instalacoes, manutencao e emergencias eletricas."
+                "Instalacoes, manutencao e emergencias eletricas.",
+                ProfessionalAvailabilityStatus.AVAILABLE_TODAY
         );
 
         // THEN
@@ -69,6 +70,7 @@ class ProfessionalTest {
         assertThat(completedProfessional.profileClassification()).isEqualTo(ProfessionalProfileClassification.COMPLETE_PROFILE);
         assertThat(completedProfessional.profilePhotoFileIdentifier()).isEqualTo(profilePhotoFileIdentifier);
         assertThat(completedProfessional.documentNumber()).isEqualTo("12345678900");
+        assertThat(completedProfessional.availabilityStatus()).isEqualTo(ProfessionalAvailabilityStatus.AVAILABLE_TODAY);
         assertThat(completedProfessional.qualityGuarantee()).isFalse();
     }
 
@@ -90,7 +92,8 @@ class ProfessionalTest {
                 " ",
                 null,
                 "",
-                null
+                null,
+                ProfessionalAvailabilityStatus.ACCEPTING_NEW_CLIENTS
         );
 
         // THEN
@@ -210,6 +213,7 @@ class ProfessionalTest {
                 null,
                 50,
                 ProfessionalProfileClassification.BASIC_PROFILE,
+                ProfessionalAvailabilityStatus.ACCEPTING_NEW_CLIENTS,
                 false
         );
 
@@ -240,9 +244,44 @@ class ProfessionalTest {
                 null,
                 50,
                 profileClassification,
+                ProfessionalAvailabilityStatus.ACCEPTING_NEW_CLIENTS,
                 false
         ))
                 .isInstanceOf(BusinessRuleViolationException.class)
                 .hasMessage("A classificacao do perfil profissional e obrigatoria.");
+    }
+
+    @Test
+    @DisplayName("Deve rejeitar disponibilidade fora dos valores permitidos")
+    void shouldRejectAvailabilityOutsideAllowedValues() {
+        // GIVEN
+        String availabilityStatusName = "DISPONIVEL_AGORA";
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> ProfessionalAvailabilityStatus.fromRequiredName(availabilityStatusName))
+                .isInstanceOf(BusinessRuleViolationException.class)
+                .hasMessage("A disponibilidade informada nao e permitida.");
+    }
+
+    @Test
+    @DisplayName("Deve reduzir destaque quando profissional estiver indisponivel temporariamente")
+    void shouldReduceHighlightWhenProfessionalIsTemporarilyUnavailable() {
+        // GIVEN
+        Professional professional = Professional.registerBasicProfessional(
+                "Maria Eletricista",
+                "51999999999",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial."
+        );
+
+        // WHEN
+        Professional unavailableProfessional = professional.updateAvailabilityStatus(
+                ProfessionalAvailabilityStatus.TEMPORARILY_UNAVAILABLE
+        );
+
+        // THEN
+        assertThat(unavailableProfessional.availabilityStatus().badgeLabel()).isEqualTo("Indisponível temporariamente");
+        assertThat(unavailableProfessional.availabilityStatus().reducesListingHighlight()).isTrue();
     }
 }

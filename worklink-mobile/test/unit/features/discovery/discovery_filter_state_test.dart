@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/features/discovery/discovery_filter_state.dart';
 import 'package:worklink_mobile/features/discovery/discovery_professional.dart';
+import 'package:worklink_mobile/features/professional_availability/professional_availability_status.dart';
 
 void main() {
   const electricianProfessional = DiscoveryProfessional(
@@ -34,7 +35,7 @@ void main() {
       stateCode: 'RS',
       shortDescription: 'Atendimento residencial.',
       profileBadgeLabel: 'Perfil básico',
-      availabilityBadgeLabel: '',
+      availabilityStatus: ProfessionalAvailabilityStatus.availableToday,
       recentActivityLabel: 'Ativo recentemente',
     );
 
@@ -43,7 +44,11 @@ void main() {
         professionalWithComparisonSignals.comparisonSignalLabels;
 
     // THEN
-    expect(comparisonSignalLabels, ['Perfil básico', 'Ativo recentemente']);
+    expect(comparisonSignalLabels, [
+      'Perfil básico',
+      'Disponível hoje',
+      'Ativo recentemente',
+    ]);
   });
 
   test(
@@ -107,5 +112,37 @@ void main() {
 
     // WHEN / THEN
     expect(discoveryFilterState.hasActiveFilters, isTrue);
+  });
+
+  test(
+      'GIVEN profissional indisponivel WHEN listar resultados THEN deve perder destaque',
+      () {
+    // GIVEN
+    const unavailableProfessional = DiscoveryProfessional(
+      professionalIdentifier: 'ana-pintora',
+      professionalName: 'Ana Pintora',
+      categoryName: 'Pintora',
+      cityName: 'Porto Alegre',
+      stateCode: 'RS',
+      shortDescription: 'Pintura interna e acabamento.',
+      availabilityStatus: ProfessionalAvailabilityStatus.temporarilyUnavailable,
+    );
+    const discoveryFilterState = DiscoveryFilterState(
+      availableProfessionals: [
+        unavailableProfessional,
+        electricianProfessional,
+      ],
+    );
+
+    // WHEN
+    final filteredProfessionals = discoveryFilterState.filteredProfessionals;
+
+    // THEN
+    expect(
+      filteredProfessionals
+          .map((professional) => professional.professionalName),
+      ['Maria Eletricista', 'Ana Pintora'],
+    );
+    expect(unavailableProfessional.reducesListingHighlight, isTrue);
   });
 }

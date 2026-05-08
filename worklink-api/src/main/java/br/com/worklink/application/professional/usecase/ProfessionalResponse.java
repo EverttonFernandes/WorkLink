@@ -18,6 +18,9 @@ public record ProfessionalResponse(
         String serviceDescription,
         int profileCompletenessPercentage,
         String profileClassification,
+        String availabilityStatus,
+        String availabilityBadgeLabel,
+        boolean availabilityReducesListingHighlight,
         boolean qualityGuarantee
 ) {
 
@@ -36,6 +39,9 @@ public record ProfessionalResponse(
                 professional.serviceDescription(),
                 professional.profileCompletenessPercentage(),
                 professional.profileClassification().name(),
+                professional.availabilityStatus().name(),
+                professional.availabilityStatus().badgeLabel(),
+                professional.availabilityStatus().reducesListingHighlight(),
                 professional.qualityGuarantee()
         );
     }

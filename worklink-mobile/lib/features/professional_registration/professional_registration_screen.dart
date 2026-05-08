@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../professional_availability/professional_availability_status.dart';
 import 'professional_registration_controller.dart';
 import 'professional_registration_draft.dart';
 
@@ -103,6 +104,18 @@ class _ProfessionalRegistrationScreenState
             icon: Icons.location_on_outlined,
             onChanged:
                 widget.professionalRegistrationController.changeCityDisplayName,
+          ),
+          const SizedBox(height: 12),
+          _RegistrationDropdown(
+            key: const ValueKey('professional-registration-availability-field'),
+            labelText: 'Disponibilidade',
+            value: draft.availabilityStatus.badgeLabel,
+            values: ProfessionalAvailabilityStatus.values
+                .map((availabilityStatus) => availabilityStatus.badgeLabel)
+                .toList(),
+            icon: Icons.event_available_outlined,
+            onChanged: widget.professionalRegistrationController
+                .changeAvailabilityStatusByLabel,
           ),
           const SizedBox(height: 12),
           _RegistrationTextField(

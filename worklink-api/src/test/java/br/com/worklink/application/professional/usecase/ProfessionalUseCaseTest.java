@@ -9,6 +9,7 @@ import br.com.worklink.application.professional.port.SaveProfessionalPort;
 import br.com.worklink.domain.catalog.ServiceCategory;
 import br.com.worklink.domain.catalog.ServiceCity;
 import br.com.worklink.domain.professional.Professional;
+import br.com.worklink.domain.professional.ProfessionalAvailabilityStatus;
 import br.com.worklink.domain.professional.ProfessionalProfileClassification;
 
 import org.junit.jupiter.api.DisplayName;
@@ -158,13 +159,15 @@ class ProfessionalUseCaseTest {
                         "12345678900",
                         "https://worklink.example/maria-eletricista",
                         "Portifolio residencial.",
-                        "Instalacoes e manutencoes eletricas."
+                        "Instalacoes e manutencoes eletricas.",
+                        ProfessionalAvailabilityStatus.AVAILABLE_THIS_WEEK.name()
                 )
         );
 
         // THEN
         assertThat(professionalResponse.profileCompletenessPercentage()).isEqualTo(100);
         assertThat(professionalResponse.profileClassification()).isEqualTo(ProfessionalProfileClassification.COMPLETE_PROFILE.name());
+        assertThat(professionalResponse.availabilityBadgeLabel()).isEqualTo("Disponível esta semana");
         assertThat(professionalResponse.qualityGuarantee()).isFalse();
     }
 
@@ -185,11 +188,45 @@ class ProfessionalUseCaseTest {
                         null,
                         null,
                         null,
+                        null,
                         null
                 )
         ))
                 .isInstanceOf(ApplicationRuleViolationException.class)
                 .hasMessage("O profissional informado nao foi encontrado.");
+    }
+
+    @Test
+    @DisplayName("Deve rejeitar disponibilidade fora da lista permitida")
+    void shouldRejectAvailabilityOutsideAllowedList() {
+        // GIVEN
+        InMemoryProfessionalPort inMemoryProfessionalPort = new InMemoryProfessionalPort();
+        Professional professional = inMemoryProfessionalPort.saveProfessional(Professional.registerBasicProfessional(
+                "Maria Eletricista",
+                "51999999999",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial."
+        ));
+        CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase = new CompleteProfessionalProfileUseCase(
+                inMemoryProfessionalPort,
+                inMemoryProfessionalPort
+        );
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> completeProfessionalProfileUseCase.completeProfessionalProfile(
+                new CompleteProfessionalProfileRequest(
+                        professional.professionalIdentifier(),
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        "DISPONIVEL_AGORA"
+                )
+        ))
+                .isInstanceOf(ApplicationRuleViolationException.class)
+                .hasMessage("A disponibilidade informada nao e permitida.");
     }
 
     private RegisterBasicProfessionalRequest validProfessionalRequest() {

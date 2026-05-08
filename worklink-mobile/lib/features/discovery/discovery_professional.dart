@@ -1,3 +1,5 @@
+import '../professional_availability/professional_availability_status.dart';
+
 class DiscoveryProfessional {
   const DiscoveryProfessional({
     required this.professionalIdentifier,
@@ -8,7 +10,8 @@ class DiscoveryProfessional {
     required this.shortDescription,
     this.profilePhotoUrl,
     this.profileBadgeLabel,
-    this.availabilityBadgeLabel,
+    this.availabilityStatus =
+        ProfessionalAvailabilityStatus.acceptingNewClients,
     this.recentActivityLabel,
   });
 
@@ -20,10 +23,15 @@ class DiscoveryProfessional {
   final String shortDescription;
   final String? profilePhotoUrl;
   final String? profileBadgeLabel;
-  final String? availabilityBadgeLabel;
+  final ProfessionalAvailabilityStatus availabilityStatus;
   final String? recentActivityLabel;
 
   String get cityDisplayName => '$cityName - $stateCode';
+
+  String get availabilityBadgeLabel => availabilityStatus.badgeLabel;
+
+  bool get reducesListingHighlight =>
+      availabilityStatus.reducesListingHighlight;
 
   List<String> get comparisonSignalLabels {
     return [

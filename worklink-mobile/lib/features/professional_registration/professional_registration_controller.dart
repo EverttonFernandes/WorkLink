@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 
+import '../professional_availability/professional_availability_status.dart';
 import 'professional_registration_draft.dart';
 
 class ProfessionalRegistrationController extends ChangeNotifier {
@@ -46,6 +47,24 @@ class ProfessionalRegistrationController extends ChangeNotifier {
 
   void changeUsefulLink(String usefulLink) {
     updateDraft(_draft.copyWith(usefulLink: usefulLink));
+  }
+
+  void changeAvailabilityStatus(
+    ProfessionalAvailabilityStatus availabilityStatus,
+  ) {
+    updateDraft(_draft.copyWith(availabilityStatus: availabilityStatus));
+  }
+
+  void changeAvailabilityStatusByLabel(String? availabilityStatusLabel) {
+    if (availabilityStatusLabel == null) {
+      return;
+    }
+    final availabilityStatus = ProfessionalAvailabilityStatus.values.firstWhere(
+      (candidateStatus) =>
+          candidateStatus.badgeLabel == availabilityStatusLabel,
+      orElse: () => _draft.availabilityStatus,
+    );
+    changeAvailabilityStatus(availabilityStatus);
   }
 
   void toggleProfilePhoto() {

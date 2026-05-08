@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:worklink_mobile/features/professional_availability/professional_availability_status.dart';
 import 'package:worklink_mobile/features/professional_registration/professional_registration_controller.dart';
 import 'package:worklink_mobile/features/professional_registration/professional_registration_draft.dart';
 import 'package:worklink_mobile/features/professional_registration/professional_registration_screen.dart';
@@ -56,6 +57,8 @@ void main() {
     expect(find.text('CPF ou CNPJ'), findsOneWidget);
     expect(find.text('Categoria do serviço'), findsOneWidget);
     expect(find.text('Cidade / região de atendimento'), findsOneWidget);
+    expect(find.text('Disponibilidade'), findsOneWidget);
+    expect(find.text('Aceitando novos clientes'), findsOneWidget);
     await scrollRegistrationScreenUntilVisible(
       widgetTester,
       find.text('WhatsApp').first,
@@ -137,6 +140,59 @@ void main() {
     expect(continuedDrafts, hasLength(1));
     expect(continuedDrafts.single.hasMinimumRequiredFields, isTrue);
     expect(continuedDrafts.single.profileCompletenessPercentage, 60);
+    expect(
+      continuedDrafts.single.availabilityStatus.badgeLabel,
+      'Aceitando novos clientes',
+    );
+  });
+
+  testWidgets(
+      'GIVEN disponibilidade selecionada WHEN continuar THEN deve emitir status permitido',
+      (widgetTester) async {
+    // GIVEN
+    final continuedDrafts = <ProfessionalRegistrationDraft>[];
+    final controller = ProfessionalRegistrationController(
+      initialDraft: const ProfessionalRegistrationDraft(
+        professionalName: 'Roberto Silva',
+        categoryName: 'Eletricista',
+        cityDisplayName: 'Charqueadas - RS',
+        whatsappNumber: '(51) 99999-9999',
+        shortDescription: 'Instalacoes e manutencoes residenciais.',
+        availabilityStatus: ProfessionalAvailabilityStatus.emergencyService,
+      ),
+    );
+    await pumpProfessionalRegistrationScreen(
+      widgetTester,
+      controller: controller,
+      onContinue: continuedDrafts.add,
+    );
+
+    // WHEN
+    await scrollRegistrationScreenUntilVisible(
+      widgetTester,
+      find
+          .byKey(
+            const ValueKey('professional-registration-description-field'),
+          )
+          .first,
+    );
+    await widgetTester.ensureVisible(
+      find
+          .byKey(const ValueKey('professional-registration-continue-button'))
+          .first,
+    );
+    await widgetTester.tap(
+      find
+          .byKey(const ValueKey('professional-registration-continue-button'))
+          .first,
+    );
+    await widgetTester.pump();
+
+    // THEN
+    expect(
+      continuedDrafts.single.availabilityStatus.badgeLabel,
+      'Atendimento emergencial',
+    );
   });
 
   testWidgets(

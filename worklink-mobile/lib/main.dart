@@ -6,6 +6,7 @@ import 'app/worklink_app_configuration.dart';
 import 'features/discovery/discovery_controller.dart';
 import 'features/discovery/discovery_professional.dart';
 import 'features/discovery/discovery_screen.dart';
+import 'features/professional_availability/professional_availability_status.dart';
 import 'features/professional_profile/professional_profile.dart';
 import 'features/professional_profile/professional_profile_screen.dart';
 import 'features/professional_registration/professional_registration_controller.dart';
@@ -35,6 +36,7 @@ class WorkLinkApp extends StatelessWidget {
       stateCode: 'RS',
       shortDescription: 'Atendimento residencial.',
       profileBadgeLabel: 'Perfil básico',
+      availabilityStatus: ProfessionalAvailabilityStatus.availableToday,
       recentActivityLabel: 'Ativo recentemente',
     ),
     DiscoveryProfessional(
@@ -66,7 +68,7 @@ class WorkLinkApp extends StatelessWidget {
       profileCompletenessPercentage: 100,
       phoneNumberVerified: true,
       documentProvided: true,
-      availabilityLabel: 'Atende esta semana',
+      availabilityStatus: ProfessionalAvailabilityStatus.availableThisWeek,
       reviewSummary: 'Avaliações serão exibidas quando estiverem disponíveis.',
     ),
     ProfessionalProfile(

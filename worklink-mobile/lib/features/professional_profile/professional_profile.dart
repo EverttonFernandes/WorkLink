@@ -1,3 +1,5 @@
+import '../professional_availability/professional_availability_status.dart';
+
 class ProfessionalProfile {
   const ProfessionalProfile({
     required this.professionalIdentifier,
@@ -15,7 +17,8 @@ class ProfessionalProfile {
     this.profileCompletenessPercentage = 50,
     this.phoneNumberVerified = false,
     this.documentProvided = false,
-    this.availabilityLabel,
+    this.availabilityStatus =
+        ProfessionalAvailabilityStatus.acceptingNewClients,
     this.reviewSummary,
   });
 
@@ -34,7 +37,7 @@ class ProfessionalProfile {
   final int profileCompletenessPercentage;
   final bool phoneNumberVerified;
   final bool documentProvided;
-  final String? availabilityLabel;
+  final ProfessionalAvailabilityStatus availabilityStatus;
   final String? reviewSummary;
 
   String get baseCityDisplayName => '$baseCityName - $baseStateCode';
@@ -51,8 +54,9 @@ class ProfessionalProfile {
 
   bool get hasPortfolioItems => portfolioItemDescriptions.isNotEmpty;
 
-  bool get hasAvailability =>
-      availabilityLabel != null && availabilityLabel!.trim().isNotEmpty;
+  String get availabilityLabel => availabilityStatus.badgeLabel;
+
+  bool get hasAvailability => availabilityLabel.trim().isNotEmpty;
 
   bool get hasReviewSummary =>
       reviewSummary != null && reviewSummary!.trim().isNotEmpty;

@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/features/discovery/discovery_controller.dart';
 import 'package:worklink_mobile/features/discovery/discovery_professional.dart';
 import 'package:worklink_mobile/features/discovery/discovery_screen.dart';
+import 'package:worklink_mobile/features/professional_availability/professional_availability_status.dart';
 
 void main() {
   const electricianProfessional = DiscoveryProfessional(
@@ -13,6 +14,7 @@ void main() {
     stateCode: 'RS',
     shortDescription: 'Atendimento residencial.',
     profileBadgeLabel: 'Perfil básico',
+    availabilityStatus: ProfessionalAvailabilityStatus.availableToday,
     recentActivityLabel: 'Ativo recentemente',
   );
   const painterProfessional = DiscoveryProfessional(
@@ -76,8 +78,10 @@ void main() {
     expect(find.text('Eletricista - Canoas - RS'), findsOneWidget);
     expect(find.text('Atendimento residencial.'), findsOneWidget);
     expect(find.text('Perfil básico'), findsOneWidget);
+    expect(find.text('Disponível hoje'), findsOneWidget);
     expect(find.text('Ativo recentemente'), findsOneWidget);
     expect(find.text('Disponível agora'), findsNothing);
+    expect(find.text('Garantia de atendimento'), findsNothing);
   });
 
   testWidgets(

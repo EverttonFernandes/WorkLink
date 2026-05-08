@@ -87,7 +87,8 @@ public class ProfessionalController {
                         request.documentNumber(),
                         request.usefulLink(),
                         request.portfolioDescription(),
-                        request.serviceDescription()
+                        request.serviceDescription(),
+                        request.availabilityStatus()
                 )
         );
         return ProfessionalHttpResponse.fromProfessionalResponse(professionalResponse);

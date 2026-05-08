@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:worklink_mobile/features/professional_availability/professional_availability_status.dart';
 import 'package:worklink_mobile/features/professional_profile/professional_profile.dart';
 
 void main() {
@@ -38,7 +39,6 @@ void main() {
       attendedCityNames: [],
       aboutDescription: '',
       serviceNames: [],
-      availabilityLabel: '',
       reviewSummary: '',
     );
 
@@ -46,7 +46,7 @@ void main() {
     expect(professionalProfile.hasAttendedCities, isFalse);
     expect(professionalProfile.hasAboutDescription, isFalse);
     expect(professionalProfile.hasServiceNames, isFalse);
-    expect(professionalProfile.hasAvailability, isFalse);
+    expect(professionalProfile.hasAvailability, isTrue);
     expect(professionalProfile.hasPortfolioItems, isFalse);
     expect(professionalProfile.hasReviewSummary, isFalse);
   });
@@ -71,7 +71,7 @@ void main() {
       profileCompletenessPercentage: 100,
       phoneNumberVerified: true,
       documentProvided: true,
-      availabilityLabel: 'Disponível hoje',
+      availabilityStatus: ProfessionalAvailabilityStatus.availableToday,
       reviewSummary: '4 avaliações positivas',
     );
 

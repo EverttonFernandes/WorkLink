@@ -136,7 +136,7 @@ class _ProfessionalProfileHeader extends StatelessWidget {
                   if (professionalProfile.hasAvailability)
                     Chip(
                       visualDensity: VisualDensity.compact,
-                      label: Text(professionalProfile.availabilityLabel!),
+                      label: Text(professionalProfile.availabilityLabel),
                     ),
                 ],
               ),

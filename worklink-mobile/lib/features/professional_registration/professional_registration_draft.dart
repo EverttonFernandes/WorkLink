@@ -1,3 +1,5 @@
+import '../professional_availability/professional_availability_status.dart';
+
 class ProfessionalRegistrationDraft {
   const ProfessionalRegistrationDraft({
     this.professionalName = '',
@@ -9,6 +11,8 @@ class ProfessionalRegistrationDraft {
     this.instagramProfile = '',
     this.usefulLink = '',
     this.hasProfilePhoto = false,
+    this.availabilityStatus =
+        ProfessionalAvailabilityStatus.acceptingNewClients,
   });
 
   final String professionalName;
@@ -20,6 +24,7 @@ class ProfessionalRegistrationDraft {
   final String instagramProfile;
   final String usefulLink;
   final bool hasProfilePhoto;
+  final ProfessionalAvailabilityStatus availabilityStatus;
 
   bool get hasMinimumRequiredFields {
     return professionalName.trim().isNotEmpty &&
@@ -81,6 +86,7 @@ class ProfessionalRegistrationDraft {
     String? instagramProfile,
     String? usefulLink,
     bool? hasProfilePhoto,
+    ProfessionalAvailabilityStatus? availabilityStatus,
   }) {
     return ProfessionalRegistrationDraft(
       professionalName: professionalName ?? this.professionalName,
@@ -92,6 +98,7 @@ class ProfessionalRegistrationDraft {
       instagramProfile: instagramProfile ?? this.instagramProfile,
       usefulLink: usefulLink ?? this.usefulLink,
       hasProfilePhoto: hasProfilePhoto ?? this.hasProfilePhoto,
+      availabilityStatus: availabilityStatus ?? this.availabilityStatus,
     );
   }
 }

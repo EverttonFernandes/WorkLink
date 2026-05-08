@@ -6,6 +6,7 @@ import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
 import br.com.worklink.application.professional.port.UpdateProfessionalPort;
 import br.com.worklink.domain.professional.Professional;
+import br.com.worklink.domain.professional.ProfessionalAvailabilityStatus;
 import br.com.worklink.domain.professional.ProfessionalProfileClassification;
 
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,9 +49,10 @@ public class JdbcProfessionalRepositoryAdapter implements
                     service_description,
                     profile_completeness_percentage,
                     profile_classification,
+                    availability_status,
                     quality_guarantee
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 professional.professionalIdentifier(),
                 professional.professionalName(),
@@ -65,6 +67,7 @@ public class JdbcProfessionalRepositoryAdapter implements
                 professional.serviceDescription(),
                 professional.profileCompletenessPercentage(),
                 professional.profileClassification().name(),
+                professional.availabilityStatus().name(),
                 professional.qualityGuarantee()
         );
         return professional;
@@ -87,6 +90,7 @@ public class JdbcProfessionalRepositoryAdapter implements
                        service_description,
                        profile_completeness_percentage,
                        profile_classification,
+                       availability_status,
                        quality_guarantee
                 FROM worklink.professionals
                 WHERE professional_identifier = ?
@@ -108,6 +112,7 @@ public class JdbcProfessionalRepositoryAdapter implements
                     service_description = ?,
                     profile_completeness_percentage = ?,
                     profile_classification = ?,
+                    availability_status = ?,
                     quality_guarantee = ?
                 WHERE professional_identifier = ?
                 """,
@@ -118,6 +123,7 @@ public class JdbcProfessionalRepositoryAdapter implements
                 professional.serviceDescription(),
                 professional.profileCompletenessPercentage(),
                 professional.profileClassification().name(),
+                professional.availabilityStatus().name(),
                 professional.qualityGuarantee(),
                 professional.professionalIdentifier()
         );
@@ -140,6 +146,7 @@ public class JdbcProfessionalRepositoryAdapter implements
                        service_description,
                        profile_completeness_percentage,
                        profile_classification,
+                       availability_status,
                        quality_guarantee
                 FROM worklink.professionals
                 WHERE 1 = 1
@@ -163,7 +170,10 @@ public class JdbcProfessionalRepositoryAdapter implements
             queryParameters.add(keywordPattern);
             queryParameters.add(keywordPattern);
         });
-        sqlBuilder.append(" ORDER BY professional_name ASC");
+        sqlBuilder.append("""
+                 ORDER BY CASE WHEN availability_status = 'TEMPORARILY_UNAVAILABLE' THEN 1 ELSE 0 END,
+                          professional_name ASC
+                """);
 
         return jdbcTemplate.query(
                 sqlBuilder.toString(),
@@ -187,6 +197,7 @@ public class JdbcProfessionalRepositoryAdapter implements
                 resultSet.getString("service_description"),
                 resultSet.getInt("profile_completeness_percentage"),
                 ProfessionalProfileClassification.valueOf(resultSet.getString("profile_classification")),
+                ProfessionalAvailabilityStatus.valueOf(resultSet.getString("availability_status")),
                 resultSet.getBoolean("quality_guarantee")
         );
     }

@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:worklink_mobile/features/professional_availability/professional_availability_status.dart';
 import 'package:worklink_mobile/features/professional_registration/professional_registration_draft.dart';
 
 void main() {
@@ -20,6 +21,10 @@ void main() {
     // THEN
     expect(draft.hasMinimumRequiredFields, isTrue);
     expect(profileCompletenessPercentage, 60);
+    expect(
+      draft.availabilityStatus,
+      ProfessionalAvailabilityStatus.acceptingNewClients,
+    );
     expect(draft.stepLabel, 'Etapa 1 de 2');
   });
 
@@ -37,6 +42,7 @@ void main() {
       instagramProfile: '@robertoeletricista',
       usefulLink: 'https://worklink.example/roberto',
       hasProfilePhoto: true,
+      availabilityStatus: ProfessionalAvailabilityStatus.availableToday,
     );
 
     // WHEN
@@ -45,6 +51,7 @@ void main() {
     // THEN
     expect(draft.profileCompletenessPercentage, 100);
     expect(draft.stepLabel, 'Etapa 2 de 2');
+    expect(draft.availabilityStatus.badgeLabel, 'Disponível hoje');
     expect(completenessLabel, '100% do perfil preenchido');
   });
 

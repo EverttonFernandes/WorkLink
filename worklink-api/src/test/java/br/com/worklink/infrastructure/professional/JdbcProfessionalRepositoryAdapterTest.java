@@ -2,6 +2,7 @@ package br.com.worklink.infrastructure.professional;
 
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
 import br.com.worklink.domain.professional.Professional;
+import br.com.worklink.domain.professional.ProfessionalAvailabilityStatus;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -54,6 +55,7 @@ class JdbcProfessionalRepositoryAdapterTest {
                 eq(professional.serviceDescription()),
                 eq(professional.profileCompletenessPercentage()),
                 eq(professional.profileClassification().name()),
+                eq(professional.availabilityStatus().name()),
                 eq(professional.qualityGuarantee())
         );
     }
@@ -90,7 +92,8 @@ class JdbcProfessionalRepositoryAdapterTest {
                 "12345678900",
                 "https://worklink.example/maria-eletricista",
                 "Portifolio residencial.",
-                "Instalacoes eletricas."
+                "Instalacoes eletricas.",
+                ProfessionalAvailabilityStatus.AVAILABLE_TODAY
         );
 
         // WHEN
@@ -107,6 +110,7 @@ class JdbcProfessionalRepositoryAdapterTest {
                 eq(professional.serviceDescription()),
                 eq(professional.profileCompletenessPercentage()),
                 eq(professional.profileClassification().name()),
+                eq(professional.availabilityStatus().name()),
                 eq(professional.qualityGuarantee()),
                 eq(professional.professionalIdentifier())
         );
@@ -207,6 +211,7 @@ class JdbcProfessionalRepositoryAdapterTest {
         when(resultSet.getString("service_description")).thenReturn(professional.serviceDescription());
         when(resultSet.getInt("profile_completeness_percentage")).thenReturn(professional.profileCompletenessPercentage());
         when(resultSet.getString("profile_classification")).thenReturn(professional.profileClassification().name());
+        when(resultSet.getString("availability_status")).thenReturn(professional.availabilityStatus().name());
         when(resultSet.getBoolean("quality_guarantee")).thenReturn(professional.qualityGuarantee());
         return resultSet;
     }

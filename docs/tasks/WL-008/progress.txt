@@ -1,0 +1,21 @@
+TASK_KEY=WL-008
+FASE=DONE
+
+ULTIMA_HIPOTESE:
+- Disponibilidade deve ser valor fechado no domínio e apenas sinal visual no produto.
+
+ULTIMO_RESULTADO:
+- WL-008 concluída com enum fechado de disponibilidade, migração V006, API pública, badge mobile e ordenação que reduz destaque de indisponíveis.
+
+GATES_OBSERVADOS:
+- QA: PASS
+- SRE: PASS
+- SECURITY: PASS
+- ARCH_REVIEW: PASS
+- FINAL_REVIEW: PASS
+
+PROXIMA_ACAO_RECOMENDADA:
+- Fechar commit/tag semântica v0.18.0 e seguir para a próxima história oficial.
+
+RISCOS_ABERTOS:
+- TTL automático e auditoria de alteração seguem fora do escopo desta história e devem ser tratados em histórias futuras quando aplicável.
