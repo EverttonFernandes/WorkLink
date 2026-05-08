@@ -1,0 +1,21 @@
+TASK_KEY=WL-005
+FASE=DONE
+
+ULTIMA_HIPOTESE:
+- O perfil público pode ser entregue no mobile com dados locais e callbacks, sem integrar storage, auth ou WhatsApp real nesta história.
+
+ULTIMO_RESULTADO:
+- Perfil público mobile implementado com navegação a partir da listagem, seções opcionais, aviso de completude, contato e denúncia por callbacks.
+
+GATES_OBSERVADOS:
+- QA: PASS
+- SRE: PASS
+- SECURITY: PASS
+- ARCH_REVIEW: PASS
+- FINAL_REVIEW: PASS
+
+PROXIMA_ACAO_RECOMENDADA:
+- Versionar WL-005 com tag semântica v0.14.0 e seguir para WLT-014.
+
+RISCOS_ABERTOS:
+- Contato e denúncia ainda exigirão autenticação/rastreabilidade nas histórias futuras WL-010 e WL-014.

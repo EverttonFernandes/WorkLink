@@ -17,13 +17,17 @@ class CitySelectionController extends ChangeNotifier {
   CitySelectionState get state => _state;
 
   void toggleCitySelection(CitySelectionCity citySelectionCity) {
-    final updatedSelectedCityIdentifiers = Set<String>.from(_state.selectedCityIdentifiers);
-    if (updatedSelectedCityIdentifiers.contains(citySelectionCity.cityIdentifier)) {
+    final updatedSelectedCityIdentifiers =
+        Set<String>.from(_state.selectedCityIdentifiers);
+    if (updatedSelectedCityIdentifiers
+        .contains(citySelectionCity.cityIdentifier)) {
       updatedSelectedCityIdentifiers.remove(citySelectionCity.cityIdentifier);
     } else {
       updatedSelectedCityIdentifiers.add(citySelectionCity.cityIdentifier);
     }
-    _state = _state.copyWith(selectedCityIdentifiers: updatedSelectedCityIdentifiers);
+    _state = _state.copyWith(
+      selectedCityIdentifiers: updatedSelectedCityIdentifiers,
+    );
     notifyListeners();
   }
 

@@ -22,11 +22,16 @@ void main() {
 
   DiscoveryController createDiscoveryController() {
     return DiscoveryController(
-      availableProfessionals: const [electricianProfessional, painterProfessional],
+      availableProfessionals: const [
+        electricianProfessional,
+        painterProfessional,
+      ],
     );
   }
 
-  test('GIVEN profissionais disponiveis WHEN filtrar por categoria THEN deve retornar categoria selecionada', () {
+  test(
+      'GIVEN profissionais disponiveis WHEN filtrar por categoria THEN deve retornar categoria selecionada',
+      () {
     // GIVEN
     final discoveryController = createDiscoveryController();
 
@@ -34,11 +39,19 @@ void main() {
     discoveryController.selectCategory('Eletricista');
 
     // THEN
-    expect(discoveryController.state.filteredProfessionals, contains(electricianProfessional));
-    expect(discoveryController.state.filteredProfessionals, isNot(contains(painterProfessional)));
+    expect(
+      discoveryController.state.filteredProfessionals,
+      contains(electricianProfessional),
+    );
+    expect(
+      discoveryController.state.filteredProfessionals,
+      isNot(contains(painterProfessional)),
+    );
   });
 
-  test('GIVEN profissionais disponiveis WHEN filtrar por cidade THEN deve retornar cidade selecionada', () {
+  test(
+      'GIVEN profissionais disponiveis WHEN filtrar por cidade THEN deve retornar cidade selecionada',
+      () {
     // GIVEN
     final discoveryController = createDiscoveryController();
 
@@ -46,11 +59,19 @@ void main() {
     discoveryController.selectCity('Porto Alegre - RS');
 
     // THEN
-    expect(discoveryController.state.filteredProfessionals, contains(painterProfessional));
-    expect(discoveryController.state.filteredProfessionals, isNot(contains(electricianProfessional)));
+    expect(
+      discoveryController.state.filteredProfessionals,
+      contains(painterProfessional),
+    );
+    expect(
+      discoveryController.state.filteredProfessionals,
+      isNot(contains(electricianProfessional)),
+    );
   });
 
-  test('GIVEN profissionais disponiveis WHEN buscar por palavra-chave THEN deve buscar em nome e descricao', () {
+  test(
+      'GIVEN profissionais disponiveis WHEN buscar por palavra-chave THEN deve buscar em nome e descricao',
+      () {
     // GIVEN
     final discoveryController = createDiscoveryController();
 
@@ -58,11 +79,19 @@ void main() {
     discoveryController.searchByKeyword('acabamento');
 
     // THEN
-    expect(discoveryController.state.filteredProfessionals, contains(painterProfessional));
-    expect(discoveryController.state.filteredProfessionals, isNot(contains(electricianProfessional)));
+    expect(
+      discoveryController.state.filteredProfessionals,
+      contains(painterProfessional),
+    );
+    expect(
+      discoveryController.state.filteredProfessionals,
+      isNot(contains(electricianProfessional)),
+    );
   });
 
-  test('GIVEN filtros ativos WHEN limpar filtros THEN deve restaurar busca padrao', () {
+  test(
+      'GIVEN filtros ativos WHEN limpar filtros THEN deve restaurar busca padrao',
+      () {
     // GIVEN
     final discoveryController = createDiscoveryController();
     discoveryController.selectCategory('Eletricista');
@@ -73,7 +102,13 @@ void main() {
 
     // THEN
     expect(discoveryController.state.hasActiveFilters, isFalse);
-    expect(discoveryController.state.filteredProfessionals, contains(electricianProfessional));
-    expect(discoveryController.state.filteredProfessionals, contains(painterProfessional));
+    expect(
+      discoveryController.state.filteredProfessionals,
+      contains(electricianProfessional),
+    );
+    expect(
+      discoveryController.state.filteredProfessionals,
+      contains(painterProfessional),
+    );
   });
 }

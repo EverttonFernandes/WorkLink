@@ -2,7 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/app/worklink_app_configuration.dart';
 
 void main() {
-  test('GIVEN configuracao padrao WHEN ler nome THEN deve retornar WorkLink', () {
+  test('GIVEN configuracao padrao WHEN ler nome THEN deve retornar WorkLink',
+      () {
     // GIVEN
     const applicationConfiguration = WorkLinkAppConfiguration();
 
@@ -13,9 +14,12 @@ void main() {
     expect(applicationName, 'WorkLink');
   });
 
-  test('GIVEN nome customizado WHEN ler nome THEN deve retornar nome customizado', () {
+  test(
+      'GIVEN nome customizado WHEN ler nome THEN deve retornar nome customizado',
+      () {
     // GIVEN
-    const applicationConfiguration = WorkLinkAppConfiguration(applicationName: 'WorkLink Local');
+    const applicationConfiguration =
+        WorkLinkAppConfiguration(applicationName: 'WorkLink Local');
 
     // WHEN
     final applicationName = applicationConfiguration.applicationName;

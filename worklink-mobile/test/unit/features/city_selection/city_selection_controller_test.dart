@@ -21,7 +21,9 @@ void main() {
     );
   }
 
-  test('GIVEN cidade disponivel WHEN selecionar cidade THEN deve manter cidade selecionada', () {
+  test(
+      'GIVEN cidade disponivel WHEN selecionar cidade THEN deve manter cidade selecionada',
+      () {
     // GIVEN
     final citySelectionController = createCitySelectionController();
 
@@ -29,10 +31,15 @@ void main() {
     citySelectionController.toggleCitySelection(canoasCity);
 
     // THEN
-    expect(citySelectionController.state.selectedCityIdentifiers, contains(canoasCity.cityIdentifier));
+    expect(
+      citySelectionController.state.selectedCityIdentifiers,
+      contains(canoasCity.cityIdentifier),
+    );
   });
 
-  test('GIVEN cidade selecionada WHEN tocar novamente THEN deve remover cidade selecionada', () {
+  test(
+      'GIVEN cidade selecionada WHEN tocar novamente THEN deve remover cidade selecionada',
+      () {
     // GIVEN
     final citySelectionController = createCitySelectionController();
     citySelectionController.toggleCitySelection(canoasCity);
@@ -41,10 +48,15 @@ void main() {
     citySelectionController.toggleCitySelection(canoasCity);
 
     // THEN
-    expect(citySelectionController.state.selectedCityIdentifiers, isNot(contains(canoasCity.cityIdentifier)));
+    expect(
+      citySelectionController.state.selectedCityIdentifiers,
+      isNot(contains(canoasCity.cityIdentifier)),
+    );
   });
 
-  test('GIVEN duas cidades disponiveis WHEN selecionar ambas THEN deve manter selecao multipla', () {
+  test(
+      'GIVEN duas cidades disponiveis WHEN selecionar ambas THEN deve manter selecao multipla',
+      () {
     // GIVEN
     final citySelectionController = createCitySelectionController();
 
@@ -53,11 +65,19 @@ void main() {
     citySelectionController.toggleCitySelection(portoAlegreCity);
 
     // THEN
-    expect(citySelectionController.state.selectedCityIdentifiers, contains(canoasCity.cityIdentifier));
-    expect(citySelectionController.state.selectedCityIdentifiers, contains(portoAlegreCity.cityIdentifier));
+    expect(
+      citySelectionController.state.selectedCityIdentifiers,
+      contains(canoasCity.cityIdentifier),
+    );
+    expect(
+      citySelectionController.state.selectedCityIdentifiers,
+      contains(portoAlegreCity.cityIdentifier),
+    );
   });
 
-  test('GIVEN selecao e localizacao ativa WHEN limpar selecao THEN deve limpar cidades e localizacao', () {
+  test(
+      'GIVEN selecao e localizacao ativa WHEN limpar selecao THEN deve limpar cidades e localizacao',
+      () {
     // GIVEN
     final citySelectionController = createCitySelectionController();
     citySelectionController.toggleCitySelection(canoasCity);
@@ -71,7 +91,9 @@ void main() {
     expect(citySelectionController.state.currentLocationEnabled, isFalse);
   });
 
-  test('GIVEN localizacao opcional WHEN ativar localizacao THEN deve habilitar sugestoes proximas', () {
+  test(
+      'GIVEN localizacao opcional WHEN ativar localizacao THEN deve habilitar sugestoes proximas',
+      () {
     // GIVEN
     final citySelectionController = createCitySelectionController();
 
@@ -80,6 +102,9 @@ void main() {
 
     // THEN
     expect(citySelectionController.state.currentLocationEnabled, isTrue);
-    expect(citySelectionController.state.nearbySuggestedCities, contains(portoAlegreCity));
+    expect(
+      citySelectionController.state.nearbySuggestedCities,
+      contains(portoAlegreCity),
+    );
   });
 }

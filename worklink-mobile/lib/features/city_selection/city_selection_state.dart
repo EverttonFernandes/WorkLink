@@ -25,9 +25,12 @@ class CitySelectionState {
   }) {
     return CitySelectionState(
       availableCities: availableCities ?? this.availableCities,
-      selectedCityIdentifiers: selectedCityIdentifiers ?? this.selectedCityIdentifiers,
-      currentLocationEnabled: currentLocationEnabled ?? this.currentLocationEnabled,
-      nearbySuggestedCities: nearbySuggestedCities ?? this.nearbySuggestedCities,
+      selectedCityIdentifiers:
+          selectedCityIdentifiers ?? this.selectedCityIdentifiers,
+      currentLocationEnabled:
+          currentLocationEnabled ?? this.currentLocationEnabled,
+      nearbySuggestedCities:
+          nearbySuggestedCities ?? this.nearbySuggestedCities,
     );
   }
 }

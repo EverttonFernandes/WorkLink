@@ -54,7 +54,8 @@ class _CitySelectionScreenState extends State<CitySelectionScreen> {
             title: const Text('Usar localização atual'),
             subtitle: const Text('Opcional, sem rastreamento contínuo'),
             value: citySelectionState.currentLocationEnabled,
-            onChanged: widget.citySelectionController.toggleCurrentLocationUsage,
+            onChanged:
+                widget.citySelectionController.toggleCurrentLocationUsage,
           ),
           const SizedBox(height: 16),
           Text(
@@ -66,7 +67,8 @@ class _CitySelectionScreenState extends State<CitySelectionScreen> {
             CheckboxListTile(
               title: Text(citySelectionCity.displayName),
               value: citySelectionState.isCitySelected(citySelectionCity),
-              onChanged: (_) => widget.citySelectionController.toggleCitySelection(citySelectionCity),
+              onChanged: (_) => widget.citySelectionController
+                  .toggleCitySelection(citySelectionCity),
             ),
           if (citySelectionState.currentLocationEnabled) ...[
             const SizedBox(height: 16),
@@ -75,7 +77,8 @@ class _CitySelectionScreenState extends State<CitySelectionScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            for (final citySelectionCity in citySelectionState.nearbySuggestedCities)
+            for (final citySelectionCity
+                in citySelectionState.nearbySuggestedCities)
               _NearbyCityListItem(citySelectionCity: citySelectionCity),
           ],
         ],

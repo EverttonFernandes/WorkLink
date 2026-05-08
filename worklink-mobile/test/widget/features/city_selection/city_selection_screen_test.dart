@@ -29,12 +29,16 @@ void main() {
   ) async {
     await widgetTester.pumpWidget(
       MaterialApp(
-        home: CitySelectionScreen(citySelectionController: citySelectionController),
+        home: CitySelectionScreen(
+          citySelectionController: citySelectionController,
+        ),
       ),
     );
   }
 
-  testWidgets('GIVEN tela de cidades WHEN renderizar THEN deve exibir cidades disponiveis', (widgetTester) async {
+  testWidgets(
+      'GIVEN tela de cidades WHEN renderizar THEN deve exibir cidades disponiveis',
+      (widgetTester) async {
     // GIVEN
     final citySelectionController = createCitySelectionController();
 
@@ -47,7 +51,9 @@ void main() {
     expect(find.text('Porto Alegre - RS'), findsOneWidget);
   });
 
-  testWidgets('GIVEN cidade disponivel WHEN tocar na cidade THEN deve selecionar cidade', (widgetTester) async {
+  testWidgets(
+      'GIVEN cidade disponivel WHEN tocar na cidade THEN deve selecionar cidade',
+      (widgetTester) async {
     // GIVEN
     final citySelectionController = createCitySelectionController();
     await pumpCitySelectionScreen(widgetTester, citySelectionController);
@@ -57,10 +63,15 @@ void main() {
     await widgetTester.pump();
 
     // THEN
-    expect(citySelectionController.state.selectedCityIdentifiers, contains(canoasCity.cityIdentifier));
+    expect(
+      citySelectionController.state.selectedCityIdentifiers,
+      contains(canoasCity.cityIdentifier),
+    );
   });
 
-  testWidgets('GIVEN selecao ativa WHEN limpar selecao THEN deve limpar estado da tela', (widgetTester) async {
+  testWidgets(
+      'GIVEN selecao ativa WHEN limpar selecao THEN deve limpar estado da tela',
+      (widgetTester) async {
     // GIVEN
     final citySelectionController = createCitySelectionController();
     await pumpCitySelectionScreen(widgetTester, citySelectionController);
@@ -75,7 +86,9 @@ void main() {
     expect(citySelectionController.state.selectedCityIdentifiers, isEmpty);
   });
 
-  testWidgets('GIVEN localizacao inativa WHEN ativar localizacao THEN deve exibir cidades proximas', (widgetTester) async {
+  testWidgets(
+      'GIVEN localizacao inativa WHEN ativar localizacao THEN deve exibir cidades proximas',
+      (widgetTester) async {
     // GIVEN
     final citySelectionController = createCitySelectionController();
     await pumpCitySelectionScreen(widgetTester, citySelectionController);

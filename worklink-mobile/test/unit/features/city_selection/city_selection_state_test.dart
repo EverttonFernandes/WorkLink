@@ -14,7 +14,9 @@ void main() {
     stateCode: 'RS',
   );
 
-  test('GIVEN cidade WHEN obter nome de exibicao THEN deve combinar cidade e UF', () {
+  test(
+      'GIVEN cidade WHEN obter nome de exibicao THEN deve combinar cidade e UF',
+      () {
     // GIVEN / WHEN
     final displayName = canoasCity.displayName;
 
@@ -22,7 +24,9 @@ void main() {
     expect(displayName, 'Canoas - RS');
   });
 
-  test('GIVEN estado com cidade selecionada WHEN consultar cidade THEN deve retornar selecao correta', () {
+  test(
+      'GIVEN estado com cidade selecionada WHEN consultar cidade THEN deve retornar selecao correta',
+      () {
     // GIVEN
     const citySelectionState = CitySelectionState(
       availableCities: [canoasCity, esteioCity],
@@ -34,7 +38,9 @@ void main() {
     expect(citySelectionState.isCitySelected(esteioCity), isFalse);
   });
 
-  test('GIVEN estado existente WHEN copiar com novos campos THEN deve substituir apenas campos informados', () {
+  test(
+      'GIVEN estado existente WHEN copiar com novos campos THEN deve substituir apenas campos informados',
+      () {
     // GIVEN
     const citySelectionState = CitySelectionState(
       availableCities: [canoasCity],
@@ -51,12 +57,20 @@ void main() {
 
     // THEN
     expect(copiedCitySelectionState.availableCities, contains(esteioCity));
-    expect(copiedCitySelectionState.selectedCityIdentifiers, contains('esteio-rs'));
+    expect(
+      copiedCitySelectionState.selectedCityIdentifiers,
+      contains('esteio-rs'),
+    );
     expect(copiedCitySelectionState.currentLocationEnabled, isTrue);
-    expect(copiedCitySelectionState.nearbySuggestedCities, contains(esteioCity));
+    expect(
+      copiedCitySelectionState.nearbySuggestedCities,
+      contains(esteioCity),
+    );
   });
 
-  test('GIVEN estado existente WHEN copiar sem novos campos THEN deve preservar estado original', () {
+  test(
+      'GIVEN estado existente WHEN copiar sem novos campos THEN deve preservar estado original',
+      () {
     // GIVEN
     const citySelectionState = CitySelectionState(
       availableCities: [canoasCity],
@@ -69,9 +83,21 @@ void main() {
     final copiedCitySelectionState = citySelectionState.copyWith();
 
     // THEN
-    expect(copiedCitySelectionState.availableCities, citySelectionState.availableCities);
-    expect(copiedCitySelectionState.selectedCityIdentifiers, citySelectionState.selectedCityIdentifiers);
-    expect(copiedCitySelectionState.currentLocationEnabled, citySelectionState.currentLocationEnabled);
-    expect(copiedCitySelectionState.nearbySuggestedCities, citySelectionState.nearbySuggestedCities);
+    expect(
+      copiedCitySelectionState.availableCities,
+      citySelectionState.availableCities,
+    );
+    expect(
+      copiedCitySelectionState.selectedCityIdentifiers,
+      citySelectionState.selectedCityIdentifiers,
+    );
+    expect(
+      copiedCitySelectionState.currentLocationEnabled,
+      citySelectionState.currentLocationEnabled,
+    );
+    expect(
+      copiedCitySelectionState.nearbySuggestedCities,
+      citySelectionState.nearbySuggestedCities,
+    );
   });
 }

@@ -6,7 +6,9 @@ import 'discovery_professional.dart';
 class DiscoveryController extends ChangeNotifier {
   DiscoveryController({
     required List<DiscoveryProfessional> availableProfessionals,
-  }) : _state = DiscoveryFilterState(availableProfessionals: availableProfessionals);
+  }) : _state = DiscoveryFilterState(
+          availableProfessionals: availableProfessionals,
+        );
 
   DiscoveryFilterState _state;
 
@@ -34,7 +36,9 @@ class DiscoveryController extends ChangeNotifier {
   }
 
   void clearFilters() {
-    _state = DiscoveryFilterState(availableProfessionals: _state.availableProfessionals);
+    _state = DiscoveryFilterState(
+      availableProfessionals: _state.availableProfessionals,
+    );
     notifyListeners();
   }
 }
