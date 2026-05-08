@@ -1,0 +1,21 @@
+TASK_KEY=WLT-014
+FASE=DONE
+
+ULTIMA_HIPOTESE:
+- A fundação de storage seguro pode ser entregue sem SDK S3 acoplado, usando domínio, caso de uso, metadados persistidos e chave interna aleatória.
+
+ULTIMO_RESULTADO:
+- WLT-014 implementada com domínio de storage, caso de uso de preparação, adapter JDBC, migration, API e testes BDD/TDD.
+
+GATES_OBSERVADOS:
+- QA: PASS
+- SRE: PASS
+- SECURITY: PASS
+- ARCH_REVIEW: PASS
+- FINAL_REVIEW: PASS
+
+PROXIMA_ACAO_RECOMENDADA:
+- Criar commit/tag da WLT-014 e iniciar WL-006 como próxima história oficial.
+
+RISCOS_ABERTOS:
+- Upload binário real, assinatura S3 e auditoria operacional de acesso ficam para incrementos futuros já mapeados.

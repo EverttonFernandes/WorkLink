@@ -13,10 +13,12 @@ import br.com.worklink.application.catalog.usecase.RegisterServiceCategoryUseCas
 import br.com.worklink.application.catalog.usecase.RegisterServiceCityUseCase;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
+import br.com.worklink.application.storage.port.SaveStoredFileMetadataPort;
 import br.com.worklink.application.location.port.SuggestNearbyServiceCitiesPort;
 import br.com.worklink.application.location.usecase.PreviewCitySelectionUseCase;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
+import br.com.worklink.application.storage.usecase.PrepareFileUploadUseCase;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -68,5 +70,12 @@ public class WorkLinkUseCaseConfiguration {
     @Bean
     ListProfessionalsUseCase listProfessionalsUseCase(ListProfessionalsPort listProfessionalsPort) {
         return new ListProfessionalsUseCase(listProfessionalsPort);
+    }
+
+    @Bean
+    PrepareFileUploadUseCase prepareFileUploadUseCase(
+            SaveStoredFileMetadataPort saveStoredFileMetadataPort
+    ) {
+        return new PrepareFileUploadUseCase(saveStoredFileMetadataPort);
     }
 }
