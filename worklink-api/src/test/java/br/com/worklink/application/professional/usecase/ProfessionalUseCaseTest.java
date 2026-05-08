@@ -133,6 +133,65 @@ class ProfessionalUseCaseTest {
                 .containsExactly(professional.professionalIdentifier());
     }
 
+    @Test
+    @DisplayName("Deve completar perfil profissional existente aumentando completude")
+    void shouldCompleteExistingProfessionalProfileIncreasingCompleteness() {
+        // GIVEN
+        InMemoryProfessionalPort inMemoryProfessionalPort = new InMemoryProfessionalPort();
+        Professional professional = inMemoryProfessionalPort.saveProfessional(Professional.registerBasicProfessional(
+                "Maria Eletricista",
+                "51999999999",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial."
+        ));
+        CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase = new CompleteProfessionalProfileUseCase(
+                inMemoryProfessionalPort,
+                inMemoryProfessionalPort
+        );
+
+        // WHEN
+        ProfessionalResponse professionalResponse = completeProfessionalProfileUseCase.completeProfessionalProfile(
+                new CompleteProfessionalProfileRequest(
+                        professional.professionalIdentifier(),
+                        UUID.randomUUID(),
+                        "12345678900",
+                        "https://worklink.example/maria-eletricista",
+                        "Portifolio residencial.",
+                        "Instalacoes e manutencoes eletricas."
+                )
+        );
+
+        // THEN
+        assertThat(professionalResponse.profileCompletenessPercentage()).isEqualTo(100);
+        assertThat(professionalResponse.profileClassification()).isEqualTo(ProfessionalProfileClassification.COMPLETE_PROFILE.name());
+        assertThat(professionalResponse.qualityGuarantee()).isFalse();
+    }
+
+    @Test
+    @DisplayName("Deve rejeitar completude de perfil quando profissional nao existir")
+    void shouldRejectProfileCompletionWhenProfessionalDoesNotExist() {
+        // GIVEN
+        CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase = new CompleteProfessionalProfileUseCase(
+                professionalIdentifier -> Optional.empty(),
+                professional -> professional
+        );
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> completeProfessionalProfileUseCase.completeProfessionalProfile(
+                new CompleteProfessionalProfileRequest(
+                        UUID.randomUUID(),
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                )
+        ))
+                .isInstanceOf(ApplicationRuleViolationException.class)
+                .hasMessage("O profissional informado nao foi encontrado.");
+    }
+
     private RegisterBasicProfessionalRequest validProfessionalRequest() {
         return new RegisterBasicProfessionalRequest(
                 "Maria Eletricista",
@@ -159,12 +218,31 @@ class ProfessionalUseCaseTest {
         return categoryIdentifier -> Optional.empty();
     }
 
-    private static class InMemoryProfessionalPort implements SaveProfessionalPort, ListProfessionalsPort {
+    private static class InMemoryProfessionalPort implements
+            SaveProfessionalPort,
+            ListProfessionalsPort,
+            br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort,
+            br.com.worklink.application.professional.port.UpdateProfessionalPort {
 
         private final List<Professional> professionals = new ArrayList<>();
 
         @Override
         public Professional saveProfessional(Professional professional) {
+            professionals.add(professional);
+            return professional;
+        }
+
+        @Override
+        public Optional<Professional> loadProfessionalByIdentifier(UUID professionalIdentifier) {
+            return professionals.stream()
+                    .filter(professional -> professional.professionalIdentifier().equals(professionalIdentifier))
+                    .findFirst();
+        }
+
+        @Override
+        public Professional updateProfessional(Professional professional) {
+            professionals.removeIf(existingProfessional ->
+                    existingProfessional.professionalIdentifier().equals(professional.professionalIdentifier()));
             professionals.add(professional);
             return professional;
         }

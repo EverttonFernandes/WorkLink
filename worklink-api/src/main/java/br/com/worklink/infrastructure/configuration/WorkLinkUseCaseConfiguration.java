@@ -12,10 +12,13 @@ import br.com.worklink.application.catalog.usecase.ListServiceCitiesUseCase;
 import br.com.worklink.application.catalog.usecase.RegisterServiceCategoryUseCase;
 import br.com.worklink.application.catalog.usecase.RegisterServiceCityUseCase;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
+import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
+import br.com.worklink.application.professional.port.UpdateProfessionalPort;
 import br.com.worklink.application.storage.port.SaveStoredFileMetadataPort;
 import br.com.worklink.application.location.port.SuggestNearbyServiceCitiesPort;
 import br.com.worklink.application.location.usecase.PreviewCitySelectionUseCase;
+import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
 import br.com.worklink.application.storage.usecase.PrepareFileUploadUseCase;
@@ -70,6 +73,14 @@ public class WorkLinkUseCaseConfiguration {
     @Bean
     ListProfessionalsUseCase listProfessionalsUseCase(ListProfessionalsPort listProfessionalsPort) {
         return new ListProfessionalsUseCase(listProfessionalsPort);
+    }
+
+    @Bean
+    CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase(
+            LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort,
+            UpdateProfessionalPort updateProfessionalPort
+    ) {
+        return new CompleteProfessionalProfileUseCase(loadProfessionalByIdentifierPort, updateProfessionalPort);
     }
 
     @Bean

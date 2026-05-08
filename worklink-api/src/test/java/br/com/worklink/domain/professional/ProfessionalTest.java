@@ -37,8 +37,66 @@ class ProfessionalTest {
         assertThat(professional.cityIdentifier()).isEqualTo(CITY_IDENTIFIER);
         assertThat(professional.categoryIdentifier()).isEqualTo(CATEGORY_IDENTIFIER);
         assertThat(professional.shortDescription()).isEqualTo("Atendimento residencial em instalacoes eletricas.");
+        assertThat(professional.profileCompletenessPercentage()).isEqualTo(50);
         assertThat(professional.profileClassification()).isEqualTo(ProfessionalProfileClassification.BASIC_PROFILE);
         assertThat(professional.qualityGuarantee()).isFalse();
+    }
+
+    @Test
+    @DisplayName("Deve aumentar completude sem prometer qualidade quando profissional completar dados progressivos")
+    void shouldIncreaseCompletenessWithoutPromisingQualityWhenProfessionalCompletesProgressiveData() {
+        // GIVEN
+        Professional professional = Professional.registerBasicProfessional(
+                "Maria Eletricista",
+                "51999999999",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial."
+        );
+        UUID profilePhotoFileIdentifier = UUID.randomUUID();
+
+        // WHEN
+        Professional completedProfessional = professional.completeProgressiveProfile(
+                profilePhotoFileIdentifier,
+                "12345678900",
+                "https://worklink.example/maria-eletricista",
+                "Instalacoes residenciais recentes.",
+                "Instalacoes, manutencao e emergencias eletricas."
+        );
+
+        // THEN
+        assertThat(completedProfessional.profileCompletenessPercentage()).isEqualTo(100);
+        assertThat(completedProfessional.profileClassification()).isEqualTo(ProfessionalProfileClassification.COMPLETE_PROFILE);
+        assertThat(completedProfessional.profilePhotoFileIdentifier()).isEqualTo(profilePhotoFileIdentifier);
+        assertThat(completedProfessional.documentNumber()).isEqualTo("12345678900");
+        assertThat(completedProfessional.qualityGuarantee()).isFalse();
+    }
+
+    @Test
+    @DisplayName("Deve manter completude basica quando profissional editar perfil sem campos opcionais")
+    void shouldKeepBasicCompletenessWhenProfessionalEditsProfileWithoutOptionalFields() {
+        // GIVEN
+        Professional professional = Professional.registerBasicProfessional(
+                "Maria Eletricista",
+                "51999999999",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial."
+        );
+
+        // WHEN
+        Professional updatedProfessional = professional.completeProgressiveProfile(
+                null,
+                " ",
+                null,
+                "",
+                null
+        );
+
+        // THEN
+        assertThat(updatedProfessional.profileCompletenessPercentage()).isEqualTo(50);
+        assertThat(updatedProfessional.profileClassification()).isEqualTo(ProfessionalProfileClassification.BASIC_PROFILE);
+        assertThat(updatedProfessional.documentNumber()).isNull();
     }
 
     @Test
@@ -145,6 +203,12 @@ class ProfessionalTest {
                 CITY_IDENTIFIER,
                 CATEGORY_IDENTIFIER,
                 "Atendimento residencial.",
+                null,
+                null,
+                null,
+                null,
+                null,
+                50,
                 ProfessionalProfileClassification.BASIC_PROFILE,
                 false
         );
@@ -169,6 +233,12 @@ class ProfessionalTest {
                 CITY_IDENTIFIER,
                 CATEGORY_IDENTIFIER,
                 "Atendimento residencial.",
+                null,
+                null,
+                null,
+                null,
+                null,
+                50,
                 profileClassification,
                 false
         ))

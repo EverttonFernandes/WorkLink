@@ -47,8 +47,68 @@ class JdbcProfessionalRepositoryAdapterTest {
                 eq(professional.cityIdentifier()),
                 eq(professional.categoryIdentifier()),
                 eq(professional.shortDescription()),
+                eq(professional.profilePhotoFileIdentifier()),
+                eq(professional.documentNumber()),
+                eq(professional.usefulLink()),
+                eq(professional.portfolioDescription()),
+                eq(professional.serviceDescription()),
+                eq(professional.profileCompletenessPercentage()),
                 eq(professional.profileClassification().name()),
                 eq(professional.qualityGuarantee())
+        );
+    }
+
+    @Test
+    @DisplayName("Deve carregar profissional por identificador usando JdbcTemplate")
+    void shouldLoadProfessionalByIdentifierUsingJdbcTemplate() throws Exception {
+        // GIVEN
+        JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
+        JdbcProfessionalRepositoryAdapter adapter = new JdbcProfessionalRepositoryAdapter(jdbcTemplate);
+        Professional professional = validProfessional();
+        ResultSet resultSet = professionalResultSet(professional);
+        when(jdbcTemplate.query(any(String.class), any(RowMapper.class), eq(professional.professionalIdentifier())))
+                .thenAnswer(invocation -> {
+                    RowMapper<Professional> rowMapper = invocation.getArgument(1);
+                    return List.of(rowMapper.mapRow(resultSet, 0));
+                });
+
+        // WHEN
+        Optional<Professional> loadedProfessional = adapter.loadProfessionalByIdentifier(professional.professionalIdentifier());
+
+        // THEN
+        assertThat(loadedProfessional).contains(professional);
+    }
+
+    @Test
+    @DisplayName("Deve atualizar perfil progressivo do profissional usando JdbcTemplate")
+    void shouldUpdateProgressiveProfessionalProfileUsingJdbcTemplate() {
+        // GIVEN
+        JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
+        JdbcProfessionalRepositoryAdapter adapter = new JdbcProfessionalRepositoryAdapter(jdbcTemplate);
+        Professional professional = validProfessional().completeProgressiveProfile(
+                UUID.randomUUID(),
+                "12345678900",
+                "https://worklink.example/maria-eletricista",
+                "Portifolio residencial.",
+                "Instalacoes eletricas."
+        );
+
+        // WHEN
+        Professional updatedProfessional = adapter.updateProfessional(professional);
+
+        // THEN
+        assertThat(updatedProfessional).isEqualTo(professional);
+        verify(jdbcTemplate).update(
+                any(String.class),
+                eq(professional.profilePhotoFileIdentifier()),
+                eq(professional.documentNumber()),
+                eq(professional.usefulLink()),
+                eq(professional.portfolioDescription()),
+                eq(professional.serviceDescription()),
+                eq(professional.profileCompletenessPercentage()),
+                eq(professional.profileClassification().name()),
+                eq(professional.qualityGuarantee()),
+                eq(professional.professionalIdentifier())
         );
     }
 
@@ -140,6 +200,12 @@ class JdbcProfessionalRepositoryAdapterTest {
         when(resultSet.getObject("city_identifier", UUID.class)).thenReturn(professional.cityIdentifier());
         when(resultSet.getObject("category_identifier", UUID.class)).thenReturn(professional.categoryIdentifier());
         when(resultSet.getString("short_description")).thenReturn(professional.shortDescription());
+        when(resultSet.getObject("profile_photo_file_identifier", UUID.class)).thenReturn(professional.profilePhotoFileIdentifier());
+        when(resultSet.getString("document_number")).thenReturn(professional.documentNumber());
+        when(resultSet.getString("useful_link")).thenReturn(professional.usefulLink());
+        when(resultSet.getString("portfolio_description")).thenReturn(professional.portfolioDescription());
+        when(resultSet.getString("service_description")).thenReturn(professional.serviceDescription());
+        when(resultSet.getInt("profile_completeness_percentage")).thenReturn(professional.profileCompletenessPercentage());
         when(resultSet.getString("profile_classification")).thenReturn(professional.profileClassification().name());
         when(resultSet.getBoolean("quality_guarantee")).thenReturn(professional.qualityGuarantee());
         return resultSet;

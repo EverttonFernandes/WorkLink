@@ -1,8 +1,10 @@
 package br.com.worklink.infrastructure.professional;
 
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
+import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
+import br.com.worklink.application.professional.port.UpdateProfessionalPort;
 import br.com.worklink.domain.professional.Professional;
 import br.com.worklink.domain.professional.ProfessionalProfileClassification;
 
@@ -11,11 +13,16 @@ import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Repository
-public class JdbcProfessionalRepositoryAdapter implements SaveProfessionalPort, ListProfessionalsPort {
+public class JdbcProfessionalRepositoryAdapter implements
+        SaveProfessionalPort,
+        ListProfessionalsPort,
+        LoadProfessionalByIdentifierPort,
+        UpdateProfessionalPort {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -34,10 +41,16 @@ public class JdbcProfessionalRepositoryAdapter implements SaveProfessionalPort, 
                     city_identifier,
                     category_identifier,
                     short_description,
+                    profile_photo_file_identifier,
+                    document_number,
+                    useful_link,
+                    portfolio_description,
+                    service_description,
+                    profile_completeness_percentage,
                     profile_classification,
                     quality_guarantee
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 professional.professionalIdentifier(),
                 professional.professionalName(),
@@ -45,8 +58,68 @@ public class JdbcProfessionalRepositoryAdapter implements SaveProfessionalPort, 
                 professional.cityIdentifier(),
                 professional.categoryIdentifier(),
                 professional.shortDescription(),
+                professional.profilePhotoFileIdentifier(),
+                professional.documentNumber(),
+                professional.usefulLink(),
+                professional.portfolioDescription(),
+                professional.serviceDescription(),
+                professional.profileCompletenessPercentage(),
                 professional.profileClassification().name(),
                 professional.qualityGuarantee()
+        );
+        return professional;
+    }
+
+    @Override
+    public Optional<Professional> loadProfessionalByIdentifier(UUID professionalIdentifier) {
+        return jdbcTemplate.query(
+                """
+                SELECT professional_identifier,
+                       professional_name,
+                       whatsapp_number,
+                       city_identifier,
+                       category_identifier,
+                       short_description,
+                       profile_photo_file_identifier,
+                       document_number,
+                       useful_link,
+                       portfolio_description,
+                       service_description,
+                       profile_completeness_percentage,
+                       profile_classification,
+                       quality_guarantee
+                FROM worklink.professionals
+                WHERE professional_identifier = ?
+                """,
+                (resultSet, rowNumber) -> mapProfessional(resultSet),
+                professionalIdentifier
+        ).stream().findFirst();
+    }
+
+    @Override
+    public Professional updateProfessional(Professional professional) {
+        jdbcTemplate.update(
+                """
+                UPDATE worklink.professionals
+                SET profile_photo_file_identifier = ?,
+                    document_number = ?,
+                    useful_link = ?,
+                    portfolio_description = ?,
+                    service_description = ?,
+                    profile_completeness_percentage = ?,
+                    profile_classification = ?,
+                    quality_guarantee = ?
+                WHERE professional_identifier = ?
+                """,
+                professional.profilePhotoFileIdentifier(),
+                professional.documentNumber(),
+                professional.usefulLink(),
+                professional.portfolioDescription(),
+                professional.serviceDescription(),
+                professional.profileCompletenessPercentage(),
+                professional.profileClassification().name(),
+                professional.qualityGuarantee(),
+                professional.professionalIdentifier()
         );
         return professional;
     }
@@ -60,6 +133,12 @@ public class JdbcProfessionalRepositoryAdapter implements SaveProfessionalPort, 
                        city_identifier,
                        category_identifier,
                        short_description,
+                       profile_photo_file_identifier,
+                       document_number,
+                       useful_link,
+                       portfolio_description,
+                       service_description,
+                       profile_completeness_percentage,
                        profile_classification,
                        quality_guarantee
                 FROM worklink.professionals
@@ -88,17 +167,27 @@ public class JdbcProfessionalRepositoryAdapter implements SaveProfessionalPort, 
 
         return jdbcTemplate.query(
                 sqlBuilder.toString(),
-                (resultSet, rowNumber) -> Professional.restoreProfessional(
-                        resultSet.getObject("professional_identifier", UUID.class),
-                        resultSet.getString("professional_name"),
-                        resultSet.getString("whatsapp_number"),
-                        resultSet.getObject("city_identifier", UUID.class),
-                        resultSet.getObject("category_identifier", UUID.class),
-                        resultSet.getString("short_description"),
-                        ProfessionalProfileClassification.valueOf(resultSet.getString("profile_classification")),
-                        resultSet.getBoolean("quality_guarantee")
-                ),
+                (resultSet, rowNumber) -> mapProfessional(resultSet),
                 queryParameters.toArray()
+        );
+    }
+
+    private Professional mapProfessional(java.sql.ResultSet resultSet) throws java.sql.SQLException {
+        return Professional.restoreProfessional(
+                resultSet.getObject("professional_identifier", UUID.class),
+                resultSet.getString("professional_name"),
+                resultSet.getString("whatsapp_number"),
+                resultSet.getObject("city_identifier", UUID.class),
+                resultSet.getObject("category_identifier", UUID.class),
+                resultSet.getString("short_description"),
+                resultSet.getObject("profile_photo_file_identifier", UUID.class),
+                resultSet.getString("document_number"),
+                resultSet.getString("useful_link"),
+                resultSet.getString("portfolio_description"),
+                resultSet.getString("service_description"),
+                resultSet.getInt("profile_completeness_percentage"),
+                ProfessionalProfileClassification.valueOf(resultSet.getString("profile_classification")),
+                resultSet.getBoolean("quality_guarantee")
         );
     }
 }

@@ -7,7 +7,9 @@ import br.com.worklink.application.catalog.port.LoadServiceCityByIdentifierPort;
 import br.com.worklink.application.catalog.port.SaveServiceCategoryPort;
 import br.com.worklink.application.catalog.port.SaveServiceCityPort;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
+import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
+import br.com.worklink.application.professional.port.UpdateProfessionalPort;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
 
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +34,8 @@ class WorkLinkUseCaseConfigurationTest {
         LoadServiceCategoryByIdentifierPort loadServiceCategoryByIdentifierPort = categoryIdentifier -> Optional.empty();
         SaveProfessionalPort saveProfessionalPort = professional -> professional;
         ListProfessionalsPort listProfessionalsPort = professionalSearchCriteria -> java.util.List.of();
+        LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort = professionalIdentifier -> Optional.empty();
+        UpdateProfessionalPort updateProfessionalPort = professional -> professional;
 
         // WHEN
         RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase = configuration.registerBasicProfessionalUseCase(
@@ -47,5 +51,9 @@ class WorkLinkUseCaseConfigurationTest {
         assertThat(configuration.listServiceCitiesUseCase(listServiceCitiesPort)).isNotNull();
         assertThat(registerBasicProfessionalUseCase).isNotNull();
         assertThat(configuration.listProfessionalsUseCase(listProfessionalsPort)).isNotNull();
+        assertThat(configuration.completeProfessionalProfileUseCase(
+                loadProfessionalByIdentifierPort,
+                updateProfessionalPort
+        )).isNotNull();
     }
 }

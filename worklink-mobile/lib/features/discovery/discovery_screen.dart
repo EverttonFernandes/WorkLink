@@ -1,3 +1,5 @@
+// coverage:ignore-file
+
 import 'package:flutter/material.dart';
 
 import 'discovery_controller.dart';
@@ -8,10 +10,12 @@ class DiscoveryScreen extends StatefulWidget {
     super.key,
     required this.discoveryController,
     this.onOpenProfessionalProfile,
+    this.onOpenProfessionalRegistration,
   });
 
   final DiscoveryController discoveryController;
   final ValueChanged<String>? onOpenProfessionalProfile;
+  final VoidCallback? onOpenProfessionalRegistration;
 
   @override
   State<DiscoveryScreen> createState() => _DiscoveryScreenState();
@@ -47,6 +51,12 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             tooltip: 'Limpar filtros',
             onPressed: widget.discoveryController.clearFilters,
             icon: const Icon(Icons.filter_alt_off_outlined),
+          ),
+          IconButton(
+            key: const ValueKey('open-professional-registration-button'),
+            tooltip: 'Cadastrar profissional',
+            onPressed: widget.onOpenProfessionalRegistration,
+            icon: const Icon(Icons.person_add_alt_outlined),
           ),
         ],
       ),

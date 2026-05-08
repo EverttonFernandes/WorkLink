@@ -11,6 +11,12 @@ public record ProfessionalHttpResponse(
         UUID cityIdentifier,
         UUID categoryIdentifier,
         String shortDescription,
+        UUID profilePhotoFileIdentifier,
+        String documentNumber,
+        String usefulLink,
+        String portfolioDescription,
+        String serviceDescription,
+        int profileCompletenessPercentage,
         String profileClassification,
         boolean qualityGuarantee
 ) {
@@ -23,6 +29,12 @@ public record ProfessionalHttpResponse(
                 professionalResponse.cityIdentifier(),
                 professionalResponse.categoryIdentifier(),
                 professionalResponse.shortDescription(),
+                professionalResponse.profilePhotoFileIdentifier(),
+                professionalResponse.documentNumber(),
+                professionalResponse.usefulLink(),
+                professionalResponse.portfolioDescription(),
+                professionalResponse.serviceDescription(),
+                professionalResponse.profileCompletenessPercentage(),
                 professionalResponse.profileClassification(),
                 professionalResponse.qualityGuarantee()
         );

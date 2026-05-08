@@ -4,6 +4,8 @@ import br.com.worklink.api.professional.ProfessionalController;
 import br.com.worklink.application.ApplicationRuleViolationException;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
+import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileRequest;
+import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
 import br.com.worklink.application.professional.usecase.ProfessionalResponse;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalRequest;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
@@ -25,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,6 +50,9 @@ class ProfessionalControllerTest {
     @MockBean
     private ListProfessionalsUseCase listProfessionalsUseCase;
 
+    @MockBean
+    private CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase;
+
     @Test
     @DisplayName("Deve expor cadastro de profissional basico pela API")
     void shouldExposeBasicProfessionalRegistrationThroughApi() throws Exception {
@@ -66,7 +72,26 @@ class ProfessionalControllerTest {
                 .andExpect(jsonPath("$.cityIdentifier").value(CITY_IDENTIFIER.toString()))
                 .andExpect(jsonPath("$.categoryIdentifier").value(CATEGORY_IDENTIFIER.toString()))
                 .andExpect(jsonPath("$.shortDescription").value("Atendimento residencial."))
+                .andExpect(jsonPath("$.profileCompletenessPercentage").value(50))
                 .andExpect(jsonPath("$.profileClassification").value("BASIC_PROFILE"))
+                .andExpect(jsonPath("$.qualityGuarantee").value(false));
+    }
+
+    @Test
+    @DisplayName("Deve expor edicao progressiva de perfil profissional pela API")
+    void shouldExposeProgressiveProfessionalProfileEditionThroughApi() throws Exception {
+        // GIVEN
+        ProfessionalResponse professionalResponse = completedProfessionalResponse();
+        when(completeProfessionalProfileUseCase.completeProfessionalProfile(any(CompleteProfessionalProfileRequest.class)))
+                .thenReturn(professionalResponse);
+
+        // WHEN / THEN
+        mockMvc.perform(patch("/api/v1/professionals/{professionalIdentifier}/profile", professionalResponse.professionalIdentifier())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(completedProfessionalBody())))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.profileCompletenessPercentage").value(100))
+                .andExpect(jsonPath("$.profileClassification").value("COMPLETE_PROFILE"))
                 .andExpect(jsonPath("$.qualityGuarantee").value(false));
     }
 
@@ -117,7 +142,32 @@ class ProfessionalControllerTest {
                 CITY_IDENTIFIER,
                 CATEGORY_IDENTIFIER,
                 "Atendimento residencial.",
+                null,
+                null,
+                null,
+                null,
+                null,
+                50,
                 "BASIC_PROFILE",
+                false
+        );
+    }
+
+    private ProfessionalResponse completedProfessionalResponse() {
+        return new ProfessionalResponse(
+                UUID.randomUUID(),
+                "Maria Eletricista",
+                "51999999999",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial.",
+                UUID.randomUUID(),
+                "12345678900",
+                "https://worklink.example/maria-eletricista",
+                "Instalacoes residenciais recentes.",
+                "Instalacoes e manutencoes eletricas.",
+                100,
+                "COMPLETE_PROFILE",
                 false
         );
     }
@@ -132,12 +182,31 @@ class ProfessionalControllerTest {
         );
     }
 
+    private CompletedProfessionalBody completedProfessionalBody() {
+        return new CompletedProfessionalBody(
+                UUID.randomUUID(),
+                "12345678900",
+                "https://worklink.example/maria-eletricista",
+                "Instalacoes residenciais recentes.",
+                "Instalacoes e manutencoes eletricas."
+        );
+    }
+
     private record ProfessionalBody(
             String professionalName,
             String whatsappNumber,
             UUID cityIdentifier,
             UUID categoryIdentifier,
             String shortDescription
+    ) {
+    }
+
+    private record CompletedProfessionalBody(
+            UUID profilePhotoFileIdentifier,
+            String documentNumber,
+            String usefulLink,
+            String portfolioDescription,
+            String serviceDescription
     ) {
     }
 }

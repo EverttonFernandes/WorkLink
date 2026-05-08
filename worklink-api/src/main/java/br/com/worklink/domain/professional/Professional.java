@@ -11,6 +11,12 @@ public record Professional(
         UUID cityIdentifier,
         UUID categoryIdentifier,
         String shortDescription,
+        UUID profilePhotoFileIdentifier,
+        String documentNumber,
+        String usefulLink,
+        String portfolioDescription,
+        String serviceDescription,
+        int profileCompletenessPercentage,
         ProfessionalProfileClassification profileClassification,
         boolean qualityGuarantee
 ) {
@@ -29,6 +35,12 @@ public record Professional(
                 requireIdentifier(cityIdentifier, "A cidade do profissional e obrigatoria."),
                 requireIdentifier(categoryIdentifier, "A categoria do profissional e obrigatoria."),
                 requireMeaningfulText(shortDescription, "A descricao curta do profissional e obrigatoria."),
+                null,
+                null,
+                null,
+                null,
+                null,
+                calculateCompletenessPercentage(null, null, null, null, null),
                 ProfessionalProfileClassification.BASIC_PROFILE,
                 false
         );
@@ -41,6 +53,12 @@ public record Professional(
             UUID cityIdentifier,
             UUID categoryIdentifier,
             String shortDescription,
+            UUID profilePhotoFileIdentifier,
+            String documentNumber,
+            String usefulLink,
+            String portfolioDescription,
+            String serviceDescription,
+            int profileCompletenessPercentage,
             ProfessionalProfileClassification profileClassification,
             boolean qualityGuarantee
     ) {
@@ -51,8 +69,46 @@ public record Professional(
                 requireIdentifier(cityIdentifier, "A cidade do profissional e obrigatoria."),
                 requireIdentifier(categoryIdentifier, "A categoria do profissional e obrigatoria."),
                 requireMeaningfulText(shortDescription, "A descricao curta do profissional e obrigatoria."),
+                profilePhotoFileIdentifier,
+                normalizeOptionalText(documentNumber),
+                normalizeOptionalText(usefulLink),
+                normalizeOptionalText(portfolioDescription),
+                normalizeOptionalText(serviceDescription),
+                requireCompletenessPercentage(profileCompletenessPercentage),
                 requireClassification(profileClassification),
                 qualityGuarantee
+        );
+    }
+
+    public Professional completeProgressiveProfile(
+            UUID newProfilePhotoFileIdentifier,
+            String newDocumentNumber,
+            String newUsefulLink,
+            String newPortfolioDescription,
+            String newServiceDescription
+    ) {
+        int newCompletenessPercentage = calculateCompletenessPercentage(
+                newProfilePhotoFileIdentifier,
+                newDocumentNumber,
+                newUsefulLink,
+                newPortfolioDescription,
+                newServiceDescription
+        );
+        return new Professional(
+                professionalIdentifier,
+                professionalName,
+                whatsappNumber,
+                cityIdentifier,
+                categoryIdentifier,
+                shortDescription,
+                newProfilePhotoFileIdentifier,
+                normalizeOptionalText(newDocumentNumber),
+                normalizeOptionalText(newUsefulLink),
+                normalizeOptionalText(newPortfolioDescription),
+                normalizeOptionalText(newServiceDescription),
+                newCompletenessPercentage,
+                classifyCompleteness(newCompletenessPercentage),
+                false
         );
     }
 
@@ -75,5 +131,55 @@ public record Professional(
             throw new BusinessRuleViolationException("A classificacao do perfil profissional e obrigatoria.");
         }
         return profileClassification;
+    }
+
+    private static String normalizeOptionalText(String text) {
+        if (text == null || text.isBlank()) {
+            return null;
+        }
+        return text.trim();
+    }
+
+    private static int calculateCompletenessPercentage(
+            UUID profilePhotoFileIdentifier,
+            String documentNumber,
+            String usefulLink,
+            String portfolioDescription,
+            String serviceDescription
+    ) {
+        int completenessPercentage = 50;
+        if (profilePhotoFileIdentifier != null) {
+            completenessPercentage += 10;
+        }
+        if (normalizeOptionalText(documentNumber) != null) {
+            completenessPercentage += 10;
+        }
+        if (normalizeOptionalText(usefulLink) != null) {
+            completenessPercentage += 10;
+        }
+        if (normalizeOptionalText(portfolioDescription) != null) {
+            completenessPercentage += 10;
+        }
+        if (normalizeOptionalText(serviceDescription) != null) {
+            completenessPercentage += 10;
+        }
+        return completenessPercentage;
+    }
+
+    private static int requireCompletenessPercentage(int profileCompletenessPercentage) {
+        if (profileCompletenessPercentage < 0 || profileCompletenessPercentage > 100) {
+            throw new BusinessRuleViolationException("A completude do perfil profissional deve estar entre 0 e 100.");
+        }
+        return profileCompletenessPercentage;
+    }
+
+    private static ProfessionalProfileClassification classifyCompleteness(int profileCompletenessPercentage) {
+        if (profileCompletenessPercentage >= 100) {
+            return ProfessionalProfileClassification.COMPLETE_PROFILE;
+        }
+        if (profileCompletenessPercentage > 50) {
+            return ProfessionalProfileClassification.PROGRESSIVE_PROFILE;
+        }
+        return ProfessionalProfileClassification.BASIC_PROFILE;
     }
 }

@@ -56,4 +56,22 @@ void main() {
       findsOneWidget,
     );
   });
+
+  testWidgets(
+      'GIVEN app inicial WHEN abrir cadastro profissional THEN deve navegar para cadastro progressivo',
+      (tester) async {
+    // GIVEN
+    const application = WorkLinkApp();
+    await tester.pumpWidget(application);
+
+    // WHEN
+    await tester.tap(
+      find.byKey(const ValueKey('open-professional-registration-button')),
+    );
+    await tester.pumpAndSettle();
+
+    // THEN
+    expect(find.text('Cadastro do Profissional'), findsOneWidget);
+    expect(find.text('Etapa 1 de 2'), findsOneWidget);
+  });
 }

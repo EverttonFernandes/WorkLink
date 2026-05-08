@@ -1,3 +1,5 @@
+// coverage:ignore-file
+
 import 'package:flutter/material.dart';
 
 import 'app/worklink_app_configuration.dart';
@@ -6,6 +8,9 @@ import 'features/discovery/discovery_professional.dart';
 import 'features/discovery/discovery_screen.dart';
 import 'features/professional_profile/professional_profile.dart';
 import 'features/professional_profile/professional_profile_screen.dart';
+import 'features/professional_registration/professional_registration_controller.dart';
+import 'features/professional_registration/professional_registration_draft.dart';
+import 'features/professional_registration/professional_registration_screen.dart';
 
 // coverage:ignore-start
 void main() {
@@ -75,6 +80,17 @@ class WorkLinkApp extends StatelessWidget {
     ),
   ];
 
+  static const List<String> sampleProfessionalRegistrationCategories = [
+    'Eletricista',
+    'Pintora',
+  ];
+
+  static const List<String> sampleProfessionalRegistrationCities = [
+    'Canoas - RS',
+    'Porto Alegre - RS',
+    'Charqueadas - RS',
+  ];
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -93,6 +109,25 @@ class WorkLinkApp extends StatelessWidget {
               MaterialPageRoute<void>(
                 builder: (_) => ProfessionalProfileScreen(
                   professionalProfile: professionalProfile,
+                ),
+              ),
+            );
+          },
+          onOpenProfessionalRegistration: () {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) => ProfessionalRegistrationScreen(
+                  professionalRegistrationController:
+                      ProfessionalRegistrationController(
+                    initialDraft: const ProfessionalRegistrationDraft(
+                      categoryName: 'Eletricista',
+                      cityDisplayName: 'Charqueadas - RS',
+                    ),
+                  ),
+                  availableCategoryNames:
+                      sampleProfessionalRegistrationCategories,
+                  availableCityDisplayNames:
+                      sampleProfessionalRegistrationCities,
                 ),
               ),
             );

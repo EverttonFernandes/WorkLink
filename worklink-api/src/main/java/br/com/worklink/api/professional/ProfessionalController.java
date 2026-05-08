@@ -1,5 +1,7 @@
 package br.com.worklink.api.professional;
 
+import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileRequest;
+import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.ProfessionalResponse;
@@ -8,6 +10,8 @@ import br.com.worklink.application.professional.usecase.RegisterBasicProfessiona
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,13 +31,16 @@ public class ProfessionalController {
 
     private final RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase;
     private final ListProfessionalsUseCase listProfessionalsUseCase;
+    private final CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase;
 
     public ProfessionalController(
             RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase,
-            ListProfessionalsUseCase listProfessionalsUseCase
+            ListProfessionalsUseCase listProfessionalsUseCase,
+            CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase
     ) {
         this.registerBasicProfessionalUseCase = registerBasicProfessionalUseCase;
         this.listProfessionalsUseCase = listProfessionalsUseCase;
+        this.completeProfessionalProfileUseCase = completeProfessionalProfileUseCase;
     }
 
     @PostMapping
@@ -66,6 +73,24 @@ public class ProfessionalController {
         return listProfessionalsUseCase.listProfessionals(professionalSearchCriteria).stream()
                 .map(ProfessionalHttpResponse::fromProfessionalResponse)
                 .toList();
+    }
+
+    @PatchMapping("/{professionalIdentifier}/profile")
+    ProfessionalHttpResponse completeProfessionalProfile(
+            @PathVariable UUID professionalIdentifier,
+            @RequestBody CompleteProfessionalProfileHttpRequest request
+    ) {
+        ProfessionalResponse professionalResponse = completeProfessionalProfileUseCase.completeProfessionalProfile(
+                new CompleteProfessionalProfileRequest(
+                        professionalIdentifier,
+                        request.profilePhotoFileIdentifier(),
+                        request.documentNumber(),
+                        request.usefulLink(),
+                        request.portfolioDescription(),
+                        request.serviceDescription()
+                )
+        );
+        return ProfessionalHttpResponse.fromProfessionalResponse(professionalResponse);
     }
 
     private Set<UUID> selectedCityIdentifiers(UUID cityIdentifier, List<UUID> cityIdentifiers) {
