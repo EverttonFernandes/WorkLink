@@ -23,7 +23,6 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História | Tipo | Título | Relação com outras histórias | Execução | Versão |
 |-------|----------|------|--------|-------------------------------|----------|--------|
-| 22 | [WLT-011](historias-tecnicas/WLT-011-rastreabilidade-auditoria-acoes-sensiveis.md) | Técnica | Autenticidade, rastreabilidade e auditoria | Pré-requisito para contato, avaliação, denúncia e admin | Separada | MINOR |
 | 23 | [WLT-012](historias-tecnicas/WLT-012-lgpd-privacidade-dados-sensiveis.md) | Técnica | LGPD, privacidade e minimização | Pré-requisito para dados pessoais e anonimato | Separada | MINOR |
 | 24 | [WLT-015](historias-tecnicas/WLT-015-observabilidade-logs-metricas.md) | Técnica | Observabilidade, logs e métricas | Pré-requisito para rastrear fluxos críticos | Separada | MINOR |
 | 25 | [WL-009](historias/WL-009-autenticacao-cliente-telefone.md) | Negócio | Autenticação simplificada do cliente por telefone | Depende de auth segura, privacidade e auditoria | Junto dos gates de segurança | MINOR |
@@ -71,6 +70,7 @@ _Vazio._
 | 19 | [WLT-013](historias-tecnicas/WLT-013-criptografia-protecao-dados.md) | Técnica | Criptografia e proteção de dados | Pré-requisito para auth, documentos, denúncias e tokens | Separada | MINOR | [Entrega WLT-013](../entregas/WLT-013-criptografia-protecao-dados.md) |
 | 20 | [WLT-009](historias-tecnicas/WLT-009-autenticacao-sessoes-tokens.md) | Técnica | Autenticação segura, sessões e tokens | Pré-requisito técnico para autenticação do cliente | Separada | MINOR | [Entrega WLT-009](../entregas/WLT-009-autenticacao-sessoes-tokens.md) |
 | 21 | [WLT-010](historias-tecnicas/WLT-010-autorizacao-perfis-ownership.md) | Técnica | Autorização por perfil e ownership | Pré-requisito para ações sensíveis | Separada | MINOR | [Entrega WLT-010](../entregas/WLT-010-autorizacao-perfis-ownership.md) |
+| 22 | [WLT-011](historias-tecnicas/WLT-011-rastreabilidade-auditoria-acoes-sensiveis.md) | Técnica | Autenticidade, rastreabilidade e auditoria | Pré-requisito para contato, avaliação, denúncia e admin | Separada | MINOR | [Entrega WLT-011](../entregas/WLT-011-rastreabilidade-auditoria-acoes-sensiveis.md) |
 
 ## Histórias técnicas que podem ser executadas separadamente
 

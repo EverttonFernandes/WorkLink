@@ -1,0 +1,33 @@
+TASK_KEY=WLT-011
+FASE=DONE
+
+ULTIMA_HIPOTESE:
+- A auditoria da V1 pode nascer como trilha persistida de metadados mínimos, sem SIEM, outbox ou telas administrativas.
+
+ULTIMO_RESULTADO:
+- Auditoria de ações sensíveis implementada com modelo de aplicação, porta, use case, adapter JDBC, migration PostgreSQL e registros nos endpoints sensíveis existentes.
+
+GATES_OBSERVADOS:
+- QA: PASS
+- SRE: PASS
+- SECURITY: PASS
+- ARCH_REVIEW: PASS
+- FINAL_REVIEW: PASS
+
+PROXIMA_ACAO_RECOMENDADA:
+- Fechar commit e tag semântica `v0.22.0`.
+
+RISCOS_ABERTOS:
+- Fluxos de contato, avaliação, denúncia, contestação e admin ainda não existem; a entrega preparou ações auditáveis para esses fluxos, mas os disparos reais devem entrar quando cada fluxo funcional for implementado.
+
+EVIDENCIAS:
+- `rm -rf worklink-api/target && make backend-unit-test`: PASS, 143 testes, cobertura mínima atendida.
+- `make backend-static-analysis`: PASS.
+- `make backend-integration-test`: PASS, Flyway até `v009`.
+- `make mobile-static-analysis`: PASS.
+- `make mobile-unit-test`: PASS, 33 testes, cobertura 99,51%.
+- `make mobile-screen-test`: PASS, 22 testes.
+- `make mobile-integration-test`: N/A por ausência de runtime mobile/browser.
+- `make functional-test`: N/A por ausência de cenários funcionais reais.
+- `git diff --check`: PASS.
+- Varredura de segredos: PASS com placeholder esperado em `compose.yml`.

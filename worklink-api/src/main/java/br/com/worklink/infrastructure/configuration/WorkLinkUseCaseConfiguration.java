@@ -1,5 +1,7 @@
 package br.com.worklink.infrastructure.configuration;
 
+import br.com.worklink.application.audit.port.SaveSensitiveAuditEventPort;
+import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventUseCase;
 import br.com.worklink.application.catalog.port.ListServiceCategoriesPort;
 import br.com.worklink.application.catalog.port.ListServiceCitiesPort;
 import br.com.worklink.application.catalog.port.LoadServiceCitiesByIdentifiersPort;
@@ -208,5 +210,13 @@ public class WorkLinkUseCaseConfiguration {
     @Bean
     AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase() {
         return new AuthorizeSensitiveActionUseCase();
+    }
+
+    @Bean
+    RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase(
+            SaveSensitiveAuditEventPort saveSensitiveAuditEventPort,
+            CurrentTimePort currentTimePort
+    ) {
+        return new RecordSensitiveAuditEventUseCase(saveSensitiveAuditEventPort, currentTimePort);
     }
 }

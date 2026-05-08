@@ -1,6 +1,12 @@
 package br.com.worklink.api.professional;
 
 import br.com.worklink.api.authorization.AuthenticatedPrincipalHttpResolver;
+import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventRequest;
+import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventUseCase;
+import br.com.worklink.application.audit.usecase.SensitiveAuditAction;
+import br.com.worklink.application.audit.usecase.SensitiveAuditOutcome;
+import br.com.worklink.application.audit.usecase.SensitiveAuditTargetType;
+import br.com.worklink.application.authorization.usecase.AuthenticatedPrincipal;
 import br.com.worklink.application.authorization.usecase.AuthorizationOwnership;
 import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
 import br.com.worklink.application.authorization.usecase.SensitiveAction;
@@ -39,19 +45,22 @@ public class ProfessionalController {
     private final CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase;
     private final AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver;
     private final AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase;
+    private final RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase;
 
     public ProfessionalController(
             RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase,
             ListProfessionalsUseCase listProfessionalsUseCase,
             CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase,
             AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver,
-            AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase
+            AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase,
+            RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase
     ) {
         this.registerBasicProfessionalUseCase = registerBasicProfessionalUseCase;
         this.listProfessionalsUseCase = listProfessionalsUseCase;
         this.completeProfessionalProfileUseCase = completeProfessionalProfileUseCase;
         this.authenticatedPrincipalHttpResolver = authenticatedPrincipalHttpResolver;
         this.authorizeSensitiveActionUseCase = authorizeSensitiveActionUseCase;
+        this.recordSensitiveAuditEventUseCase = recordSensitiveAuditEventUseCase;
     }
 
     @PostMapping
@@ -92,8 +101,11 @@ public class ProfessionalController {
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestBody CompleteProfessionalProfileHttpRequest request
     ) {
+        AuthenticatedPrincipal authenticatedPrincipal = authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(
+                authorizationHeader
+        );
         authorizeSensitiveActionUseCase.authorizeOwnedSensitiveAction(
-                authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(authorizationHeader),
+                authenticatedPrincipal,
                 SensitiveAction.COMPLETE_PROFESSIONAL_PROFILE,
                 new AuthorizationOwnership(professionalIdentifier)
         );
@@ -108,6 +120,13 @@ public class ProfessionalController {
                         request.availabilityStatus()
                 )
         );
+        recordSensitiveAuditEventUseCase.recordSensitiveAuditEvent(new RecordSensitiveAuditEventRequest(
+                authenticatedPrincipal,
+                SensitiveAuditAction.COMPLETE_PROFESSIONAL_PROFILE,
+                SensitiveAuditTargetType.PROFESSIONAL_PROFILE,
+                professionalIdentifier,
+                SensitiveAuditOutcome.SUCCESS
+        ));
         return ProfessionalHttpResponse.fromProfessionalResponse(professionalResponse);
     }
 

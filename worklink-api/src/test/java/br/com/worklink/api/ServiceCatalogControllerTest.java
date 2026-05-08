@@ -4,6 +4,11 @@ import br.com.worklink.api.catalog.ServiceCatalogController;
 import br.com.worklink.api.authorization.AuthenticatedPrincipalHttpResolver;
 import br.com.worklink.application.ApplicationRuleViolationException;
 import br.com.worklink.application.AuthorizationDeniedException;
+import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventRequest;
+import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventUseCase;
+import br.com.worklink.application.audit.usecase.SensitiveAuditAction;
+import br.com.worklink.application.audit.usecase.SensitiveAuditOutcome;
+import br.com.worklink.application.audit.usecase.SensitiveAuditTargetType;
 import br.com.worklink.application.authorization.usecase.AuthenticatedPrincipal;
 import br.com.worklink.application.authorization.usecase.AuthenticatedProfile;
 import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
@@ -30,7 +35,9 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -67,6 +74,9 @@ class ServiceCatalogControllerTest {
     @MockBean
     private AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase;
 
+    @MockBean
+    private RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase;
+
     @Test
     @DisplayName("Deve expor cadastro de categoria de servico pela API")
     void shouldExposeServiceCategoryRegistrationThroughApi() throws Exception {
@@ -90,6 +100,13 @@ class ServiceCatalogControllerTest {
                 administratorPrincipal,
                 SensitiveAction.REGISTER_SERVICE_CATEGORY
         );
+        verify(recordSensitiveAuditEventUseCase).recordSensitiveAuditEvent(argThat(auditRequest ->
+                auditRequest.authenticatedPrincipal().equals(administratorPrincipal)
+                        && auditRequest.sensitiveAuditAction() == SensitiveAuditAction.REGISTER_SERVICE_CATEGORY
+                        && auditRequest.sensitiveAuditTargetType() == SensitiveAuditTargetType.SERVICE_CATEGORY
+                        && auditRequest.targetIdentifier().equals(serviceCategoryResponse.categoryIdentifier())
+                        && auditRequest.sensitiveAuditOutcome() == SensitiveAuditOutcome.SUCCESS
+        ));
     }
 
     @Test
@@ -128,6 +145,13 @@ class ServiceCatalogControllerTest {
                 administratorPrincipal,
                 SensitiveAction.REGISTER_SERVICE_CITY
         );
+        verify(recordSensitiveAuditEventUseCase).recordSensitiveAuditEvent(argThat(auditRequest ->
+                auditRequest.authenticatedPrincipal().equals(administratorPrincipal)
+                        && auditRequest.sensitiveAuditAction() == SensitiveAuditAction.REGISTER_SERVICE_CITY
+                        && auditRequest.sensitiveAuditTargetType() == SensitiveAuditTargetType.SERVICE_CITY
+                        && auditRequest.targetIdentifier().equals(serviceCityResponse.cityIdentifier())
+                        && auditRequest.sensitiveAuditOutcome() == SensitiveAuditOutcome.SUCCESS
+        ));
     }
 
     @Test
@@ -181,6 +205,7 @@ class ServiceCatalogControllerTest {
                         .content(objectMapper.writeValueAsString(new ServiceCategoryBody("Admin"))))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").value("Acesso negado para este recurso."));
+        verify(recordSensitiveAuditEventUseCase, never()).recordSensitiveAuditEvent(any(RecordSensitiveAuditEventRequest.class));
     }
 
     private AuthenticatedPrincipal administratorPrincipal() {

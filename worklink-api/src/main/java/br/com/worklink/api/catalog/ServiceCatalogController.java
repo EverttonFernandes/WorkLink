@@ -1,6 +1,12 @@
 package br.com.worklink.api.catalog;
 
 import br.com.worklink.api.authorization.AuthenticatedPrincipalHttpResolver;
+import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventRequest;
+import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventUseCase;
+import br.com.worklink.application.audit.usecase.SensitiveAuditAction;
+import br.com.worklink.application.audit.usecase.SensitiveAuditOutcome;
+import br.com.worklink.application.audit.usecase.SensitiveAuditTargetType;
+import br.com.worklink.application.authorization.usecase.AuthenticatedPrincipal;
 import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
 import br.com.worklink.application.authorization.usecase.SensitiveAction;
 import br.com.worklink.application.catalog.usecase.ListServiceCategoriesUseCase;
@@ -33,6 +39,7 @@ public class ServiceCatalogController {
     private final ListServiceCitiesUseCase listServiceCitiesUseCase;
     private final AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver;
     private final AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase;
+    private final RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase;
 
     public ServiceCatalogController(
             RegisterServiceCategoryUseCase registerServiceCategoryUseCase,
@@ -40,7 +47,8 @@ public class ServiceCatalogController {
             RegisterServiceCityUseCase registerServiceCityUseCase,
             ListServiceCitiesUseCase listServiceCitiesUseCase,
             AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver,
-            AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase
+            AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase,
+            RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase
     ) {
         this.registerServiceCategoryUseCase = registerServiceCategoryUseCase;
         this.listServiceCategoriesUseCase = listServiceCategoriesUseCase;
@@ -48,6 +56,7 @@ public class ServiceCatalogController {
         this.listServiceCitiesUseCase = listServiceCitiesUseCase;
         this.authenticatedPrincipalHttpResolver = authenticatedPrincipalHttpResolver;
         this.authorizeSensitiveActionUseCase = authorizeSensitiveActionUseCase;
+        this.recordSensitiveAuditEventUseCase = recordSensitiveAuditEventUseCase;
     }
 
     @PostMapping("/categories")
@@ -56,13 +65,23 @@ public class ServiceCatalogController {
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestBody RegisterServiceCategoryHttpRequest request
     ) {
+        AuthenticatedPrincipal authenticatedPrincipal = authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(
+                authorizationHeader
+        );
         authorizeSensitiveActionUseCase.authorizeSensitiveAction(
-                authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(authorizationHeader),
+                authenticatedPrincipal,
                 SensitiveAction.REGISTER_SERVICE_CATEGORY
         );
         ServiceCategoryResponse serviceCategoryResponse = registerServiceCategoryUseCase.registerServiceCategory(
                 new RegisterServiceCategoryRequest(request.categoryName())
         );
+        recordSensitiveAuditEventUseCase.recordSensitiveAuditEvent(new RecordSensitiveAuditEventRequest(
+                authenticatedPrincipal,
+                SensitiveAuditAction.REGISTER_SERVICE_CATEGORY,
+                SensitiveAuditTargetType.SERVICE_CATEGORY,
+                serviceCategoryResponse.categoryIdentifier(),
+                SensitiveAuditOutcome.SUCCESS
+        ));
         return ServiceCategoryHttpResponse.fromServiceCategoryResponse(serviceCategoryResponse);
     }
 
@@ -79,13 +98,23 @@ public class ServiceCatalogController {
             @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestBody RegisterServiceCityHttpRequest request
     ) {
+        AuthenticatedPrincipal authenticatedPrincipal = authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(
+                authorizationHeader
+        );
         authorizeSensitiveActionUseCase.authorizeSensitiveAction(
-                authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(authorizationHeader),
+                authenticatedPrincipal,
                 SensitiveAction.REGISTER_SERVICE_CITY
         );
         ServiceCityResponse serviceCityResponse = registerServiceCityUseCase.registerServiceCity(
                 new RegisterServiceCityRequest(request.cityName(), request.stateCode())
         );
+        recordSensitiveAuditEventUseCase.recordSensitiveAuditEvent(new RecordSensitiveAuditEventRequest(
+                authenticatedPrincipal,
+                SensitiveAuditAction.REGISTER_SERVICE_CITY,
+                SensitiveAuditTargetType.SERVICE_CITY,
+                serviceCityResponse.cityIdentifier(),
+                SensitiveAuditOutcome.SUCCESS
+        ));
         return ServiceCityHttpResponse.fromServiceCityResponse(serviceCityResponse);
     }
 

@@ -4,6 +4,11 @@ import br.com.worklink.api.authorization.AuthenticatedPrincipalHttpResolver;
 import br.com.worklink.api.professional.ProfessionalController;
 import br.com.worklink.application.ApplicationRuleViolationException;
 import br.com.worklink.application.AuthorizationDeniedException;
+import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventRequest;
+import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventUseCase;
+import br.com.worklink.application.audit.usecase.SensitiveAuditAction;
+import br.com.worklink.application.audit.usecase.SensitiveAuditOutcome;
+import br.com.worklink.application.audit.usecase.SensitiveAuditTargetType;
 import br.com.worklink.application.authorization.usecase.AuthenticatedPrincipal;
 import br.com.worklink.application.authorization.usecase.AuthenticatedProfile;
 import br.com.worklink.application.authorization.usecase.AuthorizationOwnership;
@@ -33,6 +38,7 @@ import java.util.UUID;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.argThat;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -68,6 +74,9 @@ class ProfessionalControllerTest {
 
     @MockBean
     private AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase;
+
+    @MockBean
+    private RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase;
 
     @Test
     @DisplayName("Deve expor cadastro de profissional basico pela API")
@@ -129,6 +138,13 @@ class ProfessionalControllerTest {
                 SensitiveAction.COMPLETE_PROFESSIONAL_PROFILE,
                 new AuthorizationOwnership(professionalResponse.professionalIdentifier())
         );
+        verify(recordSensitiveAuditEventUseCase).recordSensitiveAuditEvent(argThat(auditRequest ->
+                auditRequest.authenticatedPrincipal().equals(professionalPrincipal)
+                        && auditRequest.sensitiveAuditAction() == SensitiveAuditAction.COMPLETE_PROFESSIONAL_PROFILE
+                        && auditRequest.sensitiveAuditTargetType() == SensitiveAuditTargetType.PROFESSIONAL_PROFILE
+                        && auditRequest.targetIdentifier().equals(professionalResponse.professionalIdentifier())
+                        && auditRequest.sensitiveAuditOutcome() == SensitiveAuditOutcome.SUCCESS
+        ));
     }
 
     @Test
@@ -191,6 +207,7 @@ class ProfessionalControllerTest {
                         .content(objectMapper.writeValueAsString(completedProfessionalBody())))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.message").value("Acesso negado para este recurso."));
+        verify(recordSensitiveAuditEventUseCase, never()).recordSensitiveAuditEvent(any(RecordSensitiveAuditEventRequest.class));
     }
 
     private boolean matchesExpectedSearchCriteria(ProfessionalSearchCriteria professionalSearchCriteria) {

@@ -1,5 +1,6 @@
 package br.com.worklink.infrastructure.configuration;
 
+import br.com.worklink.application.audit.port.SaveSensitiveAuditEventPort;
 import br.com.worklink.application.catalog.port.ListServiceCategoriesPort;
 import br.com.worklink.application.catalog.port.ListServiceCitiesPort;
 import br.com.worklink.application.catalog.port.LoadServiceCategoryByIdentifierPort;
@@ -67,6 +68,7 @@ class WorkLinkUseCaseConfigurationTest {
         LoadRefreshSessionByTokenHashPort loadRefreshSessionByTokenHashPort = refreshTokenHash -> Optional.empty();
         UpdateRefreshSessionPort updateRefreshSessionPort = refreshSession -> refreshSession;
         ResolveAuthenticatedPrincipalPort resolveAuthenticatedPrincipalPort = accessToken -> Optional.empty();
+        SaveSensitiveAuditEventPort saveSensitiveAuditEventPort = sensitiveAuditEvent -> sensitiveAuditEvent;
 
         // WHEN
         RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase = configuration.registerBasicProfessionalUseCase(
@@ -123,5 +125,9 @@ class WorkLinkUseCaseConfigurationTest {
         )).isNotNull();
         assertThat(configuration.resolveAuthenticatedPrincipalUseCase(resolveAuthenticatedPrincipalPort)).isNotNull();
         assertThat(configuration.authorizeSensitiveActionUseCase()).isNotNull();
+        assertThat(configuration.recordSensitiveAuditEventUseCase(
+                saveSensitiveAuditEventPort,
+                currentTimePort
+        )).isNotNull();
     }
 }
