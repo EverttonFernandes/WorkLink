@@ -33,6 +33,8 @@ class WorkLinkApp extends StatelessWidget {
               cityName: 'Canoas',
               stateCode: 'RS',
               shortDescription: 'Atendimento residencial.',
+              profileBadgeLabel: 'Perfil básico',
+              recentActivityLabel: 'Ativo recentemente',
             ),
             DiscoveryProfessional(
               professionalIdentifier: 'ana-pintora',

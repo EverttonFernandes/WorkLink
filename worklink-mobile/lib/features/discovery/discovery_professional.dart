@@ -6,6 +6,10 @@ class DiscoveryProfessional {
     required this.cityName,
     required this.stateCode,
     required this.shortDescription,
+    this.profilePhotoUrl,
+    this.profileBadgeLabel,
+    this.availabilityBadgeLabel,
+    this.recentActivityLabel,
   });
 
   final String professionalIdentifier;
@@ -14,15 +18,33 @@ class DiscoveryProfessional {
   final String cityName;
   final String stateCode;
   final String shortDescription;
+  final String? profilePhotoUrl;
+  final String? profileBadgeLabel;
+  final String? availabilityBadgeLabel;
+  final String? recentActivityLabel;
 
   String get cityDisplayName => '$cityName - $stateCode';
+
+  List<String> get comparisonSignalLabels {
+    return [
+      profileBadgeLabel,
+      availabilityBadgeLabel,
+      recentActivityLabel,
+    ]
+        .where(
+          (signalLabel) => signalLabel != null && signalLabel.trim().isNotEmpty,
+        )
+        .cast<String>()
+        .toList();
+  }
 
   bool matchesCategory(String? selectedCategoryName) {
     return selectedCategoryName == null || categoryName == selectedCategoryName;
   }
 
   bool matchesCity(String? selectedCityDisplayName) {
-    return selectedCityDisplayName == null || cityDisplayName == selectedCityDisplayName;
+    return selectedCityDisplayName == null ||
+        cityDisplayName == selectedCityDisplayName;
   }
 
   bool matchesKeyword(String keyword) {
@@ -30,7 +52,7 @@ class DiscoveryProfessional {
     if (normalizedKeyword.isEmpty) {
       return true;
     }
-    return professionalName.toLowerCase().contains(normalizedKeyword)
-        || shortDescription.toLowerCase().contains(normalizedKeyword);
+    return professionalName.toLowerCase().contains(normalizedKeyword) ||
+        shortDescription.toLowerCase().contains(normalizedKeyword);
   }
 }

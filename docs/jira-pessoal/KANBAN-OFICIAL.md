@@ -23,7 +23,6 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História | Tipo | Título | Relação com outras histórias | Execução | Versão |
 |-------|----------|------|--------|-------------------------------|----------|--------|
-| 13 | [WL-004](historias/WL-004-listagem-profissionais.md) | Negócio | Listagem de profissionais com sinais mínimos | Depende de descoberta | Separada | MINOR |
 | 14 | [WL-005](historias/WL-005-perfil-publico-profissional.md) | Negócio | Perfil público detalhado do profissional | Depende de listagem | Separada | MINOR |
 | 15 | [WLT-014](historias-tecnicas/WLT-014-storage-seguro-arquivos.md) | Técnica | Storage seguro de arquivos | Pré-requisito para foto, portfólio e evidências | Separada | MINOR |
 | 16 | [WL-006](historias/WL-006-cadastro-progressivo-profissional.md) | Negócio | Cadastro progressivo do profissional | Usa storage para foto/portfólio quando aplicável | Junto de validações de storage | MINOR |
@@ -71,6 +70,7 @@ _Vazio._
 | 10 | [WL-001](historias/WL-001-fundacao-categorias-cidades-profissionais.md) | Negócio | Fundação de categorias, cidades e profissionais mínimos | Usa base técnica inicial | Separada | MINOR | [Entrega WL-001](../entregas/WL-001-fundacao-categorias-cidades-profissionais.md) |
 | 11 | [WL-002](historias/WL-002-selecao-cidades-localizacao.md) | Negócio | Seleção de cidades e localização atual | Depende de fundação de cidades | Separada | MINOR | [Entrega WL-002](../entregas/WL-002-selecao-cidades-localizacao.md) |
 | 12 | [WL-003](historias/WL-003-descoberta-busca-filtros.md) | Negócio | Descoberta por categoria, cidade e palavra-chave | Depende de cidades, categorias e profissionais | Separada | MINOR | [Entrega WL-003](../entregas/WL-003-descoberta-busca-filtros.md) |
+| 13 | [WL-004](historias/WL-004-listagem-profissionais.md) | Negócio | Listagem de profissionais com sinais mínimos | Depende de descoberta | Separada | MINOR | [Entrega WL-004](../entregas/WL-004-listagem-profissionais.md) |
 
 ## Histórias técnicas que podem ser executadas separadamente
 

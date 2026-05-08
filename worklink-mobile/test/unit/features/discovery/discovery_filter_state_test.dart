@@ -12,7 +12,9 @@ void main() {
     shortDescription: 'Atendimento residencial.',
   );
 
-  test('GIVEN profissional WHEN obter cidade de exibicao THEN deve combinar cidade e UF', () {
+  test(
+      'GIVEN profissional WHEN obter cidade de exibicao THEN deve combinar cidade e UF',
+      () {
     // GIVEN / WHEN
     final cityDisplayName = electricianProfessional.cityDisplayName;
 
@@ -20,7 +22,33 @@ void main() {
     expect(cityDisplayName, 'Canoas - RS');
   });
 
-  test('GIVEN estado com filtro ativo WHEN limpar categoria e cidade THEN deve preservar demais campos', () {
+  test(
+      'GIVEN profissional com sinais WHEN listar sinais de comparacao THEN deve retornar apenas sinais preenchidos',
+      () {
+    // GIVEN
+    const professionalWithComparisonSignals = DiscoveryProfessional(
+      professionalIdentifier: 'maria-eletricista',
+      professionalName: 'Maria Eletricista',
+      categoryName: 'Eletricista',
+      cityName: 'Canoas',
+      stateCode: 'RS',
+      shortDescription: 'Atendimento residencial.',
+      profileBadgeLabel: 'Perfil básico',
+      availabilityBadgeLabel: '',
+      recentActivityLabel: 'Ativo recentemente',
+    );
+
+    // WHEN
+    final comparisonSignalLabels =
+        professionalWithComparisonSignals.comparisonSignalLabels;
+
+    // THEN
+    expect(comparisonSignalLabels, ['Perfil básico', 'Ativo recentemente']);
+  });
+
+  test(
+      'GIVEN estado com filtro ativo WHEN limpar categoria e cidade THEN deve preservar demais campos',
+      () {
     // GIVEN
     const discoveryFilterState = DiscoveryFilterState(
       availableProfessionals: [electricianProfessional],
@@ -41,7 +69,9 @@ void main() {
     expect(copiedDiscoveryFilterState.keyword, 'residencial');
   });
 
-  test('GIVEN profissionais disponiveis WHEN listar filtros disponiveis THEN deve retornar categorias e cidades ordenadas', () {
+  test(
+      'GIVEN profissionais disponiveis WHEN listar filtros disponiveis THEN deve retornar categorias e cidades ordenadas',
+      () {
     // GIVEN
     const painterProfessional = DiscoveryProfessional(
       professionalIdentifier: 'ana-pintora',
@@ -56,11 +86,19 @@ void main() {
     );
 
     // WHEN / THEN
-    expect(discoveryFilterState.availableCategoryNames, ['Eletricista', 'Pintora']);
-    expect(discoveryFilterState.availableCityDisplayNames, ['Canoas - RS', 'Porto Alegre - RS']);
+    expect(
+      discoveryFilterState.availableCategoryNames,
+      ['Eletricista', 'Pintora'],
+    );
+    expect(
+      discoveryFilterState.availableCityDisplayNames,
+      ['Canoas - RS', 'Porto Alegre - RS'],
+    );
   });
 
-  test('GIVEN estado com filtros WHEN consultar filtros ativos THEN deve indicar filtros ativos', () {
+  test(
+      'GIVEN estado com filtros WHEN consultar filtros ativos THEN deve indicar filtros ativos',
+      () {
     // GIVEN
     const discoveryFilterState = DiscoveryFilterState(
       availableProfessionals: [electricianProfessional],

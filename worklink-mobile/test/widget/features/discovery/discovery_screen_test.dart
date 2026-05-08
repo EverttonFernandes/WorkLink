@@ -12,6 +12,8 @@ void main() {
     cityName: 'Canoas',
     stateCode: 'RS',
     shortDescription: 'Atendimento residencial.',
+    profileBadgeLabel: 'Perfil básico',
+    recentActivityLabel: 'Ativo recentemente',
   );
   const painterProfessional = DiscoveryProfessional(
     professionalIdentifier: 'ana-pintora',
@@ -24,22 +26,31 @@ void main() {
 
   DiscoveryController createDiscoveryController() {
     return DiscoveryController(
-      availableProfessionals: const [electricianProfessional, painterProfessional],
+      availableProfessionals: const [
+        electricianProfessional,
+        painterProfessional,
+      ],
     );
   }
 
   Future<void> pumpDiscoveryScreen(
     WidgetTester widgetTester,
-    DiscoveryController discoveryController,
-  ) async {
+    DiscoveryController discoveryController, {
+    ValueChanged<String>? onOpenProfessionalProfile,
+  }) async {
     await widgetTester.pumpWidget(
       MaterialApp(
-        home: DiscoveryScreen(discoveryController: discoveryController),
+        home: DiscoveryScreen(
+          discoveryController: discoveryController,
+          onOpenProfessionalProfile: onOpenProfessionalProfile,
+        ),
       ),
     );
   }
 
-  testWidgets('GIVEN tela de descoberta WHEN renderizar THEN deve exibir profissionais', (widgetTester) async {
+  testWidgets(
+      'GIVEN tela de descoberta WHEN renderizar THEN deve exibir profissionais',
+      (widgetTester) async {
     // GIVEN
     final discoveryController = createDiscoveryController();
 
@@ -52,13 +63,35 @@ void main() {
     expect(find.text('Ana Pintora'), findsOneWidget);
   });
 
-  testWidgets('GIVEN profissionais disponiveis WHEN buscar sem resultado THEN deve exibir estado vazio', (widgetTester) async {
+  testWidgets(
+      'GIVEN profissional com sinais WHEN renderizar card THEN deve exibir somente badges justificados',
+      (widgetTester) async {
+    // GIVEN
+    final discoveryController = createDiscoveryController();
+
+    // WHEN
+    await pumpDiscoveryScreen(widgetTester, discoveryController);
+
+    // THEN
+    expect(find.text('Eletricista - Canoas - RS'), findsOneWidget);
+    expect(find.text('Atendimento residencial.'), findsOneWidget);
+    expect(find.text('Perfil básico'), findsOneWidget);
+    expect(find.text('Ativo recentemente'), findsOneWidget);
+    expect(find.text('Disponível agora'), findsNothing);
+  });
+
+  testWidgets(
+      'GIVEN profissionais disponiveis WHEN buscar sem resultado THEN deve exibir estado vazio',
+      (widgetTester) async {
     // GIVEN
     final discoveryController = createDiscoveryController();
     await pumpDiscoveryScreen(widgetTester, discoveryController);
 
     // WHEN
-    await widgetTester.enterText(find.byKey(const ValueKey('keyword-search-field')), 'jardinagem');
+    await widgetTester.enterText(
+      find.byKey(const ValueKey('keyword-search-field')),
+      'jardinagem',
+    );
     await widgetTester.pump();
 
     // THEN
@@ -66,11 +99,16 @@ void main() {
     expect(find.byIcon(Icons.search_off), findsOneWidget);
   });
 
-  testWidgets('GIVEN filtro ativo WHEN limpar filtros THEN deve restaurar resultados', (widgetTester) async {
+  testWidgets(
+      'GIVEN filtro ativo WHEN limpar filtros THEN deve restaurar resultados',
+      (widgetTester) async {
     // GIVEN
     final discoveryController = createDiscoveryController();
     await pumpDiscoveryScreen(widgetTester, discoveryController);
-    await widgetTester.enterText(find.byKey(const ValueKey('keyword-search-field')), 'jardinagem');
+    await widgetTester.enterText(
+      find.byKey(const ValueKey('keyword-search-field')),
+      'jardinagem',
+    );
     await widgetTester.pump();
 
     // WHEN
@@ -81,5 +119,27 @@ void main() {
     expect(discoveryController.state.hasActiveFilters, isFalse);
     expect(find.text('Maria Eletricista'), findsOneWidget);
     expect(find.text('Ana Pintora'), findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN card de profissional WHEN tocar em abrir perfil THEN deve emitir identificador',
+      (widgetTester) async {
+    // GIVEN
+    final openedProfessionalIdentifiers = <String>[];
+    final discoveryController = createDiscoveryController();
+    await pumpDiscoveryScreen(
+      widgetTester,
+      discoveryController,
+      onOpenProfessionalProfile: openedProfessionalIdentifiers.add,
+    );
+
+    // WHEN
+    await widgetTester.tap(
+      find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
+    );
+    await widgetTester.pump();
+
+    // THEN
+    expect(openedProfessionalIdentifiers, ['maria-eletricista']);
   });
 }

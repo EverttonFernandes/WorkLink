@@ -7,9 +7,11 @@ class DiscoveryScreen extends StatefulWidget {
   const DiscoveryScreen({
     super.key,
     required this.discoveryController,
+    this.onOpenProfessionalProfile,
   });
 
   final DiscoveryController discoveryController;
+  final ValueChanged<String>? onOpenProfessionalProfile;
 
   @override
   State<DiscoveryScreen> createState() => _DiscoveryScreenState();
@@ -79,7 +81,10 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             const _EmptyDiscoveryState()
           else
             for (final professional in filteredProfessionals)
-              _ProfessionalListItem(professional: professional),
+              _ProfessionalListItem(
+                professional: professional,
+                onOpenProfessionalProfile: widget.onOpenProfessionalProfile,
+              ),
         ],
       ),
     );
@@ -125,19 +130,91 @@ class _FilterDropdown extends StatelessWidget {
 class _ProfessionalListItem extends StatelessWidget {
   const _ProfessionalListItem({
     required this.professional,
+    this.onOpenProfessionalProfile,
   });
 
   final DiscoveryProfessional professional;
+  final ValueChanged<String>? onOpenProfessionalProfile;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: ListTile(
-        leading: const Icon(Icons.handyman_outlined),
-        title: Text(professional.professionalName),
-        subtitle: Text('${professional.categoryName} - ${professional.cityDisplayName}\n${professional.shortDescription}'),
-        isThreeLine: true,
+      child: InkWell(
+        key: ValueKey(
+          'open-professional-profile-${professional.professionalIdentifier}',
+        ),
+        onTap: () => onOpenProfessionalProfile
+            ?.call(professional.professionalIdentifier),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _ProfessionalAvatar(
+                profilePhotoUrl: professional.profilePhotoUrl,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      professional.professionalName,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${professional.categoryName} - ${professional.cityDisplayName}',
+                    ),
+                    const SizedBox(height: 4),
+                    Text(professional.shortDescription),
+                    if (professional.comparisonSignalLabels.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          for (final comparisonSignalLabel
+                              in professional.comparisonSignalLabels)
+                            Chip(
+                              visualDensity: VisualDensity.compact,
+                              label: Text(comparisonSignalLabel),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(Icons.chevron_right),
+            ],
+          ),
+        ),
       ),
+    );
+  }
+}
+
+class _ProfessionalAvatar extends StatelessWidget {
+  const _ProfessionalAvatar({
+    required this.profilePhotoUrl,
+  });
+
+  final String? profilePhotoUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    final availableProfilePhotoUrl = profilePhotoUrl;
+    if (availableProfilePhotoUrl == null ||
+        availableProfilePhotoUrl.trim().isEmpty) {
+      return const CircleAvatar(
+        child: Icon(Icons.handyman_outlined),
+      );
+    }
+
+    return CircleAvatar(
+      backgroundImage: NetworkImage(availableProfilePhotoUrl),
     );
   }
 }

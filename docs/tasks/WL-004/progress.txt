@@ -1,0 +1,21 @@
+TASK_KEY=WL-004
+FASE=DONE
+
+ULTIMA_HIPOTESE:
+- A listagem comparável evoluiu a tela mobile de descoberta sem alterar o contrato backend nesta história.
+
+ULTIMO_RESULTADO:
+- Cards comparáveis, sinais opcionais e ação de abrir perfil implementados e validados.
+
+GATES_OBSERVADOS:
+- QA: PASS
+- SRE: PASS
+- SECURITY: PASS
+- ARCH_REVIEW: PASS
+- FINAL_REVIEW: PASS
+
+PROXIMA_ACAO_RECOMENDADA:
+- Criar commit semântico e tag `v0.13.0` apontando para o mesmo hash.
+
+RISCOS_ABERTOS:
+- Nenhum risco aberto.
