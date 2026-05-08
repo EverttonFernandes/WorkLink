@@ -1,7 +1,13 @@
 package br.com.worklink.api;
 
 import br.com.worklink.api.catalog.ServiceCatalogController;
+import br.com.worklink.api.authorization.AuthenticatedPrincipalHttpResolver;
 import br.com.worklink.application.ApplicationRuleViolationException;
+import br.com.worklink.application.AuthorizationDeniedException;
+import br.com.worklink.application.authorization.usecase.AuthenticatedPrincipal;
+import br.com.worklink.application.authorization.usecase.AuthenticatedProfile;
+import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
+import br.com.worklink.application.authorization.usecase.SensitiveAction;
 import br.com.worklink.application.catalog.usecase.ListServiceCategoriesUseCase;
 import br.com.worklink.application.catalog.usecase.ListServiceCitiesUseCase;
 import br.com.worklink.application.catalog.usecase.RegisterServiceCategoryRequest;
@@ -24,6 +30,8 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -32,6 +40,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ServiceCatalogController.class)
 class ServiceCatalogControllerTest {
+
+    private static final String AUTHORIZATION_HEADER = "Bearer access-token";
 
     @Autowired
     private MockMvc mockMvc;
@@ -51,22 +61,35 @@ class ServiceCatalogControllerTest {
     @MockBean
     private ListServiceCitiesUseCase listServiceCitiesUseCase;
 
+    @MockBean
+    private AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver;
+
+    @MockBean
+    private AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase;
+
     @Test
     @DisplayName("Deve expor cadastro de categoria de servico pela API")
     void shouldExposeServiceCategoryRegistrationThroughApi() throws Exception {
         // GIVEN
         ServiceCategoryResponse serviceCategoryResponse = new ServiceCategoryResponse(UUID.randomUUID(), "Eletricista", "eletricista");
+        AuthenticatedPrincipal administratorPrincipal = administratorPrincipal();
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER)).thenReturn(administratorPrincipal);
         when(registerServiceCategoryUseCase.registerServiceCategory(any(RegisterServiceCategoryRequest.class)))
                 .thenReturn(serviceCategoryResponse);
 
         // WHEN / THEN
         mockMvc.perform(post("/api/v1/categories")
+                        .header("Authorization", AUTHORIZATION_HEADER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new ServiceCategoryBody("Eletricista"))))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.categoryIdentifier").value(serviceCategoryResponse.categoryIdentifier().toString()))
                 .andExpect(jsonPath("$.categoryName").value("Eletricista"))
                 .andExpect(jsonPath("$.categorySlug").value("eletricista"));
+        verify(authorizeSensitiveActionUseCase).authorizeSensitiveAction(
+                administratorPrincipal,
+                SensitiveAction.REGISTER_SERVICE_CATEGORY
+        );
     }
 
     @Test
@@ -87,10 +110,13 @@ class ServiceCatalogControllerTest {
     void shouldExposeServiceCityRegistrationThroughApi() throws Exception {
         // GIVEN
         ServiceCityResponse serviceCityResponse = new ServiceCityResponse(UUID.randomUUID(), "Canoas", "RS", "canoas-rs");
+        AuthenticatedPrincipal administratorPrincipal = administratorPrincipal();
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER)).thenReturn(administratorPrincipal);
         when(registerServiceCityUseCase.registerServiceCity(any(RegisterServiceCityRequest.class))).thenReturn(serviceCityResponse);
 
         // WHEN / THEN
         mockMvc.perform(post("/api/v1/cities")
+                        .header("Authorization", AUTHORIZATION_HEADER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new ServiceCityBody("Canoas", "RS"))))
                 .andExpect(status().isCreated())
@@ -98,6 +124,10 @@ class ServiceCatalogControllerTest {
                 .andExpect(jsonPath("$.cityName").value("Canoas"))
                 .andExpect(jsonPath("$.stateCode").value("RS"))
                 .andExpect(jsonPath("$.citySlug").value("canoas-rs"));
+        verify(authorizeSensitiveActionUseCase).authorizeSensitiveAction(
+                administratorPrincipal,
+                SensitiveAction.REGISTER_SERVICE_CITY
+        );
     }
 
     @Test
@@ -117,15 +147,44 @@ class ServiceCatalogControllerTest {
     @DisplayName("Deve retornar erro de negocio quando categoria de servico for invalida")
     void shouldReturnBusinessErrorWhenServiceCategoryIsInvalid() throws Exception {
         // GIVEN
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER))
+                .thenReturn(administratorPrincipal());
         when(registerServiceCategoryUseCase.registerServiceCategory(any(RegisterServiceCategoryRequest.class)))
                 .thenThrow(new ApplicationRuleViolationException("O nome da categoria e obrigatorio."));
 
         // WHEN / THEN
         mockMvc.perform(post("/api/v1/categories")
+                        .header("Authorization", AUTHORIZATION_HEADER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(new ServiceCategoryBody(""))))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("O nome da categoria e obrigatorio."));
+    }
+
+    @Test
+    @DisplayName("Deve negar cadastro administrativo de categoria para cliente")
+    void shouldDenyAdministrativeServiceCategoryRegistrationForCustomer() throws Exception {
+        // GIVEN
+        AuthenticatedPrincipal customerPrincipal = new AuthenticatedPrincipal(
+                UUID.randomUUID(),
+                AuthenticatedProfile.CUSTOMER
+        );
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER)).thenReturn(customerPrincipal);
+        doThrow(new AuthorizationDeniedException("Acesso negado para este recurso."))
+                .when(authorizeSensitiveActionUseCase)
+                .authorizeSensitiveAction(customerPrincipal, SensitiveAction.REGISTER_SERVICE_CATEGORY);
+
+        // WHEN / THEN
+        mockMvc.perform(post("/api/v1/categories")
+                        .header("Authorization", AUTHORIZATION_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new ServiceCategoryBody("Admin"))))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("Acesso negado para este recurso."));
+    }
+
+    private AuthenticatedPrincipal administratorPrincipal() {
+        return new AuthenticatedPrincipal(UUID.randomUUID(), AuthenticatedProfile.ADMINISTRATOR);
     }
 
     private record ServiceCategoryBody(String categoryName) {

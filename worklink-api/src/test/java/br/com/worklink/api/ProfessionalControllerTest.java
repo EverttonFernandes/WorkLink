@@ -1,7 +1,14 @@
 package br.com.worklink.api;
 
+import br.com.worklink.api.authorization.AuthenticatedPrincipalHttpResolver;
 import br.com.worklink.api.professional.ProfessionalController;
 import br.com.worklink.application.ApplicationRuleViolationException;
+import br.com.worklink.application.AuthorizationDeniedException;
+import br.com.worklink.application.authorization.usecase.AuthenticatedPrincipal;
+import br.com.worklink.application.authorization.usecase.AuthenticatedProfile;
+import br.com.worklink.application.authorization.usecase.AuthorizationOwnership;
+import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
+import br.com.worklink.application.authorization.usecase.SensitiveAction;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileRequest;
@@ -25,6 +32,8 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -37,6 +46,7 @@ class ProfessionalControllerTest {
 
     private static final UUID CITY_IDENTIFIER = UUID.randomUUID();
     private static final UUID CATEGORY_IDENTIFIER = UUID.randomUUID();
+    private static final String AUTHORIZATION_HEADER = "Bearer access-token";
 
     @Autowired
     private MockMvc mockMvc;
@@ -52,6 +62,12 @@ class ProfessionalControllerTest {
 
     @MockBean
     private CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase;
+
+    @MockBean
+    private AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver;
+
+    @MockBean
+    private AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase;
 
     @Test
     @DisplayName("Deve expor cadastro de profissional basico pela API")
@@ -87,11 +103,17 @@ class ProfessionalControllerTest {
     void shouldExposeProgressiveProfessionalProfileEditionThroughApi() throws Exception {
         // GIVEN
         ProfessionalResponse professionalResponse = completedProfessionalResponse();
+        AuthenticatedPrincipal professionalPrincipal = new AuthenticatedPrincipal(
+                professionalResponse.professionalIdentifier(),
+                AuthenticatedProfile.PROFESSIONAL
+        );
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER)).thenReturn(professionalPrincipal);
         when(completeProfessionalProfileUseCase.completeProfessionalProfile(any(CompleteProfessionalProfileRequest.class)))
                 .thenReturn(professionalResponse);
 
         // WHEN / THEN
         mockMvc.perform(patch("/api/v1/professionals/{professionalIdentifier}/profile", professionalResponse.professionalIdentifier())
+                        .header("Authorization", AUTHORIZATION_HEADER)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(completedProfessionalBody())))
                 .andExpect(status().isOk())
@@ -102,6 +124,11 @@ class ProfessionalControllerTest {
                 .andExpect(jsonPath("$.documentProvided").value(true))
                 .andExpect(jsonPath("$.documentNumber").doesNotExist())
                 .andExpect(jsonPath("$.qualityGuarantee").value(false));
+        verify(authorizeSensitiveActionUseCase).authorizeOwnedSensitiveAction(
+                professionalPrincipal,
+                SensitiveAction.COMPLETE_PROFESSIONAL_PROFILE,
+                new AuthorizationOwnership(professionalResponse.professionalIdentifier())
+        );
     }
 
     @Test
@@ -136,6 +163,34 @@ class ProfessionalControllerTest {
                         .content(objectMapper.writeValueAsString(validProfessionalBody())))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("O WhatsApp do profissional e obrigatorio."));
+    }
+
+    @Test
+    @DisplayName("Deve negar edicao de perfil profissional quando nao houver ownership")
+    void shouldDenyProfessionalProfileEditionWithoutOwnership() throws Exception {
+        // GIVEN
+        ProfessionalResponse professionalResponse = completedProfessionalResponse();
+        AuthenticatedPrincipal otherProfessionalPrincipal = new AuthenticatedPrincipal(
+                UUID.randomUUID(),
+                AuthenticatedProfile.PROFESSIONAL
+        );
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER))
+                .thenReturn(otherProfessionalPrincipal);
+        doThrow(new AuthorizationDeniedException("Acesso negado para este recurso."))
+                .when(authorizeSensitiveActionUseCase)
+                .authorizeOwnedSensitiveAction(
+                        otherProfessionalPrincipal,
+                        SensitiveAction.COMPLETE_PROFESSIONAL_PROFILE,
+                        new AuthorizationOwnership(professionalResponse.professionalIdentifier())
+                );
+
+        // WHEN / THEN
+        mockMvc.perform(patch("/api/v1/professionals/{professionalIdentifier}/profile", professionalResponse.professionalIdentifier())
+                        .header("Authorization", AUTHORIZATION_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(completedProfessionalBody())))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.message").value("Acesso negado para este recurso."));
     }
 
     private boolean matchesExpectedSearchCriteria(ProfessionalSearchCriteria professionalSearchCriteria) {

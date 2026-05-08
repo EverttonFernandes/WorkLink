@@ -27,6 +27,9 @@ import br.com.worklink.application.authentication.usecase.RefreshAuthenticationS
 import br.com.worklink.application.authentication.usecase.RequestAuthenticationOtpUseCase;
 import br.com.worklink.application.authentication.usecase.RevokeAuthenticationSessionUseCase;
 import br.com.worklink.application.authentication.usecase.VerifyAuthenticationOtpUseCase;
+import br.com.worklink.application.authorization.port.ResolveAuthenticatedPrincipalPort;
+import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
+import br.com.worklink.application.authorization.usecase.ResolveAuthenticatedPrincipalUseCase;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
@@ -193,5 +196,17 @@ public class WorkLinkUseCaseConfiguration {
                 updateRefreshSessionPort,
                 protectSensitiveValuePort
         );
+    }
+
+    @Bean
+    ResolveAuthenticatedPrincipalUseCase resolveAuthenticatedPrincipalUseCase(
+            ResolveAuthenticatedPrincipalPort resolveAuthenticatedPrincipalPort
+    ) {
+        return new ResolveAuthenticatedPrincipalUseCase(resolveAuthenticatedPrincipalPort);
+    }
+
+    @Bean
+    AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase() {
+        return new AuthorizeSensitiveActionUseCase();
     }
 }

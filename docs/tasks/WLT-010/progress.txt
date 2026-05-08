@@ -1,0 +1,23 @@
+TASK_KEY=WLT-010
+FASE=DONE
+
+ULTIMA_HIPOTESE:
+- A autorização da V1 pode nascer com política explícita por ações sensíveis e ownership, sem introduzir Spring Security completo ou RBAC corporativo.
+
+ULTIMO_RESULTADO:
+- Autorização por perfil e ownership implementada para catálogo administrativo e alteração de perfil profissional.
+- Access token HMAC-SHA-256 validado por adapter de infraestrutura sem acoplar regra de negócio ao framework.
+- Testes backend, integração, mobile aplicável, diff check e scan de secrets executados.
+
+GATES_OBSERVADOS:
+- QA: PASS
+- SRE: PASS
+- SECURITY: PASS
+- ARCH_REVIEW: PASS
+- FINAL_REVIEW: PASS
+
+PROXIMA_ACAO_RECOMENDADA:
+- Fechar commit/tag semântica `v0.21.0` e seguir para WLT-011.
+
+RISCOS_ABERTOS:
+- Auditoria persistida das ações sensíveis será tratada na WLT-011.

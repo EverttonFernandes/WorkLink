@@ -1,5 +1,9 @@
 package br.com.worklink.api.professional;
 
+import br.com.worklink.api.authorization.AuthenticatedPrincipalHttpResolver;
+import br.com.worklink.application.authorization.usecase.AuthorizationOwnership;
+import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
+import br.com.worklink.application.authorization.usecase.SensitiveAction;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileRequest;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
@@ -14,6 +18,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -32,15 +37,21 @@ public class ProfessionalController {
     private final RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase;
     private final ListProfessionalsUseCase listProfessionalsUseCase;
     private final CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase;
+    private final AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver;
+    private final AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase;
 
     public ProfessionalController(
             RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase,
             ListProfessionalsUseCase listProfessionalsUseCase,
-            CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase
+            CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase,
+            AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver,
+            AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase
     ) {
         this.registerBasicProfessionalUseCase = registerBasicProfessionalUseCase;
         this.listProfessionalsUseCase = listProfessionalsUseCase;
         this.completeProfessionalProfileUseCase = completeProfessionalProfileUseCase;
+        this.authenticatedPrincipalHttpResolver = authenticatedPrincipalHttpResolver;
+        this.authorizeSensitiveActionUseCase = authorizeSensitiveActionUseCase;
     }
 
     @PostMapping
@@ -78,8 +89,14 @@ public class ProfessionalController {
     @PatchMapping("/{professionalIdentifier}/profile")
     ProfessionalHttpResponse completeProfessionalProfile(
             @PathVariable UUID professionalIdentifier,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
             @RequestBody CompleteProfessionalProfileHttpRequest request
     ) {
+        authorizeSensitiveActionUseCase.authorizeOwnedSensitiveAction(
+                authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(authorizationHeader),
+                SensitiveAction.COMPLETE_PROFESSIONAL_PROFILE,
+                new AuthorizationOwnership(professionalIdentifier)
+        );
         ProfessionalResponse professionalResponse = completeProfessionalProfileUseCase.completeProfessionalProfile(
                 new CompleteProfessionalProfileRequest(
                         professionalIdentifier,

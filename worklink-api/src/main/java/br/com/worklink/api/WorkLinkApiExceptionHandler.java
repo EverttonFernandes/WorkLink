@@ -1,6 +1,8 @@
 package br.com.worklink.api;
 
 import br.com.worklink.application.ApplicationRuleViolationException;
+import br.com.worklink.application.AuthenticationRequiredException;
+import br.com.worklink.application.AuthorizationDeniedException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,5 +15,15 @@ public class WorkLinkApiExceptionHandler {
     @ExceptionHandler(ApplicationRuleViolationException.class)
     ResponseEntity<WorkLinkApiErrorResponse> handleApplicationRuleViolationException(ApplicationRuleViolationException exception) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new WorkLinkApiErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(AuthenticationRequiredException.class)
+    ResponseEntity<WorkLinkApiErrorResponse> handleAuthenticationRequiredException(AuthenticationRequiredException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new WorkLinkApiErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    ResponseEntity<WorkLinkApiErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException exception) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new WorkLinkApiErrorResponse(exception.getMessage()));
     }
 }

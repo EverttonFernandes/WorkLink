@@ -19,6 +19,7 @@ import br.com.worklink.application.authentication.port.SaveCustomerAccountPort;
 import br.com.worklink.application.authentication.port.SaveRefreshSessionPort;
 import br.com.worklink.application.authentication.port.UpdateAuthenticationOtpChallengePort;
 import br.com.worklink.application.authentication.port.UpdateRefreshSessionPort;
+import br.com.worklink.application.authorization.port.ResolveAuthenticatedPrincipalPort;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
@@ -65,6 +66,7 @@ class WorkLinkUseCaseConfigurationTest {
         SaveRefreshSessionPort saveRefreshSessionPort = refreshSession -> refreshSession;
         LoadRefreshSessionByTokenHashPort loadRefreshSessionByTokenHashPort = refreshTokenHash -> Optional.empty();
         UpdateRefreshSessionPort updateRefreshSessionPort = refreshSession -> refreshSession;
+        ResolveAuthenticatedPrincipalPort resolveAuthenticatedPrincipalPort = accessToken -> Optional.empty();
 
         // WHEN
         RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase = configuration.registerBasicProfessionalUseCase(
@@ -119,5 +121,7 @@ class WorkLinkUseCaseConfigurationTest {
                 updateRefreshSessionPort,
                 protectSensitiveValuePort
         )).isNotNull();
+        assertThat(configuration.resolveAuthenticatedPrincipalUseCase(resolveAuthenticatedPrincipalPort)).isNotNull();
+        assertThat(configuration.authorizeSensitiveActionUseCase()).isNotNull();
     }
 }
