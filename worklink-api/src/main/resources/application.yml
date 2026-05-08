@@ -1,6 +1,9 @@
 spring:
   application:
     name: worklink-api
+  jackson:
+    deserialization:
+      fail-on-unknown-properties: true
   datasource:
     url: ${WORKLINK_DATABASE_URL}
     username: ${WORKLINK_DATABASE_USERNAME}

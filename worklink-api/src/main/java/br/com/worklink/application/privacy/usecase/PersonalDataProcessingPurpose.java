@@ -1,0 +1,11 @@
+package br.com.worklink.application.privacy.usecase;
+
+public enum PersonalDataProcessingPurpose {
+    PUBLIC_PROFESSIONAL_DISCOVERY,
+    PROFESSIONAL_PROFILE_COMPLETENESS,
+    CUSTOMER_AUTHENTICATION,
+    CITY_BASED_SEARCH,
+    MODERATION_AND_SAFETY,
+    AUDITABILITY_AND_ACCOUNTABILITY,
+    NOT_ALLOWED_IN_V1
+}

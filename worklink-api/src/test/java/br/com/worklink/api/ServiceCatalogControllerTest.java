@@ -186,6 +186,27 @@ class ServiceCatalogControllerTest {
     }
 
     @Test
+    @DisplayName("GIVEN campo fora do contrato WHEN cadastrar categoria THEN deve rejeitar sem coletar dado extra")
+    void shouldRejectUnknownContractFieldWhenRegisteringServiceCategory() throws Exception {
+        // GIVEN
+        String requestBodyWithOutOfScopeField = """
+                {
+                  "categoryName": "Eletricista",
+                  "creditCard": "4111111111111111"
+                }
+                """;
+
+        // WHEN / THEN
+        mockMvc.perform(post("/api/v1/categories")
+                        .header("Authorization", AUTHORIZATION_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(requestBodyWithOutOfScopeField))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("O corpo da requisicao contem campos invalidos ou fora do contrato."));
+        verify(registerServiceCategoryUseCase, never()).registerServiceCategory(any(RegisterServiceCategoryRequest.class));
+    }
+
+    @Test
     @DisplayName("Deve negar cadastro administrativo de categoria para cliente")
     void shouldDenyAdministrativeServiceCategoryRegistrationForCustomer() throws Exception {
         // GIVEN

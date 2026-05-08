@@ -1,0 +1,33 @@
+TASK_KEY=WLT-012
+FASE=DONE
+
+ULTIMA_HIPOTESE:
+- A WLT-012 deve nascer como política executável de privacidade e hardening de entrada HTTP, sem criar fluxos funcionais futuros.
+
+ULTIMO_RESULTADO:
+- Política executável de privacidade, rejeição de campos HTTP desconhecidos, projeção de anonimato público e documentação LGPD mínima entregues.
+
+GATES_OBSERVADOS:
+- QA: PASS
+- SRE: PASS
+- SECURITY: PASS
+- ARCH_REVIEW: PASS
+- FINAL_REVIEW: PASS
+
+PROXIMA_ACAO_RECOMENDADA:
+- Fechar commit e tag semântica `v0.23.0`.
+
+RISCOS_ABERTOS:
+- Avaliação, denúncia, exclusão de conta e admin ainda não existem; a entrega deve preparar contratos técnicos sem simular fluxos inexistentes.
+
+EVIDENCIAS:
+- `rm -rf worklink-api/target && make backend-unit-test`: PASS, 159 testes, cobertura mínima atendida.
+- `make backend-static-analysis`: PASS.
+- `make backend-integration-test`: PASS, Flyway até `v009`.
+- `make mobile-static-analysis`: PASS.
+- `make mobile-unit-test`: PASS, 33 testes, cobertura 99,51%.
+- `make mobile-screen-test`: PASS, 22 testes.
+- `make mobile-integration-test`: N/A por ausência de runtime mobile/browser.
+- `make functional-test`: N/A por ausência de cenários funcionais reais.
+- `git diff --check`: PASS.
+- Varredura de segredos: PASS com placeholder esperado em `compose.yml`.
