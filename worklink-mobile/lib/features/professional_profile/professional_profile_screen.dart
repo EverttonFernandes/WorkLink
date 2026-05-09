@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 import 'professional_profile.dart';
+import 'professional_profile_review.dart';
 
 class ProfessionalProfileScreen extends StatelessWidget {
   const ProfessionalProfileScreen({
@@ -10,11 +11,13 @@ class ProfessionalProfileScreen extends StatelessWidget {
     required this.professionalProfile,
     this.onContactProfessional,
     this.onReportProfessional,
+    this.onRequestReviewAnalysis,
   });
 
   final ProfessionalProfile professionalProfile;
   final ValueChanged<String>? onContactProfessional;
   final ValueChanged<String>? onReportProfessional;
+  final ValueChanged<String>? onRequestReviewAnalysis;
 
   @override
   Widget build(BuildContext context) {
@@ -71,13 +74,107 @@ class ProfessionalProfileScreen extends StatelessWidget {
           ],
           if (professionalProfile.hasReviewSummary) ...[
             const SizedBox(height: 16),
-            _ProfileTextSection(
-              title: 'Avaliações',
-              body: professionalProfile.reviewSummary!,
+            _ProfileReviewSection(
+              reviewSummary: professionalProfile.reviewSummary!,
+              onRequestReviewAnalysis: onRequestReviewAnalysis,
             ),
           ],
         ],
       ),
+    );
+  }
+}
+
+class _ProfileReviewSection extends StatelessWidget {
+  const _ProfileReviewSection({
+    required this.reviewSummary,
+    required this.onRequestReviewAnalysis,
+  });
+
+  final ProfessionalProfileReviewSummary reviewSummary;
+  final ValueChanged<String>? onRequestReviewAnalysis;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!reviewSummary.hasReviews) {
+      return const _ProfileTextSection(
+        title: 'Avaliações',
+        body: 'Este profissional ainda não possui avaliações.',
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Avaliações',
+          style: Theme.of(context).textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        Row(
+          children: [
+            const Icon(Icons.star, size: 18),
+            const SizedBox(width: 4),
+            Text('${reviewSummary.averageRatingLabel} de 5'),
+            const SizedBox(width: 8),
+            Text(reviewSummary.reviewCountLabel),
+          ],
+        ),
+        if (!reviewSummary.hasComments) ...[
+          const SizedBox(height: 8),
+          const Text('Ainda não há comentários públicos.'),
+        ],
+        for (final reviewComment in reviewSummary.comments) ...[
+          const SizedBox(height: 12),
+          _ProfileReviewCommentTile(
+            reviewComment: reviewComment,
+            onRequestReviewAnalysis: onRequestReviewAnalysis,
+          ),
+        ],
+      ],
+    );
+  }
+}
+
+class _ProfileReviewCommentTile extends StatelessWidget {
+  const _ProfileReviewCommentTile({
+    required this.reviewComment,
+    required this.onRequestReviewAnalysis,
+  });
+
+  final ProfessionalProfileReviewComment reviewComment;
+  final ValueChanged<String>? onRequestReviewAnalysis;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.star_outline, size: 18),
+            const SizedBox(width: 4),
+            Text('${reviewComment.starRating} de 5'),
+            const SizedBox(width: 8),
+            Text(reviewComment.publicAuthorDisplayName),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(reviewComment.comment),
+        const SizedBox(height: 4),
+        TextButton.icon(
+          key: ValueKey(
+            'request-review-analysis-${reviewComment.professionalReviewIdentifier}',
+          ),
+          onPressed: onRequestReviewAnalysis == null
+              ? null
+              : () => onRequestReviewAnalysis!(
+                    reviewComment.professionalReviewIdentifier,
+                  ),
+          icon: const Icon(Icons.flag_outlined),
+          label: const Text('Solicitar análise'),
+        ),
+      ],
     );
   }
 }

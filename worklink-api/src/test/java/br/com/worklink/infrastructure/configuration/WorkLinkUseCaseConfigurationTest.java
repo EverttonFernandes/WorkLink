@@ -33,6 +33,9 @@ import br.com.worklink.application.professional.port.UpdateProfessionalPort;
 import br.com.worklink.application.security.port.ProtectSensitiveValuePort;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
 import br.com.worklink.application.review.port.LoadPostContactFeedbackByContactIntentIdentifierPort;
+import br.com.worklink.application.review.port.ListProfessionalReviewsByProfessionalIdentifierPort;
+import br.com.worklink.application.review.port.LoadProfessionalReviewByIdentifierPort;
+import br.com.worklink.application.review.port.SaveProfessionalReviewAnalysisRequestPort;
 import br.com.worklink.application.review.port.SaveProfessionalReviewPort;
 
 import org.junit.jupiter.api.DisplayName;
@@ -84,6 +87,12 @@ class WorkLinkUseCaseConfigurationTest {
         LoadPostContactFeedbackByContactIntentIdentifierPort loadPostContactFeedbackByContactIntentIdentifierPort =
                 contactIntentIdentifier -> Optional.empty();
         SaveProfessionalReviewPort saveProfessionalReviewPort = professionalReview -> professionalReview;
+        ListProfessionalReviewsByProfessionalIdentifierPort listProfessionalReviewsByProfessionalIdentifierPort =
+                professionalIdentifier -> java.util.List.of();
+        LoadProfessionalReviewByIdentifierPort loadProfessionalReviewByIdentifierPort =
+                professionalReviewIdentifier -> Optional.empty();
+        SaveProfessionalReviewAnalysisRequestPort saveProfessionalReviewAnalysisRequestPort =
+                professionalReviewAnalysisRequest -> professionalReviewAnalysisRequest;
 
         // WHEN
         RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase = configuration.registerBasicProfessionalUseCase(
@@ -159,6 +168,14 @@ class WorkLinkUseCaseConfigurationTest {
                 loadContactIntentByIdentifierPort,
                 loadPostContactFeedbackByContactIntentIdentifierPort,
                 saveProfessionalReviewPort,
+                currentContactTimePort
+        )).isNotNull();
+        assertThat(configuration.listProfessionalReviewProfileUseCase(
+                listProfessionalReviewsByProfessionalIdentifierPort
+        )).isNotNull();
+        assertThat(configuration.requestProfessionalReviewAnalysisUseCase(
+                loadProfessionalReviewByIdentifierPort,
+                saveProfessionalReviewAnalysisRequestPort,
                 currentContactTimePort
         )).isNotNull();
     }

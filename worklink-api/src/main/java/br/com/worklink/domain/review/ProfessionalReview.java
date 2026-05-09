@@ -49,6 +49,34 @@ public record ProfessionalReview(
         );
     }
 
+    public static ProfessionalReview restoreProfessionalReview(
+            UUID professionalReviewIdentifier,
+            UUID contactIntentIdentifier,
+            UUID postContactFeedbackIdentifier,
+            UUID professionalIdentifier,
+            UUID internalAuthorIdentifier,
+            int starRating,
+            String comment,
+            boolean anonymousToPublic,
+            UUID publicAuthorIdentifier,
+            String publicAuthorDisplayName,
+            Instant createdAt
+    ) {
+        return new ProfessionalReview(
+                requireIdentifier(professionalReviewIdentifier, "A avaliacao profissional e obrigatoria."),
+                requireIdentifier(contactIntentIdentifier, "A intencao de contato da avaliacao e obrigatoria."),
+                requireIdentifier(postContactFeedbackIdentifier, "O feedback pos-contato da avaliacao e obrigatorio."),
+                requireIdentifier(professionalIdentifier, "O profissional avaliado e obrigatorio."),
+                requireIdentifier(internalAuthorIdentifier, "A autoria interna da avaliacao e obrigatoria."),
+                requireStarRating(starRating),
+                normalizeComment(comment),
+                anonymousToPublic,
+                publicAuthorIdentifier,
+                requirePublicAuthorDisplayName(publicAuthorDisplayName),
+                requireInstant(createdAt)
+        );
+    }
+
     private static UUID requireIdentifier(UUID identifier, String message) {
         if (identifier == null) {
             throw new BusinessRuleViolationException(message);

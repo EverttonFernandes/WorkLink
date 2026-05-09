@@ -15,6 +15,7 @@ import 'features/professional_contact/professional_contact_controller.dart';
 import 'features/professional_contact/professional_contact_intention.dart';
 import 'features/professional_contact/professional_contact_screen.dart';
 import 'features/professional_profile/professional_profile.dart';
+import 'features/professional_profile/professional_profile_review.dart';
 import 'features/professional_profile/professional_profile_screen.dart';
 import 'features/professional_registration/professional_registration_controller.dart';
 import 'features/professional_registration/professional_registration_draft.dart';
@@ -78,7 +79,18 @@ class WorkLinkApp extends StatefulWidget {
       phoneNumberVerified: true,
       documentProvided: true,
       availabilityStatus: ProfessionalAvailabilityStatus.availableThisWeek,
-      reviewSummary: 'Avaliações serão exibidas quando estiverem disponíveis.',
+      reviewSummary: ProfessionalProfileReviewSummary(
+        averageRating: 4.5,
+        reviewCount: 2,
+        comments: [
+          ProfessionalProfileReviewComment(
+            professionalReviewIdentifier: 'review-maria-1',
+            starRating: 5,
+            publicAuthorDisplayName: 'Usuario anonimo',
+            comment: 'Atendimento rapido e organizado.',
+          ),
+        ],
+      ),
     ),
     ProfessionalProfile(
       professionalIdentifier: 'ana-pintora',
@@ -134,6 +146,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
                     context,
                     professionalProfile,
                   ),
+                  onRequestReviewAnalysis: (_) {},
                 ),
               ),
             );

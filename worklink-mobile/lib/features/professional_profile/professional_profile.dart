@@ -1,4 +1,5 @@
 import '../professional_availability/professional_availability_status.dart';
+import 'professional_profile_review.dart';
 
 class ProfessionalProfile {
   const ProfessionalProfile({
@@ -38,7 +39,7 @@ class ProfessionalProfile {
   final bool phoneNumberVerified;
   final bool documentProvided;
   final ProfessionalAvailabilityStatus availabilityStatus;
-  final String? reviewSummary;
+  final ProfessionalProfileReviewSummary? reviewSummary;
 
   String get baseCityDisplayName => '$baseCityName - $baseStateCode';
 
@@ -58,8 +59,7 @@ class ProfessionalProfile {
 
   bool get hasAvailability => availabilityLabel.trim().isNotEmpty;
 
-  bool get hasReviewSummary =>
-      reviewSummary != null && reviewSummary!.trim().isNotEmpty;
+  bool get hasReviewSummary => reviewSummary != null;
 
   List<String> get visibleProfileBadgeLabels {
     return [

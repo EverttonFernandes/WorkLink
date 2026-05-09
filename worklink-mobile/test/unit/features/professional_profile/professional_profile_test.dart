@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/features/professional_availability/professional_availability_status.dart';
 import 'package:worklink_mobile/features/professional_profile/professional_profile.dart';
+import 'package:worklink_mobile/features/professional_profile/professional_profile_review.dart';
 
 void main() {
   test(
@@ -39,7 +40,6 @@ void main() {
       attendedCityNames: [],
       aboutDescription: '',
       serviceNames: [],
-      reviewSummary: '',
     );
 
     // WHEN / THEN
@@ -72,7 +72,10 @@ void main() {
       phoneNumberVerified: true,
       documentProvided: true,
       availabilityStatus: ProfessionalAvailabilityStatus.availableToday,
-      reviewSummary: '4 avaliações positivas',
+      reviewSummary: ProfessionalProfileReviewSummary(
+        averageRating: 4.8,
+        reviewCount: 4,
+      ),
     );
 
     // WHEN

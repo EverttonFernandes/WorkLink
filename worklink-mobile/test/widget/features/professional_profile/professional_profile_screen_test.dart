@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/features/professional_availability/professional_availability_status.dart';
 import 'package:worklink_mobile/features/professional_profile/professional_profile.dart';
+import 'package:worklink_mobile/features/professional_profile/professional_profile_review.dart';
 import 'package:worklink_mobile/features/professional_profile/professional_profile_screen.dart';
 
 void main() {
@@ -21,7 +22,18 @@ void main() {
     phoneNumberVerified: true,
     documentProvided: true,
     availabilityStatus: ProfessionalAvailabilityStatus.availableThisWeek,
-    reviewSummary: '4.9 em 128 avaliações',
+    reviewSummary: ProfessionalProfileReviewSummary(
+      averageRating: 4.5,
+      reviewCount: 2,
+      comments: [
+        ProfessionalProfileReviewComment(
+          professionalReviewIdentifier: 'review-1',
+          starRating: 5,
+          publicAuthorDisplayName: 'Usuario anonimo',
+          comment: 'Atendimento rapido.',
+        ),
+      ],
+    ),
   );
 
   Future<void> pumpProfessionalProfileScreen(
@@ -29,6 +41,7 @@ void main() {
     ProfessionalProfile professionalProfile, {
     ValueChanged<String>? onContactProfessional,
     ValueChanged<String>? onReportProfessional,
+    ValueChanged<String>? onRequestReviewAnalysis,
   }) async {
     await widgetTester.pumpWidget(
       MaterialApp(
@@ -36,6 +49,7 @@ void main() {
           professionalProfile: professionalProfile,
           onContactProfessional: onContactProfessional,
           onReportProfessional: onReportProfessional,
+          onRequestReviewAnalysis: onRequestReviewAnalysis,
         ),
       ),
     );
@@ -71,6 +85,14 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Garantia de qualidade'), findsNothing);
+    await widgetTester.scrollUntilVisible(
+      find.text('Avaliações'),
+      120,
+    );
+    expect(find.text('4.5 de 5'), findsOneWidget);
+    expect(find.text('2 avaliações'), findsOneWidget);
+    expect(find.text('Usuario anonimo'), findsOneWidget);
+    expect(find.text('Atendimento rapido.'), findsOneWidget);
   });
 
   testWidgets(
@@ -143,5 +165,33 @@ void main() {
 
     // THEN
     expect(reportedProfessionalIdentifiers, ['roberto-eletricista']);
+  });
+
+  testWidgets(
+      'GIVEN comentario publico WHEN solicitar analise THEN deve emitir avaliacao',
+      (widgetTester) async {
+    // GIVEN
+    final reviewAnalysisRequests = <String>[];
+    await pumpProfessionalProfileScreen(
+      widgetTester,
+      completeProfessionalProfile,
+      onRequestReviewAnalysis: reviewAnalysisRequests.add,
+    );
+    final requestReviewAnalysisButton =
+        find.byKey(const ValueKey('request-review-analysis-review-1'));
+    await widgetTester.scrollUntilVisible(
+      requestReviewAnalysisButton,
+      300,
+      maxScrolls: 20,
+    );
+    await widgetTester.ensureVisible(requestReviewAnalysisButton);
+    await widgetTester.pumpAndSettle();
+
+    // WHEN
+    await widgetTester.tap(requestReviewAnalysisButton);
+    await widgetTester.pump();
+
+    // THEN
+    expect(reviewAnalysisRequests, ['review-1']);
   });
 }

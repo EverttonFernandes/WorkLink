@@ -50,9 +50,14 @@ import br.com.worklink.application.location.usecase.PreviewCitySelectionUseCase;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
+import br.com.worklink.application.review.port.ListProfessionalReviewsByProfessionalIdentifierPort;
+import br.com.worklink.application.review.port.LoadProfessionalReviewByIdentifierPort;
 import br.com.worklink.application.review.port.LoadPostContactFeedbackByContactIntentIdentifierPort;
 import br.com.worklink.application.review.port.SaveProfessionalReviewPort;
+import br.com.worklink.application.review.port.SaveProfessionalReviewAnalysisRequestPort;
+import br.com.worklink.application.review.usecase.ListProfessionalReviewProfileUseCase;
 import br.com.worklink.application.review.usecase.RegisterProfessionalReviewUseCase;
+import br.com.worklink.application.review.usecase.RequestProfessionalReviewAnalysisUseCase;
 import br.com.worklink.application.storage.usecase.PrepareFileUploadUseCase;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -269,6 +274,26 @@ public class WorkLinkUseCaseConfiguration {
                 loadContactIntentByIdentifierPort,
                 loadPostContactFeedbackByContactIntentIdentifierPort,
                 saveProfessionalReviewPort,
+                currentContactTimePort
+        );
+    }
+
+    @Bean
+    ListProfessionalReviewProfileUseCase listProfessionalReviewProfileUseCase(
+            ListProfessionalReviewsByProfessionalIdentifierPort listProfessionalReviewsByProfessionalIdentifierPort
+    ) {
+        return new ListProfessionalReviewProfileUseCase(listProfessionalReviewsByProfessionalIdentifierPort);
+    }
+
+    @Bean
+    RequestProfessionalReviewAnalysisUseCase requestProfessionalReviewAnalysisUseCase(
+            LoadProfessionalReviewByIdentifierPort loadProfessionalReviewByIdentifierPort,
+            SaveProfessionalReviewAnalysisRequestPort saveProfessionalReviewAnalysisRequestPort,
+            CurrentContactTimePort currentContactTimePort
+    ) {
+        return new RequestProfessionalReviewAnalysisUseCase(
+                loadProfessionalReviewByIdentifierPort,
+                saveProfessionalReviewAnalysisRequestPort,
                 currentContactTimePort
         );
     }
