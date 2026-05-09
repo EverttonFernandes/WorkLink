@@ -9,6 +9,9 @@ import 'features/discovery/discovery_controller.dart';
 import 'features/discovery/discovery_professional.dart';
 import 'features/discovery/discovery_screen.dart';
 import 'features/professional_availability/professional_availability_status.dart';
+import 'features/professional_contact/professional_contact_controller.dart';
+import 'features/professional_contact/professional_contact_intention.dart';
+import 'features/professional_contact/professional_contact_screen.dart';
 import 'features/professional_profile/professional_profile.dart';
 import 'features/professional_profile/professional_profile_screen.dart';
 import 'features/professional_registration/professional_registration_controller.dart';
@@ -125,7 +128,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
                   professionalProfile: professionalProfile,
                   onContactProfessional: (_) => _handleContactProfessional(
                     context,
-                    professionalProfile.professionalName,
+                    professionalProfile,
                   ),
                 ),
               ),
@@ -136,7 +139,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
               MaterialPageRoute<void>(
                 builder: (_) => ProfessionalRegistrationScreen(
                   professionalRegistrationController:
-                  ProfessionalRegistrationController(
+                      ProfessionalRegistrationController(
                     initialDraft: const ProfessionalRegistrationDraft(
                       categoryName: 'Eletricista',
                       cityDisplayName: 'Charqueadas - RS',
@@ -157,13 +160,14 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
 
   void _handleContactProfessional(
     BuildContext context,
-    String professionalName,
+    ProfessionalProfile professionalProfile,
   ) {
     if (!customerAuthenticated) {
       Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (authenticationContext) => CustomerAuthenticationScreen(
-            customerAuthenticationController: CustomerAuthenticationController(),
+            customerAuthenticationController:
+                CustomerAuthenticationController(),
             onAuthenticationCompleted: (_) {
               setState(() {
                 customerAuthenticated = true;
@@ -176,8 +180,26 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Contato autenticado para $professionalName')),
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ProfessionalContactScreen(
+          professionalIdentifier: professionalProfile.professionalIdentifier,
+          professionalName: professionalProfile.professionalName,
+          professionalContactController: ProfessionalContactController(
+            registerProfessionalContactIntention:
+                (professionalIdentifier) async {
+              return ProfessionalContactIntention(
+                contactIntentionIdentifier:
+                    'contact-intention-$professionalIdentifier',
+                professionalIdentifier: professionalIdentifier,
+                professionalName: professionalProfile.professionalName,
+                whatsappContactLink: 'https://wa.me/51999999999',
+              );
+            },
+            openProfessionalWhatsappContact: (_) async => true,
+          ),
+        ),
+      ),
     );
   }
 }

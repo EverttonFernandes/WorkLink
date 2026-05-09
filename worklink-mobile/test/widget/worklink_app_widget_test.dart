@@ -80,7 +80,7 @@ void main() {
   });
 
   testWidgets(
-      'GIVEN cliente autenticado WHEN tentar contato THEN deve manter perfil publico',
+      'GIVEN cliente autenticado WHEN tentar contato THEN deve navegar para tela de contato WhatsApp',
       (tester) async {
     // GIVEN
     const application = WorkLinkApp();
@@ -110,11 +110,18 @@ void main() {
     await tester.tap(
       find.byKey(const ValueKey('contact-professional-maria-eletricista')),
     );
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     // THEN
-    expect(find.text('Perfil do profissional'), findsOneWidget);
-    expect(find.text('Contato autenticado para Maria Eletricista'), findsOneWidget);
+    expect(find.text('Falar com o profissional'), findsOneWidget);
+    expect(
+      find.text('A negociação acontece fora do WorkLink pelo WhatsApp.'),
+      findsOneWidget,
+    );
+    expect(
+      find.text('O WorkLink não garante a execução do serviço contratado.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets(

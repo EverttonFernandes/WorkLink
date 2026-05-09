@@ -23,7 +23,6 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História | Tipo | Título | Relação com outras histórias | Execução | Versão |
 |-------|----------|------|--------|-------------------------------|----------|--------|
-| 26 | [WL-010](historias/WL-010-contato-whatsapp-intencao.md) | Negócio | Contato via WhatsApp e intenção de contato | Depende de autenticação, autorização e auditoria | Junto dos gates de segurança | MINOR |
 | 27 | [WL-011](historias/WL-011-pos-contato-estruturado.md) | Negócio | Pós-contato estruturado | Depende de intenção de contato rastreável | Separada | MINOR |
 | 28 | [WL-012](historias/WL-012-avaliacao-anonima-rastreavel.md) | Negócio | Avaliação anônima com rastreabilidade interna | Depende de pós-contato, LGPD e auditoria | Junto dos gates de segurança | MINOR |
 | 29 | [WL-013](historias/WL-013-exibicao-avaliacoes-perfil.md) | Negócio | Exibição de avaliações no perfil | Depende de avaliação anônima | Separada | MINOR |
@@ -71,6 +70,7 @@ _Vazio._
 | 23 | [WLT-012](historias-tecnicas/WLT-012-lgpd-privacidade-dados-sensiveis.md) | Técnica | LGPD, privacidade e minimização | Pré-requisito para dados pessoais e anonimato | Separada | MINOR | [Entrega WLT-012](../entregas/WLT-012-lgpd-privacidade-dados-sensiveis.md) |
 | 24 | [WLT-015](historias-tecnicas/WLT-015-observabilidade-logs-metricas.md) | Técnica | Observabilidade, logs e métricas | Pré-requisito para rastrear fluxos críticos | Separada | MINOR | [Entrega WLT-015](../entregas/WLT-015-observabilidade-logs-metricas.md) |
 | 25 | [WL-009](historias/WL-009-autenticacao-cliente-telefone.md) | Negócio | Autenticação simplificada do cliente por telefone | Depende de auth segura, privacidade e auditoria | Junto dos gates de segurança | MINOR | [Entrega WL-009](../entregas/WL-009-autenticacao-cliente-telefone.md) |
+| 26 | [WL-010](historias/WL-010-contato-whatsapp-intencao.md) | Negócio | Contato via WhatsApp e intenção de contato | Depende de autenticação, autorização e auditoria | Junto dos gates de segurança | MINOR | [Entrega WL-010](../entregas/WL-010-contato-whatsapp-intencao.md) |
 
 ## Histórias técnicas que podem ser executadas separadamente
 

@@ -32,6 +32,10 @@ import br.com.worklink.application.authentication.usecase.VerifyAuthenticationOt
 import br.com.worklink.application.authorization.port.ResolveAuthenticatedPrincipalPort;
 import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
 import br.com.worklink.application.authorization.usecase.ResolveAuthenticatedPrincipalUseCase;
+import br.com.worklink.application.contact.port.CreateWhatsappContactLinkPort;
+import br.com.worklink.application.contact.port.CurrentContactTimePort;
+import br.com.worklink.application.contact.port.SaveContactIntentPort;
+import br.com.worklink.application.contact.usecase.StartProfessionalContactUseCase;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
@@ -218,5 +222,20 @@ public class WorkLinkUseCaseConfiguration {
             CurrentTimePort currentTimePort
     ) {
         return new RecordSensitiveAuditEventUseCase(saveSensitiveAuditEventPort, currentTimePort);
+    }
+
+    @Bean
+    StartProfessionalContactUseCase startProfessionalContactUseCase(
+            LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort,
+            SaveContactIntentPort saveContactIntentPort,
+            CurrentContactTimePort currentContactTimePort,
+            CreateWhatsappContactLinkPort createWhatsappContactLinkPort
+    ) {
+        return new StartProfessionalContactUseCase(
+                loadProfessionalByIdentifierPort,
+                saveContactIntentPort,
+                currentContactTimePort,
+                createWhatsappContactLinkPort
+        );
     }
 }

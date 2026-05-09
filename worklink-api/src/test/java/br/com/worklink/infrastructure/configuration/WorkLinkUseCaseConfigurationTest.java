@@ -21,6 +21,9 @@ import br.com.worklink.application.authentication.port.SaveRefreshSessionPort;
 import br.com.worklink.application.authentication.port.UpdateAuthenticationOtpChallengePort;
 import br.com.worklink.application.authentication.port.UpdateRefreshSessionPort;
 import br.com.worklink.application.authorization.port.ResolveAuthenticatedPrincipalPort;
+import br.com.worklink.application.contact.port.CreateWhatsappContactLinkPort;
+import br.com.worklink.application.contact.port.CurrentContactTimePort;
+import br.com.worklink.application.contact.port.SaveContactIntentPort;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
@@ -69,6 +72,9 @@ class WorkLinkUseCaseConfigurationTest {
         UpdateRefreshSessionPort updateRefreshSessionPort = refreshSession -> refreshSession;
         ResolveAuthenticatedPrincipalPort resolveAuthenticatedPrincipalPort = accessToken -> Optional.empty();
         SaveSensitiveAuditEventPort saveSensitiveAuditEventPort = sensitiveAuditEvent -> sensitiveAuditEvent;
+        SaveContactIntentPort saveContactIntentPort = contactIntent -> contactIntent;
+        CurrentContactTimePort currentContactTimePort = () -> Instant.parse("2026-05-08T20:00:00Z");
+        CreateWhatsappContactLinkPort createWhatsappContactLinkPort = whatsappNumber -> "https://wa.me/%s".formatted(whatsappNumber);
 
         // WHEN
         RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase = configuration.registerBasicProfessionalUseCase(
@@ -128,6 +134,12 @@ class WorkLinkUseCaseConfigurationTest {
         assertThat(configuration.recordSensitiveAuditEventUseCase(
                 saveSensitiveAuditEventPort,
                 currentTimePort
+        )).isNotNull();
+        assertThat(configuration.startProfessionalContactUseCase(
+                loadProfessionalByIdentifierPort,
+                saveContactIntentPort,
+                currentContactTimePort,
+                createWhatsappContactLinkPort
         )).isNotNull();
     }
 }
