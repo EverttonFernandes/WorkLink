@@ -37,6 +37,7 @@ import br.com.worklink.application.review.port.ListProfessionalReviewsByProfessi
 import br.com.worklink.application.review.port.LoadProfessionalReviewByIdentifierPort;
 import br.com.worklink.application.review.port.SaveProfessionalReviewAnalysisRequestPort;
 import br.com.worklink.application.review.port.SaveProfessionalReviewPort;
+import br.com.worklink.application.report.port.SaveProfessionalReportPort;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -93,6 +94,7 @@ class WorkLinkUseCaseConfigurationTest {
                 professionalReviewIdentifier -> Optional.empty();
         SaveProfessionalReviewAnalysisRequestPort saveProfessionalReviewAnalysisRequestPort =
                 professionalReviewAnalysisRequest -> professionalReviewAnalysisRequest;
+        SaveProfessionalReportPort saveProfessionalReportPort = professionalReport -> professionalReport;
 
         // WHEN
         RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase = configuration.registerBasicProfessionalUseCase(
@@ -176,6 +178,11 @@ class WorkLinkUseCaseConfigurationTest {
         assertThat(configuration.requestProfessionalReviewAnalysisUseCase(
                 loadProfessionalReviewByIdentifierPort,
                 saveProfessionalReviewAnalysisRequestPort,
+                currentContactTimePort
+        )).isNotNull();
+        assertThat(configuration.registerProfessionalReportUseCase(
+                loadProfessionalByIdentifierPort,
+                saveProfessionalReportPort,
                 currentContactTimePort
         )).isNotNull();
     }

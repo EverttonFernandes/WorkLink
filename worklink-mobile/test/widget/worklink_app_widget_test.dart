@@ -246,4 +246,27 @@ void main() {
     expect(find.text('Cadastro do Profissional'), findsOneWidget);
     expect(find.text('Etapa 1 de 2'), findsOneWidget);
   });
+
+  testWidgets(
+      'GIVEN perfil publico WHEN denunciar profissional THEN deve navegar para tela de denuncia',
+      (tester) async {
+    // GIVEN
+    const application = WorkLinkApp();
+    await tester.pumpWidget(application);
+    await tester.tap(
+      find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
+    );
+    await tester.pumpAndSettle();
+
+    // WHEN
+    await tester.tap(
+      find.byKey(const ValueKey('report-professional-maria-eletricista')),
+    );
+    await tester.pumpAndSettle();
+
+    // THEN
+    expect(find.text('Denunciar profissional'), findsOneWidget);
+    expect(find.text('Maria Eletricista'), findsOneWidget);
+    expect(find.text('Motivo'), findsOneWidget);
+  });
 }

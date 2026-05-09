@@ -1,0 +1,8 @@
+WL-014 progress
+
+- 2026-05-09: História iniciada como próxima demanda oficial após WL-013/v0.29.0.
+- 2026-05-09: Functional test discovery identifica infraestrutura Jest/Axios sem cenários reais executáveis; gate funcional planejado como N/A nesta história.
+- 2026-05-09: Implementado domínio, caso de uso, endpoint, persistência, auditoria e tela mobile de denúncia.
+- 2026-05-09: Corrigido contrato de motivo inválido para retornar violação de aplicação sem persistir denúncia.
+- 2026-05-09: Ajustados testes de tela mobile para janela maior, evitando falha por lazy rendering em formulário longo.
+- 2026-05-09: Gates aprovados: backend unitário/estático/integração, mobile estático/unitário/telas, imagem backend, diff e segurança.

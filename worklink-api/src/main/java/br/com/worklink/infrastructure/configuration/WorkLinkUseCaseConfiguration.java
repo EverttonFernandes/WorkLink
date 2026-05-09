@@ -58,6 +58,8 @@ import br.com.worklink.application.review.port.SaveProfessionalReviewAnalysisReq
 import br.com.worklink.application.review.usecase.ListProfessionalReviewProfileUseCase;
 import br.com.worklink.application.review.usecase.RegisterProfessionalReviewUseCase;
 import br.com.worklink.application.review.usecase.RequestProfessionalReviewAnalysisUseCase;
+import br.com.worklink.application.report.port.SaveProfessionalReportPort;
+import br.com.worklink.application.report.usecase.RegisterProfessionalReportUseCase;
 import br.com.worklink.application.storage.usecase.PrepareFileUploadUseCase;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -294,6 +296,19 @@ public class WorkLinkUseCaseConfiguration {
         return new RequestProfessionalReviewAnalysisUseCase(
                 loadProfessionalReviewByIdentifierPort,
                 saveProfessionalReviewAnalysisRequestPort,
+                currentContactTimePort
+        );
+    }
+
+    @Bean
+    RegisterProfessionalReportUseCase registerProfessionalReportUseCase(
+            LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort,
+            SaveProfessionalReportPort saveProfessionalReportPort,
+            CurrentContactTimePort currentContactTimePort
+    ) {
+        return new RegisterProfessionalReportUseCase(
+                loadProfessionalByIdentifierPort,
+                saveProfessionalReportPort,
                 currentContactTimePort
         );
     }

@@ -20,6 +20,8 @@ import 'features/professional_profile/professional_profile_screen.dart';
 import 'features/professional_registration/professional_registration_controller.dart';
 import 'features/professional_registration/professional_registration_draft.dart';
 import 'features/professional_registration/professional_registration_screen.dart';
+import 'features/professional_report/professional_report_controller.dart';
+import 'features/professional_report/professional_report_screen.dart';
 import 'features/professional_review/professional_review_controller.dart';
 import 'features/professional_review/professional_review_screen.dart';
 
@@ -146,6 +148,10 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
                     context,
                     professionalProfile,
                   ),
+                  onReportProfessional: (_) => _openProfessionalReport(
+                    context,
+                    professionalProfile,
+                  ),
                   onRequestReviewAnalysis: (_) {},
                 ),
               ),
@@ -253,6 +259,23 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
           professionalReviewController: ProfessionalReviewController(
             contactIntentionIdentifier: contactIntentionIdentifier,
             submitProfessionalReview: (_, __) async {},
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openProfessionalReport(
+    BuildContext context,
+    ProfessionalProfile professionalProfile,
+  ) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ProfessionalReportScreen(
+          professionalName: professionalProfile.professionalName,
+          professionalReportController: ProfessionalReportController(
+            professionalIdentifier: professionalProfile.professionalIdentifier,
+            submitProfessionalReport: (_, __) async {},
           ),
         ),
       ),
