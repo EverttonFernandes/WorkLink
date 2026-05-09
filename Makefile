@@ -32,8 +32,7 @@ migrate: db-migrate
 
 clean: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) down -v --remove-orphans
-	rm -rf worklink-api/target worklink-mobile/build worklink-mobile/.dart_tool worklink-mobile/coverage
-
+	sudo rm -rf worklink-api/target worklink-mobile/build worklink-mobile/.dart_tool worklink-mobile/coverage
 backend-static-analysis: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm backend-tests mvn checkstyle:check
 
