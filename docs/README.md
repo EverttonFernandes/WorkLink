@@ -11,6 +11,12 @@ Este diretorio concentra a documentacao viva usada pelos agentes e pelo fluxo de
 - `docs/referencias/`: documentos de referencia usados para orientar implementacao.
 - `docs/tasks/`: templates e artefatos operacionais de execucao das historias.
 - `docs/entregas/`: template e registros versionaveis das entregas concluidas.
+- `docs/api/`: contrato OpenAPI estatico da API.
+- `docs/adrs/`: Architecture Decision Records.
+- `docs/arquitetura/`: decisoes e visoes tecnicas, incluindo C4.
+- `docs/operacao/`: guias de ambiente, testes, variaveis e incidentes.
+- `docs/seguranca/`: threat model, checklist OWASP e politica de seguranca.
+- `docs/release/`: estrategia de publicacao mobile.
 
 ## Fontes principais
 
@@ -21,3 +27,7 @@ Este diretorio concentra a documentacao viva usada pelos agentes e pelo fluxo de
 - `docs/spec-driven-development/codigo-limpo.md`
 - `docs/spec-driven-development/padroes-de-testes.md`
 - `docs/spec-driven-development/padrões-de-projeto-e-design-de-codigo.md`
+- `docs/api/openapi.yaml`
+- `docs/arquitetura/c4-model.md`
+- `docs/seguranca/threat-model.md`
+- `docs/release/release-mobile.md`

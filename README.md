@@ -73,3 +73,12 @@ registra `N/A` sem exigir instalacao de ferramentas no host.
 - `docs/requisitos/epico-requisitos-de-negocio.md`
 - `docs/requisitos/epico-requisitos-nao-funcionais.md`
 - `docs/spec-driven-development/spec-driven-development.md`
+
+## Documentação técnica
+
+- `docs/api/openapi.yaml`: contrato OpenAPI estático da V1.
+- `docs/arquitetura/c4-model.md`: visão C4 do produto.
+- `docs/adrs/`: decisões arquiteturais aceitas.
+- `docs/operacao/`: guias de ambiente, testes, variáveis e incidentes.
+- `docs/seguranca/`: threat model, checklist OWASP e política básica.
+- `docs/release/release-mobile.md`: estratégia Android, iOS, rollout e rollback.

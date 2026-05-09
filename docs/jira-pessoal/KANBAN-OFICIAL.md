@@ -21,9 +21,7 @@ Uma história só pode ir para `Done` quando:
 
 ## To Do
 
-| Ordem | História | Tipo | Título | Relação com outras histórias | Execução | Versão |
-|-------|----------|------|--------|-------------------------------|----------|--------|
-| 35 | [WLT-018](historias-tecnicas/WLT-018-documentacao-adrs-release-mobile.md) | Técnica | Documentação técnica, ADRs e release mobile | Fechamento técnico/documental da V1 | Separada | MINOR |
+_Vazio._
 
 ## Doing
 
@@ -71,6 +69,7 @@ _Vazio._
 | 32 | [WLT-016](historias-tecnicas/WLT-016-disponibilidade-escalabilidade-stateless.md) | Técnica | Disponibilidade e escalabilidade stateless | Endurece operação antes de admin/métricas | Separada | MINOR | [Entrega WLT-016](../entregas/WLT-016-disponibilidade-escalabilidade-stateless.md) |
 | 33 | [WL-016](historias/WL-016-admin-minimo-moderacao.md) | Negócio | Administração mínima e moderação | Depende de autorização, auditoria e observabilidade | Junto dos gates de segurança/SRE | MINOR | [Entrega WL-016](../entregas/WL-016-admin-minimo-moderacao.md) |
 | 34 | [WL-017](historias/WL-017-metricas-ranking-futuro.md) | Negócio | Métricas funcionais e base para ranking futuro | Depende dos eventos principais e observabilidade | Separada | MINOR | [Entrega WL-017](../entregas/WL-017-metricas-ranking-futuro.md) |
+| 35 | [WLT-018](historias-tecnicas/WLT-018-documentacao-adrs-release-mobile.md) | Técnica | Documentação técnica, ADRs e release mobile | Fechamento técnico/documental da V1 | Separada | MINOR | [Entrega WLT-018](../entregas/WLT-018-documentacao-adrs-release-mobile.md) |
 
 ## Histórias técnicas que podem ser executadas separadamente
 
