@@ -15,6 +15,9 @@ void main() {
   Future<void> pumpProfessionalContactScreen(
     WidgetTester widgetTester,
     ProfessionalContactController controller,
+    {
+    ValueChanged<String>? onOpenPostContactFeedback,
+  }
   ) async {
     await widgetTester.pumpWidget(
       MaterialApp(
@@ -22,6 +25,7 @@ void main() {
           professionalIdentifier: 'maria-eletricista',
           professionalName: 'Maria Eletricista',
           professionalContactController: controller,
+          onOpenPostContactFeedback: onOpenPostContactFeedback,
         ),
       ),
     );
@@ -98,5 +102,36 @@ void main() {
       find.byKey(const ValueKey('professional-contact-error-message')),
       findsOneWidget,
     );
+  });
+
+  testWidgets(
+      'GIVEN contato finalizado WHEN abrir pos-contato THEN deve emitir identificador da intencao',
+      (widgetTester) async {
+    // GIVEN
+    String? openedContactIntentionIdentifier;
+    final controller = ProfessionalContactController(
+      registerProfessionalContactIntention: (_) async => contactIntention,
+      openProfessionalWhatsappContact: (_) async => true,
+    );
+    await pumpProfessionalContactScreen(
+      widgetTester,
+      controller,
+      onOpenPostContactFeedback: (contactIntentionIdentifier) {
+        openedContactIntentionIdentifier = contactIntentionIdentifier;
+      },
+    );
+    await widgetTester.tap(
+      find.byKey(const ValueKey('start-whatsapp-contact-button')),
+    );
+    await widgetTester.pumpAndSettle();
+
+    // WHEN
+    await widgetTester.tap(
+      find.byKey(const ValueKey('open-post-contact-feedback-button')),
+    );
+    await widgetTester.pumpAndSettle();
+
+    // THEN
+    expect(openedContactIntentionIdentifier, 'contact-intention-1');
   });
 }

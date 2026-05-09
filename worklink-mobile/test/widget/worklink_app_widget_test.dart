@@ -125,6 +125,54 @@ void main() {
   });
 
   testWidgets(
+      'GIVEN contato WhatsApp iniciado WHEN responder pos-contato THEN deve navegar para feedback estruturado',
+      (tester) async {
+    // GIVEN
+    const application = WorkLinkApp();
+    await tester.pumpWidget(application);
+    await tester.tap(
+      find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('contact-professional-maria-eletricista')),
+    );
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('customer-phone-field')),
+      '(51) 9 9999-1234',
+    );
+    await tester.tap(find.byKey(const ValueKey('request-code-button')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('verification-code-field')),
+      '1234',
+    );
+    await tester.tap(find.byKey(const ValueKey('confirm-code-button')));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('contact-professional-maria-eletricista')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('start-whatsapp-contact-button')),
+    );
+    await tester.pumpAndSettle();
+
+    // WHEN
+    await tester.tap(
+      find.byKey(const ValueKey('open-post-contact-feedback-button')),
+    );
+    await tester.pumpAndSettle();
+
+    // THEN
+    expect(find.text('Pós-contato'), findsOneWidget);
+    expect(find.text('Conseguiu falar?'), findsOneWidget);
+    expect(find.text('Como foi a resposta?'), findsOneWidget);
+    expect(find.text('O serviço foi realizado?'), findsOneWidget);
+  });
+
+  testWidgets(
       'GIVEN app inicial WHEN abrir cadastro profissional THEN deve navegar para cadastro progressivo',
       (tester) async {
     // GIVEN

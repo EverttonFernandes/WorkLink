@@ -8,6 +8,8 @@ import 'features/customer_authentication/customer_authentication_screen.dart';
 import 'features/discovery/discovery_controller.dart';
 import 'features/discovery/discovery_professional.dart';
 import 'features/discovery/discovery_screen.dart';
+import 'features/post_contact_feedback/post_contact_feedback_controller.dart';
+import 'features/post_contact_feedback/post_contact_feedback_screen.dart';
 import 'features/professional_availability/professional_availability_status.dart';
 import 'features/professional_contact/professional_contact_controller.dart';
 import 'features/professional_contact/professional_contact_intention.dart';
@@ -197,6 +199,24 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
               );
             },
             openProfessionalWhatsappContact: (_) async => true,
+          ),
+          onOpenPostContactFeedback: (contactIntentionIdentifier) =>
+              _openPostContactFeedback(context, contactIntentionIdentifier),
+        ),
+      ),
+    );
+  }
+
+  void _openPostContactFeedback(
+    BuildContext context,
+    String contactIntentionIdentifier,
+  ) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => PostContactFeedbackScreen(
+          postContactFeedbackController: PostContactFeedbackController(
+            contactIntentionIdentifier: contactIntentionIdentifier,
+            submitPostContactFeedback: (_, __) async {},
           ),
         ),
       ),

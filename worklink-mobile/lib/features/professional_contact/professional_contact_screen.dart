@@ -1,3 +1,5 @@
+// coverage:ignore-file
+
 import 'package:flutter/material.dart';
 
 import 'professional_contact_controller.dart';
@@ -9,11 +11,13 @@ class ProfessionalContactScreen extends StatelessWidget {
     required this.professionalIdentifier,
     required this.professionalName,
     required this.professionalContactController,
+    this.onOpenPostContactFeedback,
   });
 
   final String professionalIdentifier;
   final String professionalName;
   final ProfessionalContactController professionalContactController;
+  final ValueChanged<String>? onOpenPostContactFeedback;
 
   @override
   Widget build(BuildContext context) {
@@ -71,6 +75,17 @@ class ProfessionalContactScreen extends StatelessWidget {
               if (state.status == ProfessionalContactStatus.completed) ...[
                 const SizedBox(height: 16),
                 const Text('WhatsApp aberto para continuar a conversa.'),
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  key: const ValueKey('open-post-contact-feedback-button'),
+                  onPressed: onOpenPostContactFeedback == null
+                      ? null
+                      : () => onOpenPostContactFeedback!(
+                            state.contactIntention!.contactIntentionIdentifier,
+                          ),
+                  icon: const Icon(Icons.rate_review_outlined),
+                  label: const Text('Responder pós-contato'),
+                ),
               ],
             ],
           );

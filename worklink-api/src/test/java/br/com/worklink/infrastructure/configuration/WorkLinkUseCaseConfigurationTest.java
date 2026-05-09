@@ -23,7 +23,9 @@ import br.com.worklink.application.authentication.port.UpdateRefreshSessionPort;
 import br.com.worklink.application.authorization.port.ResolveAuthenticatedPrincipalPort;
 import br.com.worklink.application.contact.port.CreateWhatsappContactLinkPort;
 import br.com.worklink.application.contact.port.CurrentContactTimePort;
+import br.com.worklink.application.contact.port.LoadContactIntentByIdentifierPort;
 import br.com.worklink.application.contact.port.SaveContactIntentPort;
+import br.com.worklink.application.contact.port.SavePostContactFeedbackPort;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
@@ -75,6 +77,8 @@ class WorkLinkUseCaseConfigurationTest {
         SaveContactIntentPort saveContactIntentPort = contactIntent -> contactIntent;
         CurrentContactTimePort currentContactTimePort = () -> Instant.parse("2026-05-08T20:00:00Z");
         CreateWhatsappContactLinkPort createWhatsappContactLinkPort = whatsappNumber -> "https://wa.me/%s".formatted(whatsappNumber);
+        LoadContactIntentByIdentifierPort loadContactIntentByIdentifierPort = contactIntentIdentifier -> Optional.empty();
+        SavePostContactFeedbackPort savePostContactFeedbackPort = postContactFeedback -> postContactFeedback;
 
         // WHEN
         RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase = configuration.registerBasicProfessionalUseCase(
@@ -140,6 +144,11 @@ class WorkLinkUseCaseConfigurationTest {
                 saveContactIntentPort,
                 currentContactTimePort,
                 createWhatsappContactLinkPort
+        )).isNotNull();
+        assertThat(configuration.registerPostContactFeedbackUseCase(
+                loadContactIntentByIdentifierPort,
+                savePostContactFeedbackPort,
+                currentContactTimePort
         )).isNotNull();
     }
 }

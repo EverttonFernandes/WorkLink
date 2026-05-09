@@ -34,7 +34,10 @@ import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActio
 import br.com.worklink.application.authorization.usecase.ResolveAuthenticatedPrincipalUseCase;
 import br.com.worklink.application.contact.port.CreateWhatsappContactLinkPort;
 import br.com.worklink.application.contact.port.CurrentContactTimePort;
+import br.com.worklink.application.contact.port.LoadContactIntentByIdentifierPort;
 import br.com.worklink.application.contact.port.SaveContactIntentPort;
+import br.com.worklink.application.contact.port.SavePostContactFeedbackPort;
+import br.com.worklink.application.contact.usecase.RegisterPostContactFeedbackUseCase;
 import br.com.worklink.application.contact.usecase.StartProfessionalContactUseCase;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
@@ -236,6 +239,19 @@ public class WorkLinkUseCaseConfiguration {
                 saveContactIntentPort,
                 currentContactTimePort,
                 createWhatsappContactLinkPort
+        );
+    }
+
+    @Bean
+    RegisterPostContactFeedbackUseCase registerPostContactFeedbackUseCase(
+            LoadContactIntentByIdentifierPort loadContactIntentByIdentifierPort,
+            SavePostContactFeedbackPort savePostContactFeedbackPort,
+            CurrentContactTimePort currentContactTimePort
+    ) {
+        return new RegisterPostContactFeedbackUseCase(
+                loadContactIntentByIdentifierPort,
+                savePostContactFeedbackPort,
+                currentContactTimePort
         );
     }
 }
