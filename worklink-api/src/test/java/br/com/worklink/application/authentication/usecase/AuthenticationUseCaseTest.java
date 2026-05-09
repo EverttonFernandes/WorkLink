@@ -95,6 +95,36 @@ class AuthenticationUseCaseTest {
     }
 
     @Test
+    @DisplayName("GIVEN cliente existente WHEN verificar OTP correto THEN deve autenticar sem duplicar conta")
+    void shouldAuthenticateExistingCustomerWithoutCreatingDuplicateAccountWhenOtpIsValid() {
+        // GIVEN
+        InMemoryAuthenticationGateway gateway = new InMemoryAuthenticationGateway(CURRENT_INSTANT);
+        CustomerAccount existingCustomerAccount = CustomerAccount.registerCustomerAccount(
+                "51999999999",
+                CURRENT_INSTANT.minus(Duration.ofDays(10))
+        );
+        gateway.customerAccount = existingCustomerAccount;
+        gateway.authenticationOtpChallenge = AuthenticationOtpChallenge.requestOtpChallenge(
+                "51999999999",
+                "protected-ONE_TIME_PASSWORD-123456",
+                CURRENT_INSTANT.plus(OTP_DURATION),
+                CURRENT_INSTANT
+        );
+        VerifyAuthenticationOtpUseCase useCase = verifyAuthenticationOtpUseCase(gateway);
+
+        // WHEN
+        AuthenticationTokenResponse response = useCase.verifyAuthenticationOtp(
+                new VerifyAuthenticationOtpRequest("51999999999", "123456")
+        );
+
+        // THEN
+        assertThat(gateway.savedCustomerAccount).isNull();
+        assertThat(response.customerIdentifier()).isEqualTo(existingCustomerAccount.customerIdentifier());
+        assertThat(response.accessToken()).isEqualTo("access-token-CUSTOMER");
+        assertThat(response.refreshToken()).isEqualTo("refresh-token-1");
+    }
+
+    @Test
     @DisplayName("GIVEN OTP expirado WHEN verificar THEN deve falhar sem revelar existencia do telefone")
     void shouldRejectExpiredOtpWithoutRevealingPhoneNumberExistence() {
         // GIVEN

@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 
 import 'app/worklink_app_configuration.dart';
+import 'features/customer_authentication/customer_authentication_controller.dart';
+import 'features/customer_authentication/customer_authentication_screen.dart';
 import 'features/discovery/discovery_controller.dart';
 import 'features/discovery/discovery_professional.dart';
 import 'features/discovery/discovery_screen.dart';
@@ -19,7 +21,7 @@ void main() {
 }
 // coverage:ignore-end
 
-class WorkLinkApp extends StatelessWidget {
+class WorkLinkApp extends StatefulWidget {
   const WorkLinkApp({
     super.key,
     this.applicationConfiguration = const WorkLinkAppConfiguration(),
@@ -96,16 +98,24 @@ class WorkLinkApp extends StatelessWidget {
   ];
 
   @override
+  State<WorkLinkApp> createState() => _WorkLinkAppState();
+}
+
+class _WorkLinkAppState extends State<WorkLinkApp> {
+  bool customerAuthenticated = false;
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: applicationConfiguration.applicationName,
+      title: widget.applicationConfiguration.applicationName,
       home: Builder(
         builder: (context) => DiscoveryScreen(
           discoveryController: DiscoveryController(
-            availableProfessionals: sampleDiscoveryProfessionals,
+            availableProfessionals: WorkLinkApp.sampleDiscoveryProfessionals,
           ),
           onOpenProfessionalProfile: (professionalIdentifier) {
-            final professionalProfile = sampleProfessionalProfiles.firstWhere(
+            final professionalProfile =
+                WorkLinkApp.sampleProfessionalProfiles.firstWhere(
               (profile) =>
                   profile.professionalIdentifier == professionalIdentifier,
             );
@@ -113,6 +123,10 @@ class WorkLinkApp extends StatelessWidget {
               MaterialPageRoute<void>(
                 builder: (_) => ProfessionalProfileScreen(
                   professionalProfile: professionalProfile,
+                  onContactProfessional: (_) => _handleContactProfessional(
+                    context,
+                    professionalProfile.professionalName,
+                  ),
                 ),
               ),
             );
@@ -122,22 +136,48 @@ class WorkLinkApp extends StatelessWidget {
               MaterialPageRoute<void>(
                 builder: (_) => ProfessionalRegistrationScreen(
                   professionalRegistrationController:
-                      ProfessionalRegistrationController(
+                  ProfessionalRegistrationController(
                     initialDraft: const ProfessionalRegistrationDraft(
                       categoryName: 'Eletricista',
                       cityDisplayName: 'Charqueadas - RS',
                     ),
                   ),
                   availableCategoryNames:
-                      sampleProfessionalRegistrationCategories,
+                      WorkLinkApp.sampleProfessionalRegistrationCategories,
                   availableCityDisplayNames:
-                      sampleProfessionalRegistrationCities,
+                      WorkLinkApp.sampleProfessionalRegistrationCities,
                 ),
               ),
             );
           },
         ),
       ),
+    );
+  }
+
+  void _handleContactProfessional(
+    BuildContext context,
+    String professionalName,
+  ) {
+    if (!customerAuthenticated) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (authenticationContext) => CustomerAuthenticationScreen(
+            customerAuthenticationController: CustomerAuthenticationController(),
+            onAuthenticationCompleted: (_) {
+              setState(() {
+                customerAuthenticated = true;
+              });
+              Navigator.of(authenticationContext).pop();
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Contato autenticado para $professionalName')),
     );
   }
 }

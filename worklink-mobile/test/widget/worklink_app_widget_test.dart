@@ -58,6 +58,66 @@ void main() {
   });
 
   testWidgets(
+      'GIVEN cliente sem login WHEN tentar contato THEN deve navegar para autenticacao',
+      (tester) async {
+    // GIVEN
+    const application = WorkLinkApp();
+    await tester.pumpWidget(application);
+    await tester.tap(
+      find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
+    );
+    await tester.pumpAndSettle();
+
+    // WHEN
+    await tester.tap(
+      find.byKey(const ValueKey('contact-professional-maria-eletricista')),
+    );
+    await tester.pumpAndSettle();
+
+    // THEN
+    expect(find.text('Continuar com seu celular'), findsOneWidget);
+    expect(find.byKey(const ValueKey('customer-phone-field')), findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN cliente autenticado WHEN tentar contato THEN deve manter perfil publico',
+      (tester) async {
+    // GIVEN
+    const application = WorkLinkApp();
+    await tester.pumpWidget(application);
+    await tester.tap(
+      find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.byKey(const ValueKey('contact-professional-maria-eletricista')),
+    );
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('customer-phone-field')),
+      '(51) 9 9999-1234',
+    );
+    await tester.tap(find.byKey(const ValueKey('request-code-button')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('verification-code-field')),
+      '1234',
+    );
+    await tester.tap(find.byKey(const ValueKey('confirm-code-button')));
+    await tester.pumpAndSettle();
+
+    // WHEN
+    await tester.tap(
+      find.byKey(const ValueKey('contact-professional-maria-eletricista')),
+    );
+    await tester.pump();
+
+    // THEN
+    expect(find.text('Perfil do profissional'), findsOneWidget);
+    expect(find.text('Contato autenticado para Maria Eletricista'), findsOneWidget);
+  });
+
+  testWidgets(
       'GIVEN app inicial WHEN abrir cadastro profissional THEN deve navegar para cadastro progressivo',
       (tester) async {
     // GIVEN
