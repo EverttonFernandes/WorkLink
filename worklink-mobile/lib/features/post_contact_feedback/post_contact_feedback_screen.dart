@@ -9,9 +9,11 @@ class PostContactFeedbackScreen extends StatelessWidget {
   const PostContactFeedbackScreen({
     super.key,
     required this.postContactFeedbackController,
+    this.onOpenProfessionalReview,
   });
 
   final PostContactFeedbackController postContactFeedbackController;
+  final ValueChanged<String>? onOpenProfessionalReview;
 
   @override
   Widget build(BuildContext context) {
@@ -66,8 +68,8 @@ class PostContactFeedbackScreen extends StatelessWidget {
                       'Serviço não realizado',
                 },
                 keyPrefix: 'service-execution',
-                onSelected: postContactFeedbackController
-                    .selectServiceExecutionOutcome,
+                onSelected:
+                    postContactFeedbackController.selectServiceExecutionOutcome,
               ),
               const SizedBox(height: 24),
               FilledButton.icon(
@@ -87,6 +89,21 @@ class PostContactFeedbackScreen extends StatelessWidget {
               if (state.submitted) ...[
                 const SizedBox(height: 16),
                 const Text('Feedback pós-contato registrado.'),
+                if (state.serviceExecutionOutcome ==
+                    PostContactServiceExecutionOutcome.servicePerformed) ...[
+                  const SizedBox(height: 16),
+                  OutlinedButton.icon(
+                    key: const ValueKey('open-professional-review-button'),
+                    onPressed: onOpenProfessionalReview == null
+                        ? null
+                        : () => onOpenProfessionalReview!(
+                              postContactFeedbackController
+                                  .contactIntentionIdentifier,
+                            ),
+                    icon: const Icon(Icons.star_outline),
+                    label: const Text('Avaliar profissional'),
+                  ),
+                ],
               ],
             ],
           );

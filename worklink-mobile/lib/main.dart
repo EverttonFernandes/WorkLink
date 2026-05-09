@@ -19,6 +19,8 @@ import 'features/professional_profile/professional_profile_screen.dart';
 import 'features/professional_registration/professional_registration_controller.dart';
 import 'features/professional_registration/professional_registration_draft.dart';
 import 'features/professional_registration/professional_registration_screen.dart';
+import 'features/professional_review/professional_review_controller.dart';
+import 'features/professional_review/professional_review_screen.dart';
 
 // coverage:ignore-start
 void main() {
@@ -217,6 +219,27 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
           postContactFeedbackController: PostContactFeedbackController(
             contactIntentionIdentifier: contactIntentionIdentifier,
             submitPostContactFeedback: (_, __) async {},
+          ),
+          onOpenProfessionalReview: (reviewContactIntentionIdentifier) =>
+              _openProfessionalReview(
+            context,
+            reviewContactIntentionIdentifier,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openProfessionalReview(
+    BuildContext context,
+    String contactIntentionIdentifier,
+  ) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ProfessionalReviewScreen(
+          professionalReviewController: ProfessionalReviewController(
+            contactIntentionIdentifier: contactIntentionIdentifier,
+            submitProfessionalReview: (_, __) async {},
           ),
         ),
       ),

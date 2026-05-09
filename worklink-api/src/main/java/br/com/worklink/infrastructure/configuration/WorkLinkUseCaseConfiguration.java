@@ -50,6 +50,9 @@ import br.com.worklink.application.location.usecase.PreviewCitySelectionUseCase;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
+import br.com.worklink.application.review.port.LoadPostContactFeedbackByContactIntentIdentifierPort;
+import br.com.worklink.application.review.port.SaveProfessionalReviewPort;
+import br.com.worklink.application.review.usecase.RegisterProfessionalReviewUseCase;
 import br.com.worklink.application.storage.usecase.PrepareFileUploadUseCase;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -251,6 +254,21 @@ public class WorkLinkUseCaseConfiguration {
         return new RegisterPostContactFeedbackUseCase(
                 loadContactIntentByIdentifierPort,
                 savePostContactFeedbackPort,
+                currentContactTimePort
+        );
+    }
+
+    @Bean
+    RegisterProfessionalReviewUseCase registerProfessionalReviewUseCase(
+            LoadContactIntentByIdentifierPort loadContactIntentByIdentifierPort,
+            LoadPostContactFeedbackByContactIntentIdentifierPort loadPostContactFeedbackByContactIntentIdentifierPort,
+            SaveProfessionalReviewPort saveProfessionalReviewPort,
+            CurrentContactTimePort currentContactTimePort
+    ) {
+        return new RegisterProfessionalReviewUseCase(
+                loadContactIntentByIdentifierPort,
+                loadPostContactFeedbackByContactIntentIdentifierPort,
+                saveProfessionalReviewPort,
                 currentContactTimePort
         );
     }

@@ -7,12 +7,14 @@ import 'package:worklink_mobile/features/post_contact_feedback/post_contact_feed
 void main() {
   Future<void> pumpPostContactFeedbackScreen(
     WidgetTester widgetTester,
-    PostContactFeedbackController controller,
-  ) async {
+    PostContactFeedbackController controller, {
+    ValueChanged<String>? onOpenProfessionalReview,
+  }) async {
     await widgetTester.pumpWidget(
       MaterialApp(
         home: PostContactFeedbackScreen(
           postContactFeedbackController: controller,
+          onOpenProfessionalReview: onOpenProfessionalReview,
         ),
       ),
     );
@@ -70,6 +72,10 @@ void main() {
       PostContactConversationOutcome.customerReachedProfessional,
     );
     expect(find.text('Feedback pós-contato registrado.'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('open-professional-review-button')),
+      findsOneWidget,
+    );
   });
 
   testWidgets(
@@ -96,6 +102,67 @@ void main() {
     expect(
       find.text('Responda todas as perguntas para enviar.'),
       findsOneWidget,
+    );
+  });
+
+  testWidgets(
+      'GIVEN servico realizado WHEN abrir avaliacao THEN deve informar contato elegivel',
+      (widgetTester) async {
+    // GIVEN
+    String? openedReviewContactIntentionIdentifier;
+    final controller = PostContactFeedbackController(
+      contactIntentionIdentifier: 'contact-intention-1',
+      submitPostContactFeedback: (_, __) async {},
+    );
+    await pumpPostContactFeedbackScreen(
+      widgetTester,
+      controller,
+      onOpenProfessionalReview: (contactIntentionIdentifier) {
+        openedReviewContactIntentionIdentifier = contactIntentionIdentifier;
+      },
+    );
+
+    // WHEN
+    await widgetTester.tap(find.text('Consegui falar'));
+    await widgetTester.tap(find.text('Respondeu rápido'));
+    await widgetTester.tap(find.text('Serviço realizado'));
+    await widgetTester.tap(
+      find.byKey(const ValueKey('submit-post-contact-feedback-button')),
+    );
+    await widgetTester.pumpAndSettle();
+    await widgetTester.tap(
+      find.byKey(const ValueKey('open-professional-review-button')),
+    );
+    await widgetTester.pumpAndSettle();
+
+    // THEN
+    expect(openedReviewContactIntentionIdentifier, 'contact-intention-1');
+  });
+
+  testWidgets(
+      'GIVEN servico nao realizado WHEN registrar pos-contato THEN nao deve oferecer avaliacao',
+      (widgetTester) async {
+    // GIVEN
+    final controller = PostContactFeedbackController(
+      contactIntentionIdentifier: 'contact-intention-1',
+      submitPostContactFeedback: (_, __) async {},
+    );
+    await pumpPostContactFeedbackScreen(widgetTester, controller);
+
+    // WHEN
+    await widgetTester.tap(find.text('Não consegui falar'));
+    await widgetTester.tap(find.text('Não respondeu'));
+    await widgetTester.tap(find.text('Serviço não realizado'));
+    await widgetTester.tap(
+      find.byKey(const ValueKey('submit-post-contact-feedback-button')),
+    );
+    await widgetTester.pumpAndSettle();
+
+    // THEN
+    expect(find.text('Feedback pós-contato registrado.'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('open-professional-review-button')),
+      findsNothing,
     );
   });
 }

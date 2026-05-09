@@ -32,6 +32,8 @@ import br.com.worklink.application.professional.port.SaveProfessionalPort;
 import br.com.worklink.application.professional.port.UpdateProfessionalPort;
 import br.com.worklink.application.security.port.ProtectSensitiveValuePort;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
+import br.com.worklink.application.review.port.LoadPostContactFeedbackByContactIntentIdentifierPort;
+import br.com.worklink.application.review.port.SaveProfessionalReviewPort;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -79,6 +81,9 @@ class WorkLinkUseCaseConfigurationTest {
         CreateWhatsappContactLinkPort createWhatsappContactLinkPort = whatsappNumber -> "https://wa.me/%s".formatted(whatsappNumber);
         LoadContactIntentByIdentifierPort loadContactIntentByIdentifierPort = contactIntentIdentifier -> Optional.empty();
         SavePostContactFeedbackPort savePostContactFeedbackPort = postContactFeedback -> postContactFeedback;
+        LoadPostContactFeedbackByContactIntentIdentifierPort loadPostContactFeedbackByContactIntentIdentifierPort =
+                contactIntentIdentifier -> Optional.empty();
+        SaveProfessionalReviewPort saveProfessionalReviewPort = professionalReview -> professionalReview;
 
         // WHEN
         RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase = configuration.registerBasicProfessionalUseCase(
@@ -148,6 +153,12 @@ class WorkLinkUseCaseConfigurationTest {
         assertThat(configuration.registerPostContactFeedbackUseCase(
                 loadContactIntentByIdentifierPort,
                 savePostContactFeedbackPort,
+                currentContactTimePort
+        )).isNotNull();
+        assertThat(configuration.registerProfessionalReviewUseCase(
+                loadContactIntentByIdentifierPort,
+                loadPostContactFeedbackByContactIntentIdentifierPort,
+                saveProfessionalReviewPort,
                 currentContactTimePort
         )).isNotNull();
     }
