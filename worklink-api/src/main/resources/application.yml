@@ -1,24 +1,45 @@
 spring:
   application:
     name: worklink-api
+  lifecycle:
+    timeout-per-shutdown-phase: ${WORKLINK_SHUTDOWN_PHASE_TIMEOUT:30s}
   jackson:
     deserialization:
       fail-on-unknown-properties: true
+  mvc:
+    async:
+      request-timeout: ${WORKLINK_ASYNC_REQUEST_TIMEOUT:5s}
   datasource:
     url: ${WORKLINK_DATABASE_URL}
     username: ${WORKLINK_DATABASE_USERNAME}
     password: ${WORKLINK_DATABASE_PASSWORD}
+    hikari:
+      connection-timeout: ${WORKLINK_DATABASE_CONNECTION_TIMEOUT_MS:3000}
+      validation-timeout: ${WORKLINK_DATABASE_VALIDATION_TIMEOUT_MS:1000}
   data:
     redis:
       host: ${WORKLINK_REDIS_HOST}
       port: ${WORKLINK_REDIS_PORT}
       password: ${WORKLINK_REDIS_PASSWORD}
 
+server:
+  shutdown: graceful
+  tomcat:
+    connection-timeout: ${WORKLINK_SERVER_CONNECTION_TIMEOUT:5s}
+  servlet:
+    session:
+      persistent: false
+
 management:
   endpoint:
     health:
       probes:
         enabled: true
+      group:
+        readiness:
+          include: readinessState,db
+        liveness:
+          include: livenessState
   endpoints:
     web:
       exposure:
@@ -47,6 +68,10 @@ worklink:
     sensitive-value-pepper: ${WORKLINK_SENSITIVE_VALUE_PEPPER}
   integrations:
     sms-provider-api-key: ${WORKLINK_SMS_PROVIDER_API_KEY}
+    external-http:
+      connection-timeout: ${WORKLINK_EXTERNAL_HTTP_CONNECTION_TIMEOUT:2s}
+      read-timeout: ${WORKLINK_EXTERNAL_HTTP_READ_TIMEOUT:5s}
+      max-retry-attempts: ${WORKLINK_EXTERNAL_HTTP_MAX_RETRY_ATTEMPTS:2}
   cors:
     allowed-origins: ${WORKLINK_CORS_ALLOWED_ORIGINS}
   features:

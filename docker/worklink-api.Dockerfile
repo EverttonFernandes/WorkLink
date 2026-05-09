@@ -23,7 +23,7 @@ ENV SPRING_PROFILES_ACTIVE=local
 EXPOSE 8080
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
-  CMD wget -qO- http://localhost:8080/actuator/health || exit 1
+  CMD wget -qO- http://localhost:8080/actuator/health/readiness || exit 1
 
 USER worklink
 

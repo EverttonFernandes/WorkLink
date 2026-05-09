@@ -17,10 +17,11 @@ services:
     ports:
       - "8080:8080"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health || exit 1"]
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health/readiness || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 10
+    stop_grace_period: 35s
 
   postgres:
     image: postgres:16-alpine

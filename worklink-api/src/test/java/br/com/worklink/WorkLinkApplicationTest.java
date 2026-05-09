@@ -83,4 +83,43 @@ class WorkLinkApplicationTest {
         assertThat(healthProbesEnabled).isEqualTo("true");
         assertThat(applicationMetricsTag).isEqualTo("worklink-api");
     }
+
+    @Test
+    @DisplayName("GIVEN API stateless WHEN carregar contexto THEN deve usar graceful shutdown e probes seguros")
+    void shouldUseGracefulShutdownAndSafeProbesWhenApplicationContextLoads() {
+        // GIVEN
+        // Configuracao operacional carregada pelo application.yml.
+
+        // WHEN
+        String gracefulShutdownMode = environment.getProperty("server.shutdown");
+        String shutdownTimeout = environment.getProperty("spring.lifecycle.timeout-per-shutdown-phase");
+        String readinessIndicators = environment.getProperty("management.endpoint.health.group.readiness.include");
+        String sessionPersistence = environment.getProperty("server.servlet.session.persistent");
+
+        // THEN
+        assertThat(gracefulShutdownMode).isEqualTo("graceful");
+        assertThat(shutdownTimeout).isEqualTo("30s");
+        assertThat(readinessIndicators).contains("readinessState", "db");
+        assertThat(sessionPersistence).isEqualTo("false");
+    }
+
+    @Test
+    @DisplayName("GIVEN integracoes externas WHEN carregar contexto THEN devem possuir timeout e retry finito")
+    void shouldExposeFiniteTimeoutsAndRetriesWhenApplicationContextLoads() {
+        // GIVEN
+        // Contrato de resiliencia configurado para adapters externos futuros.
+
+        // WHEN
+        String connectionTimeout = environment.getProperty("worklink.integrations.external-http.connection-timeout");
+        String readTimeout = environment.getProperty("worklink.integrations.external-http.read-timeout");
+        Integer maximumRetryAttempts = environment.getProperty(
+                "worklink.integrations.external-http.max-retry-attempts",
+                Integer.class
+        );
+
+        // THEN
+        assertThat(connectionTimeout).isEqualTo("2s");
+        assertThat(readTimeout).isEqualTo("5s");
+        assertThat(maximumRetryAttempts).isEqualTo(2);
+    }
 }
