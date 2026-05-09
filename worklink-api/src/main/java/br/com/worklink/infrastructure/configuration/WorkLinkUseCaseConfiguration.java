@@ -2,6 +2,16 @@ package br.com.worklink.infrastructure.configuration;
 
 import br.com.worklink.application.audit.port.SaveSensitiveAuditEventPort;
 import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventUseCase;
+import br.com.worklink.application.admin.port.ListAdministrativeProfessionalReportsPort;
+import br.com.worklink.application.admin.port.ListAdministrativeProfessionalsPort;
+import br.com.worklink.application.admin.port.ListAdministrativeReviewAnalysisRequestsPort;
+import br.com.worklink.application.admin.port.LoadAdministrativeMetricsPort;
+import br.com.worklink.application.admin.usecase.BlockProfessionalUseCase;
+import br.com.worklink.application.admin.usecase.ListAdministrativeProfessionalReportsUseCase;
+import br.com.worklink.application.admin.usecase.ListAdministrativeProfessionalsUseCase;
+import br.com.worklink.application.admin.usecase.ListAdministrativeReviewAnalysisRequestsUseCase;
+import br.com.worklink.application.admin.usecase.LoadAdministrativeMetricsUseCase;
+import br.com.worklink.application.admin.usecase.UnblockProfessionalUseCase;
 import br.com.worklink.application.catalog.port.ListServiceCategoriesPort;
 import br.com.worklink.application.catalog.port.ListServiceCitiesPort;
 import br.com.worklink.application.catalog.port.LoadServiceCitiesByIdentifiersPort;
@@ -227,6 +237,50 @@ public class WorkLinkUseCaseConfiguration {
     @Bean
     AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase() {
         return new AuthorizeSensitiveActionUseCase();
+    }
+
+    @Bean
+    ListAdministrativeProfessionalsUseCase listAdministrativeProfessionalsUseCase(
+            ListAdministrativeProfessionalsPort listAdministrativeProfessionalsPort
+    ) {
+        return new ListAdministrativeProfessionalsUseCase(listAdministrativeProfessionalsPort);
+    }
+
+    @Bean
+    BlockProfessionalUseCase blockProfessionalUseCase(
+            LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort,
+            UpdateProfessionalPort updateProfessionalPort
+    ) {
+        return new BlockProfessionalUseCase(loadProfessionalByIdentifierPort, updateProfessionalPort);
+    }
+
+    @Bean
+    UnblockProfessionalUseCase unblockProfessionalUseCase(
+            LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort,
+            UpdateProfessionalPort updateProfessionalPort
+    ) {
+        return new UnblockProfessionalUseCase(loadProfessionalByIdentifierPort, updateProfessionalPort);
+    }
+
+    @Bean
+    ListAdministrativeProfessionalReportsUseCase listAdministrativeProfessionalReportsUseCase(
+            ListAdministrativeProfessionalReportsPort listAdministrativeProfessionalReportsPort
+    ) {
+        return new ListAdministrativeProfessionalReportsUseCase(listAdministrativeProfessionalReportsPort);
+    }
+
+    @Bean
+    ListAdministrativeReviewAnalysisRequestsUseCase listAdministrativeReviewAnalysisRequestsUseCase(
+            ListAdministrativeReviewAnalysisRequestsPort listAdministrativeReviewAnalysisRequestsPort
+    ) {
+        return new ListAdministrativeReviewAnalysisRequestsUseCase(listAdministrativeReviewAnalysisRequestsPort);
+    }
+
+    @Bean
+    LoadAdministrativeMetricsUseCase loadAdministrativeMetricsUseCase(
+            LoadAdministrativeMetricsPort loadAdministrativeMetricsPort
+    ) {
+        return new LoadAdministrativeMetricsUseCase(loadAdministrativeMetricsPort);
     }
 
     @Bean

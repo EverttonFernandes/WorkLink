@@ -214,6 +214,7 @@ class ProfessionalTest {
                 50,
                 ProfessionalProfileClassification.BASIC_PROFILE,
                 ProfessionalAvailabilityStatus.ACCEPTING_NEW_CLIENTS,
+                false,
                 false
         );
 
@@ -221,6 +222,7 @@ class ProfessionalTest {
         assertThat(professional.professionalIdentifier()).isEqualTo(professionalIdentifier);
         assertThat(professional.profileClassification()).isEqualTo(ProfessionalProfileClassification.BASIC_PROFILE);
         assertThat(professional.qualityGuarantee()).isFalse();
+        assertThat(professional.blocked()).isFalse();
     }
 
     @Test
@@ -245,10 +247,33 @@ class ProfessionalTest {
                 50,
                 profileClassification,
                 ProfessionalAvailabilityStatus.ACCEPTING_NEW_CLIENTS,
+                false,
                 false
         ))
                 .isInstanceOf(BusinessRuleViolationException.class)
                 .hasMessage("A classificacao do perfil profissional e obrigatoria.");
+    }
+
+    @Test
+    @DisplayName("GIVEN profissional ativo WHEN bloquear e desbloquear THEN deve alternar status de moderacao")
+    void shouldToggleProfessionalModerationStatusWhenBlockingAndUnblocking() {
+        // GIVEN
+        Professional professional = Professional.registerBasicProfessional(
+                "Maria Eletricista",
+                "51999999999",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial."
+        );
+
+        // WHEN
+        Professional blockedProfessional = professional.blockProfessional();
+        Professional unblockedProfessional = blockedProfessional.unblockProfessional();
+
+        // THEN
+        assertThat(blockedProfessional.blocked()).isTrue();
+        assertThat(unblockedProfessional.blocked()).isFalse();
+        assertThat(unblockedProfessional.professionalIdentifier()).isEqualTo(professional.professionalIdentifier());
     }
 
     @Test

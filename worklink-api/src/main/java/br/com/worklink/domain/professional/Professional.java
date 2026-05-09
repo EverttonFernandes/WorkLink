@@ -19,7 +19,8 @@ public record Professional(
         int profileCompletenessPercentage,
         ProfessionalProfileClassification profileClassification,
         ProfessionalAvailabilityStatus availabilityStatus,
-        boolean qualityGuarantee
+        boolean qualityGuarantee,
+        boolean blocked
 ) {
 
     public static Professional registerBasicProfessional(
@@ -44,6 +45,7 @@ public record Professional(
                 calculateCompletenessPercentage(null, null, null, null, null),
                 ProfessionalProfileClassification.BASIC_PROFILE,
                 ProfessionalAvailabilityStatus.ACCEPTING_NEW_CLIENTS,
+                false,
                 false
         );
     }
@@ -63,7 +65,8 @@ public record Professional(
             int profileCompletenessPercentage,
             ProfessionalProfileClassification profileClassification,
             ProfessionalAvailabilityStatus availabilityStatus,
-            boolean qualityGuarantee
+            boolean qualityGuarantee,
+            boolean blocked
     ) {
         return new Professional(
                 requireIdentifier(professionalIdentifier, "O identificador do profissional e obrigatorio."),
@@ -80,7 +83,8 @@ public record Professional(
                 requireCompletenessPercentage(profileCompletenessPercentage),
                 requireClassification(profileClassification),
                 requireAvailabilityStatus(availabilityStatus),
-                qualityGuarantee
+                qualityGuarantee,
+                blocked
         );
     }
 
@@ -114,7 +118,8 @@ public record Professional(
                 newCompletenessPercentage,
                 classifyCompleteness(newCompletenessPercentage),
                 requireAvailabilityStatus(newAvailabilityStatus),
-                false
+                false,
+                blocked
         );
     }
 
@@ -134,7 +139,37 @@ public record Professional(
                 profileCompletenessPercentage,
                 profileClassification,
                 requireAvailabilityStatus(newAvailabilityStatus),
-                false
+                false,
+                blocked
+        );
+    }
+
+    public Professional blockProfessional() {
+        return changeBlockedStatus(true);
+    }
+
+    public Professional unblockProfessional() {
+        return changeBlockedStatus(false);
+    }
+
+    private Professional changeBlockedStatus(boolean newBlockedStatus) {
+        return new Professional(
+                professionalIdentifier,
+                professionalName,
+                whatsappNumber,
+                cityIdentifier,
+                categoryIdentifier,
+                shortDescription,
+                profilePhotoFileIdentifier,
+                documentNumberHash,
+                usefulLink,
+                portfolioDescription,
+                serviceDescription,
+                profileCompletenessPercentage,
+                profileClassification,
+                availabilityStatus,
+                qualityGuarantee,
+                newBlockedStatus
         );
     }
 

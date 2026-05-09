@@ -13,7 +13,9 @@ public class AuthorizeSensitiveActionUseCase {
             SensitiveAction.REGISTER_SERVICE_CITY,
             SensitiveAction.ACCESS_ADMINISTRATIVE_DATA,
             SensitiveAction.ACCESS_INTERNAL_REVIEW_AUTHORSHIP,
-            SensitiveAction.ACCESS_THIRD_PARTY_REPORT
+            SensitiveAction.ACCESS_THIRD_PARTY_REPORT,
+            SensitiveAction.BLOCK_PROFESSIONAL,
+            SensitiveAction.UNBLOCK_PROFESSIONAL
     );
 
     public void authorizeSensitiveAction(AuthenticatedPrincipal authenticatedPrincipal, SensitiveAction sensitiveAction) {

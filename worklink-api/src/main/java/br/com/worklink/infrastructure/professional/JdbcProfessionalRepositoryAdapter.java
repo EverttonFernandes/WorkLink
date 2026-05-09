@@ -50,9 +50,10 @@ public class JdbcProfessionalRepositoryAdapter implements
                     profile_completeness_percentage,
                     profile_classification,
                     availability_status,
-                    quality_guarantee
+                    quality_guarantee,
+                    blocked
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 professional.professionalIdentifier(),
                 professional.professionalName(),
@@ -68,7 +69,8 @@ public class JdbcProfessionalRepositoryAdapter implements
                 professional.profileCompletenessPercentage(),
                 professional.profileClassification().name(),
                 professional.availabilityStatus().name(),
-                professional.qualityGuarantee()
+                professional.qualityGuarantee(),
+                professional.blocked()
         );
         return professional;
     }
@@ -91,7 +93,8 @@ public class JdbcProfessionalRepositoryAdapter implements
                        profile_completeness_percentage,
                        profile_classification,
                        availability_status,
-                       quality_guarantee
+                       quality_guarantee,
+                       blocked
                 FROM worklink.professionals
                 WHERE professional_identifier = ?
                 """,
@@ -113,7 +116,8 @@ public class JdbcProfessionalRepositoryAdapter implements
                     profile_completeness_percentage = ?,
                     profile_classification = ?,
                     availability_status = ?,
-                    quality_guarantee = ?
+                    quality_guarantee = ?,
+                    blocked = ?
                 WHERE professional_identifier = ?
                 """,
                 professional.profilePhotoFileIdentifier(),
@@ -125,6 +129,7 @@ public class JdbcProfessionalRepositoryAdapter implements
                 professional.profileClassification().name(),
                 professional.availabilityStatus().name(),
                 professional.qualityGuarantee(),
+                professional.blocked(),
                 professional.professionalIdentifier()
         );
         return professional;
@@ -147,9 +152,10 @@ public class JdbcProfessionalRepositoryAdapter implements
                        profile_completeness_percentage,
                        profile_classification,
                        availability_status,
-                       quality_guarantee
+                       quality_guarantee,
+                       blocked
                 FROM worklink.professionals
-                WHERE 1 = 1
+                WHERE blocked = FALSE
                 """);
         List<Object> queryParameters = new ArrayList<>();
 
@@ -198,7 +204,8 @@ public class JdbcProfessionalRepositoryAdapter implements
                 resultSet.getInt("profile_completeness_percentage"),
                 ProfessionalProfileClassification.valueOf(resultSet.getString("profile_classification")),
                 ProfessionalAvailabilityStatus.valueOf(resultSet.getString("availability_status")),
-                resultSet.getBoolean("quality_guarantee")
+                resultSet.getBoolean("quality_guarantee"),
+                resultSet.getBoolean("blocked")
         );
     }
 }

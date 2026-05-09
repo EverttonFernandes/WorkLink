@@ -31,6 +31,24 @@ public record ProfessionalReviewAnalysisRequest(
         );
     }
 
+    public static ProfessionalReviewAnalysisRequest restoreProfessionalReviewAnalysisRequest(
+            UUID reviewAnalysisRequestIdentifier,
+            UUID professionalReviewIdentifier,
+            UUID professionalIdentifier,
+            UUID requestedByProfessionalIdentifier,
+            String reason,
+            Instant createdAt
+    ) {
+        return new ProfessionalReviewAnalysisRequest(
+                requireIdentifier(reviewAnalysisRequestIdentifier, "O identificador da solicitacao e obrigatorio."),
+                requireIdentifier(professionalReviewIdentifier, "A avaliacao solicitada para analise e obrigatoria."),
+                requireIdentifier(professionalIdentifier, "O profissional avaliado e obrigatorio."),
+                requireIdentifier(requestedByProfessionalIdentifier, "O profissional solicitante e obrigatorio."),
+                normalizeReason(reason),
+                requireInstant(createdAt)
+        );
+    }
+
     private static UUID requireIdentifier(UUID identifier, String message) {
         if (identifier == null) {
             throw new BusinessRuleViolationException(message);

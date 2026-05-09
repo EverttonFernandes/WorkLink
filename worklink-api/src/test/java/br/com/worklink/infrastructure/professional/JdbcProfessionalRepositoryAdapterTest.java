@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentCaptor.forClass;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -56,7 +57,8 @@ class JdbcProfessionalRepositoryAdapterTest {
                 eq(professional.profileCompletenessPercentage()),
                 eq(professional.profileClassification().name()),
                 eq(professional.availabilityStatus().name()),
-                eq(professional.qualityGuarantee())
+                eq(professional.qualityGuarantee()),
+                eq(professional.blocked())
         );
     }
 
@@ -112,6 +114,7 @@ class JdbcProfessionalRepositoryAdapterTest {
                 eq(professional.profileClassification().name()),
                 eq(professional.availabilityStatus().name()),
                 eq(professional.qualityGuarantee()),
+                eq(professional.blocked()),
                 eq(professional.professionalIdentifier())
         );
     }
@@ -186,6 +189,23 @@ class JdbcProfessionalRepositoryAdapterTest {
         assertThat(professionals).containsExactly(professional);
     }
 
+    @Test
+    @DisplayName("GIVEN profissional bloqueado WHEN listar descoberta THEN consulta deve filtrar bloqueados")
+    void shouldFilterBlockedProfessionalsWhenListingDiscovery() {
+        // GIVEN
+        JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
+        JdbcProfessionalRepositoryAdapter adapter = new JdbcProfessionalRepositoryAdapter(jdbcTemplate);
+        when(jdbcTemplate.query(any(String.class), any(RowMapper.class), any(Object[].class))).thenReturn(List.of());
+
+        // WHEN
+        adapter.listProfessionals(ProfessionalSearchCriteria.withoutFilters());
+
+        // THEN
+        org.mockito.ArgumentCaptor<String> sqlCaptor = forClass(String.class);
+        verify(jdbcTemplate).query(sqlCaptor.capture(), any(RowMapper.class), any(Object[].class));
+        assertThat(sqlCaptor.getValue()).contains("WHERE blocked = FALSE");
+    }
+
     private Professional validProfessional() {
         return Professional.registerBasicProfessional(
                 "Maria Eletricista",
@@ -213,6 +233,7 @@ class JdbcProfessionalRepositoryAdapterTest {
         when(resultSet.getString("profile_classification")).thenReturn(professional.profileClassification().name());
         when(resultSet.getString("availability_status")).thenReturn(professional.availabilityStatus().name());
         when(resultSet.getBoolean("quality_guarantee")).thenReturn(professional.qualityGuarantee());
+        when(resultSet.getBoolean("blocked")).thenReturn(professional.blocked());
         return resultSet;
     }
 }

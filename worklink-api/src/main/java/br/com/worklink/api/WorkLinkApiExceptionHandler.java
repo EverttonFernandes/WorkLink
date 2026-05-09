@@ -3,6 +3,7 @@ package br.com.worklink.api;
 import br.com.worklink.application.ApplicationRuleViolationException;
 import br.com.worklink.application.AuthenticationRequiredException;
 import br.com.worklink.application.AuthorizationDeniedException;
+import br.com.worklink.application.ResourceNotFoundException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +27,11 @@ public class WorkLinkApiExceptionHandler {
     @ExceptionHandler(AuthorizationDeniedException.class)
     ResponseEntity<WorkLinkApiErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException exception) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new WorkLinkApiErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    ResponseEntity<WorkLinkApiErrorResponse> handleResourceNotFoundException(ResourceNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new WorkLinkApiErrorResponse(exception.getMessage()));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
