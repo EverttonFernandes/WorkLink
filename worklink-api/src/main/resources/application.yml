@@ -15,10 +15,21 @@ spring:
       password: ${WORKLINK_REDIS_PASSWORD}
 
 management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
   endpoints:
     web:
       exposure:
-        include: health
+        include: health,info,metrics
+  metrics:
+    tags:
+      application: worklink-api
+
+logging:
+  pattern:
+    console: "timestamp=%d{yyyy-MM-dd'T'HH:mm:ss.SSSXXX} level=%5p service=worklink-api correlation_id=%X{correlationId:-none} logger=%logger{36} message=\"%replace(%m){'[\r\n]+',' '}\"%n"
 
 worklink:
   storage:

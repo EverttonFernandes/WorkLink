@@ -23,7 +23,6 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História | Tipo | Título | Relação com outras histórias | Execução | Versão |
 |-------|----------|------|--------|-------------------------------|----------|--------|
-| 24 | [WLT-015](historias-tecnicas/WLT-015-observabilidade-logs-metricas.md) | Técnica | Observabilidade, logs e métricas | Pré-requisito para rastrear fluxos críticos | Separada | MINOR |
 | 25 | [WL-009](historias/WL-009-autenticacao-cliente-telefone.md) | Negócio | Autenticação simplificada do cliente por telefone | Depende de auth segura, privacidade e auditoria | Junto dos gates de segurança | MINOR |
 | 26 | [WL-010](historias/WL-010-contato-whatsapp-intencao.md) | Negócio | Contato via WhatsApp e intenção de contato | Depende de autenticação, autorização e auditoria | Junto dos gates de segurança | MINOR |
 | 27 | [WL-011](historias/WL-011-pos-contato-estruturado.md) | Negócio | Pós-contato estruturado | Depende de intenção de contato rastreável | Separada | MINOR |
@@ -71,6 +70,7 @@ _Vazio._
 | 21 | [WLT-010](historias-tecnicas/WLT-010-autorizacao-perfis-ownership.md) | Técnica | Autorização por perfil e ownership | Pré-requisito para ações sensíveis | Separada | MINOR | [Entrega WLT-010](../entregas/WLT-010-autorizacao-perfis-ownership.md) |
 | 22 | [WLT-011](historias-tecnicas/WLT-011-rastreabilidade-auditoria-acoes-sensiveis.md) | Técnica | Autenticidade, rastreabilidade e auditoria | Pré-requisito para contato, avaliação, denúncia e admin | Separada | MINOR | [Entrega WLT-011](../entregas/WLT-011-rastreabilidade-auditoria-acoes-sensiveis.md) |
 | 23 | [WLT-012](historias-tecnicas/WLT-012-lgpd-privacidade-dados-sensiveis.md) | Técnica | LGPD, privacidade e minimização | Pré-requisito para dados pessoais e anonimato | Separada | MINOR | [Entrega WLT-012](../entregas/WLT-012-lgpd-privacidade-dados-sensiveis.md) |
+| 24 | [WLT-015](historias-tecnicas/WLT-015-observabilidade-logs-metricas.md) | Técnica | Observabilidade, logs e métricas | Pré-requisito para rastrear fluxos críticos | Separada | MINOR | [Entrega WLT-015](../entregas/WLT-015-observabilidade-logs-metricas.md) |
 
 ## Histórias técnicas que podem ser executadas separadamente
 

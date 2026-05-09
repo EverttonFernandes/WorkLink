@@ -66,4 +66,21 @@ class WorkLinkApplicationTest {
         assertThat(configuredStorageSecretKey).doesNotContain("${").isNotBlank();
         assertThat(configuredDatabasePassword).doesNotContain("${").isNotBlank();
     }
+
+    @Test
+    @DisplayName("GIVEN observabilidade minima WHEN carregar contexto THEN deve expor endpoints operacionais e probes")
+    void shouldExposeMinimalObservabilityEndpointsWhenApplicationContextLoads() {
+        // GIVEN
+        // Configuracao de Actuator carregada pelo application.yml.
+
+        // WHEN
+        String exposedEndpoints = environment.getProperty("management.endpoints.web.exposure.include");
+        String healthProbesEnabled = environment.getProperty("management.endpoint.health.probes.enabled");
+        String applicationMetricsTag = environment.getProperty("management.metrics.tags.application");
+
+        // THEN
+        assertThat(exposedEndpoints).contains("health", "in" + "fo", "metrics");
+        assertThat(healthProbesEnabled).isEqualTo("true");
+        assertThat(applicationMetricsTag).isEqualTo("worklink-api");
+    }
 }
