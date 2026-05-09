@@ -6,5 +6,6 @@ public enum OperationalEventType {
     PRIVACY_GUARDRAIL,
     SENSITIVE_AUDIT_FLOW,
     STORAGE_FLOW,
+    FUNCTIONAL_METRIC_FLOW,
     API_REQUEST_FAILURE
 }

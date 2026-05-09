@@ -10,6 +10,12 @@ import br.com.worklink.application.authorization.usecase.AuthenticatedPrincipal;
 import br.com.worklink.application.authorization.usecase.AuthorizationOwnership;
 import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
 import br.com.worklink.application.authorization.usecase.SensitiveAction;
+import br.com.worklink.application.metrics.usecase.RecordProfessionalSearchEventRequest;
+import br.com.worklink.application.metrics.usecase.RecordProfessionalSearchEventUseCase;
+import br.com.worklink.application.observability.usecase.OperationalEvent;
+import br.com.worklink.application.observability.usecase.OperationalEventSeverity;
+import br.com.worklink.application.observability.usecase.OperationalEventType;
+import br.com.worklink.application.observability.usecase.RecordOperationalEventUseCase;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileRequest;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
@@ -32,6 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -46,6 +53,8 @@ public class ProfessionalController {
     private final AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver;
     private final AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase;
     private final RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase;
+    private final RecordProfessionalSearchEventUseCase recordProfessionalSearchEventUseCase;
+    private final RecordOperationalEventUseCase recordOperationalEventUseCase;
 
     public ProfessionalController(
             RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase,
@@ -53,7 +62,9 @@ public class ProfessionalController {
             CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase,
             AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver,
             AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase,
-            RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase
+            RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase,
+            RecordProfessionalSearchEventUseCase recordProfessionalSearchEventUseCase,
+            RecordOperationalEventUseCase recordOperationalEventUseCase
     ) {
         this.registerBasicProfessionalUseCase = registerBasicProfessionalUseCase;
         this.listProfessionalsUseCase = listProfessionalsUseCase;
@@ -61,6 +72,8 @@ public class ProfessionalController {
         this.authenticatedPrincipalHttpResolver = authenticatedPrincipalHttpResolver;
         this.authorizeSensitiveActionUseCase = authorizeSensitiveActionUseCase;
         this.recordSensitiveAuditEventUseCase = recordSensitiveAuditEventUseCase;
+        this.recordProfessionalSearchEventUseCase = recordProfessionalSearchEventUseCase;
+        this.recordOperationalEventUseCase = recordOperationalEventUseCase;
     }
 
     @PostMapping
@@ -90,9 +103,13 @@ public class ProfessionalController {
                 selectedCityIdentifiers(cityIdentifier, cityIdentifiers),
                 Optional.ofNullable(keyword)
         );
-        return listProfessionalsUseCase.listProfessionals(professionalSearchCriteria).stream()
+        List<ProfessionalHttpResponse> professionalResponses = listProfessionalsUseCase
+                .listProfessionals(professionalSearchCriteria)
+                .stream()
                 .map(ProfessionalHttpResponse::fromProfessionalResponse)
                 .toList();
+        recordProfessionalSearch(professionalSearchCriteria, professionalResponses.size());
+        return professionalResponses;
     }
 
     @PatchMapping("/{professionalIdentifier}/profile")
@@ -139,5 +156,23 @@ public class ProfessionalController {
             selectedCityIdentifiers.addAll(cityIdentifiers);
         }
         return selectedCityIdentifiers;
+    }
+
+    private void recordProfessionalSearch(ProfessionalSearchCriteria professionalSearchCriteria, int resultCount) {
+        recordProfessionalSearchEventUseCase.recordProfessionalSearchEvent(new RecordProfessionalSearchEventRequest(
+                professionalSearchCriteria.categoryIdentifier().orElse(null),
+                professionalSearchCriteria.cityIdentifiers(),
+                professionalSearchCriteria.keyword().orElse(null),
+                resultCount
+        ));
+        recordOperationalEventUseCase.recordOperationalEvent(new OperationalEvent(
+                OperationalEventType.FUNCTIONAL_METRIC_FLOW,
+                OperationalEventSeverity.INFO,
+                "Busca de profissionais registrada para metricas funcionais.",
+                Map.of(
+                        "resultCount", Integer.toString(resultCount),
+                        "cityFilterCount", Integer.toString(professionalSearchCriteria.cityIdentifiers().size())
+                )
+        ));
     }
 }

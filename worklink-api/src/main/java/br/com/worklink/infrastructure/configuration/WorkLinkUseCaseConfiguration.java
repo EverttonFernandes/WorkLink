@@ -49,6 +49,11 @@ import br.com.worklink.application.contact.port.SaveContactIntentPort;
 import br.com.worklink.application.contact.port.SavePostContactFeedbackPort;
 import br.com.worklink.application.contact.usecase.RegisterPostContactFeedbackUseCase;
 import br.com.worklink.application.contact.usecase.StartProfessionalContactUseCase;
+import br.com.worklink.application.metrics.port.CurrentFunctionalMetricTimePort;
+import br.com.worklink.application.metrics.port.LoadFunctionalMetricsPort;
+import br.com.worklink.application.metrics.port.SaveProfessionalSearchEventPort;
+import br.com.worklink.application.metrics.usecase.LoadFunctionalMetricsUseCase;
+import br.com.worklink.application.metrics.usecase.RecordProfessionalSearchEventUseCase;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
@@ -281,6 +286,24 @@ public class WorkLinkUseCaseConfiguration {
             LoadAdministrativeMetricsPort loadAdministrativeMetricsPort
     ) {
         return new LoadAdministrativeMetricsUseCase(loadAdministrativeMetricsPort);
+    }
+
+    @Bean
+    RecordProfessionalSearchEventUseCase recordProfessionalSearchEventUseCase(
+            SaveProfessionalSearchEventPort saveProfessionalSearchEventPort,
+            CurrentFunctionalMetricTimePort currentFunctionalMetricTimePort
+    ) {
+        return new RecordProfessionalSearchEventUseCase(
+                saveProfessionalSearchEventPort,
+                currentFunctionalMetricTimePort
+        );
+    }
+
+    @Bean
+    LoadFunctionalMetricsUseCase loadFunctionalMetricsUseCase(
+            LoadFunctionalMetricsPort loadFunctionalMetricsPort
+    ) {
+        return new LoadFunctionalMetricsUseCase(loadFunctionalMetricsPort);
     }
 
     @Bean

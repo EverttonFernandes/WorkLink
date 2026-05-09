@@ -14,6 +14,9 @@ import br.com.worklink.application.authorization.usecase.AuthenticatedProfile;
 import br.com.worklink.application.authorization.usecase.AuthorizationOwnership;
 import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
 import br.com.worklink.application.authorization.usecase.SensitiveAction;
+import br.com.worklink.application.metrics.usecase.RecordProfessionalSearchEventUseCase;
+import br.com.worklink.application.observability.usecase.OperationalEventType;
+import br.com.worklink.application.observability.usecase.RecordOperationalEventUseCase;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileRequest;
@@ -77,6 +80,12 @@ class ProfessionalControllerTest {
 
     @MockBean
     private RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase;
+
+    @MockBean
+    private RecordProfessionalSearchEventUseCase recordProfessionalSearchEventUseCase;
+
+    @MockBean
+    private RecordOperationalEventUseCase recordOperationalEventUseCase;
 
     @Test
     @DisplayName("Deve expor cadastro de profissional basico pela API")
@@ -164,6 +173,16 @@ class ProfessionalControllerTest {
                 .andExpect(jsonPath("$[0].professionalName").value("Maria Eletricista"))
                 .andExpect(jsonPath("$[0].availabilityBadgeLabel").value("Aceitando novos clientes"))
                 .andExpect(jsonPath("$[0].qualityGuarantee").value(false));
+        verify(recordProfessionalSearchEventUseCase).recordProfessionalSearchEvent(argThat(searchEventRequest ->
+                searchEventRequest.categoryIdentifier().equals(CATEGORY_IDENTIFIER)
+                        && searchEventRequest.cityIdentifiers().equals(Set.of(CITY_IDENTIFIER))
+                        && searchEventRequest.keyword().equals("residencial")
+                        && searchEventRequest.resultCount() == 1
+        ));
+        verify(recordOperationalEventUseCase).recordOperationalEvent(argThat(operationalEvent ->
+                operationalEvent.operationalEventType() == OperationalEventType.FUNCTIONAL_METRIC_FLOW
+                        && operationalEvent.safeContext().get("resultCount").equals("1")
+        ));
     }
 
     @Test

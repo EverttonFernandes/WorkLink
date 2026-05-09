@@ -15,6 +15,7 @@ import br.com.worklink.application.audit.usecase.SensitiveAuditTargetType;
 import br.com.worklink.application.authorization.usecase.AuthenticatedPrincipal;
 import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
 import br.com.worklink.application.authorization.usecase.SensitiveAction;
+import br.com.worklink.application.metrics.usecase.LoadFunctionalMetricsUseCase;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,6 +40,7 @@ public class AdminController {
     private final ListAdministrativeProfessionalReportsUseCase listAdministrativeProfessionalReportsUseCase;
     private final ListAdministrativeReviewAnalysisRequestsUseCase listAdministrativeReviewAnalysisRequestsUseCase;
     private final LoadAdministrativeMetricsUseCase loadAdministrativeMetricsUseCase;
+    private final LoadFunctionalMetricsUseCase loadFunctionalMetricsUseCase;
 
     public AdminController(
             AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver,
@@ -49,7 +51,8 @@ public class AdminController {
             UnblockProfessionalUseCase unblockProfessionalUseCase,
             ListAdministrativeProfessionalReportsUseCase listAdministrativeProfessionalReportsUseCase,
             ListAdministrativeReviewAnalysisRequestsUseCase listAdministrativeReviewAnalysisRequestsUseCase,
-            LoadAdministrativeMetricsUseCase loadAdministrativeMetricsUseCase
+            LoadAdministrativeMetricsUseCase loadAdministrativeMetricsUseCase,
+            LoadFunctionalMetricsUseCase loadFunctionalMetricsUseCase
     ) {
         this.authenticatedPrincipalHttpResolver = authenticatedPrincipalHttpResolver;
         this.authorizeSensitiveActionUseCase = authorizeSensitiveActionUseCase;
@@ -60,6 +63,7 @@ public class AdminController {
         this.listAdministrativeProfessionalReportsUseCase = listAdministrativeProfessionalReportsUseCase;
         this.listAdministrativeReviewAnalysisRequestsUseCase = listAdministrativeReviewAnalysisRequestsUseCase;
         this.loadAdministrativeMetricsUseCase = loadAdministrativeMetricsUseCase;
+        this.loadFunctionalMetricsUseCase = loadFunctionalMetricsUseCase;
     }
 
     @GetMapping("/professionals")
@@ -154,6 +158,18 @@ public class AdminController {
         );
         auditAdministrativeAccess(authenticatedPrincipal, SensitiveAuditTargetType.ADMINISTRATIVE_SESSION);
         return AdministrativeMetricsHttpResponse.fromResponse(loadAdministrativeMetricsUseCase.loadAdministrativeMetrics());
+    }
+
+    @GetMapping("/functional-metrics")
+    FunctionalMetricsHttpResponse loadFunctionalMetrics(
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
+    ) {
+        AuthenticatedPrincipal authenticatedPrincipal = authorizeAdministrator(
+                authorizationHeader,
+                SensitiveAction.ACCESS_ADMINISTRATIVE_DATA
+        );
+        auditAdministrativeAccess(authenticatedPrincipal, SensitiveAuditTargetType.ADMINISTRATIVE_SESSION);
+        return FunctionalMetricsHttpResponse.fromResponse(loadFunctionalMetricsUseCase.loadFunctionalMetrics());
     }
 
     private AuthenticatedPrincipal authorizeAdministrator(String authorizationHeader, SensitiveAction sensitiveAction) {

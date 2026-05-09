@@ -26,6 +26,10 @@ import br.com.worklink.application.contact.port.CurrentContactTimePort;
 import br.com.worklink.application.contact.port.LoadContactIntentByIdentifierPort;
 import br.com.worklink.application.contact.port.SaveContactIntentPort;
 import br.com.worklink.application.contact.port.SavePostContactFeedbackPort;
+import br.com.worklink.application.metrics.port.CurrentFunctionalMetricTimePort;
+import br.com.worklink.application.metrics.port.LoadFunctionalMetricsPort;
+import br.com.worklink.application.metrics.port.SaveProfessionalSearchEventPort;
+import br.com.worklink.application.metrics.usecase.FunctionalMetricsResponse;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
@@ -85,6 +89,10 @@ class WorkLinkUseCaseConfigurationTest {
         CreateWhatsappContactLinkPort createWhatsappContactLinkPort = whatsappNumber -> "https://wa.me/%s".formatted(whatsappNumber);
         LoadContactIntentByIdentifierPort loadContactIntentByIdentifierPort = contactIntentIdentifier -> Optional.empty();
         SavePostContactFeedbackPort savePostContactFeedbackPort = postContactFeedback -> postContactFeedback;
+        SaveProfessionalSearchEventPort saveProfessionalSearchEventPort = professionalSearchEvent -> professionalSearchEvent;
+        CurrentFunctionalMetricTimePort currentFunctionalMetricTimePort = () -> Instant.parse("2026-05-08T20:00:00Z");
+        LoadFunctionalMetricsPort loadFunctionalMetricsPort = () ->
+                new FunctionalMetricsResponse(0, 0, 0, 0, 0, 0, false, null, null, null, null, null);
         LoadPostContactFeedbackByContactIntentIdentifierPort loadPostContactFeedbackByContactIntentIdentifierPort =
                 contactIntentIdentifier -> Optional.empty();
         SaveProfessionalReviewPort saveProfessionalReviewPort = professionalReview -> professionalReview;
@@ -166,6 +174,11 @@ class WorkLinkUseCaseConfigurationTest {
                 savePostContactFeedbackPort,
                 currentContactTimePort
         )).isNotNull();
+        assertThat(configuration.recordProfessionalSearchEventUseCase(
+                saveProfessionalSearchEventPort,
+                currentFunctionalMetricTimePort
+        )).isNotNull();
+        assertThat(configuration.loadFunctionalMetricsUseCase(loadFunctionalMetricsPort)).isNotNull();
         assertThat(configuration.registerProfessionalReviewUseCase(
                 loadContactIntentByIdentifierPort,
                 loadPostContactFeedbackByContactIntentIdentifierPort,

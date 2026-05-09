@@ -21,6 +21,11 @@ import br.com.worklink.application.authorization.usecase.AuthenticatedPrincipal;
 import br.com.worklink.application.authorization.usecase.AuthenticatedProfile;
 import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
 import br.com.worklink.application.authorization.usecase.SensitiveAction;
+import br.com.worklink.application.metrics.usecase.ContactMetricResponse;
+import br.com.worklink.application.metrics.usecase.FunctionalMetricsResponse;
+import br.com.worklink.application.metrics.usecase.LoadFunctionalMetricsUseCase;
+import br.com.worklink.application.metrics.usecase.ReputationMetricResponse;
+import br.com.worklink.application.metrics.usecase.ResponsivenessMetricResponse;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -78,6 +83,9 @@ class AdminControllerTest {
 
     @MockBean
     private LoadAdministrativeMetricsUseCase loadAdministrativeMetricsUseCase;
+
+    @MockBean
+    private LoadFunctionalMetricsUseCase loadFunctionalMetricsUseCase;
 
     @Test
     @DisplayName("GIVEN administrador WHEN listar profissionais THEN deve retornar status de bloqueio")
@@ -240,6 +248,48 @@ class AdminControllerTest {
                 .andExpect(jsonPath("$.reviewAnalysisRequestCount").value(4))
                 .andExpect(jsonPath("$.serviceCategoryCount").value(5));
     }
+
+    @Test
+    @DisplayName("GIVEN administrador WHEN consultar metricas funcionais THEN deve retornar sinais para ranking futuro")
+    void shouldLoadFunctionalMetricsWithoutRankingAlgorithm() throws Exception {
+        // GIVEN
+        UUID professionalIdentifier = UUID.randomUUID();
+        UUID categoryIdentifier = UUID.randomUUID();
+        UUID cityIdentifier = UUID.randomUUID();
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER))
+                .thenReturn(administratorPrincipal());
+        when(loadFunctionalMetricsUseCase.loadFunctionalMetrics()).thenReturn(new FunctionalMetricsResponse(
+                7,
+                5,
+                4,
+                3,
+                2,
+                1,
+                false,
+                List.of(new ContactMetricResponse(professionalIdentifier, 5)),
+                List.of(new ContactMetricResponse(categoryIdentifier, 4)),
+                List.of(new ContactMetricResponse(cityIdentifier, 3)),
+                List.of(new ResponsivenessMetricResponse("FAST_RESPONSE", 2)),
+                List.of(new ReputationMetricResponse(professionalIdentifier, 4.75, 3))
+        ));
+
+        // WHEN / THEN
+        mockMvc.perform(get("/api/v1/admin/functional-metrics").header("Authorization", AUTHORIZATION_HEADER))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.searchCount").value(7))
+                .andExpect(jsonPath("$.contactCount").value(5))
+                .andExpect(jsonPath("$.postContactFeedbackCount").value(4))
+                .andExpect(jsonPath("$.reviewCount").value(3))
+                .andExpect(jsonPath("$.acceptingNewClientsProfessionalCount").value(2))
+                .andExpect(jsonPath("$.availableTodayProfessionalCount").value(1))
+                .andExpect(jsonPath("$.rankingAlgorithmEnabled").value(false))
+                .andExpect(jsonPath("$.contactsByProfessional[0].metricIdentifier").value(professionalIdentifier.toString()))
+                .andExpect(jsonPath("$.contactsByCategory[0].metricIdentifier").value(categoryIdentifier.toString()))
+                .andExpect(jsonPath("$.contactsByCity[0].metricIdentifier").value(cityIdentifier.toString()))
+                .andExpect(jsonPath("$.responsivenessSignals[0].contactResponsiveness").value("FAST_RESPONSE"))
+                .andExpect(jsonPath("$.reputationSignals[0].averageRating").value(4.75));
+    }
+
 
     @Test
     @DisplayName("GIVEN cliente WHEN acessar admin THEN deve negar sem executar caso de uso")
