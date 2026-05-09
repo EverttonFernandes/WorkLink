@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'app/worklink_app_configuration.dart';
 import 'features/customer_authentication/customer_authentication_controller.dart';
 import 'features/customer_authentication/customer_authentication_screen.dart';
+import 'features/customer_profile/customer_profile_controller.dart';
+import 'features/customer_profile/customer_profile_screen.dart';
+import 'features/customer_profile/customer_profile_state.dart';
 import 'features/discovery/discovery_controller.dart';
 import 'features/discovery/discovery_professional.dart';
 import 'features/discovery/discovery_screen.dart';
@@ -124,6 +127,7 @@ class WorkLinkApp extends StatefulWidget {
 
 class _WorkLinkAppState extends State<WorkLinkApp> {
   bool customerAuthenticated = false;
+  String customerPhoneNumber = '(51) 9 9999-9999';
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +180,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
               ),
             );
           },
+          onOpenCustomerProfile: () => _handleOpenCustomerProfile(context),
         ),
       ),
     );
@@ -191,9 +196,11 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
           builder: (authenticationContext) => CustomerAuthenticationScreen(
             customerAuthenticationController:
                 CustomerAuthenticationController(),
-            onAuthenticationCompleted: (_) {
+            onAuthenticationCompleted: (authenticatedPhoneNumber) {
               setState(() {
                 customerAuthenticated = true;
+                customerPhoneNumber =
+                    _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
               });
               Navigator.of(authenticationContext).pop();
             },
@@ -223,6 +230,76 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
           ),
           onOpenPostContactFeedback: (contactIntentionIdentifier) =>
               _openPostContactFeedback(context, contactIntentionIdentifier),
+        ),
+      ),
+    );
+  }
+
+  void _handleOpenCustomerProfile(BuildContext context) {
+    if (!customerAuthenticated) {
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (authenticationContext) => CustomerAuthenticationScreen(
+            customerAuthenticationController:
+                CustomerAuthenticationController(),
+            onAuthenticationCompleted: (authenticatedPhoneNumber) {
+              setState(() {
+                customerAuthenticated = true;
+                customerPhoneNumber =
+                    _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
+              });
+              Navigator.of(authenticationContext).pop();
+              _openCustomerProfile(context);
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    _openCustomerProfile(context);
+  }
+
+  void _openCustomerProfile(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (profileContext) => CustomerProfileScreen(
+          customerProfileController: CustomerProfileController(
+            initialState: CustomerProfileState(
+              customerName: 'Cliente WorkLink',
+              phoneNumber: customerPhoneNumber,
+              mainCity: const CustomerProfileCity(
+                cityName: 'Canoas',
+                stateCode: 'RS',
+              ),
+              selectedCities: const [
+                CustomerProfileCity(cityName: 'Canoas', stateCode: 'RS'),
+                CustomerProfileCity(cityName: 'Porto Alegre', stateCode: 'RS'),
+              ],
+              savedProfessionals: const [
+                CustomerSavedProfessional(
+                  professionalIdentifier: 'maria-eletricista',
+                  professionalName: 'Maria Eletricista',
+                  categoryName: 'Eletricista',
+                  cityDisplayName: 'Canoas - RS',
+                ),
+              ],
+              submittedReviews: const [
+                CustomerSubmittedReview(
+                  professionalName: 'Maria Eletricista',
+                  starRating: 5,
+                  publiclyAnonymous: true,
+                  comment: 'Atendimento rapido e organizado.',
+                ),
+              ],
+            ),
+          ),
+          onLogout: () {
+            setState(() {
+              customerAuthenticated = false;
+            });
+            Navigator.of(profileContext).pop();
+          },
         ),
       ),
     );
@@ -280,5 +357,18 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
         ),
       ),
     );
+  }
+
+  String _formatAuthenticatedPhoneNumber(String phoneNumber) {
+    if (phoneNumber.length == 11) {
+      return '(${phoneNumber.substring(0, 2)}) '
+          '${phoneNumber.substring(2, 3)} '
+          '${phoneNumber.substring(3, 7)}-${phoneNumber.substring(7)}';
+    }
+    if (phoneNumber.length == 10) {
+      return '(${phoneNumber.substring(0, 2)}) '
+          '${phoneNumber.substring(2, 6)}-${phoneNumber.substring(6)}';
+    }
+    return phoneNumber;
   }
 }

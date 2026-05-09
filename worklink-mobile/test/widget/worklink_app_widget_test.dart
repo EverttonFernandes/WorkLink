@@ -248,6 +248,53 @@ void main() {
   });
 
   testWidgets(
+      'GIVEN cliente sem login WHEN abrir perfil do usuario THEN deve autenticar antes do perfil',
+      (tester) async {
+    // GIVEN
+    const application = WorkLinkApp();
+    await tester.pumpWidget(application);
+
+    // WHEN
+    await tester
+        .tap(find.byKey(const ValueKey('open-customer-profile-button')));
+    await tester.pumpAndSettle();
+
+    // THEN
+    expect(find.text('Continuar com seu celular'), findsOneWidget);
+    expect(find.byKey(const ValueKey('customer-phone-field')), findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN cliente autenticado WHEN abrir perfil do usuario THEN deve visualizar area do cliente',
+      (tester) async {
+    // GIVEN
+    const application = WorkLinkApp();
+    await tester.pumpWidget(application);
+    await tester
+        .tap(find.byKey(const ValueKey('open-customer-profile-button')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('customer-phone-field')),
+      '(51) 9 9999-1234',
+    );
+    await tester.tap(find.byKey(const ValueKey('request-code-button')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('verification-code-field')),
+      '1234',
+    );
+    await tester.tap(find.byKey(const ValueKey('confirm-code-button')));
+    await tester.pumpAndSettle();
+
+    // THEN
+    expect(find.text('Meu perfil'), findsOneWidget);
+    expect(find.text('Cliente WorkLink'), findsOneWidget);
+    expect(find.text('(51) 9 9999-1234'), findsOneWidget);
+    expect(find.text('Profissionais salvos'), findsOneWidget);
+    expect(find.text('Avaliações enviadas'), findsOneWidget);
+  });
+
+  testWidgets(
       'GIVEN perfil publico WHEN denunciar profissional THEN deve navegar para tela de denuncia',
       (tester) async {
     // GIVEN

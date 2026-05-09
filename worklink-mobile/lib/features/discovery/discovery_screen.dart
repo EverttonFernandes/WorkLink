@@ -11,11 +11,13 @@ class DiscoveryScreen extends StatefulWidget {
     required this.discoveryController,
     this.onOpenProfessionalProfile,
     this.onOpenProfessionalRegistration,
+    this.onOpenCustomerProfile,
   });
 
   final DiscoveryController discoveryController;
   final ValueChanged<String>? onOpenProfessionalProfile;
   final VoidCallback? onOpenProfessionalRegistration;
+  final VoidCallback? onOpenCustomerProfile;
 
   @override
   State<DiscoveryScreen> createState() => _DiscoveryScreenState();
@@ -57,6 +59,12 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             tooltip: 'Cadastrar profissional',
             onPressed: widget.onOpenProfessionalRegistration,
             icon: const Icon(Icons.person_add_alt_outlined),
+          ),
+          IconButton(
+            key: const ValueKey('open-customer-profile-button'),
+            tooltip: 'Meu perfil',
+            onPressed: widget.onOpenCustomerProfile,
+            icon: const Icon(Icons.account_circle_outlined),
           ),
         ],
       ),
