@@ -35,6 +35,10 @@ Regra de uso pelos agentes:
 | [WL-008](historias/WL-008-disponibilidade-profissional.md) | `tela-perfil-do-profissional.png`, `tela-cadastro-do-profissional.png`       | disponibilidade aparece no cadastro e no perfil                      |
 | [WL-011](historias/WL-011-pos-contato-estruturado.md)      | `tela-falar-com-o-profissional.png`, `tela-avaliacao-profissional.png`       | pós-contato habilita avaliação e sinais de responsividade            |
 | [WL-013](historias/WL-013-exibicao-avaliacoes-perfil.md)   | `tela-perfil-do-profissional.png`, `tela-avaliacao-concluida.png`            | avaliações enviadas devem aparecer no perfil respeitando anonimato   |
+| [WL-018](historias/WL-018-verificacao-telefone-profissional.md) | `tela-perfil-do-profissional.png`, `tela-cadastro-do-profissional.png` | telefone verificado aparece como confiança progressiva               |
+| [WL-019](historias/WL-019-portfolio-fotos-profissional.md)  | `tela-perfil-do-profissional.png`, `tela-cadastro-do-profissional.png`       | portfólio/fotos completam cadastro e perfil público                  |
+| [WL-020](historias/WL-020-profissionais-salvos-preferencias-persistentes.md) | `tela-perfil-do-cliente-usuario.png`, `tela-perfil-do-profissional.png` | perfil do cliente deve carregar salvos e preferências persistidas    |
+| [WL-021](historias/WL-021-solicitacao-pos-contato.md)       | `tela-falar-com-o-profissional.png`, `tela-avaliacao-profissional.png`       | solicitação ativa de feedback nasce após intenção de contato         |
 
 ## Regras obrigatórias para implementação de telas
 

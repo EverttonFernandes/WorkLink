@@ -21,7 +21,15 @@ Uma história só pode ir para `Done` quando:
 
 ## To Do
 
-_Vazio._
+| Ordem | História | Tipo | Título | Relação com outras histórias | Execução | Versão |
+|-------|----------|------|--------|-------------------------------|----------|--------|
+| 36 | [WL-018](historias/WL-018-verificacao-telefone-profissional.md) | Negócio | Verificação do telefone do profissional | Complementa confiança progressiva após cadastro/badges | Separada | MINOR |
+| 37 | [WL-019](historias/WL-019-portfolio-fotos-profissional.md) | Negócio | Portfólio e fotos de trabalhos do profissional | Complementa perfil público e storage seguro | Junto de validações de storage | MINOR |
+| 38 | [WL-020](historias/WL-020-profissionais-salvos-preferencias-persistentes.md) | Negócio | Profissionais salvos e preferências persistentes do cliente | Complementa perfil do usuário | Junto dos gates de privacidade | MINOR |
+| 39 | [WL-021](historias/WL-021-solicitacao-pos-contato.md) | Negócio | Solicitação de feedback pós-contato | Complementa contato e pós-contato estruturado | Junto dos gates de privacidade/auditoria | MINOR |
+| 40 | [WL-022](historias/WL-022-metricas-funcionais-detalhadas.md) | Negócio | Métricas funcionais detalhadas da V1 | Complementa base para ranking futuro | Separada | MINOR |
+| 41 | [WL-023](historias/WL-023-revisao-administrativa-moderacao.md) | Negócio | Revisão administrativa efetiva de denúncias e avaliações | Complementa administração e moderação mínima | Junto dos gates de segurança/auditoria | MINOR |
+| 42 | [WL-024](historias/WL-024-console-administrativo-minimo.md) | Negócio | Console administrativo mínimo | Depende de administração, métricas e revisão administrativa | Separada | MINOR |
 
 ## Doing
 
