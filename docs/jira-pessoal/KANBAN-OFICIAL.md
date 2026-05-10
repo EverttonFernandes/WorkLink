@@ -30,6 +30,9 @@ Uma história só pode ir para `Done` quando:
 | 40 | [WL-022](historias/WL-022-metricas-funcionais-detalhadas.md) | Negócio | Métricas funcionais detalhadas da V1 | Complementa base para ranking futuro | Separada | MINOR |
 | 41 | [WL-023](historias/WL-023-revisao-administrativa-moderacao.md) | Negócio | Revisão administrativa efetiva de denúncias e avaliações | Complementa administração e moderação mínima | Junto dos gates de segurança/auditoria | MINOR |
 | 42 | [WL-024](historias/WL-024-console-administrativo-minimo.md) | Negócio | Console administrativo mínimo | Depende de administração, métricas e revisão administrativa | Separada | MINOR |
+| 43 | [WLT-019](historias-tecnicas/WLT-019-specs-funcionais-e2e-reais.md) | Técnica | Specs funcionais E2E reais | Depende de todos os fluxos críticos implementados | Separada | MINOR |
+| 44 | [WLT-020](historias-tecnicas/WLT-020-projeto-nativo-mobile-android-ios.md) | Técnica | Projeto nativo mobile Android/iOS | Pré-requisito para builds reais e publicação nas lojas | Separada | MINOR |
+| 45 | [WLT-021](historias-tecnicas/WLT-021-analise-estatica-avancada-backend.md) | Técnica | Análise estática avançada backend | Complementa gate de qualidade do backend (SpotBugs, PMD, SonarCloud) | Separada | MINOR |
 
 ## Doing
 
