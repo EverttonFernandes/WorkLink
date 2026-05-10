@@ -3,6 +3,7 @@
 ## 📋 Situação Atual (10/05/2026)
 
 ### Backend ✅
+
 - **Status**: Production-ready
 - **Código**: 8.686 linhas Java, arquitetura hexagonal
 - **Features**: WL-001 até WL-017 implementadas (17 histórias)
@@ -11,6 +12,7 @@
 - **Documentação**: OpenAPI, ADRs, testes E2E
 
 ### App Mobile 🟡
+
 - **Status**: Prototipado, UI-ready, sem integração HTTP ainda
 - **Código**: 3.925 linhas Dart com estrutura MVC
 - **Telas**: 11 telas funcionais implementadas
@@ -19,6 +21,7 @@
 - **Testes**: 95%+ cobertura com dados mock
 
 ### Infraestrutura & Pipeline 🟡
+
 - **Docker Compose**: Completo (backend, DB, Redis, MinIO)
 - **CI/CD**: GitHub Actions validando backend e mobile
 - **Emulador**: Docker Compose sem emulador remoto
@@ -30,8 +33,10 @@
 
 ### Fase 1: Integração & Builds (2-3 semanas)
 
-#### **WLT-022 — Integração HTTP Mobile com Backend** 
+#### **WLT-022 — Integração HTTP Mobile com Backend**
+
 Transforma app de mock para real:
+
 - Adicionar `dio: ^1.0.0` ao pubspec.yaml
 - Criar camada de serviços HTTP em `lib/services/`
 - Substituir dados mock por chamadas reais
@@ -39,7 +44,9 @@ Transforma app de mock para real:
 - Resultado: App conectado ao backend real
 
 #### **WLT-020 — Projeto Nativo Mobile Android/iOS**
+
 Gera estrutura nativa para publicação:
+
 - `flutter create . --platforms=android,ios`
 - Configuração de permissões (câmera, localização)
 - Assinadores para debug e release
@@ -47,7 +54,9 @@ Gera estrutura nativa para publicação:
 - Resultado: APK compilável para Xiaomi (ou qualquer Android)
 
 #### **WLT-023 — Emulador Remoto na Pipeline**
+
 Automatiza testes em CI/CD:
+
 - GitHub Actions com Android Emulator
 - Testes de integração rodam em cada push
 - Relatório de cobertura gerado
@@ -58,28 +67,36 @@ Automatiza testes em CI/CD:
 ### Fase 2: Features Críticas do Mobile (3-4 semanas)
 
 #### **WL-018 — Verificação de Telefone do Profissional**
+
 Adiciona confiança progressiva:
+
 - Fluxo de OTP durante cadastro
 - Badge visível no perfil
 - Integração com backend existente
 - Testes completos
 
 #### **WL-019 — Portfólio e Fotos**
+
 Complementa perfil do profissional:
+
 - Upload de fotos (max 5MB, 10 fotos)
 - Salvamento em MinIO
 - Galeria no perfil público
 - Validações de tipo/tamanho
 
 #### **WL-020 — Profissionais Salvos**
+
 Melhora retenção:
+
 - Botão "Salvar" em perfil
 - Tela "Salvos" com filtros
 - Sincronização ao login
 - Persistência local
 
 #### **WL-021 — Feedback Pós-Contato**
+
 Aumenta taxa de avaliações:
+
 - Prompt após 2 horas de contato
 - Ligação entre contato e avaliação
 - Testes E2E para timing
@@ -89,19 +106,25 @@ Aumenta taxa de avaliações:
 ### Fase 3: Admin & Observabilidade (2-3 semanas)
 
 #### **WL-022 — Métricas Funcionais**
+
 Coleta dados para ranking:
+
 - Eventos de descoberta, contato, avaliação
 - Dashboard com agregações
 - TTL para limpeza de dados antigos
 
 #### **WL-023 — Revisão Administrativa**
+
 Moderação de denúncias:
+
 - Fila de denúncias sem revisão
 - Ações: validar, rejeitar, solicitar prova
 - Auditoria completa
 
 #### **WL-024 — Console Admin**
+
 Ponto central de monitoramento:
+
 - Dashboard com métricas em tempo real
 - Denúncias pendentes
 - Links rápidos para moderação
@@ -111,14 +134,18 @@ Ponto central de monitoramento:
 ### Fase 4: Validação & Release (1-2 semanas)
 
 #### **WLT-019 — Specs Funcionais E2E Reais**
+
 Valida integração completa:
+
 - 45+ casos de teste (descoberta, auth, contato, avaliação, admin)
 - Contra backend real em Docker
 - Relatório HTML com evidência
 - CI/CD executa automaticamente
 
 #### **WLT-021 — Análise Estática Avançada**
+
 Hardening de qualidade:
+
 - SpotBugs para bugs potenciais
 - PMD para violações de padrão
 - SonarCloud para vulnerabilidades
@@ -163,20 +190,24 @@ Uma tela é considerada **pronta e testável** quando:
 ## 🚀 Como Ativar as Histórias
 
 ### 1. **Mover para In Progress**
+
 Cada história segue a ordem do `KANBAN-OFICIAL.md` (ordem 36-47).
 
 ### 2. **Branching**
+
 ```bash
 # Por exemplo, para WLT-022
 git checkout -b wlt-022/integracao-http-mobile
 ```
 
 ### 3. **Desenvolvimento**
+
 - Implementar com TDD (testes primeiro)
 - Cobertura mínima 95%
 - Seguir padrões em `docs/spec-driven-development/`
 
 ### 4. **Validação**
+
 ```bash
 # Local
 make mobile-unit-test
@@ -188,9 +219,11 @@ make functional-test
 ```
 
 ### 5. **Documentação**
+
 Criar `docs/entregas/WL-XXX-*.md` ou `docs/entregas/WLT-XXX-*.md` com evidências de validação.
 
 ### 6. **Merge & Tag**
+
 ```bash
 git tag v0.36.0  # semântico: MAJOR.MINOR.PATCH
 git push origin main --tags
@@ -200,21 +233,21 @@ git push origin main --tags
 
 ## 🎁 Arquivos Criados (10/05/2026)
 
-| Arquivo | Propósito |
-|---------|-----------|
-| `docs/entregas/WL-018-verificacao-telefone-profissional.md` | História de negócio |
-| `docs/entregas/WL-019-portfolio-fotos-profissional.md` | História de negócio |
-| `docs/entregas/WL-020-profissionais-salvos-preferencias-persistentes.md` | História de negócio |
-| `docs/entregas/WL-021-solicitacao-pos-contato.md` | História de negócio |
-| `docs/entregas/WL-022-metricas-funcionais-detalhadas.md` | História de negócio |
-| `docs/entregas/WL-023-revisao-administrativa-moderacao.md` | História de negócio |
-| `docs/entregas/WL-024-console-administrativo-minimo.md` | História de negócio |
-| `docs/entregas/WLT-019-specs-funcionais-e2e-reais.md` | História técnica |
-| `docs/entregas/WLT-020-projeto-nativo-mobile-android-ios.md` | História técnica |
-| `docs/entregas/WLT-021-analise-estatica-avancada-backend.md` | História técnica |
-| `docs/entregas/WLT-022-integracao-http-mobile-backend.md` | História técnica |
-| `docs/entregas/WLT-023-emulador-remoto-ambiente-teste-online.md` | História técnica |
-| `docs/jira-pessoal/KANBAN-OFICIAL.md` | Atualizado com 12 novas histórias |
+| Arquivo                                                                  | Propósito                         |
+| ------------------------------------------------------------------------ | --------------------------------- |
+| `docs/entregas/WL-018-verificacao-telefone-profissional.md`              | História de negócio               |
+| `docs/entregas/WL-019-portfolio-fotos-profissional.md`                   | História de negócio               |
+| `docs/entregas/WL-020-profissionais-salvos-preferencias-persistentes.md` | História de negócio               |
+| `docs/entregas/WL-021-solicitacao-pos-contato.md`                        | História de negócio               |
+| `docs/entregas/WL-022-metricas-funcionais-detalhadas.md`                 | História de negócio               |
+| `docs/entregas/WL-023-revisao-administrativa-moderacao.md`               | História de negócio               |
+| `docs/entregas/WL-024-console-administrativo-minimo.md`                  | História de negócio               |
+| `docs/entregas/WLT-019-specs-funcionais-e2e-reais.md`                    | História técnica                  |
+| `docs/entregas/WLT-020-projeto-nativo-mobile-android-ios.md`             | História técnica                  |
+| `docs/entregas/WLT-021-analise-estatica-avancada-backend.md`             | História técnica                  |
+| `docs/entregas/WLT-022-integracao-http-mobile-backend.md`                | História técnica                  |
+| `docs/entregas/WLT-023-emulador-remoto-ambiente-teste-online.md`         | História técnica                  |
+| `docs/jira-pessoal/KANBAN-OFICIAL.md`                                    | Atualizado com 12 novas histórias |
 
 ---
 

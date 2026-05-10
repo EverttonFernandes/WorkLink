@@ -17,12 +17,14 @@ Atualmente o projeto Flutter existe mas as pastas `android/` e `ios/` nunca fora
 ## Compatibilidade de Dispositivos
 
 ### Android
+
 - **Suporte**: Qualquer dispositivo Android (agnóstico de marca: Samsung, Xiaomi, Motorola, Google Pixel, LG, OnePlus, Redmi, etc.)
 - **Versão mínima**: Android 8.0 (API Level 26)
 - **Versão máxima**: Android 15+ (target API Level 35+)
 - **Nota**: APK compilado funciona em qualquer dispositivo nesta faixa, independentemente do fabricante
 
 ### iOS
+
 - **Suporte**: Qualquer iPhone (X, 11, 12, 13, 14, 15, 16+) e iPad
 - **Versão mínima**: iOS 12.0+
 - **Versão máxima**: iOS 18+ (última versão disponível)
@@ -76,13 +78,13 @@ Atualmente o projeto Flutter existe mas as pastas `android/` e `ios/` nunca fora
 
 ## Estratégia de testes
 
-- **Build Android**: 
+- **Build Android**:
   - `flutter build apk --debug` gera APK testável em qualquer Android 8.0+
   - Teste em emulador Android (QEMU) com múltiplas versões: Q (API 29), R (API 30), S (API 31), T (API 33), U (API 34)
   - Teste em dispositivo físico real (qualquer marca: Samsung, Xiaomi, Motorola, etc.)
   - `make mobile-android-build` valida build sem erro
 
-- **Build iOS**: 
+- **Build iOS**:
   - `flutter build ios --no-codesign` gera app testável em qualquer iPhone/iPad com iOS 12.0+
   - Teste em simulador iOS com múltiplas resoluções (iPhone SE, iPhone 12, iPhone 15, iPad)
   - Teste em dispositivo físico conectado (qualquer iPhone/iPad com Xcode)
