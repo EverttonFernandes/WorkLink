@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/services/api_client.dart';
 import 'package:worklink_mobile/services/catalog_service.dart';
@@ -17,7 +18,7 @@ void main() {
     final apiClient = ApiClient(baseUrl: apiBaseUrl);
 
     // Wait for backend to be ready before proceeding
-    await _waitForBackendReady(apiClient, maxRetries: 30, delaySeconds: 2);
+    await _waitForBackendReady(apiClient);
 
     final catalogService = CatalogService(httpClient: apiClient);
     final professionalService = ProfessionalService(httpClient: apiClient);
@@ -43,9 +44,9 @@ Future<void> _waitForBackendReady(
 }) async {
   for (int i = 0; i < maxRetries; i++) {
     try {
-      print('Waiting for backend to be ready... (attempt ${i + 1}/$maxRetries)');
+      debugPrint('Waiting for backend to be ready... (attempt ${i + 1}/$maxRetries)');
       await apiClient.getObject('/actuator/health/readiness');
-      print('Backend is ready!');
+      debugPrint('Backend is ready!');
       return;
     } catch (e) {
       if (i == maxRetries - 1) {
@@ -54,7 +55,7 @@ Future<void> _waitForBackendReady(
           'Last error: $e',
         );
       }
-      await Future.delayed(Duration(seconds: delaySeconds));
+      await Future<void>.delayed(Duration(seconds: delaySeconds));
     }
   }
 }
