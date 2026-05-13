@@ -15,6 +15,10 @@ void main() {
       defaultValue: 'http://worklink-api:8080',
     );
     final apiClient = ApiClient(baseUrl: apiBaseUrl);
+
+    // Wait for backend to be ready before proceeding
+    await _waitForBackendReady(apiClient, maxRetries: 30, delaySeconds: 2);
+
     final catalogService = CatalogService(httpClient: apiClient);
     final professionalService = ProfessionalService(httpClient: apiClient);
 
@@ -28,4 +32,29 @@ void main() {
     expect(cities, isA<List<ServiceCity>>());
     expect(professionals, isA<List<Professional>>());
   });
+}
+
+/// Waits for the backend API to be ready before running tests.
+/// Retries up to [maxRetries] times with [delaySeconds] between attempts.
+Future<void> _waitForBackendReady(
+  ApiClient apiClient, {
+  int maxRetries = 30,
+  int delaySeconds = 2,
+}) async {
+  for (int i = 0; i < maxRetries; i++) {
+    try {
+      print('Waiting for backend to be ready... (attempt ${i + 1}/$maxRetries)');
+      await apiClient.getObject('/actuator/health/readiness');
+      print('Backend is ready!');
+      return;
+    } catch (e) {
+      if (i == maxRetries - 1) {
+        throw Exception(
+          'Backend API did not become ready after $maxRetries attempts. '
+          'Last error: $e',
+        );
+      }
+      await Future.delayed(Duration(seconds: delaySeconds));
+    }
+  }
 }
