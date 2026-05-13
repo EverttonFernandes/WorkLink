@@ -66,4 +66,30 @@ class ProfessionalService {
     );
     return Professional.fromJson(response);
   }
+
+  Future<List<ProfessionalPortfolioItem>> listProfessionalPortfolioItems(
+    String professionalIdentifier,
+  ) async {
+    final response = await _httpClient.getList(
+      '/api/v1/professionals/$professionalIdentifier/portfolio-items',
+    );
+    return response
+        .map(
+          (json) => ProfessionalPortfolioItem.fromJson(
+            Map<String, dynamic>.from(json as Map),
+          ),
+        )
+        .toList();
+  }
+
+  Future<ProfessionalPortfolioItem> addProfessionalPortfolioItem({
+    required String professionalIdentifier,
+    required AddProfessionalPortfolioItemRequest request,
+  }) async {
+    final response = await _httpClient.postObject(
+      '/api/v1/professionals/$professionalIdentifier/portfolio-items',
+      data: request.toJson(),
+    );
+    return ProfessionalPortfolioItem.fromJson(response);
+  }
 }

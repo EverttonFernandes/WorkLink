@@ -3,82 +3,58 @@
 ## Identificador
 
 - História: `WL-019`
-- Data: `2026-05-10`
-- Tipo semântico sugerido: `MINOR`
+- Data: `2026-05-13`
+- Tipo semântico: `MINOR`
 
 ## Objetivo de negócio
 
-Permitir que profissionais compartilhem fotos de trabalhos anteriores no seu perfil público, aumentando confiança do cliente e diferenciação entre profissionais.
-
-## Personas afetadas
-
-- Profissional: exibe portfólio visual de trabalhos, atrai mais clientes qualificados.
-- Cliente: visualiza exemplos de trabalho, toma decisão mais informada.
-- Plataforma: melhora taxa de conversão e satisfação.
+Permitir que o profissional associe fotos ou evidências visuais ao perfil público, aumentando a confiança do cliente sem
+misturar portfólio com verificação documental ou garantia de qualidade.
 
 ## Requisitos atendidos
 
-- RF21 — Upload de fotos de portfólio durante cadastro.
-- RF22 — Exibição ordenada de fotos no perfil público.
-- RF23 — Remoção de fotos do portfólio.
-- RN08 — Storage seguro com validação de tipo e tamanho.
-- RN15/RN16 — Autenticação e validação progressiva.
+- RF13/RF20 — Perfil profissional mais completo com evidências públicas de trabalho.
+- RN15/RN16 — Reuso de storage seguro, autorização por ownership e não exposição de dados sensíveis.
+- Critério de aceite: profissional adiciona item de portfólio, sistema valida finalidade pública do arquivo e perfil
+  público consome itens ativos.
 
 ## O que foi implementado
 
-- Tela mobile de upload de fotos durante cadastro do profissional.
-- Validação de tipo (JPEG, PNG), tamanho máximo (5MB) e quantidade máxima (10 fotos).
-- Integração com storage seguro (MinIO) via backend.
-- Exibição em galeria no perfil públicode profissional com ordernação.
-- Tela de gerenciamento de portfólio (adicionar, remover, reordenar).
-- Testes unitários e de tela para upload, validação, remoção.
-- Documentação de privacidade: fotos são sempre visíveis publicamente (parte do perfil público).
+- Tabela `worklink.professional_portfolio_items` para vincular profissional e arquivo público de portfólio.
+- Domínio `ProfessionalPortfolioItem`, use cases de adicionar/listar e portas de persistência.
+- Endpoint público `GET /api/v1/professionals/{professionalIdentifier}/portfolio-items`.
+- Endpoint autenticado `POST /api/v1/professionals/{professionalIdentifier}/portfolio-items` com ownership,
+  auditoria sensível e limite de 10 itens ativos.
+- Validação para aceitar somente arquivos `StoredFilePurpose.PROFESSIONAL_PORTFOLIO` com acesso público.
+- Mobile consumindo os itens estruturados no gateway e exibindo-os no perfil público junto ao portfólio textual legado.
 
-## O que não foi implementado
+## Fora do escopo mantido
 
-- Editing/cropping de fotos no mobile.
-- Edição em lote de portfólio.
-- Compressão de imagem no cliente (compressão no backend).
-
-## Fluxos, telas, endpoints ou módulos envolvidos
-
-- Tela mobile de cadastro do profissional (passo de portfólio).
-- Tela de perfil público do profissional (galeria de fotos).
-- Tela de gerenciamento de portfólio (cliente autenticado).
-- Backend de upload em `/api/v1/professionals/{id}/portfolio`.
-- Storage MinIO com path: `professionals/{id}/portfolio/{photoId}`.
-- Protótipo: `docs/prototipos-de-tela/tela-cadastro-do-profissional.png`
-
-## Estratégia de testes
-
-- Backend unitário: validação de tipo, tamanho, limite de fotos.
-- Mobile unitário: validação e upload controller.
-- Mobile tela: seleção, upload, validação de erro, remoção e reordenação.
-- Integração backend: upload real em MinIO, persistência em banco.
-- Funcional/E2E: fluxo completo em ambiente real (WLT-023).
+- Upload binário real no app.
+- CDN produtiva.
+- Crop, edição de imagem, reordenação avançada e remoção de itens.
+- Curadoria administrativa complexa.
 
 ## Evidências de validação
 
-- `make backend-unit-test`: PASS, validação de upload atendida.
-- `make backend-integration-test`: PASS, Flyway até `v019`, MinIO configurado.
-- `make mobile-unit-test`: PASS, cobertura 95%+.
-- `make mobile-screen-test`: PASS, 8+ testes de tela.
-- `make mobile-integration-test`: PASS quando emulador remoto disponível.
-- `make functional-test`: PASS, cenários de upload reais.
-
-## Riscos ou limitações remanescentes
-
-- Fotos são sempre públicas; não há privacidade seletiva.
-- Compressão de imagem acontece no backend, podendo impactar latência.
-- Exclusão de foto é soft-delete; imagens antigo permanecem em storage.
+- `make backend-unit-test`: PASS, 279 testes e coverage 95%+.
+- `make backend-integration-test`: PASS, Flyway até `v018`.
+- `make mobile-static-analysis`: PASS.
+- `make mobile-unit-test`: PASS, cobertura 95.09%.
+- `make mobile-screen-test`: PASS.
+- `make mobile-integration-test`: PASS para contrato HTTP; testes com emulador/simulador/browser ficaram `N/A`.
+- `make functional-test`: `N/A`, ainda sem cenários funcionais reais.
+- `git diff --check`: PASS.
 
 ## Arquivos ou módulos relevantes
 
-- `worklink-mobile/lib/features/professional_registration/` — upload.
-- `worklink-api/src/main/java/br/com/worklink/professionals/portfolio/` — lógica.
-- `worklink-api/src/main/java/br/com/worklink/storage/` — integração MinIO.
-- Migration: `worklink-api/src/main/resources/db/migration/V019__*.sql`.
+- Backend: `worklink-api/src/main/java/br/com/worklink/domain/professional/ProfessionalPortfolioItem.java`
+- Backend: `worklink-api/src/main/java/br/com/worklink/api/professional/ProfessionalPortfolioController.java`
+- Backend: `worklink-api/src/main/resources/db/migration/V018__create_professional_portfolio_items.sql`
+- Mobile: `worklink-mobile/lib/services/professional_service.dart`
+- Mobile: `worklink-mobile/lib/app/worklink_application_gateway.dart`
 
 ## Justificativa do versionamento
 
-Entrega `MINOR` porque adiciona nova funcionalidade visual sem quebra de compatibilidade. Ativa o storage seguro documentado em WLT-014.
+Entrega `MINOR` porque adiciona uma nova capacidade funcional pública ao perfil profissional sem quebrar contratos
+existentes.

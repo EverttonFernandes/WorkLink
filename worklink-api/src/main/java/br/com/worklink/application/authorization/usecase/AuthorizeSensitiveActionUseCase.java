@@ -47,11 +47,9 @@ public class AuthorizeSensitiveActionUseCase {
             SensitiveAction sensitiveAction,
             AuthorizationOwnership authorizationOwnership
     ) {
-        if (sensitiveAction == SensitiveAction.COMPLETE_PROFESSIONAL_PROFILE) {
-            return authenticatedPrincipal.profile() == AuthenticatedProfile.PROFESSIONAL
-                    && authenticatedPrincipal.principalIdentifier().equals(authorizationOwnership.ownerIdentifier());
-        }
-        if (sensitiveAction == SensitiveAction.VERIFY_PROFESSIONAL_PHONE) {
+        if (sensitiveAction == SensitiveAction.COMPLETE_PROFESSIONAL_PROFILE
+                || sensitiveAction == SensitiveAction.MANAGE_PROFESSIONAL_PORTFOLIO
+                || sensitiveAction == SensitiveAction.VERIFY_PROFESSIONAL_PHONE) {
             return authenticatedPrincipal.profile() == AuthenticatedProfile.PROFESSIONAL
                     && authenticatedPrincipal.principalIdentifier().equals(authorizationOwnership.ownerIdentifier());
         }

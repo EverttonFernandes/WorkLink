@@ -113,6 +113,23 @@ class AuthorizationUseCaseTest {
     }
 
     @Test
+    @DisplayName("GIVEN profissional dono do perfil WHEN gerenciar portfolio THEN deve permitir acesso")
+    void givenProfessionalResourceOwnerWhenManageProfessionalPortfolioThenShouldAllowAccess() {
+        // GIVEN
+        AuthenticatedPrincipal professionalPrincipal = new AuthenticatedPrincipal(
+                PRINCIPAL_IDENTIFIER,
+                AuthenticatedProfile.PROFESSIONAL
+        );
+
+        // WHEN / THEN
+        authorizeSensitiveActionUseCase.authorizeOwnedSensitiveAction(
+                professionalPrincipal,
+                SensitiveAction.MANAGE_PROFESSIONAL_PORTFOLIO,
+                new AuthorizationOwnership(PRINCIPAL_IDENTIFIER)
+        );
+    }
+
+    @Test
     @DisplayName("GIVEN token valido WHEN resolver principal THEN deve retornar principal autenticado")
     void givenValidTokenWhenResolvePrincipalThenShouldReturnAuthenticatedPrincipal() {
         // GIVEN

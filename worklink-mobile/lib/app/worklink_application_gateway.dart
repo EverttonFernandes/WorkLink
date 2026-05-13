@@ -63,6 +63,14 @@ abstract interface class WorkLinkApplicationGateway {
     required String verificationCode,
   });
 
+  Future<void> addProfessionalPortfolioItem({
+    required String professionalIdentifier,
+    required String fileIdentifier,
+    required String title,
+    String? description,
+    int displayOrder,
+  });
+
   Future<ProfessionalContactIntention> startProfessionalContact(
     String professionalIdentifier,
   );
@@ -123,10 +131,17 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
 
     final reviewProfilesByProfessionalIdentifier =
         <String, review_models.ProfessionalReviewProfile>{};
+    final portfolioItemsByProfessionalIdentifier =
+        <String, List<professional_models.ProfessionalPortfolioItem>>{};
     for (final professional in professionals) {
       reviewProfilesByProfessionalIdentifier[
               professional.professionalIdentifier] =
           await reviewService.listProfessionalReviewProfile(
+        professional.professionalIdentifier,
+      );
+      portfolioItemsByProfessionalIdentifier[
+              professional.professionalIdentifier] =
+          await professionalService.listProfessionalPortfolioItems(
         professional.professionalIdentifier,
       );
     }
@@ -149,6 +164,9 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
               cityDisplayNamesByIdentifier,
               reviewProfilesByProfessionalIdentifier[
                   professional.professionalIdentifier],
+              portfolioItemsByProfessionalIdentifier[
+                      professional.professionalIdentifier] ??
+                  const [],
             ),
           )
           .toList(),
@@ -242,6 +260,26 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
     await professionalService.confirmProfessionalPhoneVerification(
       professionalIdentifier: professionalIdentifier,
       verificationCode: verificationCode,
+    );
+  }
+
+  @override
+  Future<void> addProfessionalPortfolioItem({
+    required String professionalIdentifier,
+    required String fileIdentifier,
+    required String title,
+    String? description,
+    int displayOrder = 0,
+  }) async {
+    final professionalService = ProfessionalService(httpClient: _httpClient);
+    await professionalService.addProfessionalPortfolioItem(
+      professionalIdentifier: professionalIdentifier,
+      request: professional_models.AddProfessionalPortfolioItemRequest(
+        fileIdentifier: fileIdentifier,
+        title: title,
+        description: description,
+        displayOrder: displayOrder,
+      ),
     );
   }
 
@@ -352,6 +390,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
     Map<String, String> categoryNamesByIdentifier,
     Map<String, String> cityDisplayNamesByIdentifier,
     review_models.ProfessionalReviewProfile? reviewProfile,
+    List<professional_models.ProfessionalPortfolioItem> portfolioItems,
   ) {
     final cityDisplayName =
         cityDisplayNamesByIdentifier[professional.cityIdentifier] ??
@@ -376,6 +415,13 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
         if (professional.usefulLink != null) professional.usefulLink!,
       ],
       portfolioItemDescriptions: [
+        ...portfolioItems.map((portfolioItem) {
+          if (portfolioItem.description != null &&
+              portfolioItem.description!.trim().isNotEmpty) {
+            return '${portfolioItem.title}: ${portfolioItem.description}';
+          }
+          return portfolioItem.title;
+        }),
         if (professional.portfolioDescription != null)
           professional.portfolioDescription!,
       ],
@@ -540,6 +586,15 @@ class WorkLinkPreviewGateway implements WorkLinkApplicationGateway {
       throw StateError('Codigo de verificacao profissional invalido.');
     }
   }
+
+  @override
+  Future<void> addProfessionalPortfolioItem({
+    required String professionalIdentifier,
+    required String fileIdentifier,
+    required String title,
+    String? description,
+    int displayOrder = 0,
+  }) async {}
 
   @override
   Future<ProfessionalContactIntention> startProfessionalContact(

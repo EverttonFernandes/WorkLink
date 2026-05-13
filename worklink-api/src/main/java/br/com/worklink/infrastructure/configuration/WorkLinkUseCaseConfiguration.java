@@ -55,15 +55,20 @@ import br.com.worklink.application.metrics.port.SaveProfessionalSearchEventPort;
 import br.com.worklink.application.metrics.usecase.LoadFunctionalMetricsUseCase;
 import br.com.worklink.application.metrics.usecase.RecordProfessionalSearchEventUseCase;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
+import br.com.worklink.application.professional.port.ListProfessionalPortfolioItemsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
+import br.com.worklink.application.professional.port.SaveProfessionalPortfolioItemPort;
 import br.com.worklink.application.professional.port.UpdateProfessionalPort;
 import br.com.worklink.application.security.port.ProtectSensitiveValuePort;
+import br.com.worklink.application.storage.port.LoadStoredFileMetadataPort;
 import br.com.worklink.application.storage.port.SaveStoredFileMetadataPort;
 import br.com.worklink.application.location.port.SuggestNearbyServiceCitiesPort;
 import br.com.worklink.application.location.usecase.PreviewCitySelectionUseCase;
+import br.com.worklink.application.professional.usecase.AddProfessionalPortfolioItemUseCase;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
 import br.com.worklink.application.professional.usecase.ConfirmProfessionalPhoneVerificationUseCase;
+import br.com.worklink.application.professional.usecase.ListProfessionalPortfolioItemsUseCase;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
 import br.com.worklink.application.professional.usecase.RequestProfessionalPhoneVerificationUseCase;
@@ -132,6 +137,28 @@ public class WorkLinkUseCaseConfiguration {
     @Bean
     ListProfessionalsUseCase listProfessionalsUseCase(ListProfessionalsPort listProfessionalsPort) {
         return new ListProfessionalsUseCase(listProfessionalsPort);
+    }
+
+    @Bean
+    AddProfessionalPortfolioItemUseCase addProfessionalPortfolioItemUseCase(
+            LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort,
+            LoadStoredFileMetadataPort loadStoredFileMetadataPort,
+            ListProfessionalPortfolioItemsPort listProfessionalPortfolioItemsPort,
+            SaveProfessionalPortfolioItemPort saveProfessionalPortfolioItemPort
+    ) {
+        return new AddProfessionalPortfolioItemUseCase(
+                loadProfessionalByIdentifierPort,
+                loadStoredFileMetadataPort,
+                listProfessionalPortfolioItemsPort,
+                saveProfessionalPortfolioItemPort
+        );
+    }
+
+    @Bean
+    ListProfessionalPortfolioItemsUseCase listProfessionalPortfolioItemsUseCase(
+            ListProfessionalPortfolioItemsPort listProfessionalPortfolioItemsPort
+    ) {
+        return new ListProfessionalPortfolioItemsUseCase(listProfessionalPortfolioItemsPort);
     }
 
     @Bean

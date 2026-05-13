@@ -42,6 +42,10 @@ void main() {
     httpClient.objectResponses[
             '/api/v1/professional-reviews/professionals/professional-1'] =
         reviewProfileJson();
+    httpClient.listResponses[
+        '/api/v1/professionals/professional-1/portfolio-items'] = [
+      portfolioItemJson(),
+    ];
 
     // WHEN
     final homeData = await gateway.loadHomeData();
@@ -54,6 +58,10 @@ void main() {
       'Canoas - RS',
     );
     expect(homeData.professionalProfiles.single.reviewSummary!.reviewCount, 1);
+    expect(homeData.professionalProfiles.single.portfolioItemDescriptions, [
+      'Quadro eletrico residencial: Instalacao concluida.',
+      'Quadros eletricos.',
+    ]);
     expect(homeData.professionalRegistrationCategoryNames, ['Eletricista']);
     expect(homeData.professionalRegistrationCityDisplayNames, ['Canoas - RS']);
   });
@@ -319,6 +327,36 @@ void main() {
       ],
     );
     expect(httpClient.requests.last.data, {'verificationCode': '123456'});
+  });
+
+  test(
+      'GIVEN profissional autenticado WHEN adicionar portfolio THEN deve chamar endpoint do perfil profissional',
+      () async {
+    // GIVEN
+    httpClient.objectResponses[
+            '/api/v1/professionals/professional-1/portfolio-items'] =
+        portfolioItemJson();
+
+    // WHEN
+    await gateway.addProfessionalPortfolioItem(
+      professionalIdentifier: 'professional-1',
+      fileIdentifier: 'file-1',
+      title: 'Quadro eletrico residencial',
+      description: 'Instalacao concluida.',
+      displayOrder: 1,
+    );
+
+    // THEN
+    expect(
+      httpClient.requests.single.path,
+      '/api/v1/professionals/professional-1/portfolio-items',
+    );
+    expect(httpClient.requests.single.data, {
+      'fileIdentifier': 'file-1',
+      'title': 'Quadro eletrico residencial',
+      'description': 'Instalacao concluida.',
+      'displayOrder': 1,
+    });
   });
 
   test(
@@ -662,5 +700,16 @@ Map<String, dynamic> reviewJson() {
     'publicAuthorIdentifier': null,
     'publicAuthorDisplayName': 'Usuario anonimo',
     'createdAt': '2026-05-13T10:00:00Z',
+  };
+}
+
+Map<String, dynamic> portfolioItemJson() {
+  return {
+    'portfolioItemIdentifier': 'portfolio-1',
+    'professionalIdentifier': 'professional-1',
+    'fileIdentifier': 'file-1',
+    'title': 'Quadro eletrico residencial',
+    'description': 'Instalacao concluida.',
+    'displayOrder': 1,
   };
 }

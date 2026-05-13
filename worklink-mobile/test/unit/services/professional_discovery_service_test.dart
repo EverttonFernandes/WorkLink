@@ -193,6 +193,62 @@ void main() {
       '/api/v1/professionals/professional-1/phone-verification/confirm',
     );
   });
+
+  test(
+      'GIVEN portfolio publico WHEN listar itens THEN deve retornar metadados do backend',
+      () async {
+    // GIVEN
+    httpClient.listResponses[
+        '/api/v1/professionals/professional-1/portfolio-items'] = [
+      portfolioItemJson(),
+    ];
+    final professionalService = ProfessionalService(httpClient: httpClient);
+
+    // WHEN
+    final portfolioItems =
+        await professionalService.listProfessionalPortfolioItems(
+      'professional-1',
+    );
+
+    // THEN
+    expect(portfolioItems.single.title, 'Quadro eletrico residencial');
+    expect(portfolioItems.single.description, 'Instalacao concluida.');
+    expect(
+      httpClient.requests.single.path,
+      '/api/v1/professionals/professional-1/portfolio-items',
+    );
+  });
+
+  test(
+      'GIVEN item de portfolio WHEN adicionar THEN deve enviar contrato do backend',
+      () async {
+    // GIVEN
+    httpClient.objectResponses[
+            '/api/v1/professionals/professional-1/portfolio-items'] =
+        portfolioItemJson();
+    final professionalService = ProfessionalService(httpClient: httpClient);
+
+    // WHEN
+    final portfolioItem =
+        await professionalService.addProfessionalPortfolioItem(
+      professionalIdentifier: 'professional-1',
+      request: const AddProfessionalPortfolioItemRequest(
+        fileIdentifier: 'file-1',
+        title: 'Quadro eletrico residencial',
+        description: 'Instalacao concluida.',
+        displayOrder: 1,
+      ),
+    );
+
+    // THEN
+    expect(portfolioItem.fileIdentifier, 'file-1');
+    expect(httpClient.requests.single.data, {
+      'fileIdentifier': 'file-1',
+      'title': 'Quadro eletrico residencial',
+      'description': 'Instalacao concluida.',
+      'displayOrder': 1,
+    });
+  });
 }
 
 Map<String, dynamic> professionalJson({bool phoneNumberVerified = false}) {
@@ -215,5 +271,16 @@ Map<String, dynamic> professionalJson({bool phoneNumberVerified = false}) {
     'availabilityReducesListingHighlight': false,
     'phoneNumberVerified': phoneNumberVerified,
     'qualityGuarantee': true,
+  };
+}
+
+Map<String, dynamic> portfolioItemJson() {
+  return {
+    'portfolioItemIdentifier': 'portfolio-1',
+    'professionalIdentifier': 'professional-1',
+    'fileIdentifier': 'file-1',
+    'title': 'Quadro eletrico residencial',
+    'description': 'Instalacao concluida.',
+    'displayOrder': 1,
   };
 }

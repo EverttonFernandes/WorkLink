@@ -31,10 +31,14 @@ import br.com.worklink.application.metrics.port.LoadFunctionalMetricsPort;
 import br.com.worklink.application.metrics.port.SaveProfessionalSearchEventPort;
 import br.com.worklink.application.metrics.usecase.FunctionalMetricsResponse;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
+import br.com.worklink.application.professional.port.ListProfessionalPortfolioItemsPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
+import br.com.worklink.application.professional.port.SaveProfessionalPortfolioItemPort;
 import br.com.worklink.application.professional.port.UpdateProfessionalPort;
 import br.com.worklink.application.security.port.ProtectSensitiveValuePort;
+import br.com.worklink.application.storage.port.LoadStoredFileMetadataPort;
+import br.com.worklink.application.storage.port.SaveStoredFileMetadataPort;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
 import br.com.worklink.application.review.port.LoadPostContactFeedbackByContactIntentIdentifierPort;
 import br.com.worklink.application.review.port.ListProfessionalReviewsByProfessionalIdentifierPort;
@@ -66,9 +70,15 @@ class WorkLinkUseCaseConfigurationTest {
         LoadServiceCategoryByIdentifierPort loadServiceCategoryByIdentifierPort = categoryIdentifier -> Optional.empty();
         SaveProfessionalPort saveProfessionalPort = professional -> professional;
         ListProfessionalsPort listProfessionalsPort = professionalSearchCriteria -> java.util.List.of();
+        ListProfessionalPortfolioItemsPort listProfessionalPortfolioItemsPort =
+                professionalIdentifier -> java.util.List.of();
+        SaveProfessionalPortfolioItemPort saveProfessionalPortfolioItemPort =
+                professionalPortfolioItem -> professionalPortfolioItem;
         LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort = professionalIdentifier -> Optional.empty();
         UpdateProfessionalPort updateProfessionalPort = professional -> professional;
         ProtectSensitiveValuePort protectSensitiveValuePort = (rawSensitiveValue, purpose) -> "protected-value";
+        LoadStoredFileMetadataPort loadStoredFileMetadataPort = fileIdentifier -> Optional.empty();
+        SaveStoredFileMetadataPort saveStoredFileMetadataPort = storedFile -> storedFile;
         GenerateOneTimePasswordPort generateOneTimePasswordPort = () -> "123456";
         SaveAuthenticationOtpChallengePort saveAuthenticationOtpChallengePort = challenge -> challenge;
         CurrentTimePort currentTimePort = () -> Instant.parse("2026-05-08T20:00:00Z");
@@ -118,11 +128,21 @@ class WorkLinkUseCaseConfigurationTest {
         assertThat(configuration.listServiceCitiesUseCase(listServiceCitiesPort)).isNotNull();
         assertThat(registerBasicProfessionalUseCase).isNotNull();
         assertThat(configuration.listProfessionalsUseCase(listProfessionalsPort)).isNotNull();
+        assertThat(configuration.addProfessionalPortfolioItemUseCase(
+                loadProfessionalByIdentifierPort,
+                loadStoredFileMetadataPort,
+                listProfessionalPortfolioItemsPort,
+                saveProfessionalPortfolioItemPort
+        )).isNotNull();
+        assertThat(configuration.listProfessionalPortfolioItemsUseCase(
+                listProfessionalPortfolioItemsPort
+        )).isNotNull();
         assertThat(configuration.completeProfessionalProfileUseCase(
                 loadProfessionalByIdentifierPort,
                 updateProfessionalPort,
                 protectSensitiveValuePort
         )).isNotNull();
+        assertThat(configuration.prepareFileUploadUseCase(saveStoredFileMetadataPort)).isNotNull();
         assertThat(configuration.requestAuthenticationOtpUseCase(
                 generateOneTimePasswordPort,
                 protectSensitiveValuePort,

@@ -182,3 +182,67 @@ class ConfirmProfessionalPhoneVerificationRequest {
     };
   }
 }
+
+class ProfessionalPortfolioItem {
+  const ProfessionalPortfolioItem({
+    required this.portfolioItemIdentifier,
+    required this.professionalIdentifier,
+    required this.fileIdentifier,
+    required this.title,
+    required this.displayOrder,
+    this.description,
+  });
+
+  final String portfolioItemIdentifier;
+  final String professionalIdentifier;
+  final String fileIdentifier;
+  final String title;
+  final String? description;
+  final int displayOrder;
+
+  factory ProfessionalPortfolioItem.fromJson(Map<String, dynamic> json) {
+    return ProfessionalPortfolioItem(
+      portfolioItemIdentifier:
+          json['portfolioItemIdentifier']?.toString() ?? '',
+      professionalIdentifier: json['professionalIdentifier']?.toString() ?? '',
+      fileIdentifier: json['fileIdentifier']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      description: json['description']?.toString(),
+      displayOrder: json['displayOrder'] as int? ?? 0,
+    );
+  }
+
+  Map<String, Object?> toJson() {
+    return {
+      'portfolioItemIdentifier': portfolioItemIdentifier,
+      'professionalIdentifier': professionalIdentifier,
+      'fileIdentifier': fileIdentifier,
+      'title': title,
+      'description': description,
+      'displayOrder': displayOrder,
+    };
+  }
+}
+
+class AddProfessionalPortfolioItemRequest {
+  const AddProfessionalPortfolioItemRequest({
+    required this.fileIdentifier,
+    required this.title,
+    this.description,
+    this.displayOrder = 0,
+  });
+
+  final String fileIdentifier;
+  final String title;
+  final String? description;
+  final int displayOrder;
+
+  Map<String, Object?> toJson() {
+    return {
+      'fileIdentifier': fileIdentifier,
+      'title': title,
+      'description': description,
+      'displayOrder': displayOrder,
+    };
+  }
+}
