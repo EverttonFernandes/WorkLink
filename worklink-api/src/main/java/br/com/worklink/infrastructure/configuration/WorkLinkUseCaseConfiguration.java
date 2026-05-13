@@ -63,8 +63,10 @@ import br.com.worklink.application.storage.port.SaveStoredFileMetadataPort;
 import br.com.worklink.application.location.port.SuggestNearbyServiceCitiesPort;
 import br.com.worklink.application.location.usecase.PreviewCitySelectionUseCase;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
+import br.com.worklink.application.professional.usecase.ConfirmProfessionalPhoneVerificationUseCase;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
+import br.com.worklink.application.professional.usecase.RequestProfessionalPhoneVerificationUseCase;
 import br.com.worklink.application.review.port.ListProfessionalReviewsByProfessionalIdentifierPort;
 import br.com.worklink.application.review.port.LoadProfessionalReviewByIdentifierPort;
 import br.com.worklink.application.review.port.LoadPostContactFeedbackByContactIntentIdentifierPort;
@@ -142,6 +144,32 @@ public class WorkLinkUseCaseConfiguration {
                 loadProfessionalByIdentifierPort,
                 updateProfessionalPort,
                 protectSensitiveValuePort
+        );
+    }
+
+    @Bean
+    RequestProfessionalPhoneVerificationUseCase requestProfessionalPhoneVerificationUseCase(
+            LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort,
+            CurrentTimePort currentTimePort,
+            @Value("${worklink.security.professional-phone-verification-expiration-minutes}") long expirationMinutes
+    ) {
+        return new RequestProfessionalPhoneVerificationUseCase(
+                loadProfessionalByIdentifierPort,
+                currentTimePort,
+                Duration.ofMinutes(expirationMinutes)
+        );
+    }
+
+    @Bean
+    ConfirmProfessionalPhoneVerificationUseCase confirmProfessionalPhoneVerificationUseCase(
+            LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort,
+            UpdateProfessionalPort updateProfessionalPort,
+            @Value("${worklink.security.professional-phone-verification-code}") String expectedVerificationCode
+    ) {
+        return new ConfirmProfessionalPhoneVerificationUseCase(
+                loadProfessionalByIdentifierPort,
+                updateProfessionalPort,
+                expectedVerificationCode
         );
     }
 

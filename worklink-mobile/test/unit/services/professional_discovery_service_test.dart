@@ -140,9 +140,62 @@ void main() {
       '/api/v1/professionals/professional-1/profile',
     );
   });
+
+  test(
+      'GIVEN profissional autenticado WHEN solicitar verificacao de telefone THEN deve chamar endpoint correto',
+      () async {
+    // GIVEN
+    httpClient.objectResponses[
+        '/api/v1/professionals/professional-1/phone-verification/request'] = {
+      'professionalIdentifier': 'professional-1',
+      'message': 'Codigo de verificacao enviado.',
+      'expiresAt': '2026-05-13T18:05:00Z',
+    };
+    final professionalService = ProfessionalService(httpClient: httpClient);
+
+    // WHEN
+    final result =
+        await professionalService.requestProfessionalPhoneVerification(
+      'professional-1',
+    );
+
+    // THEN
+    expect(result.professionalIdentifier, 'professional-1');
+    expect(result.expiresAt, '2026-05-13T18:05:00Z');
+    expect(httpClient.requests.single.method, 'POST');
+    expect(
+      httpClient.requests.single.path,
+      '/api/v1/professionals/professional-1/phone-verification/request',
+    );
+  });
+
+  test(
+      'GIVEN codigo recebido WHEN confirmar telefone THEN deve retornar profissional verificado',
+      () async {
+    // GIVEN
+    httpClient.objectResponses[
+            '/api/v1/professionals/professional-1/phone-verification/confirm'] =
+        professionalJson(phoneNumberVerified: true);
+    final professionalService = ProfessionalService(httpClient: httpClient);
+
+    // WHEN
+    final professional =
+        await professionalService.confirmProfessionalPhoneVerification(
+      professionalIdentifier: 'professional-1',
+      verificationCode: '123456',
+    );
+
+    // THEN
+    expect(professional.phoneNumberVerified, isTrue);
+    expect(httpClient.requests.single.data, {'verificationCode': '123456'});
+    expect(
+      httpClient.requests.single.path,
+      '/api/v1/professionals/professional-1/phone-verification/confirm',
+    );
+  });
 }
 
-Map<String, dynamic> professionalJson() {
+Map<String, dynamic> professionalJson({bool phoneNumberVerified = false}) {
   return {
     'professionalIdentifier': 'professional-1',
     'professionalName': 'Maria Eletricista',
@@ -160,6 +213,7 @@ Map<String, dynamic> professionalJson() {
     'availabilityStatus': 'AVAILABLE_TODAY',
     'availabilityBadgeLabel': 'Disponivel hoje',
     'availabilityReducesListingHighlight': false,
+    'phoneNumberVerified': phoneNumberVerified,
     'qualityGuarantee': true,
   };
 }

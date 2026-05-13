@@ -1,0 +1,23 @@
+# WL-018 — Progress Log
+
+**Status**: DONE
+
+## Timeline
+
+### Fresh Context 1
+
+- [x] Confirmada próxima história no `KANBAN-OFICIAL.md`.
+- [x] Criados artefatos `TASK.md`, `IMPLEMENTATION.md` e `progress.txt`.
+- [x] Implementado backend: migration `V017`, domínio, use cases, endpoints autenticados, ownership e auditoria.
+- [x] Implementado mobile: modelo, service, gateway, listagem e perfil com `phoneNumberVerified`.
+- [x] Executados gates backend, mobile, integração, análise estática e validação de diff.
+
+### Evidências finais
+
+- `make backend-unit-test`: PASS.
+- `make backend-integration-test`: PASS.
+- `make mobile-static-analysis`: PASS.
+- `make mobile-unit-test`: PASS, cobertura `95.77%`.
+- `make mobile-screen-test`: PASS.
+- `make mobile-integration-test`: PASS para contrato HTTP; device N/A por ambiente sem emulador/simulador.
+- `make functional-test`: N/A, sem cenários funcionais reais.

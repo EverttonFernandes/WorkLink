@@ -51,6 +51,10 @@ public class AuthorizeSensitiveActionUseCase {
             return authenticatedPrincipal.profile() == AuthenticatedProfile.PROFESSIONAL
                     && authenticatedPrincipal.principalIdentifier().equals(authorizationOwnership.ownerIdentifier());
         }
+        if (sensitiveAction == SensitiveAction.VERIFY_PROFESSIONAL_PHONE) {
+            return authenticatedPrincipal.profile() == AuthenticatedProfile.PROFESSIONAL
+                    && authenticatedPrincipal.principalIdentifier().equals(authorizationOwnership.ownerIdentifier());
+        }
         if (sensitiveAction == SensitiveAction.ACCESS_PRIVATE_CUSTOMER_DATA) {
             return authenticatedPrincipal.profile() == AuthenticatedProfile.CUSTOMER
                     && authenticatedPrincipal.principalIdentifier().equals(authorizationOwnership.ownerIdentifier());

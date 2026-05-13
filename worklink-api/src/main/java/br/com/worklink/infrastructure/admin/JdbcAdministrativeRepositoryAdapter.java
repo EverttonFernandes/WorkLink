@@ -50,6 +50,7 @@ public class JdbcAdministrativeRepositoryAdapter implements
                        profile_completeness_percentage,
                        profile_classification,
                        availability_status,
+                       phone_number_verified,
                        quality_guarantee,
                        blocked
                 FROM worklink.professionals
@@ -154,6 +155,7 @@ public class JdbcAdministrativeRepositoryAdapter implements
                 resultSet.getInt("profile_completeness_percentage"),
                 ProfessionalProfileClassification.valueOf(resultSet.getString("profile_classification")),
                 ProfessionalAvailabilityStatus.valueOf(resultSet.getString("availability_status")),
+                resultSet.getBoolean("phone_number_verified"),
                 resultSet.getBoolean("quality_guarantee"),
                 resultSet.getBoolean("blocked")
         );

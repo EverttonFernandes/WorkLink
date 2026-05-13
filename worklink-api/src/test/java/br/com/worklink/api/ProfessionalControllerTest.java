@@ -21,9 +21,14 @@ import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileRequest;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
+import br.com.worklink.application.professional.usecase.ConfirmProfessionalPhoneVerificationRequest;
+import br.com.worklink.application.professional.usecase.ConfirmProfessionalPhoneVerificationUseCase;
 import br.com.worklink.application.professional.usecase.ProfessionalResponse;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalRequest;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
+import br.com.worklink.application.professional.usecase.RequestProfessionalPhoneVerificationRequest;
+import br.com.worklink.application.professional.usecase.RequestProfessionalPhoneVerificationResponse;
+import br.com.worklink.application.professional.usecase.RequestProfessionalPhoneVerificationUseCase;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
@@ -34,6 +39,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -71,6 +77,12 @@ class ProfessionalControllerTest {
 
     @MockBean
     private CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase;
+
+    @MockBean
+    private RequestProfessionalPhoneVerificationUseCase requestProfessionalPhoneVerificationUseCase;
+
+    @MockBean
+    private ConfirmProfessionalPhoneVerificationUseCase confirmProfessionalPhoneVerificationUseCase;
 
     @MockBean
     private AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver;
@@ -113,6 +125,7 @@ class ProfessionalControllerTest {
                 .andExpect(jsonPath("$.availabilityStatus").value("ACCEPTING_NEW_CLIENTS"))
                 .andExpect(jsonPath("$.availabilityBadgeLabel").value("Aceitando novos clientes"))
                 .andExpect(jsonPath("$.availabilityReducesListingHighlight").value(false))
+                .andExpect(jsonPath("$.phoneNumberVerified").value(false))
                 .andExpect(jsonPath("$.qualityGuarantee").value(false));
     }
 
@@ -141,6 +154,7 @@ class ProfessionalControllerTest {
                 .andExpect(jsonPath("$.availabilityBadgeLabel").value("Disponível hoje"))
                 .andExpect(jsonPath("$.documentProvided").value(true))
                 .andExpect(jsonPath("$.documentNumber").doesNotExist())
+                .andExpect(jsonPath("$.phoneNumberVerified").value(false))
                 .andExpect(jsonPath("$.qualityGuarantee").value(false));
         verify(authorizeSensitiveActionUseCase).authorizeOwnedSensitiveAction(
                 professionalPrincipal,
@@ -172,6 +186,7 @@ class ProfessionalControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].professionalName").value("Maria Eletricista"))
                 .andExpect(jsonPath("$[0].availabilityBadgeLabel").value("Aceitando novos clientes"))
+                .andExpect(jsonPath("$[0].phoneNumberVerified").value(false))
                 .andExpect(jsonPath("$[0].qualityGuarantee").value(false));
         verify(recordProfessionalSearchEventUseCase).recordProfessionalSearchEvent(argThat(searchEventRequest ->
                 searchEventRequest.categoryIdentifier().equals(CATEGORY_IDENTIFIER)
@@ -229,6 +244,89 @@ class ProfessionalControllerTest {
         verify(recordSensitiveAuditEventUseCase, never()).recordSensitiveAuditEvent(any(RecordSensitiveAuditEventRequest.class));
     }
 
+    @Test
+    @DisplayName("GIVEN profissional autenticado WHEN solicitar verificacao de telefone THEN deve auditar solicitacao")
+    void shouldAuditProfessionalPhoneVerificationRequestWhenAuthenticatedProfessionalRequestsVerification() throws Exception {
+        // GIVEN
+        ProfessionalResponse professionalResponse = validProfessionalResponse();
+        AuthenticatedPrincipal professionalPrincipal = new AuthenticatedPrincipal(
+                professionalResponse.professionalIdentifier(),
+                AuthenticatedProfile.PROFESSIONAL
+        );
+        RequestProfessionalPhoneVerificationResponse phoneVerificationResponse =
+                new RequestProfessionalPhoneVerificationResponse(
+                        professionalResponse.professionalIdentifier(),
+                        "Codigo de verificacao enviado para o WhatsApp do profissional.",
+                        Instant.parse("2026-05-13T18:20:00Z")
+                );
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER))
+                .thenReturn(professionalPrincipal);
+        when(requestProfessionalPhoneVerificationUseCase.requestProfessionalPhoneVerification(
+                any(RequestProfessionalPhoneVerificationRequest.class)
+        )).thenReturn(phoneVerificationResponse);
+
+        // WHEN / THEN
+        mockMvc.perform(post(
+                        "/api/v1/professionals/{professionalIdentifier}/phone-verification/request",
+                        professionalResponse.professionalIdentifier()
+                )
+                        .header("Authorization", AUTHORIZATION_HEADER))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.professionalIdentifier")
+                        .value(professionalResponse.professionalIdentifier().toString()))
+                .andExpect(jsonPath("$.message").value("Codigo de verificacao enviado para o WhatsApp do profissional."))
+                .andExpect(jsonPath("$.expiresAt").value("2026-05-13T18:20:00Z"));
+        verify(authorizeSensitiveActionUseCase).authorizeOwnedSensitiveAction(
+                professionalPrincipal,
+                SensitiveAction.VERIFY_PROFESSIONAL_PHONE,
+                new AuthorizationOwnership(professionalResponse.professionalIdentifier())
+        );
+        verify(recordSensitiveAuditEventUseCase).recordSensitiveAuditEvent(argThat(auditRequest ->
+                auditRequest.sensitiveAuditAction() == SensitiveAuditAction.REQUEST_PROFESSIONAL_PHONE_VERIFICATION
+                        && auditRequest.targetIdentifier().equals(professionalResponse.professionalIdentifier())
+                        && auditRequest.sensitiveAuditOutcome() == SensitiveAuditOutcome.SUCCESS
+        ));
+    }
+
+    @Test
+    @DisplayName("GIVEN codigo correto WHEN confirmar telefone THEN deve retornar profissional com telefone verificado")
+    void shouldReturnPhoneVerifiedProfessionalWhenConfirmingCorrectVerificationCode() throws Exception {
+        // GIVEN
+        ProfessionalResponse professionalResponse = phoneVerifiedProfessionalResponse();
+        AuthenticatedPrincipal professionalPrincipal = new AuthenticatedPrincipal(
+                professionalResponse.professionalIdentifier(),
+                AuthenticatedProfile.PROFESSIONAL
+        );
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER))
+                .thenReturn(professionalPrincipal);
+        when(confirmProfessionalPhoneVerificationUseCase.confirmProfessionalPhoneVerification(
+                any(ConfirmProfessionalPhoneVerificationRequest.class)
+        )).thenReturn(professionalResponse);
+
+        // WHEN / THEN
+        mockMvc.perform(post(
+                        "/api/v1/professionals/{professionalIdentifier}/phone-verification/confirm",
+                        professionalResponse.professionalIdentifier()
+                )
+                        .header("Authorization", AUTHORIZATION_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(new PhoneVerificationConfirmationBody("123456"))))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.professionalIdentifier")
+                        .value(professionalResponse.professionalIdentifier().toString()))
+                .andExpect(jsonPath("$.phoneNumberVerified").value(true));
+        verify(authorizeSensitiveActionUseCase).authorizeOwnedSensitiveAction(
+                professionalPrincipal,
+                SensitiveAction.VERIFY_PROFESSIONAL_PHONE,
+                new AuthorizationOwnership(professionalResponse.professionalIdentifier())
+        );
+        verify(recordSensitiveAuditEventUseCase).recordSensitiveAuditEvent(argThat(auditRequest ->
+                auditRequest.sensitiveAuditAction() == SensitiveAuditAction.CONFIRM_PROFESSIONAL_PHONE_VERIFICATION
+                        && auditRequest.targetIdentifier().equals(professionalResponse.professionalIdentifier())
+                        && auditRequest.sensitiveAuditOutcome() == SensitiveAuditOutcome.SUCCESS
+        ));
+    }
+
     private boolean matchesExpectedSearchCriteria(ProfessionalSearchCriteria professionalSearchCriteria) {
         return professionalSearchCriteria.categoryIdentifier().equals(java.util.Optional.of(CATEGORY_IDENTIFIER))
                 && professionalSearchCriteria.cityIdentifiers().equals(Set.of(CITY_IDENTIFIER))
@@ -253,6 +351,7 @@ class ProfessionalControllerTest {
                 "ACCEPTING_NEW_CLIENTS",
                 "Aceitando novos clientes",
                 false,
+                false,
                 false
         );
     }
@@ -275,7 +374,32 @@ class ProfessionalControllerTest {
                 "AVAILABLE_TODAY",
                 "Disponível hoje",
                 false,
+                false,
                 false
+        );
+    }
+
+    private ProfessionalResponse phoneVerifiedProfessionalResponse() {
+        ProfessionalResponse professionalResponse = completedProfessionalResponse();
+        return new ProfessionalResponse(
+                professionalResponse.professionalIdentifier(),
+                professionalResponse.professionalName(),
+                professionalResponse.whatsappNumber(),
+                professionalResponse.cityIdentifier(),
+                professionalResponse.categoryIdentifier(),
+                professionalResponse.shortDescription(),
+                professionalResponse.profilePhotoFileIdentifier(),
+                professionalResponse.documentNumberHash(),
+                professionalResponse.usefulLink(),
+                professionalResponse.portfolioDescription(),
+                professionalResponse.serviceDescription(),
+                professionalResponse.profileCompletenessPercentage(),
+                professionalResponse.profileClassification(),
+                professionalResponse.availabilityStatus(),
+                professionalResponse.availabilityBadgeLabel(),
+                professionalResponse.availabilityReducesListingHighlight(),
+                true,
+                professionalResponse.qualityGuarantee()
         );
     }
 
@@ -317,5 +441,8 @@ class ProfessionalControllerTest {
             String serviceDescription,
             String availabilityStatus
     ) {
+    }
+
+    private record PhoneVerificationConfirmationBody(String verificationCode) {
     }
 }

@@ -57,6 +57,7 @@ class JdbcProfessionalRepositoryAdapterTest {
                 eq(professional.profileCompletenessPercentage()),
                 eq(professional.profileClassification().name()),
                 eq(professional.availabilityStatus().name()),
+                eq(professional.phoneNumberVerified()),
                 eq(professional.qualityGuarantee()),
                 eq(professional.blocked())
         );
@@ -113,6 +114,7 @@ class JdbcProfessionalRepositoryAdapterTest {
                 eq(professional.profileCompletenessPercentage()),
                 eq(professional.profileClassification().name()),
                 eq(professional.availabilityStatus().name()),
+                eq(professional.phoneNumberVerified()),
                 eq(professional.qualityGuarantee()),
                 eq(professional.blocked()),
                 eq(professional.professionalIdentifier())
@@ -232,6 +234,7 @@ class JdbcProfessionalRepositoryAdapterTest {
         when(resultSet.getInt("profile_completeness_percentage")).thenReturn(professional.profileCompletenessPercentage());
         when(resultSet.getString("profile_classification")).thenReturn(professional.profileClassification().name());
         when(resultSet.getString("availability_status")).thenReturn(professional.availabilityStatus().name());
+        when(resultSet.getBoolean("phone_number_verified")).thenReturn(professional.phoneNumberVerified());
         when(resultSet.getBoolean("quality_guarantee")).thenReturn(professional.qualityGuarantee());
         when(resultSet.getBoolean("blocked")).thenReturn(professional.blocked());
         return resultSet;

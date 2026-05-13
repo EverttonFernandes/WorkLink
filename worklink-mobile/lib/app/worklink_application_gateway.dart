@@ -54,6 +54,15 @@ abstract interface class WorkLinkApplicationGateway {
     WorkLinkHomeData homeData,
   );
 
+  Future<void> requestProfessionalPhoneVerification(
+    String professionalIdentifier,
+  );
+
+  Future<void> confirmProfessionalPhoneVerification({
+    required String professionalIdentifier,
+    required String verificationCode,
+  });
+
   Future<ProfessionalContactIntention> startProfessionalContact(
     String professionalIdentifier,
   );
@@ -154,7 +163,8 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
 
   @override
   Future<void> requestCustomerAuthenticationCode(String phoneNumber) async {
-    final authenticationService = AuthenticationService(httpClient: _httpClient);
+    final authenticationService =
+        AuthenticationService(httpClient: _httpClient);
     await authenticationService.requestAuthenticationOtp(phoneNumber);
   }
 
@@ -163,7 +173,8 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
     required String phoneNumber,
     required String verificationCode,
   }) async {
-    final authenticationService = AuthenticationService(httpClient: _httpClient);
+    final authenticationService =
+        AuthenticationService(httpClient: _httpClient);
     await authenticationService.verifyAuthenticationOtp(
       phoneNumber: phoneNumber,
       oneTimePassword: verificationCode,
@@ -209,6 +220,28 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
         availabilityStatus:
             _mapAvailabilityStatusToBackend(draft.availabilityStatus),
       ),
+    );
+  }
+
+  @override
+  Future<void> requestProfessionalPhoneVerification(
+    String professionalIdentifier,
+  ) async {
+    final professionalService = ProfessionalService(httpClient: _httpClient);
+    await professionalService.requestProfessionalPhoneVerification(
+      professionalIdentifier,
+    );
+  }
+
+  @override
+  Future<void> confirmProfessionalPhoneVerification({
+    required String professionalIdentifier,
+    required String verificationCode,
+  }) async {
+    final professionalService = ProfessionalService(httpClient: _httpClient);
+    await professionalService.confirmProfessionalPhoneVerification(
+      professionalIdentifier: professionalIdentifier,
+      verificationCode: verificationCode,
     );
   }
 
@@ -306,8 +339,11 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       profileBadgeLabel: professional.profileClassification,
       availabilityStatus:
           _mapAvailabilityStatus(professional.availabilityStatus),
-      recentActivityLabel:
-          professional.qualityGuarantee ? 'Garantia de qualidade' : null,
+      recentActivityLabel: professional.phoneNumberVerified
+          ? 'Telefone verificado'
+          : professional.qualityGuarantee
+              ? 'Garantia de qualidade'
+              : null,
     );
   }
 
@@ -345,6 +381,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       ],
       profileCompletenessPercentage: professional.profileCompletenessPercentage,
       documentProvided: professional.documentProvided,
+      phoneNumberVerified: professional.phoneNumberVerified,
       availabilityStatus:
           _mapAvailabilityStatus(professional.availabilityStatus),
       reviewSummary: _mapReviewSummary(reviewProfile),
@@ -488,6 +525,21 @@ class WorkLinkPreviewGateway implements WorkLinkApplicationGateway {
     ProfessionalRegistrationDraft draft,
     WorkLinkHomeData homeData,
   ) async {}
+
+  @override
+  Future<void> requestProfessionalPhoneVerification(
+    String professionalIdentifier,
+  ) async {}
+
+  @override
+  Future<void> confirmProfessionalPhoneVerification({
+    required String professionalIdentifier,
+    required String verificationCode,
+  }) async {
+    if (verificationCode != '123456') {
+      throw StateError('Codigo de verificacao profissional invalido.');
+    }
+  }
 
   @override
   Future<ProfessionalContactIntention> startProfessionalContact(

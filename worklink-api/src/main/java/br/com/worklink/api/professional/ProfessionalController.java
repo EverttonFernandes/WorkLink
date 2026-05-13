@@ -18,11 +18,16 @@ import br.com.worklink.application.observability.usecase.OperationalEventType;
 import br.com.worklink.application.observability.usecase.RecordOperationalEventUseCase;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileRequest;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
+import br.com.worklink.application.professional.usecase.ConfirmProfessionalPhoneVerificationRequest;
+import br.com.worklink.application.professional.usecase.ConfirmProfessionalPhoneVerificationUseCase;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.ProfessionalResponse;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalRequest;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
+import br.com.worklink.application.professional.usecase.RequestProfessionalPhoneVerificationRequest;
+import br.com.worklink.application.professional.usecase.RequestProfessionalPhoneVerificationResponse;
+import br.com.worklink.application.professional.usecase.RequestProfessionalPhoneVerificationUseCase;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,6 +55,8 @@ public class ProfessionalController {
     private final RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase;
     private final ListProfessionalsUseCase listProfessionalsUseCase;
     private final CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase;
+    private final RequestProfessionalPhoneVerificationUseCase requestProfessionalPhoneVerificationUseCase;
+    private final ConfirmProfessionalPhoneVerificationUseCase confirmProfessionalPhoneVerificationUseCase;
     private final AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver;
     private final AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase;
     private final RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase;
@@ -60,6 +67,8 @@ public class ProfessionalController {
             RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase,
             ListProfessionalsUseCase listProfessionalsUseCase,
             CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase,
+            RequestProfessionalPhoneVerificationUseCase requestProfessionalPhoneVerificationUseCase,
+            ConfirmProfessionalPhoneVerificationUseCase confirmProfessionalPhoneVerificationUseCase,
             AuthenticatedPrincipalHttpResolver authenticatedPrincipalHttpResolver,
             AuthorizeSensitiveActionUseCase authorizeSensitiveActionUseCase,
             RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase,
@@ -69,6 +78,8 @@ public class ProfessionalController {
         this.registerBasicProfessionalUseCase = registerBasicProfessionalUseCase;
         this.listProfessionalsUseCase = listProfessionalsUseCase;
         this.completeProfessionalProfileUseCase = completeProfessionalProfileUseCase;
+        this.requestProfessionalPhoneVerificationUseCase = requestProfessionalPhoneVerificationUseCase;
+        this.confirmProfessionalPhoneVerificationUseCase = confirmProfessionalPhoneVerificationUseCase;
         this.authenticatedPrincipalHttpResolver = authenticatedPrincipalHttpResolver;
         this.authorizeSensitiveActionUseCase = authorizeSensitiveActionUseCase;
         this.recordSensitiveAuditEventUseCase = recordSensitiveAuditEventUseCase;
@@ -147,6 +158,54 @@ public class ProfessionalController {
         return ProfessionalHttpResponse.fromProfessionalResponse(professionalResponse);
     }
 
+    @PostMapping("/{professionalIdentifier}/phone-verification/request")
+    RequestProfessionalPhoneVerificationHttpResponse requestProfessionalPhoneVerification(
+            @PathVariable UUID professionalIdentifier,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
+    ) {
+        AuthenticatedPrincipal authenticatedPrincipal = authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(
+                authorizationHeader
+        );
+        authorizeProfessionalPhoneVerification(authenticatedPrincipal, professionalIdentifier);
+        RequestProfessionalPhoneVerificationResponse phoneVerificationResponse =
+                requestProfessionalPhoneVerificationUseCase.requestProfessionalPhoneVerification(
+                new RequestProfessionalPhoneVerificationRequest(professionalIdentifier)
+        );
+        recordSensitiveAuditEventUseCase.recordSensitiveAuditEvent(new RecordSensitiveAuditEventRequest(
+                authenticatedPrincipal,
+                SensitiveAuditAction.REQUEST_PROFESSIONAL_PHONE_VERIFICATION,
+                SensitiveAuditTargetType.PROFESSIONAL_PROFILE,
+                professionalIdentifier,
+                SensitiveAuditOutcome.SUCCESS
+        ));
+        return RequestProfessionalPhoneVerificationHttpResponse.fromResponse(phoneVerificationResponse);
+    }
+
+    @PostMapping("/{professionalIdentifier}/phone-verification/confirm")
+    ProfessionalHttpResponse confirmProfessionalPhoneVerification(
+            @PathVariable UUID professionalIdentifier,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+            @RequestBody ConfirmProfessionalPhoneVerificationHttpRequest request
+    ) {
+        AuthenticatedPrincipal authenticatedPrincipal = authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(
+                authorizationHeader
+        );
+        authorizeProfessionalPhoneVerification(authenticatedPrincipal, professionalIdentifier);
+        ProfessionalResponse professionalResponse = confirmProfessionalPhoneVerificationUseCase
+                .confirmProfessionalPhoneVerification(new ConfirmProfessionalPhoneVerificationRequest(
+                        professionalIdentifier,
+                        request.verificationCode()
+                ));
+        recordSensitiveAuditEventUseCase.recordSensitiveAuditEvent(new RecordSensitiveAuditEventRequest(
+                authenticatedPrincipal,
+                SensitiveAuditAction.CONFIRM_PROFESSIONAL_PHONE_VERIFICATION,
+                SensitiveAuditTargetType.PROFESSIONAL_PROFILE,
+                professionalIdentifier,
+                SensitiveAuditOutcome.SUCCESS
+        ));
+        return ProfessionalHttpResponse.fromProfessionalResponse(professionalResponse);
+    }
+
     private Set<UUID> selectedCityIdentifiers(UUID cityIdentifier, List<UUID> cityIdentifiers) {
         Set<UUID> selectedCityIdentifiers = new LinkedHashSet<>();
         if (cityIdentifier != null) {
@@ -156,6 +215,17 @@ public class ProfessionalController {
             selectedCityIdentifiers.addAll(cityIdentifiers);
         }
         return selectedCityIdentifiers;
+    }
+
+    private void authorizeProfessionalPhoneVerification(
+            AuthenticatedPrincipal authenticatedPrincipal,
+            UUID professionalIdentifier
+    ) {
+        authorizeSensitiveActionUseCase.authorizeOwnedSensitiveAction(
+                authenticatedPrincipal,
+                SensitiveAction.VERIFY_PROFESSIONAL_PHONE,
+                new AuthorizationOwnership(professionalIdentifier)
+        );
     }
 
     private void recordProfessionalSearch(ProfessionalSearchCriteria professionalSearchCriteria, int resultCount) {

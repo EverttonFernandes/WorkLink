@@ -3,9 +3,11 @@ package br.com.worklink.application.professional.usecase;
 import br.com.worklink.application.catalog.port.LoadServiceCategoryByIdentifierPort;
 import br.com.worklink.application.catalog.port.LoadServiceCityByIdentifierPort;
 import br.com.worklink.application.ApplicationRuleViolationException;
+import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
 import br.com.worklink.application.professional.port.SaveProfessionalPort;
+import br.com.worklink.application.professional.port.UpdateProfessionalPort;
 import br.com.worklink.application.security.port.ProtectedSensitiveValuePurpose;
 import br.com.worklink.domain.catalog.ServiceCategory;
 import br.com.worklink.domain.catalog.ServiceCity;
@@ -16,6 +18,8 @@ import br.com.worklink.domain.professional.ProfessionalProfileClassification;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +50,7 @@ class ProfessionalUseCaseTest {
 
         // THEN
         assertThat(professionalResponse.profileClassification()).isEqualTo(ProfessionalProfileClassification.BASIC_PROFILE.name());
+        assertThat(professionalResponse.phoneNumberVerified()).isFalse();
         assertThat(professionalResponse.qualityGuarantee()).isFalse();
         assertThat(inMemoryProfessionalPort.listProfessionals(ProfessionalSearchCriteria.withoutFilters()))
                 .extracting(Professional::professionalIdentifier)
@@ -172,7 +177,100 @@ class ProfessionalUseCaseTest {
         assertThat(professionalResponse.documentNumberHash())
                 .isEqualTo("protected-%s-12345678900".formatted(ProtectedSensitiveValuePurpose.DOCUMENT_NUMBER.name()));
         assertThat(professionalResponse.availabilityBadgeLabel()).isEqualTo("Disponível esta semana");
+        assertThat(professionalResponse.phoneNumberVerified()).isFalse();
         assertThat(professionalResponse.qualityGuarantee()).isFalse();
+    }
+
+    @Test
+    @DisplayName("GIVEN profissional existente WHEN solicitar verificacao THEN deve retornar prazo para confirmacao")
+    void shouldReturnExpirationTimeWhenRequestingProfessionalPhoneVerification() {
+        // GIVEN
+        InMemoryProfessionalPort inMemoryProfessionalPort = new InMemoryProfessionalPort();
+        Professional professional = inMemoryProfessionalPort.saveProfessional(Professional.registerBasicProfessional(
+                "Maria Eletricista",
+                "51999999999",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial."
+        ));
+        Instant currentInstant = Instant.parse("2026-05-13T18:00:00Z");
+        RequestProfessionalPhoneVerificationUseCase requestPhoneVerificationUseCase =
+                new RequestProfessionalPhoneVerificationUseCase(
+                        inMemoryProfessionalPort,
+                        () -> currentInstant,
+                        Duration.ofMinutes(5)
+                );
+
+        // WHEN
+        RequestProfessionalPhoneVerificationResponse phoneVerificationResponse =
+                requestPhoneVerificationUseCase.requestProfessionalPhoneVerification(
+                        new RequestProfessionalPhoneVerificationRequest(professional.professionalIdentifier())
+                );
+
+        // THEN
+        assertThat(phoneVerificationResponse.professionalIdentifier()).isEqualTo(professional.professionalIdentifier());
+        assertThat(phoneVerificationResponse.expiresAt()).isEqualTo(Instant.parse("2026-05-13T18:05:00Z"));
+        assertThat(phoneVerificationResponse.message())
+                .isEqualTo("Codigo de verificacao enviado para o WhatsApp do profissional.");
+    }
+
+    @Test
+    @DisplayName("GIVEN codigo correto WHEN confirmar telefone THEN deve persistir profissional verificado")
+    void shouldPersistVerifiedProfessionalWhenConfirmingCorrectPhoneVerificationCode() {
+        // GIVEN
+        InMemoryProfessionalPort inMemoryProfessionalPort = new InMemoryProfessionalPort();
+        Professional professional = inMemoryProfessionalPort.saveProfessional(Professional.registerBasicProfessional(
+                "Maria Eletricista",
+                "51999999999",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial."
+        ));
+        ConfirmProfessionalPhoneVerificationUseCase confirmPhoneVerificationUseCase =
+                new ConfirmProfessionalPhoneVerificationUseCase(
+                        inMemoryProfessionalPort,
+                        inMemoryProfessionalPort,
+                        "123456"
+                );
+
+        // WHEN
+        ProfessionalResponse professionalResponse = confirmPhoneVerificationUseCase.confirmProfessionalPhoneVerification(
+                new ConfirmProfessionalPhoneVerificationRequest(professional.professionalIdentifier(), " 123456 ")
+        );
+
+        // THEN
+        assertThat(professionalResponse.phoneNumberVerified()).isTrue();
+        assertThat(inMemoryProfessionalPort.loadProfessionalByIdentifier(professional.professionalIdentifier()))
+                .get()
+                .extracting(Professional::phoneNumberVerified)
+                .isEqualTo(true);
+    }
+
+    @Test
+    @DisplayName("GIVEN codigo incorreto WHEN confirmar telefone THEN deve rejeitar verificacao")
+    void shouldRejectPhoneVerificationWhenConfirmationCodeIsInvalid() {
+        // GIVEN
+        InMemoryProfessionalPort inMemoryProfessionalPort = new InMemoryProfessionalPort();
+        Professional professional = inMemoryProfessionalPort.saveProfessional(Professional.registerBasicProfessional(
+                "Maria Eletricista",
+                "51999999999",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial."
+        ));
+        ConfirmProfessionalPhoneVerificationUseCase confirmPhoneVerificationUseCase =
+                new ConfirmProfessionalPhoneVerificationUseCase(
+                        inMemoryProfessionalPort,
+                        inMemoryProfessionalPort,
+                        "123456"
+                );
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> confirmPhoneVerificationUseCase.confirmProfessionalPhoneVerification(
+                new ConfirmProfessionalPhoneVerificationRequest(professional.professionalIdentifier(), "000000")
+        ))
+                .isInstanceOf(ApplicationRuleViolationException.class)
+                .hasMessage("Nao foi possivel confirmar o telefone do profissional.");
     }
 
     @Test
@@ -264,8 +362,8 @@ class ProfessionalUseCaseTest {
     private static class InMemoryProfessionalPort implements
             SaveProfessionalPort,
             ListProfessionalsPort,
-            br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort,
-            br.com.worklink.application.professional.port.UpdateProfessionalPort {
+            LoadProfessionalByIdentifierPort,
+            UpdateProfessionalPort {
 
         private final List<Professional> professionals = new ArrayList<>();
 

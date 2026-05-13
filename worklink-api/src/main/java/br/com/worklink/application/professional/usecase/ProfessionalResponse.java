@@ -21,6 +21,7 @@ public record ProfessionalResponse(
         String availabilityStatus,
         String availabilityBadgeLabel,
         boolean availabilityReducesListingHighlight,
+        boolean phoneNumberVerified,
         boolean qualityGuarantee
 ) {
 
@@ -42,6 +43,7 @@ public record ProfessionalResponse(
                 professional.availabilityStatus().name(),
                 professional.availabilityStatus().badgeLabel(),
                 professional.availabilityStatus().reducesListingHighlight(),
+                professional.phoneNumberVerified(),
                 professional.qualityGuarantee()
         );
     }

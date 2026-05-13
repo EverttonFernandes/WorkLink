@@ -39,6 +39,7 @@ class ProfessionalTest {
         assertThat(professional.shortDescription()).isEqualTo("Atendimento residencial em instalacoes eletricas.");
         assertThat(professional.profileCompletenessPercentage()).isEqualTo(50);
         assertThat(professional.profileClassification()).isEqualTo(ProfessionalProfileClassification.BASIC_PROFILE);
+        assertThat(professional.phoneNumberVerified()).isFalse();
         assertThat(professional.qualityGuarantee()).isFalse();
     }
 
@@ -193,6 +194,27 @@ class ProfessionalTest {
     }
 
     @Test
+    @DisplayName("GIVEN telefone nao verificado WHEN confirmar telefone THEN deve marcar telefone como verificado")
+    void shouldMarkPhoneAsVerifiedWhenConfirmingProfessionalPhoneNumber() {
+        // GIVEN
+        Professional professional = Professional.registerBasicProfessional(
+                "Maria Eletricista",
+                "51999999999",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial."
+        );
+
+        // WHEN
+        Professional phoneVerifiedProfessional = professional.verifyPhoneNumber();
+
+        // THEN
+        assertThat(phoneVerifiedProfessional.phoneNumberVerified()).isTrue();
+        assertThat(phoneVerifiedProfessional.professionalIdentifier()).isEqualTo(professional.professionalIdentifier());
+        assertThat(professional.phoneNumberVerified()).isFalse();
+    }
+
+    @Test
     @DisplayName("Deve restaurar profissional persistido quando campos estiverem validos")
     void shouldRestorePersistedProfessionalWhenFieldsAreValid() {
         // GIVEN
@@ -215,12 +237,14 @@ class ProfessionalTest {
                 ProfessionalProfileClassification.BASIC_PROFILE,
                 ProfessionalAvailabilityStatus.ACCEPTING_NEW_CLIENTS,
                 false,
+                false,
                 false
         );
 
         // THEN
         assertThat(professional.professionalIdentifier()).isEqualTo(professionalIdentifier);
         assertThat(professional.profileClassification()).isEqualTo(ProfessionalProfileClassification.BASIC_PROFILE);
+        assertThat(professional.phoneNumberVerified()).isFalse();
         assertThat(professional.qualityGuarantee()).isFalse();
         assertThat(professional.blocked()).isFalse();
     }
@@ -247,6 +271,7 @@ class ProfessionalTest {
                 50,
                 profileClassification,
                 ProfessionalAvailabilityStatus.ACCEPTING_NEW_CLIENTS,
+                false,
                 false,
                 false
         ))

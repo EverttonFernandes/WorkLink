@@ -43,4 +43,27 @@ class ProfessionalService {
     );
     return Professional.fromJson(response);
   }
+
+  Future<ProfessionalPhoneVerificationRequestResult>
+      requestProfessionalPhoneVerification(
+    String professionalIdentifier,
+  ) async {
+    final response = await _httpClient.postObject(
+      '/api/v1/professionals/$professionalIdentifier/phone-verification/request',
+    );
+    return ProfessionalPhoneVerificationRequestResult.fromJson(response);
+  }
+
+  Future<Professional> confirmProfessionalPhoneVerification({
+    required String professionalIdentifier,
+    required String verificationCode,
+  }) async {
+    final response = await _httpClient.postObject(
+      '/api/v1/professionals/$professionalIdentifier/phone-verification/confirm',
+      data: ConfirmProfessionalPhoneVerificationRequest(
+        verificationCode: verificationCode,
+      ).toJson(),
+    );
+    return Professional.fromJson(response);
+  }
 }

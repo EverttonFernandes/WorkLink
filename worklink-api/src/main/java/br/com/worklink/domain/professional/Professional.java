@@ -19,6 +19,7 @@ public record Professional(
         int profileCompletenessPercentage,
         ProfessionalProfileClassification profileClassification,
         ProfessionalAvailabilityStatus availabilityStatus,
+        boolean phoneNumberVerified,
         boolean qualityGuarantee,
         boolean blocked
 ) {
@@ -46,6 +47,7 @@ public record Professional(
                 ProfessionalProfileClassification.BASIC_PROFILE,
                 ProfessionalAvailabilityStatus.ACCEPTING_NEW_CLIENTS,
                 false,
+                false,
                 false
         );
     }
@@ -65,6 +67,7 @@ public record Professional(
             int profileCompletenessPercentage,
             ProfessionalProfileClassification profileClassification,
             ProfessionalAvailabilityStatus availabilityStatus,
+            boolean phoneNumberVerified,
             boolean qualityGuarantee,
             boolean blocked
     ) {
@@ -83,6 +86,7 @@ public record Professional(
                 requireCompletenessPercentage(profileCompletenessPercentage),
                 requireClassification(profileClassification),
                 requireAvailabilityStatus(availabilityStatus),
+                phoneNumberVerified,
                 qualityGuarantee,
                 blocked
         );
@@ -118,6 +122,7 @@ public record Professional(
                 newCompletenessPercentage,
                 classifyCompleteness(newCompletenessPercentage),
                 requireAvailabilityStatus(newAvailabilityStatus),
+                phoneNumberVerified,
                 false,
                 blocked
         );
@@ -139,7 +144,30 @@ public record Professional(
                 profileCompletenessPercentage,
                 profileClassification,
                 requireAvailabilityStatus(newAvailabilityStatus),
+                phoneNumberVerified,
                 false,
+                blocked
+        );
+    }
+
+    public Professional verifyPhoneNumber() {
+        return new Professional(
+                professionalIdentifier,
+                professionalName,
+                whatsappNumber,
+                cityIdentifier,
+                categoryIdentifier,
+                shortDescription,
+                profilePhotoFileIdentifier,
+                documentNumberHash,
+                usefulLink,
+                portfolioDescription,
+                serviceDescription,
+                profileCompletenessPercentage,
+                profileClassification,
+                availabilityStatus,
+                true,
+                qualityGuarantee,
                 blocked
         );
     }
@@ -168,6 +196,7 @@ public record Professional(
                 profileCompletenessPercentage,
                 profileClassification,
                 availabilityStatus,
+                phoneNumberVerified,
                 qualityGuarantee,
                 newBlockedStatus
         );

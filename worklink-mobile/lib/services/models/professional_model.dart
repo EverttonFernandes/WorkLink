@@ -18,6 +18,7 @@ class Professional {
     this.availabilityStatus = '',
     this.availabilityBadgeLabel = '',
     this.availabilityReducesListingHighlight = false,
+    this.phoneNumberVerified = false,
     this.qualityGuarantee = false,
   });
 
@@ -37,6 +38,7 @@ class Professional {
   final String availabilityStatus;
   final String availabilityBadgeLabel;
   final bool availabilityReducesListingHighlight;
+  final bool phoneNumberVerified;
   final bool qualityGuarantee;
 
   factory Professional.fromJson(Map<String, dynamic> json) {
@@ -60,6 +62,7 @@ class Professional {
       availabilityBadgeLabel: json['availabilityBadgeLabel']?.toString() ?? '',
       availabilityReducesListingHighlight:
           json['availabilityReducesListingHighlight'] == true,
+      phoneNumberVerified: json['phoneNumberVerified'] == true,
       qualityGuarantee: json['qualityGuarantee'] == true,
     );
   }
@@ -83,6 +86,7 @@ class Professional {
       'availabilityBadgeLabel': availabilityBadgeLabel,
       'availabilityReducesListingHighlight':
           availabilityReducesListingHighlight,
+      'phoneNumberVerified': phoneNumberVerified,
       'qualityGuarantee': qualityGuarantee,
     };
   }
@@ -139,6 +143,42 @@ class CompleteProfessionalProfileRequest {
       'portfolioDescription': portfolioDescription,
       'serviceDescription': serviceDescription,
       'availabilityStatus': availabilityStatus,
+    };
+  }
+}
+
+class ProfessionalPhoneVerificationRequestResult {
+  const ProfessionalPhoneVerificationRequestResult({
+    required this.professionalIdentifier,
+    required this.message,
+    required this.expiresAt,
+  });
+
+  final String professionalIdentifier;
+  final String message;
+  final String expiresAt;
+
+  factory ProfessionalPhoneVerificationRequestResult.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return ProfessionalPhoneVerificationRequestResult(
+      professionalIdentifier: json['professionalIdentifier']?.toString() ?? '',
+      message: json['message']?.toString() ?? '',
+      expiresAt: json['expiresAt']?.toString() ?? '',
+    );
+  }
+}
+
+class ConfirmProfessionalPhoneVerificationRequest {
+  const ConfirmProfessionalPhoneVerificationRequest({
+    required this.verificationCode,
+  });
+
+  final String verificationCode;
+
+  Map<String, Object?> toJson() {
+    return {
+      'verificationCode': verificationCode,
     };
   }
 }

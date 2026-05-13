@@ -3,78 +3,63 @@
 ## Identificador
 
 - História: `WL-018`
-- Data: `2026-05-10`
+- Data: `2026-05-13`
 - Tipo semântico sugerido: `MINOR`
 
 ## Objetivo de negócio
 
-Permitir que profissionais verifiquem seu telefone durante o cadastro, adicionando um sinal visual de confiança progressiva e garantindo que o contato do cliente possa atingir o profissional de forma garantida.
-
-## Personas afetadas
-
-- Profissional: completa cadastro com verificação de telefone, adquire badge de confiança e recebe contatos reais.
-- Cliente: identifica profissionais verificados como mais confiáveis.
-- Operação/segurança: reduz taxa de contatos perdidos e falsas identificações.
+Permitir que o telefone/WhatsApp do profissional seja confirmado antes de exibir o sinal de confiança correspondente
+na listagem e no perfil público.
 
 ## Requisitos atendidos
 
-- RF18 — Cadastro progressivo com verificação de telefone.
-- RF19 — Reenvio de código de verificação.
-- RF20 — Badge visível no perfil do profissional.
-- RN06/RN15/RN16 — Validação progressiva e confiança em cascata.
+- RF24 — confiança progressiva do profissional.
+- RN15/RN16 — autenticidade, rastreabilidade e proteção contra sinal falso de confiança.
 
 ## O que foi implementado
 
-- Fluxo mobile de verificação de telefone durante cadastro progressivo.
-- Controller de verificação com reenvio de código e tentativas limitadas.
-- State management para estados de verificação, erro e sucesso.
-- Badge visível no perfil público indicando telefone verificado.
-- Testes unitários e de tela para número válido, código correto, reenvio e erro de tentativas.
-- Persistência do status de verificação no modelo do profissional.
-- Integração com backend de verificação já existente em `/api/v1/professionals/{id}/phone-verification`.
+- Coluna `phone_number_verified` em `worklink.professionals`.
+- Contrato público de profissional com `phoneNumberVerified`.
+- Use case para solicitar verificação de telefone com prazo de expiração.
+- Use case para confirmar telefone por código configurado por ambiente.
+- Endpoints autenticados:
+  - `POST /api/v1/professionals/{professionalIdentifier}/phone-verification/request`
+  - `POST /api/v1/professionals/{professionalIdentifier}/phone-verification/confirm`
+- Ownership obrigatório para ação sensível de verificação do telefone profissional.
+- Auditoria para solicitação e confirmação da verificação.
+- Mobile lendo `phoneNumberVerified`, exibindo `Telefone verificado` na descoberta e badge no perfil.
+- Service e gateway mobile para solicitar e confirmar verificação.
 
 ## O que não foi implementado
 
-- Notificação push para código enviado.
-- Integração com serviço de SMS real (provedor terceiro).
-- Entrega garantida (retry automático de SMS).
+- Envio real de SMS/WhatsApp por provedor externo.
+- KYC/documentoscopia.
+- Tela dedicada de digitação de código para profissional autenticado.
+- Garantia de qualidade do serviço prestado.
 
-## Fluxos, telas, endpoints ou módulos envolvidos
+## Configuração operacional
 
-- Tela mobile de cadastro do profissional (passo de verificação).
-- Tela de perfil público do profissional (exibição de badge).
-- Backend de profissional em `/professionals-details/phone-verification`.
-- Protótipo: `docs/prototipos-de-tela/tela-cadastro-do-profissional.png`
-
-## Estratégia de testes
-
-- Backend unitário: fluxo de verificação, reenvio, limite de tentativas.
-- Mobile unitário: controller de verificação e state management.
-- Mobile tela: jornada de número, código, reenvio, limite atendido e sucesso.
-- Integração backend: cobertura com migrations.
-- Funcional/E2E: validação em ambiente real de teste remoto (WLT-023).
+- `WORKLINK_PROFESSIONAL_PHONE_VERIFICATION_CODE`
+- `WORKLINK_PROFESSIONAL_PHONE_VERIFICATION_EXPIRATION_MINUTES`
 
 ## Evidências de validação
 
-- `make backend-unit-test`: PASS, cobertura mínima atendida.
-- `make backend-integration-test`: PASS, Flyway até `v018`.
-- `make mobile-unit-test`: PASS, cobertura 95%+.
-- `make mobile-screen-test`: PASS, 6+ testes de tela.
-- `make mobile-integration-test`: PASS quando emulador remoto disponível (WLT-023).
-- `make functional-test`: PASS em cenários E2E reais.
+- `make backend-unit-test`: PASS, 261 testes, Jacoco 95%+ atendido.
+- `make backend-integration-test`: PASS, Flyway até `v017`.
+- `make mobile-static-analysis`: PASS.
+- `make mobile-unit-test`: PASS, cobertura `95.77%`.
+- `make mobile-screen-test`: PASS.
+- `make mobile-integration-test`: PASS para contrato HTTP; device N/A por ausência de emulador/simulador.
+- `make functional-test`: N/A, suíte funcional ainda sem cenários reais.
+- `git diff --check`: PASS.
 
 ## Riscos ou limitações remanescentes
 
-- O código é reenviado apenas 3 vezes; após isso, cliente deve reiniciar cadastro.
-- SMS real depende de contrato com provedor (atualmente mock).
-- O telefone verificado é visível apenas no perfil do profissional; visibilidade do cliente será complementada em histórias futuras.
-
-## Arquivos ou módulos relevantes
-
-- `worklink-mobile/lib/features/professional_registration/` — tela de cadastro.
-- `worklink-api/src/main/java/br/com/worklink/professionals/` — lógica de verificação.
-- Migration: `worklink-api/src/main/resources/db/migration/V018__*.sql`.
+- O código de verificação V1 é configurado por ambiente, sem integração com provedor real.
+- A experiência visual de solicitação/confirmação ainda depende de tela profissional autenticada futura; o contrato e o
+  gateway já estão prontos para esse fluxo.
 
 ## Justificativa do versionamento
 
-Entrega `MINOR` porque adiciona nova capacidade (verificação de telefone) sem quebra de compatibilidade, complementando a confiança progressiva do profissional já estabelecida em WL-001 até WL-008.
+Entrega `MINOR` porque adiciona uma nova capacidade de confiança progressiva sem quebrar compatibilidade dos contratos
+existentes.

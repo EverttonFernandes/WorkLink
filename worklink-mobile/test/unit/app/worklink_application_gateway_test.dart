@@ -125,13 +125,50 @@ void main() {
       homeData.discoveryProfessionals[2].availabilityStatus,
       ProfessionalAvailabilityStatus.temporarilyUnavailable,
     );
-    expect(homeData.discoveryProfessionals[2].categoryName, 'category-not-found');
+    expect(
+      homeData.discoveryProfessionals[2].categoryName,
+      'category-not-found',
+    );
     expect(homeData.discoveryProfessionals[2].cityName, 'city-not-found');
     expect(homeData.discoveryProfessionals[2].stateCode, '');
     expect(
       homeData.discoveryProfessionals[3].availabilityStatus,
       ProfessionalAvailabilityStatus.acceptingNewClients,
     );
+  });
+
+  test(
+      'GIVEN profissional com telefone verificado WHEN carregar home THEN deve refletir sinal de confianca nas telas',
+      () async {
+    // GIVEN
+    httpClient.listResponses['/api/v1/categories'] = [
+      {
+        'categoryIdentifier': 'category-1',
+        'categoryName': 'Eletricista',
+        'categorySlug': 'eletricista',
+      },
+    ];
+    httpClient.listResponses['/api/v1/cities'] = [
+      {
+        'cityIdentifier': 'city-1',
+        'cityName': 'Canoas',
+        'stateCode': 'RS',
+        'citySlug': 'canoas-rs',
+      },
+    ];
+    httpClient.listResponses['/api/v1/professionals'] = [
+      professionalJson(phoneNumberVerified: true),
+    ];
+
+    // WHEN
+    final homeData = await gateway.loadHomeData();
+
+    // THEN
+    expect(
+      homeData.discoveryProfessionals.single.recentActivityLabel,
+      'Telefone verificado',
+    );
+    expect(homeData.professionalProfiles.single.phoneNumberVerified, isTrue);
   });
 
   test(
@@ -250,6 +287,38 @@ void main() {
       'serviceDescription': 'Instalacoes residenciais.',
       'availabilityStatus': 'AVAILABLE_THIS_WEEK',
     });
+  });
+
+  test(
+      'GIVEN profissional autenticado WHEN verificar telefone THEN deve chamar endpoints de solicitacao e confirmacao',
+      () async {
+    // GIVEN
+    httpClient.objectResponses[
+        '/api/v1/professionals/professional-1/phone-verification/request'] = {
+      'professionalIdentifier': 'professional-1',
+      'message': 'Codigo enviado.',
+      'expiresAt': '2026-05-13T18:05:00Z',
+    };
+    httpClient.objectResponses[
+            '/api/v1/professionals/professional-1/phone-verification/confirm'] =
+        professionalJson(phoneNumberVerified: true);
+
+    // WHEN
+    await gateway.requestProfessionalPhoneVerification('professional-1');
+    await gateway.confirmProfessionalPhoneVerification(
+      professionalIdentifier: 'professional-1',
+      verificationCode: '123456',
+    );
+
+    // THEN
+    expect(
+      httpClient.requests.map((request) => request.path),
+      [
+        '/api/v1/professionals/professional-1/phone-verification/request',
+        '/api/v1/professionals/professional-1/phone-verification/confirm',
+      ],
+    );
+    expect(httpClient.requests.last.data, {'verificationCode': '123456'});
   });
 
   test(
@@ -545,6 +614,7 @@ Map<String, dynamic> professionalJson({
   String? usefulLink = 'https://portfolio.example/maria',
   String? portfolioDescription = 'Quadros eletricos.',
   String? serviceDescription = 'Instalacoes e manutencoes.',
+  bool phoneNumberVerified = false,
   bool qualityGuarantee = true,
 }) {
   return {
@@ -564,6 +634,7 @@ Map<String, dynamic> professionalJson({
     'availabilityStatus': availabilityStatus,
     'availabilityBadgeLabel': 'Disponivel hoje',
     'availabilityReducesListingHighlight': false,
+    'phoneNumberVerified': phoneNumberVerified,
     'qualityGuarantee': qualityGuarantee,
   };
 }
