@@ -3,22 +3,19 @@
 import 'package:flutter/material.dart';
 
 import 'app/worklink_app_configuration.dart';
+import 'app/worklink_application_gateway.dart';
 import 'features/customer_authentication/customer_authentication_controller.dart';
 import 'features/customer_authentication/customer_authentication_screen.dart';
 import 'features/customer_profile/customer_profile_controller.dart';
 import 'features/customer_profile/customer_profile_screen.dart';
 import 'features/customer_profile/customer_profile_state.dart';
 import 'features/discovery/discovery_controller.dart';
-import 'features/discovery/discovery_professional.dart';
 import 'features/discovery/discovery_screen.dart';
 import 'features/post_contact_feedback/post_contact_feedback_controller.dart';
 import 'features/post_contact_feedback/post_contact_feedback_screen.dart';
-import 'features/professional_availability/professional_availability_status.dart';
 import 'features/professional_contact/professional_contact_controller.dart';
-import 'features/professional_contact/professional_contact_intention.dart';
 import 'features/professional_contact/professional_contact_screen.dart';
 import 'features/professional_profile/professional_profile.dart';
-import 'features/professional_profile/professional_profile_review.dart';
 import 'features/professional_profile/professional_profile_screen.dart';
 import 'features/professional_registration/professional_registration_controller.dart';
 import 'features/professional_registration/professional_registration_draft.dart';
@@ -30,7 +27,7 @@ import 'features/professional_review/professional_review_screen.dart';
 
 // coverage:ignore-start
 void main() {
-  runApp(const WorkLinkApp());
+  runApp(WorkLinkApp(applicationGateway: WorkLinkBackendGateway()));
 }
 // coverage:ignore-end
 
@@ -38,88 +35,16 @@ class WorkLinkApp extends StatefulWidget {
   const WorkLinkApp({
     super.key,
     this.applicationConfiguration = const WorkLinkAppConfiguration(),
+    required this.applicationGateway,
   });
 
+  const WorkLinkApp.preview({
+    super.key,
+    this.applicationConfiguration = const WorkLinkAppConfiguration(),
+  }) : applicationGateway = const WorkLinkPreviewGateway();
+
   final WorkLinkAppConfiguration applicationConfiguration;
-
-  static const List<DiscoveryProfessional> sampleDiscoveryProfessionals = [
-    DiscoveryProfessional(
-      professionalIdentifier: 'maria-eletricista',
-      professionalName: 'Maria Eletricista',
-      categoryName: 'Eletricista',
-      cityName: 'Canoas',
-      stateCode: 'RS',
-      shortDescription: 'Atendimento residencial.',
-      profileBadgeLabel: 'Perfil básico',
-      availabilityStatus: ProfessionalAvailabilityStatus.availableToday,
-      recentActivityLabel: 'Ativo recentemente',
-    ),
-    DiscoveryProfessional(
-      professionalIdentifier: 'ana-pintora',
-      professionalName: 'Ana Pintora',
-      categoryName: 'Pintora',
-      cityName: 'Porto Alegre',
-      stateCode: 'RS',
-      shortDescription: 'Pintura interna e acabamento.',
-    ),
-  ];
-
-  static const List<ProfessionalProfile> sampleProfessionalProfiles = [
-    ProfessionalProfile(
-      professionalIdentifier: 'maria-eletricista',
-      professionalName: 'Maria Eletricista',
-      categoryName: 'Eletricista',
-      baseCityName: 'Canoas',
-      baseStateCode: 'RS',
-      attendedCityNames: ['Canoas', 'Esteio', 'Porto Alegre'],
-      aboutDescription:
-          'Atendimento residencial com foco em instalações, reparos e manutenção preventiva.',
-      serviceNames: ['Instalações', 'Manutenção', 'Emergências'],
-      usefulLinks: ['https://worklink.example/maria-eletricista'],
-      portfolioItemDescriptions: [
-        'Instalação de luminárias',
-        'Quadro elétrico residencial',
-      ],
-      profileCompletenessPercentage: 100,
-      phoneNumberVerified: true,
-      documentProvided: true,
-      availabilityStatus: ProfessionalAvailabilityStatus.availableThisWeek,
-      reviewSummary: ProfessionalProfileReviewSummary(
-        averageRating: 4.5,
-        reviewCount: 2,
-        comments: [
-          ProfessionalProfileReviewComment(
-            professionalReviewIdentifier: 'review-maria-1',
-            starRating: 5,
-            publicAuthorDisplayName: 'Usuario anonimo',
-            comment: 'Atendimento rapido e organizado.',
-          ),
-        ],
-      ),
-    ),
-    ProfessionalProfile(
-      professionalIdentifier: 'ana-pintora',
-      professionalName: 'Ana Pintora',
-      categoryName: 'Pintora',
-      baseCityName: 'Porto Alegre',
-      baseStateCode: 'RS',
-      attendedCityNames: ['Porto Alegre'],
-      aboutDescription:
-          'Pintura interna e acabamento para reformas residenciais.',
-      serviceNames: ['Pintura interna', 'Acabamento'],
-    ),
-  ];
-
-  static const List<String> sampleProfessionalRegistrationCategories = [
-    'Eletricista',
-    'Pintora',
-  ];
-
-  static const List<String> sampleProfessionalRegistrationCities = [
-    'Canoas - RS',
-    'Porto Alegre - RS',
-    'Charqueadas - RS',
-  ];
+  final WorkLinkApplicationGateway applicationGateway;
 
   @override
   State<WorkLinkApp> createState() => _WorkLinkAppState();
@@ -128,61 +53,97 @@ class WorkLinkApp extends StatefulWidget {
 class _WorkLinkAppState extends State<WorkLinkApp> {
   bool customerAuthenticated = false;
   String customerPhoneNumber = '(51) 9 9999-9999';
+  late Future<WorkLinkHomeData> homeDataFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    homeDataFuture = widget.applicationGateway.loadHomeData();
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: widget.applicationConfiguration.applicationName,
       home: Builder(
-        builder: (context) => DiscoveryScreen(
-          discoveryController: DiscoveryController(
-            availableProfessionals: WorkLinkApp.sampleDiscoveryProfessionals,
-          ),
-          onOpenProfessionalProfile: (professionalIdentifier) {
-            final professionalProfile =
-                WorkLinkApp.sampleProfessionalProfiles.firstWhere(
-              (profile) =>
-                  profile.professionalIdentifier == professionalIdentifier,
-            );
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => ProfessionalProfileScreen(
-                  professionalProfile: professionalProfile,
-                  onContactProfessional: (_) => _handleContactProfessional(
-                    context,
-                    professionalProfile,
-                  ),
-                  onReportProfessional: (_) => _openProfessionalReport(
-                    context,
-                    professionalProfile,
-                  ),
-                  onRequestReviewAnalysis: (_) {},
-                ),
-              ),
-            );
+        builder: (context) => FutureBuilder<WorkLinkHomeData>(
+          future: homeDataFuture,
+          initialData: widget.applicationGateway.initialHomeData,
+          builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return _WorkLinkUnavailableHome(
+                onRetry: () {
+                  setState(() {
+                    homeDataFuture = widget.applicationGateway.loadHomeData();
+                  });
+                },
+              );
+            }
+            final homeData = snapshot.data;
+            if (homeData == null) {
+              return const _WorkLinkLoadingHome();
+            }
+            return _buildDiscoveryScreen(context, homeData);
           },
-          onOpenProfessionalRegistration: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<void>(
-                builder: (_) => ProfessionalRegistrationScreen(
-                  professionalRegistrationController:
-                      ProfessionalRegistrationController(
-                    initialDraft: const ProfessionalRegistrationDraft(
-                      categoryName: 'Eletricista',
-                      cityDisplayName: 'Charqueadas - RS',
-                    ),
-                  ),
-                  availableCategoryNames:
-                      WorkLinkApp.sampleProfessionalRegistrationCategories,
-                  availableCityDisplayNames:
-                      WorkLinkApp.sampleProfessionalRegistrationCities,
-                ),
-              ),
-            );
-          },
-          onOpenCustomerProfile: () => _handleOpenCustomerProfile(context),
         ),
       ),
+    );
+  }
+
+  DiscoveryScreen _buildDiscoveryScreen(
+    BuildContext context,
+    WorkLinkHomeData homeData,
+  ) {
+    return DiscoveryScreen(
+      discoveryController: DiscoveryController(
+        availableProfessionals: homeData.discoveryProfessionals,
+      ),
+      onOpenProfessionalProfile: (professionalIdentifier) {
+        final professionalProfile = homeData.professionalProfiles.firstWhere(
+          (profile) => profile.professionalIdentifier == professionalIdentifier,
+        );
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => ProfessionalProfileScreen(
+              professionalProfile: professionalProfile,
+              onContactProfessional: (_) => _handleContactProfessional(
+                context,
+                professionalProfile,
+              ),
+              onReportProfessional: (_) => _openProfessionalReport(
+                context,
+                professionalProfile,
+              ),
+              onRequestReviewAnalysis:
+                  widget.applicationGateway.requestProfessionalReviewAnalysis,
+            ),
+          ),
+        );
+      },
+      onOpenProfessionalRegistration: () {
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (_) => ProfessionalRegistrationScreen(
+              professionalRegistrationController:
+                  ProfessionalRegistrationController(
+                initialDraft: const ProfessionalRegistrationDraft(
+                  categoryName: 'Eletricista',
+                  cityDisplayName: 'Charqueadas - RS',
+                ),
+              ),
+              availableCategoryNames:
+                  homeData.professionalRegistrationCategoryNames,
+              availableCityDisplayNames:
+                  homeData.professionalRegistrationCityDisplayNames,
+              onContinue: (draft) {
+                widget.applicationGateway.registerProfessional(draft, homeData);
+                Navigator.of(context).pop();
+              },
+            ),
+          ),
+        );
+      },
+      onOpenCustomerProfile: () => _handleOpenCustomerProfile(context),
     );
   }
 
@@ -195,7 +156,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
         MaterialPageRoute<void>(
           builder: (authenticationContext) => CustomerAuthenticationScreen(
             customerAuthenticationController:
-                CustomerAuthenticationController(),
+                _buildCustomerAuthenticationController(),
             onAuthenticationCompleted: (authenticatedPhoneNumber) {
               setState(() {
                 customerAuthenticated = true;
@@ -217,15 +178,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
           professionalName: professionalProfile.professionalName,
           professionalContactController: ProfessionalContactController(
             registerProfessionalContactIntention:
-                (professionalIdentifier) async {
-              return ProfessionalContactIntention(
-                contactIntentionIdentifier:
-                    'contact-intention-$professionalIdentifier',
-                professionalIdentifier: professionalIdentifier,
-                professionalName: professionalProfile.professionalName,
-                whatsappContactLink: 'https://wa.me/51999999999',
-              );
-            },
+                widget.applicationGateway.startProfessionalContact,
             openProfessionalWhatsappContact: (_) async => true,
           ),
           onOpenPostContactFeedback: (contactIntentionIdentifier) =>
@@ -241,7 +194,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
         MaterialPageRoute<void>(
           builder: (authenticationContext) => CustomerAuthenticationScreen(
             customerAuthenticationController:
-                CustomerAuthenticationController(),
+                _buildCustomerAuthenticationController(),
             onAuthenticationCompleted: (authenticatedPhoneNumber) {
               setState(() {
                 customerAuthenticated = true;
@@ -305,6 +258,15 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
     );
   }
 
+  CustomerAuthenticationController _buildCustomerAuthenticationController() {
+    return CustomerAuthenticationController(
+      requestCustomerAuthenticationCode:
+          widget.applicationGateway.requestCustomerAuthenticationCode,
+      confirmCustomerAuthenticationCode:
+          widget.applicationGateway.confirmCustomerAuthenticationCode,
+    );
+  }
+
   void _openPostContactFeedback(
     BuildContext context,
     String contactIntentionIdentifier,
@@ -314,7 +276,8 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
         builder: (_) => PostContactFeedbackScreen(
           postContactFeedbackController: PostContactFeedbackController(
             contactIntentionIdentifier: contactIntentionIdentifier,
-            submitPostContactFeedback: (_, __) async {},
+            submitPostContactFeedback:
+                widget.applicationGateway.submitPostContactFeedback,
           ),
           onOpenProfessionalReview: (reviewContactIntentionIdentifier) =>
               _openProfessionalReview(
@@ -335,7 +298,8 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
         builder: (_) => ProfessionalReviewScreen(
           professionalReviewController: ProfessionalReviewController(
             contactIntentionIdentifier: contactIntentionIdentifier,
-            submitProfessionalReview: (_, __) async {},
+            submitProfessionalReview:
+                widget.applicationGateway.submitProfessionalReview,
           ),
         ),
       ),
@@ -352,7 +316,8 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
           professionalName: professionalProfile.professionalName,
           professionalReportController: ProfessionalReportController(
             professionalIdentifier: professionalProfile.professionalIdentifier,
-            submitProfessionalReport: (_, __) async {},
+            submitProfessionalReport:
+                widget.applicationGateway.submitProfessionalReport,
           ),
         ),
       ),
@@ -370,5 +335,53 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
           '${phoneNumber.substring(2, 6)}-${phoneNumber.substring(6)}';
     }
     return phoneNumber;
+  }
+}
+
+class _WorkLinkLoadingHome extends StatelessWidget {
+  const _WorkLinkLoadingHome();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      body: Center(child: CircularProgressIndicator()),
+    );
+  }
+}
+
+class _WorkLinkUnavailableHome extends StatelessWidget {
+  const _WorkLinkUnavailableHome({
+    required this.onRetry,
+  });
+
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('WorkLink')),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.cloud_off_outlined, size: 48),
+              const SizedBox(height: 16),
+              const Text(
+                'Nao foi possivel carregar os dados do WorkLink agora.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Tentar novamente'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

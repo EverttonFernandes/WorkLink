@@ -170,4 +170,107 @@ void main() {
     );
     expect(customerAuthenticationController.state.verificationCode, isEmpty);
   });
+
+  test(
+      'GIVEN servico remoto WHEN solicitar codigo THEN deve usar telefone normalizado',
+      () async {
+    // GIVEN
+    final requestedPhoneNumbers = <String>[];
+    final customerAuthenticationController = CustomerAuthenticationController(
+      requestCustomerAuthenticationCode: (phoneNumber) async {
+        requestedPhoneNumbers.add(phoneNumber);
+      },
+    );
+
+    // WHEN
+    customerAuthenticationController.changePhoneNumber('+55 (51) 9 9999-1234');
+    final requestAccepted =
+        await customerAuthenticationController.requestVerificationCodeAsync();
+
+    // THEN
+    expect(requestAccepted, isTrue);
+    expect(requestedPhoneNumbers, ['51999991234']);
+    expect(
+      customerAuthenticationController.state.authenticationStep,
+      CustomerAuthenticationStep.codeVerification,
+    );
+  });
+
+  test(
+      'GIVEN falha remota WHEN solicitar codigo THEN deve exibir erro generico',
+      () async {
+    // GIVEN
+    final customerAuthenticationController = CustomerAuthenticationController(
+      requestCustomerAuthenticationCode: (_) async {
+        throw StateError('backend indisponivel');
+      },
+    );
+
+    // WHEN
+    customerAuthenticationController.changePhoneNumber('51999991234');
+    final requestAccepted =
+        await customerAuthenticationController.requestVerificationCodeAsync();
+
+    // THEN
+    expect(requestAccepted, isFalse);
+    expect(
+      customerAuthenticationController.state.errorMessage,
+      'Nao foi possivel enviar o codigo agora.',
+    );
+  });
+
+  test(
+      'GIVEN codigo remoto aceito WHEN confirmar THEN deve autenticar cliente',
+      () async {
+    // GIVEN
+    final confirmedCredentials = <String>[];
+    final customerAuthenticationController = CustomerAuthenticationController(
+      confirmCustomerAuthenticationCode: ({
+        required phoneNumber,
+        required verificationCode,
+      }) async {
+        confirmedCredentials.add('$phoneNumber:$verificationCode');
+      },
+    );
+    customerAuthenticationController.changePhoneNumber('51999991234');
+    customerAuthenticationController.requestVerificationCode();
+    customerAuthenticationController.changeVerificationCode('9876');
+
+    // WHEN
+    final verificationAccepted =
+        await customerAuthenticationController.confirmVerificationCodeAsync();
+
+    // THEN
+    expect(verificationAccepted, isTrue);
+    expect(confirmedCredentials, ['51999991234:9876']);
+    expect(customerAuthenticationController.state.authenticated, isTrue);
+  });
+
+  test(
+      'GIVEN codigo remoto recusado WHEN confirmar THEN deve exibir erro generico',
+      () async {
+    // GIVEN
+    final customerAuthenticationController = CustomerAuthenticationController(
+      confirmCustomerAuthenticationCode: ({
+        required phoneNumber,
+        required verificationCode,
+      }) async {
+        throw StateError('otp invalido');
+      },
+    );
+    customerAuthenticationController.changePhoneNumber('51999991234');
+    customerAuthenticationController.requestVerificationCode();
+    customerAuthenticationController.changeVerificationCode('0000');
+
+    // WHEN
+    final verificationAccepted =
+        await customerAuthenticationController.confirmVerificationCodeAsync();
+
+    // THEN
+    expect(verificationAccepted, isFalse);
+    expect(
+      customerAuthenticationController.state.errorMessage,
+      'Nao foi possivel concluir a autenticacao.',
+    );
+  });
 }

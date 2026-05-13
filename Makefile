@@ -59,7 +59,9 @@ mobile-screen-test: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "rm -rf coverage && flutter pub get && if find test -type f \( -path '*/widget/*' -o -path '*/widgets/*' -o -path '*/screen/*' -o -path '*/screens/*' -o -path '*/tela/*' -o -path '*/telas/*' -o -name '*widget_test.dart' -o -name '*screen_test.dart' -o -name '*tela_test.dart' \) | grep -q .; then flutter test test/widget --coverage; else echo 'N/A: testes de tela ainda nao foram criados.'; fi"
 
 mobile-integration-test: $(COMPOSE_ENV_FILE)
-	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "./tool/run_mobile_integration_tests.sh"
+	$(DOCKER_COMPOSE) run --rm database-migrations
+	$(DOCKER_COMPOSE) up -d --wait worklink-api
+	$(DOCKER_COMPOSE) run --rm -e API_BASE_URL=http://worklink-api:8080 mobile-tests sh -lc "./tool/run_mobile_integration_tests.sh"
 
 mobile-android-build: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && if [ -d android ]; then flutter build apk --debug; else echo 'N/A: projeto Android ainda nao foi gerado.'; fi"

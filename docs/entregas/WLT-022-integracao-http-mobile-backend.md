@@ -24,7 +24,7 @@ Atualmente o app mobile possui UI e controllers implementados, mas utiliza dados
 
 ## O que foi implementado
 
-- **Dependência HTTP**: Adicionar `dio: ^1.0.0` ao `pubspec.yaml`.
+- **Dependência HTTP**: Adicionar `dio` e `flutter_dotenv` ao `pubspec.yaml`.
 
 - **Serviço centralizado** `lib/services/`:
   - `api_client.dart` — cliente HTTP com interceptors.
@@ -33,6 +33,9 @@ Atualmente o app mobile possui UI e controllers implementados, mas utiliza dados
   - `authentication_service.dart` — endpoints de auth.
   - `review_service.dart` — endpoints de avaliação.
   - `contact_service.dart` — endpoints de contato.
+  - `catalog_service.dart` — endpoints de categorias e cidades.
+  - `report_service.dart` — endpoints de denúncia.
+  - `worklink_application_gateway.dart` — gateway da UI para serviços reais.
 
 - **Configuração de ambiente**:
   - `.env` com `API_BASE_URL=http://192.168.x.x:8080/api` (local development).
@@ -53,10 +56,16 @@ Atualmente o app mobile possui UI e controllers implementados, mas utiliza dados
   - Try-catch em controllers.
   - UI feedback: loading, error, success, empty states.
 
+- **Wiring real das telas**:
+  - descoberta, perfil público, contato, feedback, avaliação e denúncia carregam/enviam dados reais.
+  - autenticação por telefone usa endpoint real e preserva Bearer token no client compartilhado.
+  - cadastro profissional usa IDs reais de categoria/cidade do catálogo.
+
 - **Testes**:
-  - Mock de dio em testes unitários.
+  - Fake HTTP client em testes unitários.
   - Testes de parsing JSON.
   - Testes de retry e timeout.
+  - Teste de contrato mobile x backend real em Docker.
 
 ## O que não foi implementado
 
@@ -67,9 +76,12 @@ Atualmente o app mobile possui UI e controllers implementados, mas utiliza dados
 ## Fluxos, telas, endpoints ou módulos envolvidos
 
 - `worklink-mobile/lib/services/` — novos arquivos de serviço.
-- `worklink-mobile/lib/features/*/controller.dart` — atualizar para chamar serviços.
-- `.env` — configuração de ambiente.
+- `worklink-mobile/lib/app/worklink_application_gateway.dart` — orquestra serviços reais para a UI.
+- `worklink-mobile/lib/features/customer_authentication/customer_authentication_controller.dart` — callbacks remotos.
+- `worklink-mobile/lib/main.dart` — wiring real do app.
+- `.env.example` e `worklink-mobile/.env.example` — configuração de ambiente.
 - `pubspec.yaml` — adicionar `dio`, `flutter_dotenv`.
+- `Makefile` e `compose.yml` — integração mobile aplica migrations antes do backend real.
 
 ## Estratégia de testes
 
@@ -79,16 +91,18 @@ Atualmente o app mobile possui UI e controllers implementados, mas utiliza dados
 
 ## Evidências de validação
 
-- `make mobile-unit-test`: PASS, 95%+ cobertura com mocks.
-- `make mobile-integration-test`: PASS contra emulador real (WLT-023).
-- Telas exibem dados reais do backend em device/emulador.
-- Requests aparecem em logs do backend.
+- `make mobile-static-analysis`: PASS.
+- `make mobile-unit-test`: PASS, cobertura unitária mobile 96.02%.
+- `make mobile-screen-test`: PASS.
+- `make mobile-integration-test`: PASS para contrato mobile x backend real em Docker.
+- Teste com Android Emulator, iOS Simulator ou Chrome permanece escopo da WLT-023.
 
 ## Riscos ou limitações remanescentes
 
 - Latência de rede em device/emulador pode fazer testes mais lentos.
 - Sem cache local, cada navegação refaz request.
 - Header de autenticação pode não estar presente se usuário não autenticado ainda.
+- Perfil do cliente mantém estado local até a WL-020 implementar preferências persistentes e profissionais salvos.
 
 ## Arquivos ou módulos relevantes
 

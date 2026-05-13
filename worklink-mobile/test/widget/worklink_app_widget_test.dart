@@ -8,7 +8,7 @@ void main() {
       'GIVEN app inicial WHEN renderizar THEN deve exibir tela de descoberta',
       (tester) async {
     // GIVEN
-    const application = WorkLinkApp();
+    const application = WorkLinkApp.preview();
 
     // WHEN
     await tester.pumpWidget(application);
@@ -25,7 +25,7 @@ void main() {
     const applicationConfiguration =
         WorkLinkAppConfiguration(applicationName: 'WorkLink Local');
     const application =
-        WorkLinkApp(applicationConfiguration: applicationConfiguration);
+        WorkLinkApp.preview(applicationConfiguration: applicationConfiguration);
 
     // WHEN
     await tester.pumpWidget(application);
@@ -39,7 +39,7 @@ void main() {
       'GIVEN listagem inicial WHEN abrir profissional THEN deve navegar para perfil publico',
       (tester) async {
     // GIVEN
-    const application = WorkLinkApp();
+    const application = WorkLinkApp.preview();
     await tester.pumpWidget(application);
 
     // WHEN
@@ -61,7 +61,7 @@ void main() {
       'GIVEN cliente sem login WHEN tentar contato THEN deve navegar para autenticacao',
       (tester) async {
     // GIVEN
-    const application = WorkLinkApp();
+    const application = WorkLinkApp.preview();
     await tester.pumpWidget(application);
     await tester.tap(
       find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
@@ -83,7 +83,7 @@ void main() {
       'GIVEN cliente autenticado WHEN tentar contato THEN deve navegar para tela de contato WhatsApp',
       (tester) async {
     // GIVEN
-    const application = WorkLinkApp();
+    const application = WorkLinkApp.preview();
     await tester.pumpWidget(application);
     await tester.tap(
       find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
@@ -128,7 +128,7 @@ void main() {
       'GIVEN contato WhatsApp iniciado WHEN responder pos-contato THEN deve navegar para feedback estruturado',
       (tester) async {
     // GIVEN
-    const application = WorkLinkApp();
+    const application = WorkLinkApp.preview();
     await tester.pumpWidget(application);
     await tester.tap(
       find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
@@ -176,7 +176,7 @@ void main() {
       'GIVEN pos-contato com servico realizado WHEN avaliar THEN deve navegar para avaliacao profissional',
       (tester) async {
     // GIVEN
-    const application = WorkLinkApp();
+    const application = WorkLinkApp.preview();
     await tester.pumpWidget(application);
     await tester.tap(
       find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
@@ -233,7 +233,7 @@ void main() {
       'GIVEN app inicial WHEN abrir cadastro profissional THEN deve navegar para cadastro progressivo',
       (tester) async {
     // GIVEN
-    const application = WorkLinkApp();
+    const application = WorkLinkApp.preview();
     await tester.pumpWidget(application);
 
     // WHEN
@@ -251,7 +251,7 @@ void main() {
       'GIVEN cliente sem login WHEN abrir perfil do usuario THEN deve autenticar antes do perfil',
       (tester) async {
     // GIVEN
-    const application = WorkLinkApp();
+    const application = WorkLinkApp.preview();
     await tester.pumpWidget(application);
 
     // WHEN
@@ -268,7 +268,7 @@ void main() {
       'GIVEN cliente autenticado WHEN abrir perfil do usuario THEN deve visualizar area do cliente',
       (tester) async {
     // GIVEN
-    const application = WorkLinkApp();
+    const application = WorkLinkApp.preview();
     await tester.pumpWidget(application);
     await tester
         .tap(find.byKey(const ValueKey('open-customer-profile-button')));
@@ -298,7 +298,7 @@ void main() {
       'GIVEN perfil publico WHEN denunciar profissional THEN deve navegar para tela de denuncia',
       (tester) async {
     // GIVEN
-    const application = WorkLinkApp();
+    const application = WorkLinkApp.preview();
     await tester.pumpWidget(application);
     await tester.tap(
       find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),

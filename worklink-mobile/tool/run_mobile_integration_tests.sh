@@ -3,6 +3,10 @@ set -eu
 
 flutter pub get
 
+if find test/integration -type f -name '*_test.dart' | grep -q .; then
+  flutter test --dart-define="API_BASE_URL=${API_BASE_URL:-http://worklink-api:8080}" test/integration
+fi
+
 if ! find integration_test -type f -name '*_test.dart' | grep -q .; then
   echo 'N/A: testes de integracao mobile ainda nao foram criados.'
   exit 0

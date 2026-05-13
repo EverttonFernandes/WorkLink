@@ -5,9 +5,11 @@ import 'package:worklink_mobile/main.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('GIVEN app instalado WHEN abrir fluxo inicial THEN deve exibir nome WorkLink', (tester) async {
+  testWidgets(
+      'GIVEN app instalado WHEN abrir fluxo inicial THEN deve exibir nome WorkLink',
+      (tester) async {
     // GIVEN
-    const application = WorkLinkApp();
+    const application = WorkLinkApp.preview();
 
     // WHEN
     await tester.pumpWidget(application);

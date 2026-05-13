@@ -100,7 +100,8 @@ class _PhoneEntryStep extends StatelessWidget {
         const SizedBox(height: 16),
         FilledButton.icon(
           key: const ValueKey('request-code-button'),
-          onPressed: customerAuthenticationController.requestVerificationCode,
+          onPressed:
+              customerAuthenticationController.requestVerificationCodeAsync,
           icon: const Icon(Icons.arrow_forward),
           label: const Text('Continuar'),
         ),
@@ -179,9 +180,9 @@ class _CodeVerificationStep extends StatelessWidget {
         const SizedBox(height: 16),
         FilledButton.icon(
           key: const ValueKey('confirm-code-button'),
-          onPressed: () {
-            final verificationAccepted =
-                customerAuthenticationController.confirmVerificationCode();
+          onPressed: () async {
+            final verificationAccepted = await customerAuthenticationController
+                .confirmVerificationCodeAsync();
             if (verificationAccepted) {
               onAuthenticationCompleted?.call(
                 customerAuthenticationController.state.normalizedPhoneNumber,

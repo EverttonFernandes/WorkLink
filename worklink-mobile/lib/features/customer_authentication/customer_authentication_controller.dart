@@ -2,12 +2,25 @@ import 'package:flutter/foundation.dart';
 
 import 'customer_authentication_state.dart';
 
+typedef RequestCustomerAuthenticationCode = Future<void> Function(
+  String phoneNumber,
+);
+
+typedef ConfirmCustomerAuthenticationCode = Future<void> Function({
+  required String phoneNumber,
+  required String verificationCode,
+});
+
 class CustomerAuthenticationController extends ChangeNotifier {
   CustomerAuthenticationController({
     this.expectedVerificationCode = '1234',
+    this.requestCustomerAuthenticationCode,
+    this.confirmCustomerAuthenticationCode,
   });
 
   final String expectedVerificationCode;
+  final RequestCustomerAuthenticationCode? requestCustomerAuthenticationCode;
+  final ConfirmCustomerAuthenticationCode? confirmCustomerAuthenticationCode;
 
   CustomerAuthenticationState _state = const CustomerAuthenticationState();
 
@@ -49,6 +62,42 @@ class CustomerAuthenticationController extends ChangeNotifier {
     return true;
   }
 
+  Future<bool> requestVerificationCodeAsync() async {
+    final normalizedPhoneNumber = _normalizePhoneNumber(_state.phoneNumber);
+    if (!_isValidBrazilianPhoneNumber(normalizedPhoneNumber)) {
+      return requestVerificationCode();
+    }
+
+    final requestAuthenticationCode = requestCustomerAuthenticationCode;
+    if (requestAuthenticationCode == null) {
+      return requestVerificationCode();
+    }
+
+    try {
+      await requestAuthenticationCode(normalizedPhoneNumber);
+      _updateState(
+        _state.copyWith(
+          authenticationStep: CustomerAuthenticationStep.codeVerification,
+          normalizedPhoneNumber: normalizedPhoneNumber,
+          verificationCode: '',
+          statusMessage: 'Enviamos um codigo para seu telefone.',
+          clearErrorMessage: true,
+        ),
+      );
+      return true;
+    } catch (_) {
+      _updateState(
+        _state.copyWith(
+          authenticationStep: CustomerAuthenticationStep.phoneEntry,
+          normalizedPhoneNumber: normalizedPhoneNumber,
+          errorMessage: 'Nao foi possivel enviar o codigo agora.',
+          clearStatusMessage: true,
+        ),
+      );
+      return false;
+    }
+  }
+
   void changeVerificationCode(String verificationCode) {
     final verificationCodeDigits = verificationCode.replaceAll(
       RegExp('[^0-9]'),
@@ -88,6 +137,36 @@ class CustomerAuthenticationController extends ChangeNotifier {
       ),
     );
     return true;
+  }
+
+  Future<bool> confirmVerificationCodeAsync() async {
+    final confirmAuthenticationCode = confirmCustomerAuthenticationCode;
+    if (confirmAuthenticationCode == null) {
+      return confirmVerificationCode();
+    }
+
+    try {
+      await confirmAuthenticationCode(
+        phoneNumber: _state.normalizedPhoneNumber,
+        verificationCode: _state.verificationCode,
+      );
+      _updateState(
+        _state.copyWith(
+          authenticationStep: CustomerAuthenticationStep.authenticated,
+          statusMessage: 'Telefone verificado.',
+          clearErrorMessage: true,
+        ),
+      );
+      return true;
+    } catch (_) {
+      _updateState(
+        _state.copyWith(
+          errorMessage: 'Nao foi possivel concluir a autenticacao.',
+          clearStatusMessage: true,
+        ),
+      );
+      return false;
+    }
   }
 
   void resendVerificationCode() {
