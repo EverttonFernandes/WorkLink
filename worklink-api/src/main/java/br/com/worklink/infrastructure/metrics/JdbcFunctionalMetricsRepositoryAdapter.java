@@ -5,8 +5,11 @@ import br.com.worklink.application.metrics.port.SaveProfessionalSearchEventPort;
 import br.com.worklink.application.metrics.usecase.ContactMetricResponse;
 import br.com.worklink.application.metrics.usecase.FunctionalMetricsResponse;
 import br.com.worklink.application.metrics.usecase.ProfessionalSearchEvent;
+import br.com.worklink.application.metrics.usecase.ProfessionalMetricSummaryResponse;
 import br.com.worklink.application.metrics.usecase.ReputationMetricResponse;
+import br.com.worklink.application.metrics.usecase.ReputationSummaryResponse;
 import br.com.worklink.application.metrics.usecase.ResponsivenessMetricResponse;
+import br.com.worklink.application.metrics.usecase.ResponsivenessSummaryResponse;
 
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -57,32 +60,49 @@ public class JdbcFunctionalMetricsRepositoryAdapter
 
     @Override
     public FunctionalMetricsResponse loadFunctionalMetrics() {
+        long searchCount = countFrom("SELECT COUNT(*) FROM worklink.professional_search_events");
+        long contactCount = countFrom("SELECT COUNT(*) FROM worklink.contact_intentions");
+        long postContactFeedbackCount = countFrom("SELECT COUNT(*) FROM worklink.post_contact_feedbacks");
+        long reviewCount = countFrom("SELECT COUNT(*) FROM worklink.professional_reviews");
+        long anonymousReviewCount = countFrom(
+                """
+                SELECT COUNT(*)
+                FROM worklink.professional_reviews
+                WHERE anonymous_to_public = TRUE
+                """
+        );
+        long professionalReportCount = countFrom("SELECT COUNT(*) FROM worklink.professional_reports");
+        long reviewAnalysisRequestCount = countFrom("SELECT COUNT(*) FROM worklink.professional_review_analysis_requests");
         return new FunctionalMetricsResponse(
-                countFrom("SELECT COUNT(*) FROM worklink.professional_search_events"),
-                countFrom("SELECT COUNT(*) FROM worklink.contact_intentions"),
-                countFrom("SELECT COUNT(*) FROM worklink.post_contact_feedbacks"),
-                countFrom("SELECT COUNT(*) FROM worklink.professional_reviews"),
+                searchCount,
                 countFrom(
                         """
                         SELECT COUNT(*)
-                        FROM worklink.professionals
-                        WHERE blocked = FALSE
-                          AND availability_status = 'ACCEPTING_NEW_CLIENTS'
+                        FROM worklink.professional_search_events
+                        WHERE result_count = 0
                         """
                 ),
-                countFrom(
-                        """
-                        SELECT COUNT(*)
-                        FROM worklink.professionals
-                        WHERE blocked = FALSE
-                          AND availability_status = 'AVAILABLE_TODAY'
-                        """
-                ),
+                contactCount,
+                postContactFeedbackCount,
+                reviewCount,
+                anonymousReviewCount,
+                professionalReportCount,
+                reviewAnalysisRequestCount,
                 false,
+                searchesByCategory(),
+                searchesByCity(),
                 contactsByProfessional(),
                 contactsByCategory(),
                 contactsByCity(),
+                professionalSummary(),
+                responsivenessSummary(contactCount, postContactFeedbackCount),
                 responsivenessSignals(),
+                reputationSummary(
+                        reviewCount,
+                        anonymousReviewCount,
+                        professionalReportCount,
+                        reviewAnalysisRequestCount
+                ),
                 reputationSignals()
         );
     }
@@ -125,6 +145,39 @@ public class JdbcFunctionalMetricsRepositoryAdapter
                 FROM worklink.contact_intentions
                 GROUP BY professional_identifier
                 ORDER BY contact_count DESC, professional_identifier ASC
+                """,
+                (resultSet, rowNumber) -> new ContactMetricResponse(
+                        resultSet.getObject("metric_identifier", UUID.class),
+                        resultSet.getLong("contact_count")
+                )
+        );
+    }
+
+    private List<ContactMetricResponse> searchesByCategory() {
+        return jdbcTemplate.query(
+                """
+                SELECT category_identifier AS metric_identifier,
+                       COUNT(*) AS contact_count
+                FROM worklink.professional_search_events
+                WHERE category_identifier IS NOT NULL
+                GROUP BY category_identifier
+                ORDER BY contact_count DESC, category_identifier ASC
+                """,
+                (resultSet, rowNumber) -> new ContactMetricResponse(
+                        resultSet.getObject("metric_identifier", UUID.class),
+                        resultSet.getLong("contact_count")
+                )
+        );
+    }
+
+    private List<ContactMetricResponse> searchesByCity() {
+        return jdbcTemplate.query(
+                """
+                SELECT city_identifier AS metric_identifier,
+                       COUNT(*) AS contact_count
+                FROM worklink.professional_search_event_cities
+                GROUP BY city_identifier
+                ORDER BY contact_count DESC, city_identifier ASC
                 """,
                 (resultSet, rowNumber) -> new ContactMetricResponse(
                         resultSet.getObject("metric_identifier", UUID.class),
@@ -201,5 +254,116 @@ public class JdbcFunctionalMetricsRepositoryAdapter
                         resultSet.getLong("review_count")
                 )
         );
+    }
+
+    private ProfessionalMetricSummaryResponse professionalSummary() {
+        return new ProfessionalMetricSummaryResponse(
+                countFrom(
+                        """
+                        SELECT COUNT(*)
+                        FROM worklink.professionals
+                        WHERE blocked = FALSE
+                        """
+                ),
+                countFrom(
+                        """
+                        SELECT COUNT(*)
+                        FROM worklink.professionals
+                        WHERE blocked = FALSE
+                          AND profile_completeness_percentage = 100
+                        """
+                ),
+                countFrom(
+                        """
+                        SELECT COUNT(*)
+                        FROM worklink.professionals
+                        WHERE blocked = FALSE
+                          AND availability_status <> 'TEMPORARILY_UNAVAILABLE'
+                        """
+                ),
+                countFrom(
+                        """
+                        SELECT COUNT(*)
+                        FROM worklink.professionals
+                        WHERE blocked = FALSE
+                          AND availability_status = 'TEMPORARILY_UNAVAILABLE'
+                        """
+                ),
+                countFrom(
+                        """
+                        SELECT COUNT(DISTINCT professional_identifier)
+                        FROM worklink.contact_intentions
+                        """
+                )
+        );
+    }
+
+    private ResponsivenessSummaryResponse responsivenessSummary(long contactCount, long postContactFeedbackCount) {
+        double respondedContactPercentage = percentage(
+                countFrom(
+                        """
+                        SELECT COUNT(*)
+                        FROM worklink.post_contact_feedbacks
+                        WHERE contact_responsiveness <> 'NO_RESPONSE'
+                        """
+                ),
+                postContactFeedbackCount
+        );
+        double noResponsePercentage = percentage(
+                countFrom(
+                        """
+                        SELECT COUNT(*)
+                        FROM worklink.post_contact_feedbacks
+                        WHERE contact_responsiveness = 'NO_RESPONSE'
+                        """
+                ),
+                postContactFeedbackCount
+        );
+        double servicePerformedPercentage = percentage(
+                countFrom(
+                        """
+                        SELECT COUNT(*)
+                        FROM worklink.post_contact_feedbacks
+                        WHERE service_execution_outcome = 'SERVICE_PERFORMED'
+                        """
+                ),
+                postContactFeedbackCount
+        );
+        double postContactAnswerRatePercentage = percentage(postContactFeedbackCount, contactCount);
+        return new ResponsivenessSummaryResponse(
+                respondedContactPercentage,
+                noResponsePercentage,
+                servicePerformedPercentage,
+                postContactAnswerRatePercentage
+        );
+    }
+
+    private ReputationSummaryResponse reputationSummary(
+            long reviewCount,
+            long anonymousReviewCount,
+            long professionalReportCount,
+            long reviewAnalysisRequestCount
+    ) {
+        Double averageRating = jdbcTemplate.queryForObject(
+                """
+                SELECT ROUND(COALESCE(AVG(star_rating), 0)::numeric, 2)
+                FROM worklink.professional_reviews
+                """,
+                Double.class
+        );
+        return new ReputationSummaryResponse(
+                reviewCount,
+                averageRating == null ? 0 : averageRating,
+                anonymousReviewCount,
+                professionalReportCount,
+                reviewAnalysisRequestCount
+        );
+    }
+
+    private double percentage(long partialCount, long totalCount) {
+        if (totalCount <= 0) {
+            return 0;
+        }
+        return Math.round((((double) partialCount / totalCount) * 100.0) * 100.0) / 100.0;
     }
 }

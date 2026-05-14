@@ -3,70 +3,76 @@
 ## Identificador
 
 - História: `WL-022`
-- Data: `2026-05-10`
+- Data: `2026-05-14`
 - Tipo semântico sugerido: `MINOR`
 
 ## Objetivo de negócio
 
-Coletar métricas funcionais detalhadas sobre descoberta, contato e avaliações, fornecendo base de dados confiável para ranking futuro (WL-017+).
+Completar a visão analítica mínima da V1 para que produto e administração acompanhem descoberta, responsividade, reputação e saúde do catálogo sem ativar ranking algorítmico.
 
 ## Personas afetadas
 
-- Operação/Analytics: monitora saúde da plataforma.
-- Produto: toma decisões baseadas em dados.
-- Plataforma: prepara base para otimizações futuras.
+- Usuário cliente: indiretamente, porque o produto passa a medir qualidade de resposta e descoberta.
+- Profissional: indiretamente, porque contatos, avaliações, denúncias e disponibilidade passam a compor sinais consolidados.
+- Administrador: diretamente, porque o endpoint administrativo recebe os agregados detalhados.
 
 ## Requisitos atendidos
 
-- RF60 — Métricas de descoberta (buscas, filtros usados).
-- RF61 — Métricas de contato (sucesso, cancelamento).
-- RF62 — Métricas de avaliação (taxa, notas médias).
-- RN17 — Observabilidade e rastreabilidade (WLT-015).
+- RF: `RF58`, `RF59`, `RF60`, `RF61`, `RF67`
+- RN: `RN17`, `RN18`
 
 ## O que foi implementado
 
-- Eventos de descoberta: search query, filtros aplicados, resultados retornados, clique em profissional.
-- Eventos de contato: intenção iniciada, WhatsApp aberto, sucesso presumido.
-- Eventos de avaliação: formulário exibido, avaliação submetida, nota deixada.
-- Dashboard read-only em backend: `/api/v1/admin/metrics/` com agregações.
-- Armazenamento em tabela separada (`metrics`) com TTL (dados antigos deletados).
-- Documentação de observabilidade (WLT-015).
+- Ampliação do agregado funcional para incluir buscas por categoria e cidade.
+- Inclusão da contagem de buscas sem resultado.
+- Inclusão de resumo de profissionais ativos, completos, disponíveis, indisponíveis e com contato recebido.
+- Inclusão de percentuais de responsividade derivados do pós-contato.
+- Inclusão de resumo de reputação com média geral, avaliações anônimas, denúncias e contestações.
+- Manutenção explícita de `rankingAlgorithmEnabled=false`.
+- Atualização do contrato HTTP administrativo e dos testes correlatos.
+- Estabilização do gate backend para limpar `jacoco.exec` residual antes das execuções de cobertura.
 
 ## O que não foi implementado
 
-- Dashboard visual em UI (apenas JSON).
-- Alertas automáticos baseado em métricas.
-- Exportação de dados para BI externo.
-- Relativização por cidade/categoria.
+- Ranking algorítmico.
+- Dashboards externos.
+- Recomendação baseada em IA.
 
 ## Fluxos, telas, endpoints ou módulos envolvidos
 
-- Backend em `/api/v1/admin/metrics/discovery`, `/api/v1/admin/metrics/contact`, `/api/v1/admin/metrics/review`.
-- Tabela `metrics` em banco de dados.
-- Eventos disparados em controllers de discovery, contact, review.
+- Endpoint `GET /api/v1/admin/functional-metrics`
+- Casos de uso de métricas funcionais
+- Adaptador JDBC de métricas funcionais
 
 ## Estratégia de testes
 
-- Backend unitário: cálculo de agregações, filtros.
-- Integração backend: inserção de eventos, consulta de métricas.
-- Funcional/E2E: coleta real de eventos durante fluxos de teste.
+- Unitários: cobertura de caso de uso e contrato do agregado funcional.
+- Integração: validação do adaptador JDBC contra banco real e endpoint administrativo.
+- Funcionais/E2E: `N/A`
+- Mobile: `N/A`
 
 ## Evidências de validação
 
-- `make backend-unit-test`: PASS, agregações testadas.
-- `make backend-integration-test`: PASS, Flyway até `v022`.
-- `make functional-test`: PASS, eventos coletados durante E2E.
+- `make backend-unit-test`
+- `make backend-integration-test`
+- `git diff --check`
+- Cobertura backend validada pelo `jacoco:check@check`.
 
 ## Riscos ou limitações remanescentes
 
-- Armazenamento indefinido de eventos pode crescer base de dados (mitigado com TTL).
-- Sem isolamento geográfico de métricas inicialmente.
+- Os dados analíticos continuam expostos apenas via endpoint administrativo; ainda não existe dashboard dedicado.
+- O percentual depende da qualidade dos dados de pós-contato já coletados.
 
 ## Arquivos ou módulos relevantes
 
-- `worklink-api/src/main/java/br/com/worklink/metrics/` — lógica.
-- Migration: `worklink-api/src/main/resources/db/migration/V022__*.sql`.
+- `worklink-api/src/main/java/br/com/worklink/application/metrics/usecase/`
+- `worklink-api/src/main/java/br/com/worklink/api/admin/`
+- `worklink-api/src/main/java/br/com/worklink/infrastructure/metrics/JdbcFunctionalMetricsRepositoryAdapter.java`
+- `worklink-api/src/test/java/br/com/worklink/application/metrics/usecase/FunctionalMetricsUseCaseTest.java`
+- `worklink-api/src/test/java/br/com/worklink/infrastructure/metrics/JdbcFunctionalMetricsRepositoryAdapterTest.java`
+- `worklink-api/src/test/java/br/com/worklink/api/admin/AdminControllerTest.java`
+- `Makefile`
 
 ## Justificativa do versionamento
 
-Entrega `MINOR` porque adiciona observabilidade sem quebra funcional. Prepara terreno para WL-017 (ranking futuro).
+Entrega uma ampliação funcional do produto administrativo, adicionando nova capacidade analítica sem quebrar contratos anteriores nem alterar comportamento de produção para usuários finais. Por isso, a classificação é `MINOR`.

@@ -42,9 +42,11 @@ mobile-static-analysis: $(COMPOSE_ENV_FILE)
 static-analysis: backend-static-analysis mobile-static-analysis
 
 backend-unit-test: $(COMPOSE_ENV_FILE)
+	rm -f worklink-api/target/jacoco.exec
 	$(DOCKER_COMPOSE) run --rm backend-tests mvn test jacoco:report jacoco:check@check
 
 backend-integration-test: $(COMPOSE_ENV_FILE)
+	rm -f worklink-api/target/jacoco.exec
 	$(DOCKER_COMPOSE) run --rm backend-tests mvn verify
 
 backend-test: backend-unit-test backend-integration-test

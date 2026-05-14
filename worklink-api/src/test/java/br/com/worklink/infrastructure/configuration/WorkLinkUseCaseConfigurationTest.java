@@ -116,7 +116,27 @@ class WorkLinkUseCaseConfigurationTest {
         SaveProfessionalSearchEventPort saveProfessionalSearchEventPort = professionalSearchEvent -> professionalSearchEvent;
         CurrentFunctionalMetricTimePort currentFunctionalMetricTimePort = () -> Instant.parse("2026-05-08T20:00:00Z");
         LoadFunctionalMetricsPort loadFunctionalMetricsPort = () ->
-                new FunctionalMetricsResponse(0, 0, 0, 0, 0, 0, false, null, null, null, null, null);
+                new FunctionalMetricsResponse(
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        0,
+                        false,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null,
+                        null
+                );
         LoadPostContactFeedbackByContactIntentIdentifierPort loadPostContactFeedbackByContactIntentIdentifierPort =
                 contactIntentIdentifier -> Optional.empty();
         SaveProfessionalReviewPort saveProfessionalReviewPort = professionalReview -> professionalReview;

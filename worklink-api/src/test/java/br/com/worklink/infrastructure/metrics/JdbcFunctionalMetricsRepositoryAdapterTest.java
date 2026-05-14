@@ -3,6 +3,9 @@ package br.com.worklink.infrastructure.metrics;
 import br.com.worklink.application.metrics.usecase.ContactMetricResponse;
 import br.com.worklink.application.metrics.usecase.FunctionalMetricsResponse;
 import br.com.worklink.application.metrics.usecase.ProfessionalSearchEvent;
+import br.com.worklink.application.metrics.usecase.ProfessionalMetricSummaryResponse;
+import br.com.worklink.application.metrics.usecase.ReputationSummaryResponse;
+import br.com.worklink.application.metrics.usecase.ResponsivenessSummaryResponse;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -67,8 +70,12 @@ class JdbcFunctionalMetricsRepositoryAdapterTest {
         UUID categoryIdentifier = UUID.randomUUID();
         UUID cityIdentifier = UUID.randomUUID();
         when(jdbcTemplate.queryForObject(anyString(), eq(Long.class)))
-                .thenReturn(7L, 6L, 5L, 4L, 3L, 2L);
+                .thenReturn(7L, 6L, 5L, 4L, 3L, 2L, 1L, 1L, 9L, 4L, 7L, 2L, 5L, 4L, 1L, 3L);
+        when(jdbcTemplate.queryForObject(anyString(), eq(Double.class)))
+                .thenReturn(4.25);
         when(jdbcTemplate.query(anyString(), any(RowMapper.class)))
+                .thenAnswer(invocation -> List.of(contactMetricFrom(invocation.getArgument(1), categoryIdentifier, 7)))
+                .thenAnswer(invocation -> List.of(contactMetricFrom(invocation.getArgument(1), cityIdentifier, 6)))
                 .thenAnswer(invocation -> List.of(contactMetricFrom(invocation.getArgument(1), professionalIdentifier, 6)))
                 .thenAnswer(invocation -> List.of(contactMetricFrom(invocation.getArgument(1), categoryIdentifier, 5)))
                 .thenAnswer(invocation -> List.of(contactMetricFrom(invocation.getArgument(1), cityIdentifier, 4)))
@@ -81,15 +88,22 @@ class JdbcFunctionalMetricsRepositoryAdapterTest {
 
         // THEN
         assertThat(response.searchCount()).isEqualTo(7);
+        assertThat(response.searchWithoutResultCount()).isEqualTo(1);
         assertThat(response.contactCount()).isEqualTo(6);
         assertThat(response.postContactFeedbackCount()).isEqualTo(5);
         assertThat(response.reviewCount()).isEqualTo(4);
-        assertThat(response.acceptingNewClientsProfessionalCount()).isEqualTo(3);
-        assertThat(response.availableTodayProfessionalCount()).isEqualTo(2);
+        assertThat(response.anonymousReviewCount()).isEqualTo(3);
+        assertThat(response.professionalReportCount()).isEqualTo(2);
+        assertThat(response.reviewAnalysisRequestCount()).isEqualTo(1);
         assertThat(response.rankingAlgorithmEnabled()).isFalse();
+        assertThat(response.searchesByCategory()).containsExactly(new ContactMetricResponse(categoryIdentifier, 7));
+        assertThat(response.searchesByCity()).containsExactly(new ContactMetricResponse(cityIdentifier, 6));
         assertThat(response.contactsByProfessional()).containsExactly(new ContactMetricResponse(professionalIdentifier, 6));
         assertThat(response.contactsByCategory()).containsExactly(new ContactMetricResponse(categoryIdentifier, 5));
         assertThat(response.contactsByCity()).containsExactly(new ContactMetricResponse(cityIdentifier, 4));
+        assertThat(response.professionalSummary()).isEqualTo(new ProfessionalMetricSummaryResponse(9, 4, 7, 2, 5));
+        assertThat(response.responsivenessSummary()).isEqualTo(new ResponsivenessSummaryResponse(80, 20, 60, 83.33));
+        assertThat(response.reputationSummary()).isEqualTo(new ReputationSummaryResponse(4, 4.25, 3, 2, 1));
         assertThat(response.responsivenessSignals().getFirst().contactResponsiveness()).isEqualTo("FAST_RESPONSE");
         assertThat(response.reputationSignals().getFirst().averageRating()).isEqualTo(4.75);
     }

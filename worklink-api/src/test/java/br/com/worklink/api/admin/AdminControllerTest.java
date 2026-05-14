@@ -260,16 +260,23 @@ class AdminControllerTest {
                 .thenReturn(administratorPrincipal());
         when(loadFunctionalMetricsUseCase.loadFunctionalMetrics()).thenReturn(new FunctionalMetricsResponse(
                 7,
+                1,
                 5,
                 4,
                 3,
                 2,
                 1,
+                1,
                 false,
+                List.of(new ContactMetricResponse(categoryIdentifier, 6)),
+                List.of(new ContactMetricResponse(cityIdentifier, 5)),
                 List.of(new ContactMetricResponse(professionalIdentifier, 5)),
                 List.of(new ContactMetricResponse(categoryIdentifier, 4)),
                 List.of(new ContactMetricResponse(cityIdentifier, 3)),
+                new br.com.worklink.application.metrics.usecase.ProfessionalMetricSummaryResponse(9, 4, 7, 2, 5),
+                new br.com.worklink.application.metrics.usecase.ResponsivenessSummaryResponse(80, 20, 60, 75),
                 List.of(new ResponsivenessMetricResponse("FAST_RESPONSE", 2)),
+                new br.com.worklink.application.metrics.usecase.ReputationSummaryResponse(3, 4.75, 2, 1, 1),
                 List.of(new ReputationMetricResponse(professionalIdentifier, 4.75, 3))
         ));
 
@@ -277,16 +284,23 @@ class AdminControllerTest {
         mockMvc.perform(get("/api/v1/admin/functional-metrics").header("Authorization", AUTHORIZATION_HEADER))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.searchCount").value(7))
+                .andExpect(jsonPath("$.searchWithoutResultCount").value(1))
                 .andExpect(jsonPath("$.contactCount").value(5))
                 .andExpect(jsonPath("$.postContactFeedbackCount").value(4))
                 .andExpect(jsonPath("$.reviewCount").value(3))
-                .andExpect(jsonPath("$.acceptingNewClientsProfessionalCount").value(2))
-                .andExpect(jsonPath("$.availableTodayProfessionalCount").value(1))
+                .andExpect(jsonPath("$.anonymousReviewCount").value(2))
+                .andExpect(jsonPath("$.professionalReportCount").value(1))
+                .andExpect(jsonPath("$.reviewAnalysisRequestCount").value(1))
                 .andExpect(jsonPath("$.rankingAlgorithmEnabled").value(false))
+                .andExpect(jsonPath("$.searchesByCategory[0].metricIdentifier").value(categoryIdentifier.toString()))
+                .andExpect(jsonPath("$.searchesByCity[0].metricIdentifier").value(cityIdentifier.toString()))
                 .andExpect(jsonPath("$.contactsByProfessional[0].metricIdentifier").value(professionalIdentifier.toString()))
                 .andExpect(jsonPath("$.contactsByCategory[0].metricIdentifier").value(categoryIdentifier.toString()))
                 .andExpect(jsonPath("$.contactsByCity[0].metricIdentifier").value(cityIdentifier.toString()))
+                .andExpect(jsonPath("$.professionalSummary.activeProfessionalCount").value(9))
+                .andExpect(jsonPath("$.responsivenessSummary.postContactAnswerRatePercentage").value(75.0))
                 .andExpect(jsonPath("$.responsivenessSignals[0].contactResponsiveness").value("FAST_RESPONSE"))
+                .andExpect(jsonPath("$.reputationSummary.averageRating").value(4.75))
                 .andExpect(jsonPath("$.reputationSignals[0].averageRating").value(4.75));
     }
 

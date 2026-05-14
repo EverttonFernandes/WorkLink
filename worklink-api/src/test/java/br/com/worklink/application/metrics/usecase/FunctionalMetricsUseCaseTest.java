@@ -74,16 +74,23 @@ class FunctionalMetricsUseCaseTest {
         UUID professionalIdentifier = UUID.randomUUID();
         FunctionalMetricsResponse metricsResponse = new FunctionalMetricsResponse(
                 10,
+                2,
                 8,
                 6,
                 4,
                 3,
                 2,
+                1,
                 false,
+                List.of(new ContactMetricResponse(professionalIdentifier, 7)),
+                List.of(new ContactMetricResponse(professionalIdentifier, 6)),
                 List.of(new ContactMetricResponse(professionalIdentifier, 8)),
                 List.of(),
                 List.of(),
+                new ProfessionalMetricSummaryResponse(9, 4, 7, 2, 5),
+                new ResponsivenessSummaryResponse(80, 20, 50, 75),
                 List.of(new ResponsivenessMetricResponse("FAST_RESPONSE", 5)),
+                new ReputationSummaryResponse(4, 4.5, 3, 2, 1),
                 List.of(new ReputationMetricResponse(professionalIdentifier, 4.5, 4))
         );
         LoadFunctionalMetricsUseCase useCase = new LoadFunctionalMetricsUseCase(() -> metricsResponse);
@@ -93,8 +100,14 @@ class FunctionalMetricsUseCaseTest {
 
         // THEN
         assertThat(response.searchCount()).isEqualTo(10);
+        assertThat(response.searchWithoutResultCount()).isEqualTo(2);
         assertThat(response.rankingAlgorithmEnabled()).isFalse();
+        assertThat(response.searchesByCategory()).containsExactly(new ContactMetricResponse(professionalIdentifier, 7));
+        assertThat(response.searchesByCity()).containsExactly(new ContactMetricResponse(professionalIdentifier, 6));
         assertThat(response.contactsByProfessional()).containsExactly(new ContactMetricResponse(professionalIdentifier, 8));
+        assertThat(response.professionalSummary().activeProfessionalCount()).isEqualTo(9);
+        assertThat(response.responsivenessSummary().postContactAnswerRatePercentage()).isEqualTo(75);
+        assertThat(response.reputationSummary().anonymousReviewCount()).isEqualTo(3);
         assertThat(response.responsivenessSignals()).containsExactly(new ResponsivenessMetricResponse("FAST_RESPONSE", 5));
         assertThat(response.reputationSignals()).containsExactly(new ReputationMetricResponse(professionalIdentifier, 4.5, 4));
     }
