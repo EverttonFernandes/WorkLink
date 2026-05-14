@@ -11,6 +11,10 @@ public record AdministrativeProfessionalReportHttpResponse(
         String reportReason,
         boolean seriousCase,
         UUID evidenceFileIdentifier,
+        String moderationStatus,
+        String moderationDecision,
+        String moderationNotes,
+        Instant decidedAt,
         Instant createdAt
 ) {
 
@@ -23,6 +27,10 @@ public record AdministrativeProfessionalReportHttpResponse(
                 administrativeProfessionalReportResponse.reportReason(),
                 administrativeProfessionalReportResponse.seriousCase(),
                 administrativeProfessionalReportResponse.evidenceFileIdentifier(),
+                administrativeProfessionalReportResponse.moderationStatus(),
+                administrativeProfessionalReportResponse.moderationDecision(),
+                administrativeProfessionalReportResponse.moderationNotes(),
+                administrativeProfessionalReportResponse.decidedAt(),
                 administrativeProfessionalReportResponse.createdAt()
         );
     }

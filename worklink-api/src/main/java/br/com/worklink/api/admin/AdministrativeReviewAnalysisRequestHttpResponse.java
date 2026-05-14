@@ -10,6 +10,10 @@ public record AdministrativeReviewAnalysisRequestHttpResponse(
         UUID professionalReviewIdentifier,
         UUID professionalIdentifier,
         UUID requestedByProfessionalIdentifier,
+        String moderationStatus,
+        String moderationDecision,
+        String moderationNotes,
+        Instant decidedAt,
         Instant createdAt
 ) {
 
@@ -21,6 +25,10 @@ public record AdministrativeReviewAnalysisRequestHttpResponse(
                 administrativeReviewAnalysisRequestResponse.professionalReviewIdentifier(),
                 administrativeReviewAnalysisRequestResponse.professionalIdentifier(),
                 administrativeReviewAnalysisRequestResponse.requestedByProfessionalIdentifier(),
+                administrativeReviewAnalysisRequestResponse.moderationStatus(),
+                administrativeReviewAnalysisRequestResponse.moderationDecision(),
+                administrativeReviewAnalysisRequestResponse.moderationNotes(),
+                administrativeReviewAnalysisRequestResponse.decidedAt(),
                 administrativeReviewAnalysisRequestResponse.createdAt()
         );
     }

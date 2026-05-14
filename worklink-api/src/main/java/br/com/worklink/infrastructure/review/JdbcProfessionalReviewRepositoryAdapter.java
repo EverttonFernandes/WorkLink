@@ -5,6 +5,9 @@ import br.com.worklink.application.review.port.ListProfessionalReviewsByInternal
 import br.com.worklink.application.review.port.LoadProfessionalReviewByIdentifierPort;
 import br.com.worklink.application.review.port.SaveProfessionalReviewAnalysisRequestPort;
 import br.com.worklink.application.review.port.SaveProfessionalReviewPort;
+import br.com.worklink.application.review.port.UpdateProfessionalReviewVisibilityPort;
+import br.com.worklink.domain.moderation.ModerationDecision;
+import br.com.worklink.domain.moderation.ModerationStatus;
 import br.com.worklink.domain.review.ProfessionalReview;
 import br.com.worklink.domain.review.ProfessionalReviewAnalysisRequest;
 
@@ -21,7 +24,8 @@ public class JdbcProfessionalReviewRepositoryAdapter implements
         ListProfessionalReviewsByProfessionalIdentifierPort,
         ListProfessionalReviewsByInternalAuthorIdentifierPort,
         LoadProfessionalReviewByIdentifierPort,
-        SaveProfessionalReviewAnalysisRequestPort {
+        SaveProfessionalReviewAnalysisRequestPort,
+        UpdateProfessionalReviewVisibilityPort {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -44,9 +48,10 @@ public class JdbcProfessionalReviewRepositoryAdapter implements
                     anonymous_to_public,
                     public_author_identifier,
                     public_author_display_name,
+                    hidden_from_public,
                     created_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 professionalReview.professionalReviewIdentifier(),
                 professionalReview.contactIntentIdentifier(),
@@ -58,6 +63,7 @@ public class JdbcProfessionalReviewRepositoryAdapter implements
                 professionalReview.anonymousToPublic(),
                 professionalReview.publicAuthorIdentifier(),
                 professionalReview.publicAuthorDisplayName(),
+                professionalReview.hiddenFromPublic(),
                 professionalReview.createdAt()
         );
         return professionalReview;
@@ -68,6 +74,7 @@ public class JdbcProfessionalReviewRepositoryAdapter implements
         return jdbcTemplate.query(
                 professionalReviewSelectSql() + """
                 WHERE professional_identifier = ?
+                  AND hidden_from_public = FALSE
                 ORDER BY created_at DESC
                 """,
                 (resultSet, rowNumber) -> mapProfessionalReview(resultSet),
@@ -110,18 +117,41 @@ public class JdbcProfessionalReviewRepositoryAdapter implements
                     professional_identifier,
                     requested_by_professional_identifier,
                     reason,
+                    moderation_status,
+                    moderation_decision,
+                    moderation_notes,
+                    decided_at,
                     created_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 professionalReviewAnalysisRequest.reviewAnalysisRequestIdentifier(),
                 professionalReviewAnalysisRequest.professionalReviewIdentifier(),
                 professionalReviewAnalysisRequest.professionalIdentifier(),
                 professionalReviewAnalysisRequest.requestedByProfessionalIdentifier(),
                 professionalReviewAnalysisRequest.reason(),
+                professionalReviewAnalysisRequest.moderationStatus().name(),
+                professionalReviewAnalysisRequest.moderationDecision() == null
+                        ? null
+                        : professionalReviewAnalysisRequest.moderationDecision().name(),
+                professionalReviewAnalysisRequest.moderationNotes(),
+                professionalReviewAnalysisRequest.decidedAt(),
                 professionalReviewAnalysisRequest.createdAt()
         );
         return professionalReviewAnalysisRequest;
+    }
+
+    @Override
+    public void updateProfessionalReviewVisibility(UUID professionalReviewIdentifier, boolean hiddenFromPublic) {
+        jdbcTemplate.update(
+                """
+                UPDATE worklink.professional_reviews
+                SET hidden_from_public = ?
+                WHERE professional_review_identifier = ?
+                """,
+                hiddenFromPublic,
+                professionalReviewIdentifier
+        );
     }
 
     private String professionalReviewSelectSql() {
@@ -136,6 +166,7 @@ public class JdbcProfessionalReviewRepositoryAdapter implements
                        anonymous_to_public,
                        public_author_identifier,
                        public_author_display_name,
+                       hidden_from_public,
                        created_at
                 FROM worklink.professional_reviews
                 """;
@@ -153,6 +184,7 @@ public class JdbcProfessionalReviewRepositoryAdapter implements
                 resultSet.getBoolean("anonymous_to_public"),
                 resultSet.getObject("public_author_identifier", UUID.class),
                 resultSet.getString("public_author_display_name"),
+                resultSet.getBoolean("hidden_from_public"),
                 resultSet.getTimestamp("created_at").toInstant()
         );
     }

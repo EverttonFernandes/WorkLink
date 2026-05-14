@@ -16,6 +16,7 @@ public record ProfessionalReview(
         boolean anonymousToPublic,
         UUID publicAuthorIdentifier,
         String publicAuthorDisplayName,
+        boolean hiddenFromPublic,
         Instant createdAt
 ) {
 
@@ -45,6 +46,7 @@ public record ProfessionalReview(
                 anonymousToPublic,
                 publicAuthorIdentifier,
                 requirePublicAuthorDisplayName(publicAuthorDisplayName),
+                false,
                 requireInstant(createdAt)
         );
     }
@@ -60,6 +62,7 @@ public record ProfessionalReview(
             boolean anonymousToPublic,
             UUID publicAuthorIdentifier,
             String publicAuthorDisplayName,
+            boolean hiddenFromPublic,
             Instant createdAt
     ) {
         return new ProfessionalReview(
@@ -73,6 +76,7 @@ public record ProfessionalReview(
                 anonymousToPublic,
                 publicAuthorIdentifier,
                 requirePublicAuthorDisplayName(publicAuthorDisplayName),
+                hiddenFromPublic,
                 requireInstant(createdAt)
         );
     }

@@ -11,6 +11,10 @@ public record AdministrativeProfessionalReportResponse(
         String reportReason,
         boolean seriousCase,
         UUID evidenceFileIdentifier,
+        String moderationStatus,
+        String moderationDecision,
+        String moderationNotes,
+        Instant decidedAt,
         Instant createdAt
 ) {
 
@@ -21,6 +25,10 @@ public record AdministrativeProfessionalReportResponse(
                 professionalReport.reportReason().name(),
                 professionalReport.seriousCase(),
                 professionalReport.evidenceFileIdentifier(),
+                professionalReport.moderationStatus().name(),
+                professionalReport.moderationDecision() == null ? null : professionalReport.moderationDecision().name(),
+                professionalReport.moderationNotes(),
+                professionalReport.decidedAt(),
                 professionalReport.createdAt()
         );
     }

@@ -4,6 +4,10 @@ import br.com.worklink.application.admin.port.ListAdministrativeProfessionalRepo
 import br.com.worklink.application.admin.port.ListAdministrativeProfessionalsPort;
 import br.com.worklink.application.admin.port.ListAdministrativeReviewAnalysisRequestsPort;
 import br.com.worklink.application.admin.port.LoadAdministrativeMetricsPort;
+import br.com.worklink.application.admin.port.ModerateProfessionalReportPort;
+import br.com.worklink.application.admin.port.ModerateReviewAnalysisRequestPort;
+import br.com.worklink.domain.moderation.ModerationDecision;
+import br.com.worklink.domain.moderation.ModerationStatus;
 import br.com.worklink.domain.professional.Professional;
 import br.com.worklink.domain.professional.ProfessionalAvailabilityStatus;
 import br.com.worklink.domain.professional.ProfessionalProfileClassification;
@@ -16,7 +20,9 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -24,6 +30,8 @@ public class JdbcAdministrativeRepositoryAdapter implements
         ListAdministrativeProfessionalsPort,
         ListAdministrativeProfessionalReportsPort,
         ListAdministrativeReviewAnalysisRequestsPort,
+        ModerateProfessionalReportPort,
+        ModerateReviewAnalysisRequestPort,
         LoadAdministrativeMetricsPort {
 
     private final JdbcTemplate jdbcTemplate;
@@ -72,6 +80,10 @@ public class JdbcAdministrativeRepositoryAdapter implements
                        evidence_file_identifier,
                        serious_case,
                        authority_guidance,
+                       moderation_status,
+                       moderation_decision,
+                       moderation_notes,
+                       decided_at,
                        created_at
                 FROM worklink.professional_reports
                 ORDER BY serious_case DESC, created_at DESC
@@ -85,6 +97,10 @@ public class JdbcAdministrativeRepositoryAdapter implements
                         resultSet.getObject("evidence_file_identifier", UUID.class),
                         resultSet.getBoolean("serious_case"),
                         resultSet.getString("authority_guidance"),
+                        ModerationStatus.valueOf(resultSet.getString("moderation_status")),
+                        nullableModerationDecision(resultSet.getString("moderation_decision")),
+                        resultSet.getString("moderation_notes"),
+                        nullableInstant(resultSet, "decided_at"),
                         resultSet.getTimestamp("created_at").toInstant()
                 )
         );
@@ -99,6 +115,10 @@ public class JdbcAdministrativeRepositoryAdapter implements
                        professional_identifier,
                        requested_by_professional_identifier,
                        reason,
+                       moderation_status,
+                       moderation_decision,
+                       moderation_notes,
+                       decided_at,
                        created_at
                 FROM worklink.professional_review_analysis_requests
                 ORDER BY created_at DESC
@@ -109,9 +129,133 @@ public class JdbcAdministrativeRepositoryAdapter implements
                         resultSet.getObject("professional_identifier", UUID.class),
                         resultSet.getObject("requested_by_professional_identifier", UUID.class),
                         resultSet.getString("reason"),
+                        ModerationStatus.valueOf(resultSet.getString("moderation_status")),
+                        nullableModerationDecision(resultSet.getString("moderation_decision")),
+                        resultSet.getString("moderation_notes"),
+                        nullableInstant(resultSet, "decided_at"),
                         resultSet.getTimestamp("created_at").toInstant()
                 )
         );
+    }
+
+    @Override
+    public Optional<ProfessionalReport> moderateProfessionalReport(
+            UUID professionalReportIdentifier,
+            ModerationStatus moderationStatus,
+            ModerationDecision moderationDecision,
+            String moderationNotes,
+            Instant decidedAt
+    ) {
+        int updatedRows = jdbcTemplate.update(
+                """
+                UPDATE worklink.professional_reports
+                SET moderation_status = ?,
+                    moderation_decision = ?,
+                    moderation_notes = ?,
+                    decided_at = ?
+                WHERE professional_report_identifier = ?
+                """,
+                moderationStatus.name(),
+                moderationDecision == null ? null : moderationDecision.name(),
+                moderationNotes,
+                decidedAt,
+                professionalReportIdentifier
+        );
+        if (updatedRows == 0) {
+            return Optional.empty();
+        }
+        return jdbcTemplate.query(
+                """
+                SELECT professional_report_identifier,
+                       professional_identifier,
+                       reporter_identifier,
+                       report_reason,
+                       description,
+                       evidence_file_identifier,
+                       serious_case,
+                       authority_guidance,
+                       moderation_status,
+                       moderation_decision,
+                       moderation_notes,
+                       decided_at,
+                       created_at
+                FROM worklink.professional_reports
+                WHERE professional_report_identifier = ?
+                """,
+                (resultSet, rowNumber) -> ProfessionalReport.restoreProfessionalReport(
+                        resultSet.getObject("professional_report_identifier", UUID.class),
+                        resultSet.getObject("professional_identifier", UUID.class),
+                        resultSet.getObject("reporter_identifier", UUID.class),
+                        ProfessionalReportReason.valueOf(resultSet.getString("report_reason")),
+                        resultSet.getString("description"),
+                        resultSet.getObject("evidence_file_identifier", UUID.class),
+                        resultSet.getBoolean("serious_case"),
+                        resultSet.getString("authority_guidance"),
+                        ModerationStatus.valueOf(resultSet.getString("moderation_status")),
+                        nullableModerationDecision(resultSet.getString("moderation_decision")),
+                        resultSet.getString("moderation_notes"),
+                        nullableInstant(resultSet, "decided_at"),
+                        resultSet.getTimestamp("created_at").toInstant()
+                ),
+                professionalReportIdentifier
+        ).stream().findFirst();
+    }
+
+    @Override
+    public Optional<ProfessionalReviewAnalysisRequest> moderateReviewAnalysisRequest(
+            UUID reviewAnalysisRequestIdentifier,
+            ModerationStatus moderationStatus,
+            ModerationDecision moderationDecision,
+            String moderationNotes,
+            Instant decidedAt
+    ) {
+        int updatedRows = jdbcTemplate.update(
+                """
+                UPDATE worklink.professional_review_analysis_requests
+                SET moderation_status = ?,
+                    moderation_decision = ?,
+                    moderation_notes = ?,
+                    decided_at = ?
+                WHERE review_analysis_request_identifier = ?
+                """,
+                moderationStatus.name(),
+                moderationDecision == null ? null : moderationDecision.name(),
+                moderationNotes,
+                decidedAt,
+                reviewAnalysisRequestIdentifier
+        );
+        if (updatedRows == 0) {
+            return Optional.empty();
+        }
+        return jdbcTemplate.query(
+                """
+                SELECT review_analysis_request_identifier,
+                       professional_review_identifier,
+                       professional_identifier,
+                       requested_by_professional_identifier,
+                       reason,
+                       moderation_status,
+                       moderation_decision,
+                       moderation_notes,
+                       decided_at,
+                       created_at
+                FROM worklink.professional_review_analysis_requests
+                WHERE review_analysis_request_identifier = ?
+                """,
+                (resultSet, rowNumber) -> ProfessionalReviewAnalysisRequest.restoreProfessionalReviewAnalysisRequest(
+                        resultSet.getObject("review_analysis_request_identifier", UUID.class),
+                        resultSet.getObject("professional_review_identifier", UUID.class),
+                        resultSet.getObject("professional_identifier", UUID.class),
+                        resultSet.getObject("requested_by_professional_identifier", UUID.class),
+                        resultSet.getString("reason"),
+                        ModerationStatus.valueOf(resultSet.getString("moderation_status")),
+                        nullableModerationDecision(resultSet.getString("moderation_decision")),
+                        resultSet.getString("moderation_notes"),
+                        nullableInstant(resultSet, "decided_at"),
+                        resultSet.getTimestamp("created_at").toInstant()
+                ),
+                reviewAnalysisRequestIdentifier
+        ).stream().findFirst();
     }
 
     @Override
@@ -164,5 +308,17 @@ public class JdbcAdministrativeRepositoryAdapter implements
     private long requireCount(String sql) {
         Long count = jdbcTemplate.queryForObject(sql, Long.class);
         return count == null ? 0 : count;
+    }
+
+    private ModerationDecision nullableModerationDecision(String moderationDecision) {
+        if (moderationDecision == null || moderationDecision.isBlank()) {
+            return null;
+        }
+        return ModerationDecision.valueOf(moderationDecision);
+    }
+
+    private Instant nullableInstant(ResultSet resultSet, String columnName) throws SQLException {
+        java.sql.Timestamp timestamp = resultSet.getTimestamp(columnName);
+        return timestamp == null ? null : timestamp.toInstant();
     }
 }

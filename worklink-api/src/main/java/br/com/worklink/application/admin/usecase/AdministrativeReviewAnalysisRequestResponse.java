@@ -10,6 +10,10 @@ public record AdministrativeReviewAnalysisRequestResponse(
         UUID professionalReviewIdentifier,
         UUID professionalIdentifier,
         UUID requestedByProfessionalIdentifier,
+        String moderationStatus,
+        String moderationDecision,
+        String moderationNotes,
+        Instant decidedAt,
         Instant createdAt
 ) {
 
@@ -21,6 +25,12 @@ public record AdministrativeReviewAnalysisRequestResponse(
                 professionalReviewAnalysisRequest.professionalReviewIdentifier(),
                 professionalReviewAnalysisRequest.professionalIdentifier(),
                 professionalReviewAnalysisRequest.requestedByProfessionalIdentifier(),
+                professionalReviewAnalysisRequest.moderationStatus().name(),
+                professionalReviewAnalysisRequest.moderationDecision() == null
+                        ? null
+                        : professionalReviewAnalysisRequest.moderationDecision().name(),
+                professionalReviewAnalysisRequest.moderationNotes(),
+                professionalReviewAnalysisRequest.decidedAt(),
                 professionalReviewAnalysisRequest.createdAt()
         );
     }

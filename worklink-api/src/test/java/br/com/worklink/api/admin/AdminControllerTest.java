@@ -11,6 +11,8 @@ import br.com.worklink.application.admin.usecase.ListAdministrativeProfessionalR
 import br.com.worklink.application.admin.usecase.ListAdministrativeProfessionalsUseCase;
 import br.com.worklink.application.admin.usecase.ListAdministrativeReviewAnalysisRequestsUseCase;
 import br.com.worklink.application.admin.usecase.LoadAdministrativeMetricsUseCase;
+import br.com.worklink.application.admin.usecase.ModerateProfessionalReportUseCase;
+import br.com.worklink.application.admin.usecase.ModerateReviewAnalysisRequestUseCase;
 import br.com.worklink.application.admin.usecase.UnblockProfessionalUseCase;
 import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventRequest;
 import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventUseCase;
@@ -33,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.http.MediaType;
 
 import java.time.Instant;
 import java.util.List;
@@ -80,6 +83,12 @@ class AdminControllerTest {
 
     @MockBean
     private ListAdministrativeReviewAnalysisRequestsUseCase listAdministrativeReviewAnalysisRequestsUseCase;
+
+    @MockBean
+    private ModerateProfessionalReportUseCase moderateProfessionalReportUseCase;
+
+    @MockBean
+    private ModerateReviewAnalysisRequestUseCase moderateReviewAnalysisRequestUseCase;
 
     @MockBean
     private LoadAdministrativeMetricsUseCase loadAdministrativeMetricsUseCase;
@@ -196,6 +205,10 @@ class AdminControllerTest {
                         "THREAT",
                         true,
                         null,
+                        "PENDING",
+                        null,
+                        null,
+                        null,
                         Instant.parse("2026-05-09T10:00:00Z")
                 )
         ));
@@ -220,6 +233,10 @@ class AdminControllerTest {
                         UUID.randomUUID(),
                         UUID.randomUUID(),
                         UUID.randomUUID(),
+                        "PENDING",
+                        null,
+                        null,
+                        null,
                         Instant.parse("2026-05-09T10:00:00Z")
                 )
         ));
@@ -228,6 +245,97 @@ class AdminControllerTest {
         mockMvc.perform(get("/api/v1/admin/review-analysis-requests").header("Authorization", AUTHORIZATION_HEADER))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].reviewAnalysisRequestIdentifier").value(requestIdentifier.toString()));
+    }
+
+    @Test
+    @DisplayName("GIVEN administrador WHEN moderar denuncia THEN deve auditar decisao")
+    void shouldModerateProfessionalReportAndAuditSensitiveAction() throws Exception {
+        // GIVEN
+        UUID reportIdentifier = UUID.randomUUID();
+        AuthenticatedPrincipal administratorPrincipal = administratorPrincipal();
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER))
+                .thenReturn(administratorPrincipal);
+        when(moderateProfessionalReportUseCase.moderateProfessionalReport(any())).thenReturn(
+                new AdministrativeProfessionalReportResponse(
+                        reportIdentifier,
+                        UUID.randomUUID(),
+                        "FRAUD",
+                        false,
+                        null,
+                        "RESOLVED",
+                        "KEEP_AS_IS",
+                        "Caso encerrado",
+                        Instant.parse("2026-05-10T09:00:00Z"),
+                        Instant.parse("2026-05-09T10:00:00Z")
+                )
+        );
+
+        // WHEN / THEN
+        mockMvc.perform(post("/api/v1/admin/reports/{professionalReportIdentifier}/moderation", reportIdentifier)
+                        .header("Authorization", AUTHORIZATION_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "moderationStatus": "RESOLVED",
+                                  "moderationDecision": "KEEP_AS_IS",
+                                  "moderationNotes": "Caso encerrado"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.moderationStatus").value("RESOLVED"))
+                .andExpect(jsonPath("$.moderationDecision").value("KEEP_AS_IS"));
+        verify(recordSensitiveAuditEventUseCase).recordSensitiveAuditEvent(argThat(auditRequest ->
+                auditRequest.authenticatedPrincipal().equals(administratorPrincipal)
+                        && auditRequest.sensitiveAuditAction() == SensitiveAuditAction.MODERATE_PROFESSIONAL_REPORT
+                        && auditRequest.sensitiveAuditTargetType() == SensitiveAuditTargetType.REPORT
+                        && auditRequest.targetIdentifier().equals(reportIdentifier)
+                        && auditRequest.sensitiveAuditOutcome() == SensitiveAuditOutcome.SUCCESS
+        ));
+    }
+
+    @Test
+    @DisplayName("GIVEN administrador WHEN moderar contestacao THEN deve auditar decisao")
+    void shouldModerateReviewAnalysisRequestAndAuditSensitiveAction() throws Exception {
+        // GIVEN
+        UUID requestIdentifier = UUID.randomUUID();
+        AuthenticatedPrincipal administratorPrincipal = administratorPrincipal();
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER))
+                .thenReturn(administratorPrincipal);
+        when(moderateReviewAnalysisRequestUseCase.moderateReviewAnalysisRequest(any())).thenReturn(
+                new AdministrativeReviewAnalysisRequestResponse(
+                        requestIdentifier,
+                        UUID.randomUUID(),
+                        UUID.randomUUID(),
+                        UUID.randomUUID(),
+                        "ACTION_REQUIRED",
+                        "HIDE_FROM_PUBLIC",
+                        "Ocultada ate revisao completa",
+                        Instant.parse("2026-05-10T11:00:00Z"),
+                        Instant.parse("2026-05-09T10:00:00Z")
+                )
+        );
+
+        // WHEN / THEN
+        mockMvc.perform(post("/api/v1/admin/review-analysis-requests/{reviewAnalysisRequestIdentifier}/moderation", requestIdentifier)
+                        .header("Authorization", AUTHORIZATION_HEADER)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "moderationStatus": "ACTION_REQUIRED",
+                                  "moderationDecision": "HIDE_FROM_PUBLIC",
+                                  "moderationNotes": "Ocultada ate revisao completa"
+                                }
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.moderationStatus").value("ACTION_REQUIRED"))
+                .andExpect(jsonPath("$.moderationDecision").value("HIDE_FROM_PUBLIC"));
+        verify(recordSensitiveAuditEventUseCase).recordSensitiveAuditEvent(argThat(auditRequest ->
+                auditRequest.authenticatedPrincipal().equals(administratorPrincipal)
+                        && auditRequest.sensitiveAuditAction() == SensitiveAuditAction.MODERATE_REVIEW_ANALYSIS_REQUEST
+                        && auditRequest.sensitiveAuditTargetType() == SensitiveAuditTargetType.REVIEW
+                        && auditRequest.targetIdentifier().equals(requestIdentifier)
+                        && auditRequest.sensitiveAuditOutcome() == SensitiveAuditOutcome.SUCCESS
+        ));
     }
 
     @Test

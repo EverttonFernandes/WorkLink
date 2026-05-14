@@ -3,73 +3,63 @@
 ## Identificador
 
 - História: `WL-023`
-- Data: `2026-05-10`
+- Data: `2026-05-14`
 - Tipo semântico sugerido: `MINOR`
 
 ## Objetivo de negócio
 
-Permitir que administradores revisem, valide e tomem ações sobre denúncias de profissionais e avaliações suspeitas, mantendo qualidade e confiança na plataforma.
+Transformar a moderação administrativa em um fluxo operacional mínimo, com decisão persistida, auditoria e capacidade de retirar avaliações abusivas da exibição pública.
 
 ## Personas afetadas
 
-- Administrador: gerencia denúncias, toma decisões de bloqueio/limpeza.
-- Profissional: recebe feedback se denúncia for invalidada.
-- Cliente: confiança em qualidade da plataforma.
+- Administrador: diretamente, porque passa a decidir e rastrear moderação.
+- Profissional: diretamente, porque pode ter contestação tratada de forma efetiva.
+- Usuário cliente: indiretamente, porque a vitrine pública deixa de exibir avaliações ocultadas por abuso ou suspeita.
 
 ## Requisitos atendidos
 
-- RF48 — Revisão de denúncias por admin.
-- RF49 — Ações: validar, rejeitar, requerer prova adicional.
-- RN13/RN14/RN20 — Segurança, auditoria de moderação.
+- RF: `RF64`, `RF65`
+- RN: `RN13`, `RN14`, `RN19`, `RN20`
 
 ## O que foi implementado
 
-- Tela admin de fila de denúncias com filtros (status, data, profissional).
-- Detalhes completos da denúncia (motivo, descrição, evidência).
-- Ações: validar denúncia, rejeitar, requerer mais informações.
-- Notificação ao profissional quando denúncia é validada.
-- Auditoria completa de cada ação administrativa (WLT-011).
-- Testes unitários e de tela para revisão, validação, rejeição.
+- Migração `V021` adicionando status, decisão, notas e data de decisão para denúncias e contestações.
+- Flag `hidden_from_public` nas avaliações profissionais.
+- Endpoints administrativos para moderar denúncias e contestações.
+- Auditoria sensível específica para decisão sobre denúncia e contestação.
+- Respostas administrativas enriquecidas com estado atual de moderação.
+- Filtro na vitrine pública para não exibir avaliações ocultadas por moderação.
+- Testes unitários, web e de infraestrutura cobrindo fluxos felizes e ramos de erro.
 
 ## O que não foi implementado
 
-- Bloqueio automático do profissional (apenas marcação para revisão).
-- Comunicação bidirecional com denunciante.
-- Apelação de denúncia pelo profissional.
+- Interface administrativa dedicada.
+- Mediação humana completa.
+- Automação por IA.
 
 ## Fluxos, telas, endpoints ou módulos envolvidos
 
-- Tela admin em novo módulo `admin/reports`.
-- Backend em `/api/v1/admin/reports/{id}/validate`, `/api/v1/admin/reports/{id}/reject`.
-- Tabela de histórico de moderação (`moderation_log`).
-- Integração com auditoria (WLT-011).
+- Endpoints administrativos de denúncias e contestações
+- Módulo de avaliações profissionais
+- Módulo de denúncias profissionais
 
 ## Estratégia de testes
 
-- Backend unitário: validação, rejeição, auditoria.
-- Mobile tela: listagem de denúncias, ações, notificação.
-- Integração backend: relacionamento entre denúncia, ação e auditoria.
-- Funcional/E2E: fluxo completo denúncia→revisão→ação.
+- Unitários: casos de uso, controller web, domínio e adaptadores JDBC.
+- Integração: validação da migração `V021` com Flyway e banco real.
+- Funcionais/E2E: `N/A`
+- Mobile: `N/A`
 
 ## Evidências de validação
 
-- `make backend-unit-test`: PASS, lógica de moderação atendida.
-- `make backend-integration-test`: PASS, Flyway até `v023`.
-- `make mobile-unit-test`: PASS, cobertura 95%+.
-- `make mobile-screen-test`: PASS, 8+ testes admin.
-- `make functional-test`: PASS, fluxo E2E de moderação.
+- `make backend-unit-test`
+- `make backend-integration-test`
+- `git diff --check`
 
 ## Riscos ou limitações remanescentes
 
-- Admin pode ser alvo de stress por revisão de muitas denúncias (relatório não tem paginação inicial).
-- Decisão de bloqueio automático não está implementada (manual apenas).
-
-## Arquivos ou módulos relevantes
-
-- `worklink-mobile/lib/features/admin/` — Interface admin.
-- `worklink-api/src/main/java/br/com/worklink/admin/moderation/` — lógica.
-- Migration: `worklink-api/src/main/resources/db/migration/V023__*.sql`.
+- Ainda não existe console administrativo dedicado; a capacidade foi entregue via contrato backend.
 
 ## Justificativa do versionamento
 
-Entrega `MINOR` porque adiciona funcionalidade administrativa sem quebra de compatibilidade. Depende de WL-014 (denúncia).
+Entrega capacidade funcional nova no módulo administrativo sem quebra retrocompatível, portanto a classificação prevista é `MINOR`.

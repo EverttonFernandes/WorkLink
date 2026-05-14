@@ -40,6 +40,8 @@ class ProfessionalReportTest {
         assertThat(professionalReport.evidenceFileIdentifier()).isEqualTo(evidenceFileIdentifier);
         assertThat(professionalReport.seriousCase()).isFalse();
         assertThat(professionalReport.authorityGuidance()).isNull();
+        assertThat(professionalReport.moderationStatus().name()).isEqualTo("PENDING");
+        assertThat(professionalReport.moderationDecision()).isNull();
     }
 
     @Test
@@ -73,5 +75,6 @@ class ProfessionalReportTest {
         // THEN
         assertThat(professionalReport.seriousCase()).isTrue();
         assertThat(professionalReport.authorityGuidance()).contains("autoridades competentes");
+        assertThat(professionalReport.moderationStatus().name()).isEqualTo("PENDING");
     }
 }

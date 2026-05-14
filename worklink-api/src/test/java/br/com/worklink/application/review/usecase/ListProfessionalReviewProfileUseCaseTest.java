@@ -74,6 +74,7 @@ class ListProfessionalReviewProfileUseCaseTest {
                 anonymousToPublic,
                 anonymousToPublic ? null : internalAuthorIdentifier,
                 publicAuthorDisplayName,
+                false,
                 createdAt
         );
     }

@@ -30,6 +30,8 @@ import br.com.worklink.application.contact.port.MarkPostContactFeedbackRequestAn
 import br.com.worklink.application.contact.port.SaveContactIntentPort;
 import br.com.worklink.application.contact.port.SavePostContactFeedbackPort;
 import br.com.worklink.application.contact.port.SavePostContactFeedbackRequestPort;
+import br.com.worklink.application.admin.port.ModerateProfessionalReportPort;
+import br.com.worklink.application.admin.port.ModerateReviewAnalysisRequestPort;
 import br.com.worklink.application.metrics.port.CurrentFunctionalMetricTimePort;
 import br.com.worklink.application.metrics.port.LoadFunctionalMetricsPort;
 import br.com.worklink.application.metrics.port.SaveProfessionalSearchEventPort;
@@ -49,6 +51,7 @@ import br.com.worklink.application.review.port.ListProfessionalReviewsByProfessi
 import br.com.worklink.application.review.port.LoadProfessionalReviewByIdentifierPort;
 import br.com.worklink.application.review.port.SaveProfessionalReviewAnalysisRequestPort;
 import br.com.worklink.application.review.port.SaveProfessionalReviewPort;
+import br.com.worklink.application.review.port.UpdateProfessionalReviewVisibilityPort;
 import br.com.worklink.application.report.port.SaveProfessionalReportPort;
 
 import org.junit.jupiter.api.DisplayName;
@@ -147,6 +150,15 @@ class WorkLinkUseCaseConfigurationTest {
         SaveProfessionalReviewAnalysisRequestPort saveProfessionalReviewAnalysisRequestPort =
                 professionalReviewAnalysisRequest -> professionalReviewAnalysisRequest;
         SaveProfessionalReportPort saveProfessionalReportPort = professionalReport -> professionalReport;
+        ModerateProfessionalReportPort moderateProfessionalReportPort =
+                (professionalReportIdentifier, moderationStatus, moderationDecision, moderationNotes, decidedAt) ->
+                        Optional.empty();
+        ModerateReviewAnalysisRequestPort moderateReviewAnalysisRequestPort =
+                (reviewAnalysisRequestIdentifier, moderationStatus, moderationDecision, moderationNotes, decidedAt) ->
+                        Optional.empty();
+        UpdateProfessionalReviewVisibilityPort updateProfessionalReviewVisibilityPort =
+                (professionalReviewIdentifier, hiddenFromPublic) -> {
+                };
 
         // WHEN
         RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase = configuration.registerBasicProfessionalUseCase(
@@ -258,6 +270,15 @@ class WorkLinkUseCaseConfigurationTest {
         assertThat(configuration.registerProfessionalReportUseCase(
                 loadProfessionalByIdentifierPort,
                 saveProfessionalReportPort,
+                currentContactTimePort
+        )).isNotNull();
+        assertThat(configuration.moderateProfessionalReportUseCase(
+                moderateProfessionalReportPort,
+                currentContactTimePort
+        )).isNotNull();
+        assertThat(configuration.moderateReviewAnalysisRequestUseCase(
+                moderateReviewAnalysisRequestPort,
+                updateProfessionalReviewVisibilityPort,
                 currentContactTimePort
         )).isNotNull();
     }

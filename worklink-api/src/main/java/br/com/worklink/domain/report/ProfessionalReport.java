@@ -1,6 +1,8 @@
 package br.com.worklink.domain.report;
 
 import br.com.worklink.domain.BusinessRuleViolationException;
+import br.com.worklink.domain.moderation.ModerationDecision;
+import br.com.worklink.domain.moderation.ModerationStatus;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -14,6 +16,10 @@ public record ProfessionalReport(
         UUID evidenceFileIdentifier,
         boolean seriousCase,
         String authorityGuidance,
+        ModerationStatus moderationStatus,
+        ModerationDecision moderationDecision,
+        String moderationNotes,
+        Instant decidedAt,
         Instant createdAt
 ) {
 
@@ -38,6 +44,10 @@ public record ProfessionalReport(
                 evidenceFileIdentifier,
                 validReportReason.isSerious(),
                 guidanceForReason(validReportReason),
+                ModerationStatus.PENDING,
+                null,
+                null,
+                null,
                 requireCreatedAt(createdAt)
         );
     }
@@ -51,6 +61,10 @@ public record ProfessionalReport(
             UUID evidenceFileIdentifier,
             boolean seriousCase,
             String authorityGuidance,
+            ModerationStatus moderationStatus,
+            ModerationDecision moderationDecision,
+            String moderationNotes,
+            Instant decidedAt,
             Instant createdAt
     ) {
         return new ProfessionalReport(
@@ -62,6 +76,10 @@ public record ProfessionalReport(
                 evidenceFileIdentifier,
                 seriousCase,
                 normalizeDescription(authorityGuidance),
+                requireModerationStatus(moderationStatus),
+                moderationDecision,
+                normalizeDescription(moderationNotes),
+                decidedAt,
                 requireCreatedAt(createdAt)
         );
     }
@@ -99,5 +117,12 @@ public record ProfessionalReport(
             throw new BusinessRuleViolationException("O momento da denuncia e obrigatorio.");
         }
         return createdAt;
+    }
+
+    private static ModerationStatus requireModerationStatus(ModerationStatus moderationStatus) {
+        if (moderationStatus == null) {
+            throw new BusinessRuleViolationException("O status de moderacao da denuncia e obrigatorio.");
+        }
+        return moderationStatus;
     }
 }

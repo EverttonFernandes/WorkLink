@@ -31,5 +31,7 @@ class ProfessionalReviewAnalysisRequestTest {
         assertThat(analysisRequest.professionalReviewIdentifier()).isEqualTo(professionalReviewIdentifier);
         assertThat(analysisRequest.professionalIdentifier()).isEqualTo(professionalIdentifier);
         assertThat(analysisRequest.reason()).isEqualTo("Comentario indevido");
+        assertThat(analysisRequest.moderationStatus().name()).isEqualTo("PENDING");
+        assertThat(analysisRequest.moderationDecision()).isNull();
     }
 }

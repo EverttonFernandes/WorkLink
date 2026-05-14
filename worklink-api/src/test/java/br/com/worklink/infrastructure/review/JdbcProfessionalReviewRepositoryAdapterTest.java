@@ -17,6 +17,7 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.doReturn;
@@ -62,6 +63,7 @@ class JdbcProfessionalReviewRepositoryAdapterTest {
                 eq(professionalReview.anonymousToPublic()),
                 eq(professionalReview.publicAuthorIdentifier()),
                 eq(professionalReview.publicAuthorDisplayName()),
+                eq(professionalReview.hiddenFromPublic()),
                 eq(professionalReview.createdAt())
         );
     }
@@ -90,10 +92,11 @@ class JdbcProfessionalReviewRepositoryAdapterTest {
                 false,
                 publicAuthorIdentifier,
                 "Maria Cliente",
+                false,
                 createdAt
         );
         when(jdbcTemplate.query(
-                any(String.class),
+                argThat(sql -> sql.contains("hidden_from_public = FALSE")),
                 any(RowMapper.class),
                 same(professionalIdentifier)
         )).thenAnswer(invocation -> {
@@ -117,6 +120,7 @@ class JdbcProfessionalReviewRepositoryAdapterTest {
             assertThat(professionalReview.anonymousToPublic()).isFalse();
             assertThat(professionalReview.publicAuthorIdentifier()).isEqualTo(publicAuthorIdentifier);
             assertThat(professionalReview.publicAuthorDisplayName()).isEqualTo("Maria Cliente");
+            assertThat(professionalReview.hiddenFromPublic()).isFalse();
             assertThat(professionalReview.createdAt()).isEqualTo(createdAt);
         });
     }
@@ -140,6 +144,7 @@ class JdbcProfessionalReviewRepositoryAdapterTest {
                 true,
                 null,
                 "Usuario anonimo",
+                false,
                 Instant.parse("2026-05-09T13:10:00Z")
         );
         when(jdbcTemplate.query(
@@ -160,6 +165,7 @@ class JdbcProfessionalReviewRepositoryAdapterTest {
         assertThat(professionalReview.orElseThrow().professionalIdentifier()).isEqualTo(professionalIdentifier);
         assertThat(professionalReview.orElseThrow().comment()).isNull();
         assertThat(professionalReview.orElseThrow().anonymousToPublic()).isTrue();
+        assertThat(professionalReview.orElseThrow().hiddenFromPublic()).isFalse();
     }
 
     @Test
@@ -212,7 +218,30 @@ class JdbcProfessionalReviewRepositoryAdapterTest {
                 eq(analysisRequest.professionalIdentifier()),
                 eq(analysisRequest.requestedByProfessionalIdentifier()),
                 eq(analysisRequest.reason()),
+                eq(analysisRequest.moderationStatus().name()),
+                eq((String) null),
+                eq(analysisRequest.moderationNotes()),
+                eq(analysisRequest.decidedAt()),
                 eq(analysisRequest.createdAt())
+        );
+    }
+
+    @Test
+    @DisplayName("GIVEN moderacao administrativa WHEN atualizar visibilidade THEN deve persistir flag publica")
+    void shouldUpdateProfessionalReviewVisibility() {
+        // GIVEN
+        JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
+        JdbcProfessionalReviewRepositoryAdapter adapter = new JdbcProfessionalReviewRepositoryAdapter(jdbcTemplate);
+        UUID professionalReviewIdentifier = UUID.randomUUID();
+
+        // WHEN
+        adapter.updateProfessionalReviewVisibility(professionalReviewIdentifier, true);
+
+        // THEN
+        verify(jdbcTemplate).update(
+                any(String.class),
+                eq(true),
+                eq(professionalReviewIdentifier)
         );
     }
 
@@ -227,6 +256,7 @@ class JdbcProfessionalReviewRepositoryAdapterTest {
             boolean anonymousToPublic,
             UUID publicAuthorIdentifier,
             String publicAuthorDisplayName,
+            boolean hiddenFromPublic,
             Instant createdAt
     ) throws Exception {
         ResultSet resultSet = mock(ResultSet.class);
@@ -240,6 +270,7 @@ class JdbcProfessionalReviewRepositoryAdapterTest {
         when(resultSet.getBoolean("anonymous_to_public")).thenReturn(anonymousToPublic);
         when(resultSet.getObject("public_author_identifier", UUID.class)).thenReturn(publicAuthorIdentifier);
         when(resultSet.getString("public_author_display_name")).thenReturn(publicAuthorDisplayName);
+        when(resultSet.getBoolean("hidden_from_public")).thenReturn(hiddenFromPublic);
         when(resultSet.getTimestamp("created_at")).thenReturn(Timestamp.from(createdAt));
         return resultSet;
     }

@@ -1,6 +1,8 @@
 package br.com.worklink.domain.review;
 
 import br.com.worklink.domain.BusinessRuleViolationException;
+import br.com.worklink.domain.moderation.ModerationDecision;
+import br.com.worklink.domain.moderation.ModerationStatus;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -11,6 +13,10 @@ public record ProfessionalReviewAnalysisRequest(
         UUID professionalIdentifier,
         UUID requestedByProfessionalIdentifier,
         String reason,
+        ModerationStatus moderationStatus,
+        ModerationDecision moderationDecision,
+        String moderationNotes,
+        Instant decidedAt,
         Instant createdAt
 ) {
 
@@ -27,6 +33,10 @@ public record ProfessionalReviewAnalysisRequest(
                 requireIdentifier(professionalIdentifier, "O profissional avaliado e obrigatorio."),
                 requireIdentifier(requestedByProfessionalIdentifier, "O profissional solicitante e obrigatorio."),
                 normalizeReason(reason),
+                ModerationStatus.PENDING,
+                null,
+                null,
+                null,
                 requireInstant(createdAt)
         );
     }
@@ -37,6 +47,10 @@ public record ProfessionalReviewAnalysisRequest(
             UUID professionalIdentifier,
             UUID requestedByProfessionalIdentifier,
             String reason,
+            ModerationStatus moderationStatus,
+            ModerationDecision moderationDecision,
+            String moderationNotes,
+            Instant decidedAt,
             Instant createdAt
     ) {
         return new ProfessionalReviewAnalysisRequest(
@@ -45,6 +59,10 @@ public record ProfessionalReviewAnalysisRequest(
                 requireIdentifier(professionalIdentifier, "O profissional avaliado e obrigatorio."),
                 requireIdentifier(requestedByProfessionalIdentifier, "O profissional solicitante e obrigatorio."),
                 normalizeReason(reason),
+                requireModerationStatus(moderationStatus),
+                moderationDecision,
+                normalizeReason(moderationNotes),
+                decidedAt,
                 requireInstant(createdAt)
         );
     }
@@ -68,5 +86,12 @@ public record ProfessionalReviewAnalysisRequest(
             throw new BusinessRuleViolationException("O momento da solicitacao de analise e obrigatorio.");
         }
         return instant;
+    }
+
+    private static ModerationStatus requireModerationStatus(ModerationStatus moderationStatus) {
+        if (moderationStatus == null) {
+            throw new BusinessRuleViolationException("O status de moderacao da contestacao e obrigatorio.");
+        }
+        return moderationStatus;
     }
 }

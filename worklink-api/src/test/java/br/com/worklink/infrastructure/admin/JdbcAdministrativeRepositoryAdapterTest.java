@@ -1,6 +1,8 @@
 package br.com.worklink.infrastructure.admin;
 
 import br.com.worklink.domain.professional.Professional;
+import br.com.worklink.domain.moderation.ModerationDecision;
+import br.com.worklink.domain.moderation.ModerationStatus;
 import br.com.worklink.domain.report.ProfessionalReport;
 import br.com.worklink.domain.review.ProfessionalReviewAnalysisRequest;
 
@@ -13,10 +15,12 @@ import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -63,6 +67,10 @@ class JdbcAdministrativeRepositoryAdapterTest {
         when(resultSet.getObject("evidence_file_identifier", UUID.class)).thenReturn(null);
         when(resultSet.getBoolean("serious_case")).thenReturn(true);
         when(resultSet.getString("authority_guidance")).thenReturn("Procure autoridades.");
+        when(resultSet.getString("moderation_status")).thenReturn("PENDING");
+        when(resultSet.getString("moderation_decision")).thenReturn(null);
+        when(resultSet.getString("moderation_notes")).thenReturn(null);
+        when(resultSet.getTimestamp("decided_at")).thenReturn(null);
         when(resultSet.getTimestamp("created_at")).thenReturn(Timestamp.from(Instant.parse("2026-05-09T10:00:00Z")));
         when(jdbcTemplate.query(any(String.class), any(RowMapper.class))).thenAnswer(invocation -> {
             RowMapper<ProfessionalReport> rowMapper = invocation.getArgument(1);
@@ -76,6 +84,7 @@ class JdbcAdministrativeRepositoryAdapterTest {
         assertThat(reports).hasSize(1);
         assertThat(reports.getFirst().professionalReportIdentifier()).isEqualTo(reportIdentifier);
         assertThat(reports.getFirst().seriousCase()).isTrue();
+        assertThat(reports.getFirst().moderationStatus()).isEqualTo(ModerationStatus.PENDING);
     }
 
     @Test
@@ -91,6 +100,10 @@ class JdbcAdministrativeRepositoryAdapterTest {
         when(resultSet.getObject("professional_identifier", UUID.class)).thenReturn(UUID.randomUUID());
         when(resultSet.getObject("requested_by_professional_identifier", UUID.class)).thenReturn(UUID.randomUUID());
         when(resultSet.getString("reason")).thenReturn("Comentario indevido");
+        when(resultSet.getString("moderation_status")).thenReturn("PENDING");
+        when(resultSet.getString("moderation_decision")).thenReturn(null);
+        when(resultSet.getString("moderation_notes")).thenReturn(null);
+        when(resultSet.getTimestamp("decided_at")).thenReturn(null);
         when(resultSet.getTimestamp("created_at")).thenReturn(Timestamp.from(Instant.parse("2026-05-09T10:00:00Z")));
         when(jdbcTemplate.query(any(String.class), any(RowMapper.class))).thenAnswer(invocation -> {
             RowMapper<ProfessionalReviewAnalysisRequest> rowMapper = invocation.getArgument(1);
@@ -103,6 +116,87 @@ class JdbcAdministrativeRepositoryAdapterTest {
         // THEN
         assertThat(requests).hasSize(1);
         assertThat(requests.getFirst().reviewAnalysisRequestIdentifier()).isEqualTo(requestIdentifier);
+        assertThat(requests.getFirst().moderationStatus()).isEqualTo(ModerationStatus.PENDING);
+    }
+
+    @Test
+    @DisplayName("GIVEN denuncia existente WHEN moderar THEN deve retornar denuncia atualizada")
+    void shouldModerateProfessionalReport() throws Exception {
+        // GIVEN
+        JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
+        JdbcAdministrativeRepositoryAdapter adapter = new JdbcAdministrativeRepositoryAdapter(jdbcTemplate);
+        UUID reportIdentifier = UUID.randomUUID();
+        ResultSet resultSet = mock(ResultSet.class);
+        when(jdbcTemplate.update(any(String.class), any(), any(), any(), any(), eq(reportIdentifier))).thenReturn(1);
+        when(resultSet.getObject("professional_report_identifier", UUID.class)).thenReturn(reportIdentifier);
+        when(resultSet.getObject("professional_identifier", UUID.class)).thenReturn(UUID.randomUUID());
+        when(resultSet.getObject("reporter_identifier", UUID.class)).thenReturn(UUID.randomUUID());
+        when(resultSet.getString("report_reason")).thenReturn("FRAUD");
+        when(resultSet.getString("description")).thenReturn("Perfil falso");
+        when(resultSet.getObject("evidence_file_identifier", UUID.class)).thenReturn(null);
+        when(resultSet.getBoolean("serious_case")).thenReturn(false);
+        when(resultSet.getString("authority_guidance")).thenReturn(null);
+        when(resultSet.getString("moderation_status")).thenReturn("RESOLVED");
+        when(resultSet.getString("moderation_decision")).thenReturn("KEEP_AS_IS");
+        when(resultSet.getString("moderation_notes")).thenReturn("Caso encerrado");
+        when(resultSet.getTimestamp("decided_at")).thenReturn(Timestamp.from(Instant.parse("2026-05-10T09:00:00Z")));
+        when(resultSet.getTimestamp("created_at")).thenReturn(Timestamp.from(Instant.parse("2026-05-09T10:00:00Z")));
+        when(jdbcTemplate.query(any(String.class), any(RowMapper.class), eq(reportIdentifier))).thenAnswer(invocation -> {
+            RowMapper<ProfessionalReport> rowMapper = invocation.getArgument(1);
+            return List.of(rowMapper.mapRow(resultSet, 0));
+        });
+
+        // WHEN
+        Optional<ProfessionalReport> report = adapter.moderateProfessionalReport(
+                reportIdentifier,
+                ModerationStatus.RESOLVED,
+                ModerationDecision.KEEP_AS_IS,
+                "Caso encerrado",
+                Instant.parse("2026-05-10T09:00:00Z")
+        );
+
+        // THEN
+        assertThat(report).isPresent();
+        assertThat(report.orElseThrow().moderationStatus()).isEqualTo(ModerationStatus.RESOLVED);
+        assertThat(report.orElseThrow().moderationDecision()).isEqualTo(ModerationDecision.KEEP_AS_IS);
+    }
+
+    @Test
+    @DisplayName("GIVEN contestacao existente WHEN moderar THEN deve retornar solicitacao atualizada")
+    void shouldModerateReviewAnalysisRequest() throws Exception {
+        // GIVEN
+        JdbcTemplate jdbcTemplate = mock(JdbcTemplate.class);
+        JdbcAdministrativeRepositoryAdapter adapter = new JdbcAdministrativeRepositoryAdapter(jdbcTemplate);
+        UUID requestIdentifier = UUID.randomUUID();
+        ResultSet resultSet = mock(ResultSet.class);
+        when(jdbcTemplate.update(any(String.class), any(), any(), any(), any(), eq(requestIdentifier))).thenReturn(1);
+        when(resultSet.getObject("review_analysis_request_identifier", UUID.class)).thenReturn(requestIdentifier);
+        when(resultSet.getObject("professional_review_identifier", UUID.class)).thenReturn(UUID.randomUUID());
+        when(resultSet.getObject("professional_identifier", UUID.class)).thenReturn(UUID.randomUUID());
+        when(resultSet.getObject("requested_by_professional_identifier", UUID.class)).thenReturn(UUID.randomUUID());
+        when(resultSet.getString("reason")).thenReturn("Comentario indevido");
+        when(resultSet.getString("moderation_status")).thenReturn("ACTION_REQUIRED");
+        when(resultSet.getString("moderation_decision")).thenReturn("HIDE_FROM_PUBLIC");
+        when(resultSet.getString("moderation_notes")).thenReturn("Ocultada");
+        when(resultSet.getTimestamp("decided_at")).thenReturn(Timestamp.from(Instant.parse("2026-05-10T11:00:00Z")));
+        when(resultSet.getTimestamp("created_at")).thenReturn(Timestamp.from(Instant.parse("2026-05-09T10:00:00Z")));
+        when(jdbcTemplate.query(any(String.class), any(RowMapper.class), eq(requestIdentifier))).thenAnswer(invocation -> {
+            RowMapper<ProfessionalReviewAnalysisRequest> rowMapper = invocation.getArgument(1);
+            return List.of(rowMapper.mapRow(resultSet, 0));
+        });
+
+        // WHEN
+        Optional<ProfessionalReviewAnalysisRequest> request = adapter.moderateReviewAnalysisRequest(
+                requestIdentifier,
+                ModerationStatus.ACTION_REQUIRED,
+                ModerationDecision.HIDE_FROM_PUBLIC,
+                "Ocultada",
+                Instant.parse("2026-05-10T11:00:00Z")
+        );
+
+        // THEN
+        assertThat(request).isPresent();
+        assertThat(request.orElseThrow().moderationDecision()).isEqualTo(ModerationDecision.HIDE_FROM_PUBLIC);
     }
 
     @Test

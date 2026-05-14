@@ -39,6 +39,7 @@ class ProfessionalReviewTest {
         assertThat(professionalReview.anonymousToPublic()).isTrue();
         assertThat(professionalReview.publicAuthorIdentifier()).isNull();
         assertThat(professionalReview.publicAuthorDisplayName()).isEqualTo("Usuario anonimo");
+        assertThat(professionalReview.hiddenFromPublic()).isFalse();
     }
 
     @Test

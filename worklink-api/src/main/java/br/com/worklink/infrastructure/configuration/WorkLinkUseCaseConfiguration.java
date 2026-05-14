@@ -6,11 +6,15 @@ import br.com.worklink.application.admin.port.ListAdministrativeProfessionalRepo
 import br.com.worklink.application.admin.port.ListAdministrativeProfessionalsPort;
 import br.com.worklink.application.admin.port.ListAdministrativeReviewAnalysisRequestsPort;
 import br.com.worklink.application.admin.port.LoadAdministrativeMetricsPort;
+import br.com.worklink.application.admin.port.ModerateProfessionalReportPort;
+import br.com.worklink.application.admin.port.ModerateReviewAnalysisRequestPort;
 import br.com.worklink.application.admin.usecase.BlockProfessionalUseCase;
 import br.com.worklink.application.admin.usecase.ListAdministrativeProfessionalReportsUseCase;
 import br.com.worklink.application.admin.usecase.ListAdministrativeProfessionalsUseCase;
 import br.com.worklink.application.admin.usecase.ListAdministrativeReviewAnalysisRequestsUseCase;
 import br.com.worklink.application.admin.usecase.LoadAdministrativeMetricsUseCase;
+import br.com.worklink.application.admin.usecase.ModerateProfessionalReportUseCase;
+import br.com.worklink.application.admin.usecase.ModerateReviewAnalysisRequestUseCase;
 import br.com.worklink.application.admin.usecase.UnblockProfessionalUseCase;
 import br.com.worklink.application.catalog.port.ListServiceCategoriesPort;
 import br.com.worklink.application.catalog.port.ListServiceCitiesPort;
@@ -83,6 +87,7 @@ import br.com.worklink.application.review.port.LoadProfessionalReviewByIdentifie
 import br.com.worklink.application.review.port.LoadPostContactFeedbackByContactIntentIdentifierPort;
 import br.com.worklink.application.review.port.SaveProfessionalReviewPort;
 import br.com.worklink.application.review.port.SaveProfessionalReviewAnalysisRequestPort;
+import br.com.worklink.application.review.port.UpdateProfessionalReviewVisibilityPort;
 import br.com.worklink.application.review.usecase.ListProfessionalReviewProfileUseCase;
 import br.com.worklink.application.review.usecase.RegisterProfessionalReviewUseCase;
 import br.com.worklink.application.review.usecase.RequestProfessionalReviewAnalysisUseCase;
@@ -465,6 +470,30 @@ public class WorkLinkUseCaseConfiguration {
         return new RegisterProfessionalReportUseCase(
                 loadProfessionalByIdentifierPort,
                 saveProfessionalReportPort,
+                currentContactTimePort
+        );
+    }
+
+    @Bean
+    ModerateProfessionalReportUseCase moderateProfessionalReportUseCase(
+            ModerateProfessionalReportPort moderateProfessionalReportPort,
+            CurrentContactTimePort currentContactTimePort
+    ) {
+        return new ModerateProfessionalReportUseCase(
+                moderateProfessionalReportPort,
+                currentContactTimePort
+        );
+    }
+
+    @Bean
+    ModerateReviewAnalysisRequestUseCase moderateReviewAnalysisRequestUseCase(
+            ModerateReviewAnalysisRequestPort moderateReviewAnalysisRequestPort,
+            UpdateProfessionalReviewVisibilityPort updateProfessionalReviewVisibilityPort,
+            CurrentContactTimePort currentContactTimePort
+    ) {
+        return new ModerateReviewAnalysisRequestUseCase(
+                moderateReviewAnalysisRequestPort,
+                updateProfessionalReviewVisibilityPort,
                 currentContactTimePort
         );
     }

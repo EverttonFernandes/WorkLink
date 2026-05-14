@@ -91,6 +91,7 @@ class CustomerProfileUseCaseTest {
                         true,
                         null,
                         "Usuario anonimo",
+                        false,
                         Instant.parse("2026-05-13T11:00:00Z")
                 )
         );
