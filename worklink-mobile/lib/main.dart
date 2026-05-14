@@ -1,5 +1,7 @@
 // coverage:ignore-file
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'app/worklink_app_configuration.dart';
@@ -53,6 +55,7 @@ class WorkLinkApp extends StatefulWidget {
 class _WorkLinkAppState extends State<WorkLinkApp> {
   bool customerAuthenticated = false;
   String customerPhoneNumber = '(51) 9 9999-9999';
+  CustomerProfileState? customerProfileState;
   late Future<WorkLinkHomeData> homeDataFuture;
 
   @override
@@ -106,6 +109,9 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
           MaterialPageRoute<void>(
             builder: (_) => ProfessionalProfileScreen(
               professionalProfile: professionalProfile,
+              savedByCustomer: _isProfessionalSavedByCustomer(
+                professionalProfile.professionalIdentifier,
+              ),
               onContactProfessional: (_) => _handleContactProfessional(
                 context,
                 professionalProfile,
@@ -116,6 +122,12 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
               ),
               onRequestReviewAnalysis:
                   widget.applicationGateway.requestProfessionalReviewAnalysis,
+              onToggleSavedProfessional: (currentlySaved) =>
+                  _toggleSavedProfessional(
+                context,
+                professionalProfile.professionalIdentifier,
+                currentlySaved,
+              ),
             ),
           ),
         );
@@ -143,7 +155,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
           ),
         );
       },
-      onOpenCustomerProfile: () => _handleOpenCustomerProfile(context),
+      onOpenCustomerProfile: () => unawaited(_handleOpenCustomerProfile(context)),
     );
   }
 
@@ -152,11 +164,12 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
     ProfessionalProfile professionalProfile,
   ) {
     if (!customerAuthenticated) {
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (authenticationContext) => CustomerAuthenticationScreen(
-            customerAuthenticationController:
-                _buildCustomerAuthenticationController(),
+      unawaited(
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (authenticationContext) => CustomerAuthenticationScreen(
+              customerAuthenticationController:
+                  _buildCustomerAuthenticationController(),
             onAuthenticationCompleted: (authenticatedPhoneNumber) {
               setState(() {
                 customerAuthenticated = true;
@@ -165,6 +178,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
               });
               Navigator.of(authenticationContext).pop();
             },
+          ),
           ),
         ),
       );
@@ -188,68 +202,70 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
     );
   }
 
-  void _handleOpenCustomerProfile(BuildContext context) {
+  Future<void> _handleOpenCustomerProfile(BuildContext context) async {
     if (!customerAuthenticated) {
-      Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (authenticationContext) => CustomerAuthenticationScreen(
-            customerAuthenticationController:
-                _buildCustomerAuthenticationController(),
-            onAuthenticationCompleted: (authenticatedPhoneNumber) {
-              setState(() {
-                customerAuthenticated = true;
-                customerPhoneNumber =
-                    _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
-              });
-              Navigator.of(authenticationContext).pop();
-              _openCustomerProfile(context);
-            },
+      unawaited(
+        Navigator.of(context).push(
+          MaterialPageRoute<void>(
+            builder: (authenticationContext) => CustomerAuthenticationScreen(
+              customerAuthenticationController:
+                  _buildCustomerAuthenticationController(),
+              onAuthenticationCompleted: (authenticatedPhoneNumber) {
+                setState(() {
+                  customerAuthenticated = true;
+                  customerPhoneNumber =
+                      _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
+                });
+                Navigator.of(authenticationContext).pop();
+                unawaited(_openCustomerProfile(context));
+              },
+            ),
           ),
         ),
       );
       return;
     }
 
-    _openCustomerProfile(context);
+    await _openCustomerProfile(context);
   }
 
-  void _openCustomerProfile(BuildContext context) {
-    Navigator.of(context).push(
+  Future<void> _openCustomerProfile(BuildContext context) async {
+    final navigator = Navigator.of(context);
+    final loadedCustomerProfileState =
+        await widget.applicationGateway.loadCustomerProfile();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      customerProfileState = loadedCustomerProfileState;
+    });
+    await navigator.push(
       MaterialPageRoute<void>(
         builder: (profileContext) => CustomerProfileScreen(
           customerProfileController: CustomerProfileController(
-            initialState: CustomerProfileState(
-              customerName: 'Cliente WorkLink',
-              phoneNumber: customerPhoneNumber,
-              mainCity: const CustomerProfileCity(
-                cityName: 'Canoas',
-                stateCode: 'RS',
-              ),
-              selectedCities: const [
-                CustomerProfileCity(cityName: 'Canoas', stateCode: 'RS'),
-                CustomerProfileCity(cityName: 'Porto Alegre', stateCode: 'RS'),
-              ],
-              savedProfessionals: const [
-                CustomerSavedProfessional(
-                  professionalIdentifier: 'maria-eletricista',
-                  professionalName: 'Maria Eletricista',
-                  categoryName: 'Eletricista',
-                  cityDisplayName: 'Canoas - RS',
-                ),
-              ],
-              submittedReviews: const [
-                CustomerSubmittedReview(
-                  professionalName: 'Maria Eletricista',
-                  starRating: 5,
-                  publiclyAnonymous: true,
-                  comment: 'Atendimento rapido e organizado.',
-                ),
-              ],
-            ),
+            initialState: loadedCustomerProfileState,
+            onPreferencesChanged: ({
+              required bool whatsappNotificationsEnabled,
+              required bool profilePersonalizationEnabled,
+            }) async {
+              final persistedCustomerProfileState = await widget
+                  .applicationGateway
+                  .updateCustomerProfilePreferences(
+                whatsappNotificationsEnabled: whatsappNotificationsEnabled,
+                profilePersonalizationEnabled: profilePersonalizationEnabled,
+              );
+              if (mounted) {
+                setState(() {
+                  customerProfileState = persistedCustomerProfileState;
+                });
+              }
+              return persistedCustomerProfileState;
+            },
           ),
           onLogout: () {
             setState(() {
               customerAuthenticated = false;
+              customerProfileState = null;
             });
             Navigator.of(profileContext).pop();
           },
@@ -335,6 +351,68 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
           '${phoneNumber.substring(2, 6)}-${phoneNumber.substring(6)}';
     }
     return phoneNumber;
+  }
+
+  bool _isProfessionalSavedByCustomer(String professionalIdentifier) {
+    return customerProfileState?.savedProfessionals.any(
+          (savedProfessional) =>
+              savedProfessional.professionalIdentifier == professionalIdentifier,
+        ) ??
+        false;
+  }
+
+  Future<bool> _toggleSavedProfessional(
+    BuildContext context,
+    String professionalIdentifier,
+    bool currentlySaved,
+  ) async {
+    final authenticated = await _ensureCustomerAuthenticated(context);
+    if (!authenticated) {
+      return currentlySaved;
+    }
+    final updatedCustomerProfileState = currentlySaved
+        ? await widget.applicationGateway.removeSavedProfessionalForCustomer(
+            professionalIdentifier,
+          )
+        : await widget.applicationGateway.saveProfessionalForCustomer(
+            professionalIdentifier,
+          );
+    if (mounted) {
+      setState(() {
+        customerProfileState = updatedCustomerProfileState;
+      });
+    }
+    return updatedCustomerProfileState.savedProfessionals.any(
+      (savedProfessional) =>
+          savedProfessional.professionalIdentifier == professionalIdentifier,
+    );
+  }
+
+  Future<bool> _ensureCustomerAuthenticated(BuildContext context) async {
+    if (customerAuthenticated) {
+      return true;
+    }
+    final authenticationCompleter = Completer<bool>();
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (authenticationContext) => CustomerAuthenticationScreen(
+          customerAuthenticationController: _buildCustomerAuthenticationController(),
+          onAuthenticationCompleted: (authenticatedPhoneNumber) {
+            setState(() {
+              customerAuthenticated = true;
+              customerPhoneNumber =
+                  _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
+            });
+            authenticationCompleter.complete(true);
+            Navigator.of(authenticationContext).pop();
+          },
+        ),
+      ),
+    );
+    if (!authenticationCompleter.isCompleted) {
+      authenticationCompleter.complete(false);
+    }
+    return authenticationCompleter.future;
   }
 }
 

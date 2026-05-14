@@ -99,16 +99,22 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
           SwitchListTile(
             key: const ValueKey('customer-profile-whatsapp-notifications'),
             value: customerProfileState.whatsappNotificationsEnabled,
-            onChanged:
-                widget.customerProfileController.changeWhatsappNotifications,
+            onChanged: (enabled) async {
+              await widget.customerProfileController.changeWhatsappNotifications(
+                enabled,
+              );
+            },
             title: const Text('Receber avisos no WhatsApp'),
             contentPadding: EdgeInsets.zero,
           ),
           SwitchListTile(
             key: const ValueKey('customer-profile-personalization'),
             value: customerProfileState.profilePersonalizationEnabled,
-            onChanged:
-                widget.customerProfileController.changeProfilePersonalization,
+            onChanged: (enabled) async {
+              await widget.customerProfileController.changeProfilePersonalization(
+                enabled,
+              );
+            },
             title: const Text('Usar preferências para personalizar buscas'),
             contentPadding: EdgeInsets.zero,
           ),

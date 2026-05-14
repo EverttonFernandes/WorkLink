@@ -1,6 +1,7 @@
 package br.com.worklink.infrastructure.review;
 
 import br.com.worklink.application.review.port.ListProfessionalReviewsByProfessionalIdentifierPort;
+import br.com.worklink.application.review.port.ListProfessionalReviewsByInternalAuthorIdentifierPort;
 import br.com.worklink.application.review.port.LoadProfessionalReviewByIdentifierPort;
 import br.com.worklink.application.review.port.SaveProfessionalReviewAnalysisRequestPort;
 import br.com.worklink.application.review.port.SaveProfessionalReviewPort;
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class JdbcProfessionalReviewRepositoryAdapter implements
         SaveProfessionalReviewPort,
         ListProfessionalReviewsByProfessionalIdentifierPort,
+        ListProfessionalReviewsByInternalAuthorIdentifierPort,
         LoadProfessionalReviewByIdentifierPort,
         SaveProfessionalReviewAnalysisRequestPort {
 
@@ -64,70 +66,34 @@ public class JdbcProfessionalReviewRepositoryAdapter implements
     @Override
     public List<ProfessionalReview> listProfessionalReviewsByProfessionalIdentifier(UUID professionalIdentifier) {
         return jdbcTemplate.query(
-                """
-                SELECT professional_review_identifier,
-                       contact_intent_identifier,
-                       post_contact_feedback_identifier,
-                       professional_identifier,
-                       internal_author_identifier,
-                       star_rating,
-                       comment,
-                       anonymous_to_public,
-                       public_author_identifier,
-                       public_author_display_name,
-                       created_at
-                FROM worklink.professional_reviews
+                professionalReviewSelectSql() + """
                 WHERE professional_identifier = ?
                 ORDER BY created_at DESC
                 """,
-                (resultSet, rowNumber) -> ProfessionalReview.restoreProfessionalReview(
-                        resultSet.getObject("professional_review_identifier", UUID.class),
-                        resultSet.getObject("contact_intent_identifier", UUID.class),
-                        resultSet.getObject("post_contact_feedback_identifier", UUID.class),
-                        resultSet.getObject("professional_identifier", UUID.class),
-                        resultSet.getObject("internal_author_identifier", UUID.class),
-                        resultSet.getInt("star_rating"),
-                        resultSet.getString("comment"),
-                        resultSet.getBoolean("anonymous_to_public"),
-                        resultSet.getObject("public_author_identifier", UUID.class),
-                        resultSet.getString("public_author_display_name"),
-                        resultSet.getTimestamp("created_at").toInstant()
-                ),
+                (resultSet, rowNumber) -> mapProfessionalReview(resultSet),
                 professionalIdentifier
+        );
+    }
+
+    @Override
+    public List<ProfessionalReview> listProfessionalReviewsByInternalAuthorIdentifier(UUID internalAuthorIdentifier) {
+        return jdbcTemplate.query(
+                professionalReviewSelectSql() + """
+                WHERE internal_author_identifier = ?
+                ORDER BY created_at DESC
+                """,
+                (resultSet, rowNumber) -> mapProfessionalReview(resultSet),
+                internalAuthorIdentifier
         );
     }
 
     @Override
     public Optional<ProfessionalReview> loadProfessionalReviewByIdentifier(UUID professionalReviewIdentifier) {
         return jdbcTemplate.query(
-                """
-                SELECT professional_review_identifier,
-                       contact_intent_identifier,
-                       post_contact_feedback_identifier,
-                       professional_identifier,
-                       internal_author_identifier,
-                       star_rating,
-                       comment,
-                       anonymous_to_public,
-                       public_author_identifier,
-                       public_author_display_name,
-                       created_at
-                FROM worklink.professional_reviews
+                professionalReviewSelectSql() + """
                 WHERE professional_review_identifier = ?
                 """,
-                (resultSet, rowNumber) -> ProfessionalReview.restoreProfessionalReview(
-                        resultSet.getObject("professional_review_identifier", UUID.class),
-                        resultSet.getObject("contact_intent_identifier", UUID.class),
-                        resultSet.getObject("post_contact_feedback_identifier", UUID.class),
-                        resultSet.getObject("professional_identifier", UUID.class),
-                        resultSet.getObject("internal_author_identifier", UUID.class),
-                        resultSet.getInt("star_rating"),
-                        resultSet.getString("comment"),
-                        resultSet.getBoolean("anonymous_to_public"),
-                        resultSet.getObject("public_author_identifier", UUID.class),
-                        resultSet.getString("public_author_display_name"),
-                        resultSet.getTimestamp("created_at").toInstant()
-                ),
+                (resultSet, rowNumber) -> mapProfessionalReview(resultSet),
                 professionalReviewIdentifier
         ).stream().findFirst();
     }
@@ -156,5 +122,38 @@ public class JdbcProfessionalReviewRepositoryAdapter implements
                 professionalReviewAnalysisRequest.createdAt()
         );
         return professionalReviewAnalysisRequest;
+    }
+
+    private String professionalReviewSelectSql() {
+        return """
+                SELECT professional_review_identifier,
+                       contact_intent_identifier,
+                       post_contact_feedback_identifier,
+                       professional_identifier,
+                       internal_author_identifier,
+                       star_rating,
+                       comment,
+                       anonymous_to_public,
+                       public_author_identifier,
+                       public_author_display_name,
+                       created_at
+                FROM worklink.professional_reviews
+                """;
+    }
+
+    private ProfessionalReview mapProfessionalReview(java.sql.ResultSet resultSet) throws java.sql.SQLException {
+        return ProfessionalReview.restoreProfessionalReview(
+                resultSet.getObject("professional_review_identifier", UUID.class),
+                resultSet.getObject("contact_intent_identifier", UUID.class),
+                resultSet.getObject("post_contact_feedback_identifier", UUID.class),
+                resultSet.getObject("professional_identifier", UUID.class),
+                resultSet.getObject("internal_author_identifier", UUID.class),
+                resultSet.getInt("star_rating"),
+                resultSet.getString("comment"),
+                resultSet.getBoolean("anonymous_to_public"),
+                resultSet.getObject("public_author_identifier", UUID.class),
+                resultSet.getString("public_author_display_name"),
+                resultSet.getTimestamp("created_at").toInstant()
+        );
     }
 }

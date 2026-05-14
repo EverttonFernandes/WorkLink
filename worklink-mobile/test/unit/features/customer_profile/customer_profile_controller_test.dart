@@ -5,15 +5,15 @@ import 'package:worklink_mobile/features/customer_profile/customer_profile_state
 void main() {
   test(
       'GIVEN perfil cliente WHEN alterar preferencias THEN deve atualizar estado',
-      () {
+      () async {
     // GIVEN
     final customerProfileController = CustomerProfileController(
       initialState: customerProfileStateFixture(),
     );
 
     // WHEN
-    customerProfileController.changeWhatsappNotifications(false);
-    customerProfileController.changeProfilePersonalization(false);
+    await customerProfileController.changeWhatsappNotifications(false);
+    await customerProfileController.changeProfilePersonalization(false);
 
     // THEN
     expect(
@@ -54,6 +54,32 @@ void main() {
       customerProfileState.submittedReviews.single.publicVisibilityLabel,
       'Anonima publicamente',
     );
+  });
+
+  test(
+      'GIVEN callback de persistencia WHEN alterar preferencias THEN deve sincronizar estado devolvido pelo backend',
+      () async {
+    // GIVEN
+    final customerProfileController = CustomerProfileController(
+      initialState: customerProfileStateFixture(),
+      onPreferencesChanged: ({
+        required bool whatsappNotificationsEnabled,
+        required bool profilePersonalizationEnabled,
+      }) async {
+        return customerProfileStateFixture().copyWith(
+          whatsappNotificationsEnabled: whatsappNotificationsEnabled,
+          profilePersonalizationEnabled: profilePersonalizationEnabled,
+          savedProfessionals: const [],
+        );
+      },
+    );
+
+    // WHEN
+    await customerProfileController.changeWhatsappNotifications(false);
+
+    // THEN
+    expect(customerProfileController.state.whatsappNotificationsEnabled, isFalse);
+    expect(customerProfileController.state.savedProfessionals, isEmpty);
   });
 }
 

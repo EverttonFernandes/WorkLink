@@ -5,19 +5,37 @@ import 'package:flutter/material.dart';
 import 'professional_profile.dart';
 import 'professional_profile_review.dart';
 
-class ProfessionalProfileScreen extends StatelessWidget {
+class ProfessionalProfileScreen extends StatefulWidget {
   const ProfessionalProfileScreen({
     super.key,
     required this.professionalProfile,
     this.onContactProfessional,
     this.onReportProfessional,
     this.onRequestReviewAnalysis,
+    this.savedByCustomer = false,
+    this.onToggleSavedProfessional,
   });
 
   final ProfessionalProfile professionalProfile;
   final ValueChanged<String>? onContactProfessional;
   final ValueChanged<String>? onReportProfessional;
   final ValueChanged<String>? onRequestReviewAnalysis;
+  final bool savedByCustomer;
+  final Future<bool> Function(bool currentlySaved)? onToggleSavedProfessional;
+
+  @override
+  State<ProfessionalProfileScreen> createState() =>
+      _ProfessionalProfileScreenState();
+}
+
+class _ProfessionalProfileScreenState extends State<ProfessionalProfileScreen> {
+  late bool _savedByCustomer;
+
+  @override
+  void initState() {
+    super.initState();
+    _savedByCustomer = widget.savedByCustomer;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +43,27 @@ class ProfessionalProfileScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Perfil do profissional'),
         actions: [
+          IconButton(
+            tooltip: _savedByCustomer
+                ? 'Remover dos profissionais salvos'
+                : 'Salvar profissional',
+            onPressed: widget.onToggleSavedProfessional == null
+                ? null
+                : () async {
+                    final nextSavedState = await widget.onToggleSavedProfessional!(
+                      _savedByCustomer,
+                    );
+                    if (!mounted) {
+                      return;
+                    }
+                    setState(() {
+                      _savedByCustomer = nextSavedState;
+                    });
+                  },
+            icon: Icon(
+              _savedByCustomer ? Icons.bookmark : Icons.bookmark_border,
+            ),
+          ),
           IconButton(
             tooltip: 'Compartilhar perfil',
             onPressed: () {},
@@ -35,48 +74,48 @@ class ProfessionalProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _ProfessionalProfileHeader(professionalProfile: professionalProfile),
+          _ProfessionalProfileHeader(professionalProfile: widget.professionalProfile),
           const SizedBox(height: 16),
           _ProfileDisclaimer(),
           const SizedBox(height: 16),
           _ProfileActions(
-            professionalProfile: professionalProfile,
-            onContactProfessional: onContactProfessional,
-            onReportProfessional: onReportProfessional,
+            professionalProfile: widget.professionalProfile,
+            onContactProfessional: widget.onContactProfessional,
+            onReportProfessional: widget.onReportProfessional,
           ),
-          if (professionalProfile.hasAboutDescription) ...[
+          if (widget.professionalProfile.hasAboutDescription) ...[
             const SizedBox(height: 16),
             _ProfileTextSection(
               title: 'Sobre mim',
-              body: professionalProfile.aboutDescription,
+              body: widget.professionalProfile.aboutDescription,
             ),
           ],
-          if (professionalProfile.hasServiceNames) ...[
+          if (widget.professionalProfile.hasServiceNames) ...[
             const SizedBox(height: 16),
             _ProfileChipSection(
               title: 'Serviços',
-              values: professionalProfile.serviceNames,
+              values: widget.professionalProfile.serviceNames,
             ),
           ],
-          if (professionalProfile.hasUsefulLinks) ...[
+          if (widget.professionalProfile.hasUsefulLinks) ...[
             const SizedBox(height: 16),
             _ProfileChipSection(
               title: 'Links úteis',
-              values: professionalProfile.usefulLinks,
+              values: widget.professionalProfile.usefulLinks,
             ),
           ],
-          if (professionalProfile.hasPortfolioItems) ...[
+          if (widget.professionalProfile.hasPortfolioItems) ...[
             const SizedBox(height: 16),
             _ProfileChipSection(
               title: 'Portfólio',
-              values: professionalProfile.portfolioItemDescriptions,
+              values: widget.professionalProfile.portfolioItemDescriptions,
             ),
           ],
-          if (professionalProfile.hasReviewSummary) ...[
+          if (widget.professionalProfile.hasReviewSummary) ...[
             const SizedBox(height: 16),
             _ProfileReviewSection(
-              reviewSummary: professionalProfile.reviewSummary!,
-              onRequestReviewAnalysis: onRequestReviewAnalysis,
+              reviewSummary: widget.professionalProfile.reviewSummary!,
+              onRequestReviewAnalysis: widget.onRequestReviewAnalysis,
             ),
           ],
         ],

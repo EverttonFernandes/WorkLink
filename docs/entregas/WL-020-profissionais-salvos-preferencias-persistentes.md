@@ -3,12 +3,12 @@
 ## Identificador
 
 - História: `WL-020`
-- Data: `2026-05-10`
+- Data: `2026-05-13`
 - Tipo semântico sugerido: `MINOR`
 
 ## Objetivo de negócio
 
-Permitir que clientes salvem profissionais favoritos e persistam suas preferências de cidades e categorias, melhorando retenção e reduzindo fricção em futuras buscas.
+Permitir que clientes salvem profissionais relevantes e mantenham preferências básicas do perfil entre sessões autenticadas, reduzindo retrabalho e fortalecendo a utilidade do perfil do cliente.
 
 ## Personas afetadas
 
@@ -19,63 +19,67 @@ Permitir que clientes salvem profissionais favoritos e persistam suas preferênc
 ## Requisitos atendidos
 
 - RF55 — Salvar profissionais como favoritos.
-- RF56 — Listar profissionais salvos com filtros.
+- RF56 — Listar profissionais salvos no perfil do cliente.
 - RF57 — Remover profissionais dos salvos.
-- RF53/RF54 — Persistência de cidades e categorias preferidas.
+- RF53/RF54 — Perfil do cliente consolidando cidade principal e cidades relacionadas ao histórico persistido.
 - RN01/RN02 — Autenticação obrigatória para salvos.
 
 ## O que foi implementado
 
-- Botão "Salvar" no perfil do profissional (persistido apenas para clientes autenticados).
-- Tela de "Profissionais Salvos" com listagem filtrada por categoria e cidade.
-- Persistência de preferências (últimas cidades visitadas, categorias buscadas).
-- Sincronização com backend ao autenticar.
-- Testes unitários e de tela para salvar, remover, listar salvos.
-- Lógica de cache local com sincronização ao login.
+- Backend com migration `V019` para `customer_profile_preferences` e `customer_saved_professionals`.
+- Endpoints autenticados em `/api/v1/customers/me/profile`, `/profile/preferences` e `/saved-professionals/{professionalIdentifier}`.
+- Use cases, ports e adapters JDBC para carregar perfil agregado, salvar/remover profissionais e persistir preferências básicas.
+- Mobile com `CustomerService` e `WorkLinkBackendGateway` consumindo o perfil real do backend.
+- Perfil do cliente carregado do backend, com profissionais salvos, avaliações enviadas e preferências persistidas.
+- Ação de salvar/remover profissional diretamente no perfil público do profissional.
+- Testes BDD/TDD no backend e no mobile, mantendo cobertura unitária mobile acima de 95%.
 
 ## O que não foi implementado
 
-- Notificação quando profissional salvo fica indisponível.
-- Recomendação baseada em salvos (ranking futuro, WL-017).
-- Compartilhamento de profissionais salvos.
+- Filtros avançados dentro da seção de profissionais salvos.
+- Tela dedicada apenas para favoritos, separada do perfil.
+- Preferências avançadas de privacidade, recomendações ou sincronização offline.
 
 ## Fluxos, telas, endpoints ou módulos envolvidos
 
-- Botão em perfil público do profissional.
-- Nova tela "Profissionais Salvos".
-- Perfil do cliente (WL-015) com preferências editáveis.
-- Backend em `/api/v1/customers/{id}/saved-professionals`.
-- Backend em `/api/v1/customers/{id}/preferences`.
+- Perfil público do profissional com ação de salvar/remover.
+- Perfil do cliente com leitura persistida de salvos, avaliações e preferências.
+- Backend em `/api/v1/customers/me/profile`.
+- Backend em `/api/v1/customers/me/profile/preferences`.
+- Backend em `/api/v1/customers/me/saved-professionals/{professionalIdentifier}`.
 
 ## Estratégia de testes
 
-- Backend unitário: salvar, remover, listar com filtros.
-- Mobile unitário: controller de salvos, cache local.
-- Mobile tela: salvar, remover, visualizar salvos, sincronizar após login.
-- Integração backend: persistência em banco, filtros com JPA.
-- Funcional/E2E: sincronização após autenticação em ambiente real.
+- Backend unitário: aggregation do perfil, API privada e adapters JDBC.
+- Backend integração: Flyway/migração real em PostgreSQL Docker até `v019`.
+- Mobile unitário: gateway, service, estado/controlador de perfil e cliente.
+- Mobile tela: perfil do cliente e perfil do profissional com bookmark.
 
 ## Evidências de validação
 
-- `make backend-unit-test`: PASS, lógica de salvos atendida.
-- `make backend-integration-test`: PASS, Flyway até `v020`.
-- `make mobile-unit-test`: PASS, cobertura 95%+.
-- `make mobile-screen-test`: PASS, 10+ testes de tela.
-- `make mobile-integration-test`: PASS quando emulador remoto disponível.
-- `make functional-test`: PASS, fluxo E2E de salvar e sincronizar.
+- `make backend-static-analysis`: PASS
+- `make backend-unit-test`: PASS
+- `make backend-integration-test`: PASS, Flyway até `v019`
+- `make mobile-static-analysis`: PASS
+- `make mobile-unit-test`: PASS, cobertura `95.49%`
+- `make mobile-screen-test`: PASS
 
 ## Riscos ou limitações remanescentes
 
-- Sincronização é eventual (não real-time).
-- Limite de 100 profissionais salvos por cliente (após é necessário remover antigos).
-- Cache local é limpo ao fazer logout.
+- O fluxo autenticado depende do token em memória do app; ainda não há persistência local de sessão entre reinícios.
+- Não existe paginação de favoritos, o que é aceitável para a V1.
+- A integração mobile end-to-end com backend real continua dependente do gate específico de integração mobile.
 
 ## Arquivos ou módulos relevantes
 
-- `worklink-mobile/lib/features/customer_profile/` — gestão de salvos.
-- `worklink-api/src/main/java/br/com/worklink/customers/` — persistência.
-- Migration: `worklink-api/src/main/resources/db/migration/V020__*.sql`.
+- `worklink-api/src/main/java/br/com/worklink/application/customer/`
+- `worklink-api/src/main/java/br/com/worklink/api/customer/`
+- `worklink-api/src/main/java/br/com/worklink/infrastructure/customer/`
+- `worklink-mobile/lib/services/customer_service.dart`
+- `worklink-mobile/lib/features/customer_profile/`
+- `worklink-mobile/lib/features/professional_profile/professional_profile_screen.dart`
+- Migration: `worklink-api/src/main/resources/db/migration/V019__create_customer_profile_preferences_and_saved_professionals.sql`
 
 ## Justificativa do versionamento
 
-Entrega `MINOR` porque adiciona retenção sem quebra de compatibilidade. Permite descoberta repetida e complementa WL-015 (perfil do usuário).
+Entrega `MINOR` porque adiciona capacidade funcional nova e persistente ao perfil do cliente sem quebrar contratos existentes.

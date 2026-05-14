@@ -243,6 +243,70 @@ void main() {
   });
 
   test(
+      'GIVEN perfil do cliente no backend WHEN carregar e atualizar preferencias THEN deve mapear estado do perfil',
+      () async {
+    // GIVEN
+    httpClient.objectResponses['/api/v1/customers/me/profile'] =
+        customerProfileJson();
+    httpClient.objectResponses['/api/v1/customers/me/profile/preferences'] =
+        customerProfileJson(
+      whatsappNotificationsEnabled: false,
+    );
+
+    // WHEN
+    final customerProfile = await gateway.loadCustomerProfile();
+    final updatedCustomerProfile =
+        await gateway.updateCustomerProfilePreferences(
+      whatsappNotificationsEnabled: false,
+      profilePersonalizationEnabled: true,
+    );
+
+    // THEN
+    expect(customerProfile.customerName, 'Cliente WorkLink');
+    expect(customerProfile.mainCityDisplayName, 'Canoas - RS');
+    expect(customerProfile.savedProfessionals.single.professionalName, 'Maria');
+    expect(updatedCustomerProfile.whatsappNotificationsEnabled, isFalse);
+  });
+
+  test(
+      'GIVEN cliente autenticado WHEN salvar e remover profissional THEN deve usar endpoints privados do perfil',
+      () async {
+    // GIVEN
+    httpClient.objectResponses[
+            '/api/v1/customers/me/saved-professionals/professional-1'] =
+        customerProfileJson();
+
+    // WHEN
+    await gateway.saveProfessionalForCustomer('professional-1');
+    await gateway.removeSavedProfessionalForCustomer('professional-1');
+
+    // THEN
+    expect(
+      httpClient.requests.where((request) => request.method == 'POST').last.path,
+      '/api/v1/customers/me/saved-professionals/professional-1',
+    );
+    expect(
+      httpClient.requests.where((request) => request.method == 'DELETE').single.path,
+      '/api/v1/customers/me/saved-professionals/professional-1',
+    );
+  });
+
+  test(
+      'GIVEN perfil sem cidade principal e telefone nao padronizado WHEN carregar perfil THEN deve aplicar fallbacks previsiveis',
+      () async {
+    // GIVEN
+    httpClient.objectResponses['/api/v1/customers/me/profile'] =
+        customerProfileJsonWithoutMainCity();
+
+    // WHEN
+    final customerProfile = await gateway.loadCustomerProfile();
+
+    // THEN
+    expect(customerProfile.mainCityDisplayName, 'Cidade principal pendente');
+    expect(customerProfile.phoneNumber, 'telefone-livre');
+  });
+
+  test(
       'GIVEN rascunho profissional WHEN cadastrar THEN deve usar identificadores reais do catalogo',
       () async {
     // GIVEN
@@ -642,6 +706,35 @@ void main() {
     );
     expect(contact.whatsappContactLink, startsWith('https://wa.me/'));
   });
+
+  test(
+      'GIVEN preview gateway WHEN carregar e alterar perfil do cliente THEN deve responder estado estavel',
+      () async {
+    // GIVEN
+    const previewGateway = WorkLinkPreviewGateway();
+
+    // WHEN
+    final loadedCustomerProfile = await previewGateway.loadCustomerProfile();
+    final updatedCustomerProfile =
+        await previewGateway.updateCustomerProfilePreferences(
+      whatsappNotificationsEnabled: false,
+      profilePersonalizationEnabled: false,
+    );
+    final savedCustomerProfile = await previewGateway.saveProfessionalForCustomer(
+      'maria-eletricista',
+    );
+    final removedCustomerProfile =
+        await previewGateway.removeSavedProfessionalForCustomer(
+      'maria-eletricista',
+    );
+
+    // THEN
+    expect(loadedCustomerProfile.customerName, 'Cliente WorkLink');
+    expect(updatedCustomerProfile.whatsappNotificationsEnabled, isFalse);
+    expect(updatedCustomerProfile.profilePersonalizationEnabled, isFalse);
+    expect(savedCustomerProfile.savedProfessionals, isNotEmpty);
+    expect(removedCustomerProfile.savedProfessionals, isNotEmpty);
+  });
 }
 
 Map<String, dynamic> professionalJson({
@@ -711,5 +804,66 @@ Map<String, dynamic> portfolioItemJson() {
     'title': 'Quadro eletrico residencial',
     'description': 'Instalacao concluida.',
     'displayOrder': 1,
+  };
+}
+
+Map<String, dynamic> customerProfileJson({
+  bool whatsappNotificationsEnabled = true,
+  bool profilePersonalizationEnabled = true,
+}) {
+  return {
+    'customerIdentifier': 'customer-1',
+    'customerName': 'Cliente WorkLink',
+    'phoneNumber': '51999991234',
+    'mainCity': {
+      'cityIdentifier': 'city-1',
+      'cityName': 'Canoas',
+      'stateCode': 'RS',
+    },
+    'selectedCities': [
+      {
+        'cityIdentifier': 'city-1',
+        'cityName': 'Canoas',
+        'stateCode': 'RS',
+      },
+    ],
+    'savedProfessionals': [
+      {
+        'professionalIdentifier': 'professional-1',
+        'professionalName': 'Maria',
+        'categoryName': 'Eletricista',
+        'city': {
+          'cityIdentifier': 'city-1',
+          'cityName': 'Canoas',
+          'stateCode': 'RS',
+        },
+      },
+    ],
+    'submittedReviews': [
+      {
+        'professionalReviewIdentifier': 'review-1',
+        'professionalIdentifier': 'professional-1',
+        'professionalName': 'Maria',
+        'starRating': 5,
+        'publiclyAnonymous': true,
+        'comment': 'Excelente atendimento.',
+      },
+    ],
+    'whatsappNotificationsEnabled': whatsappNotificationsEnabled,
+    'profilePersonalizationEnabled': profilePersonalizationEnabled,
+  };
+}
+
+Map<String, dynamic> customerProfileJsonWithoutMainCity() {
+  return {
+    'customerIdentifier': 'customer-1',
+    'customerName': 'Cliente WorkLink',
+    'phoneNumber': 'telefone-livre',
+    'mainCity': null,
+    'selectedCities': const [],
+    'savedProfessionals': const [],
+    'submittedReviews': const [],
+    'whatsappNotificationsEnabled': true,
+    'profilePersonalizationEnabled': true,
   };
 }

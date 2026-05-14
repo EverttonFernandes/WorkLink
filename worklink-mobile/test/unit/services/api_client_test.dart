@@ -107,6 +107,45 @@ void main() {
   });
 
   test(
+      'GIVEN resposta objeto WHEN executar DELETE object THEN deve retornar JSON do backend',
+      () async {
+    // GIVEN
+    final adapter = FakeDioAdapter(
+      responses: [
+        const FakeDioResponse(statusCode: 200, body: {'removed': true}),
+      ],
+    );
+    final apiClient = createApiClient(adapter);
+
+    // WHEN
+    final response = await apiClient.deleteObject(
+      '/api/v1/customers/me/saved-professionals/professional-1',
+    );
+
+    // THEN
+    expect(response, {'removed': true});
+    expect(adapter.requests.single.method, 'DELETE');
+  });
+
+  test(
+      'GIVEN requisicao sem resposta WHEN executar DELETE empty THEN deve concluir sem erro',
+      () async {
+    // GIVEN
+    final adapter = FakeDioAdapter(
+      responses: [
+        const FakeDioResponse(statusCode: 204, body: null),
+      ],
+    );
+    final apiClient = createApiClient(adapter);
+
+    // WHEN
+    await apiClient.deleteEmpty('/api/v1/example');
+
+    // THEN
+    expect(adapter.requests.single.method, 'DELETE');
+  });
+
+  test(
       'GIVEN logout WHEN limpar Bearer THEN request seguinte nao deve enviar token',
       () async {
     // GIVEN

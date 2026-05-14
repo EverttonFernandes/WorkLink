@@ -1,3 +1,4 @@
+import '../features/customer_profile/customer_profile_state.dart';
 import '../features/discovery/discovery_professional.dart';
 import '../features/post_contact_feedback/post_contact_feedback_state.dart';
 import '../features/professional_availability/professional_availability_status.dart';
@@ -11,7 +12,9 @@ import '../services/api_client.dart';
 import '../services/authentication_service.dart';
 import '../services/catalog_service.dart';
 import '../services/contact_service.dart';
+import '../services/customer_service.dart';
 import '../services/models/contact_model.dart' as contact_models;
+import '../services/models/customer_model.dart' as customer_models;
 import '../services/models/professional_model.dart' as professional_models;
 import '../services/models/report_model.dart' as report_models;
 import '../services/models/review_model.dart' as review_models;
@@ -48,6 +51,21 @@ abstract interface class WorkLinkApplicationGateway {
     required String phoneNumber,
     required String verificationCode,
   });
+
+  Future<CustomerProfileState> loadCustomerProfile();
+
+  Future<CustomerProfileState> updateCustomerProfilePreferences({
+    required bool whatsappNotificationsEnabled,
+    required bool profilePersonalizationEnabled,
+  });
+
+  Future<CustomerProfileState> saveProfessionalForCustomer(
+    String professionalIdentifier,
+  );
+
+  Future<CustomerProfileState> removeSavedProfessionalForCustomer(
+    String professionalIdentifier,
+  );
 
   Future<void> registerProfessional(
     ProfessionalRegistrationDraft draft,
@@ -197,6 +215,46 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       phoneNumber: phoneNumber,
       oneTimePassword: verificationCode,
     );
+  }
+
+  @override
+  Future<CustomerProfileState> loadCustomerProfile() async {
+    final customerService = CustomerService(httpClient: _httpClient);
+    final customerProfile = await customerService.loadCustomerProfile();
+    return _mapCustomerProfile(customerProfile);
+  }
+
+  @override
+  Future<CustomerProfileState> updateCustomerProfilePreferences({
+    required bool whatsappNotificationsEnabled,
+    required bool profilePersonalizationEnabled,
+  }) async {
+    final customerService = CustomerService(httpClient: _httpClient);
+    final customerProfile = await customerService.updateCustomerProfilePreferences(
+      whatsappNotificationsEnabled: whatsappNotificationsEnabled,
+      profilePersonalizationEnabled: profilePersonalizationEnabled,
+    );
+    return _mapCustomerProfile(customerProfile);
+  }
+
+  @override
+  Future<CustomerProfileState> saveProfessionalForCustomer(
+    String professionalIdentifier,
+  ) async {
+    final customerService = CustomerService(httpClient: _httpClient);
+    final customerProfile =
+        await customerService.saveProfessional(professionalIdentifier);
+    return _mapCustomerProfile(customerProfile);
+  }
+
+  @override
+  Future<CustomerProfileState> removeSavedProfessionalForCustomer(
+    String professionalIdentifier,
+  ) async {
+    final customerService = CustomerService(httpClient: _httpClient);
+    final customerProfile =
+        await customerService.removeSavedProfessional(professionalIdentifier);
+    return _mapCustomerProfile(customerProfile);
   }
 
   @override
@@ -540,6 +598,65 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
         'TEMPORARILY_UNAVAILABLE',
     };
   }
+
+  CustomerProfileState _mapCustomerProfile(
+    customer_models.CustomerProfileModel customerProfile,
+  ) {
+    return CustomerProfileState(
+      customerName: customerProfile.customerName,
+      phoneNumber: _formatCustomerPhoneNumber(customerProfile.phoneNumber),
+      mainCity: customerProfile.mainCity == null
+          ? null
+          : CustomerProfileCity(
+              cityName: customerProfile.mainCity!.cityName,
+              stateCode: customerProfile.mainCity!.stateCode,
+            ),
+      selectedCities: customerProfile.selectedCities
+          .map(
+            (selectedCity) => CustomerProfileCity(
+              cityName: selectedCity.cityName,
+              stateCode: selectedCity.stateCode,
+            ),
+          )
+          .toList(),
+      savedProfessionals: customerProfile.savedProfessionals
+          .map(
+            (savedProfessional) => CustomerSavedProfessional(
+              professionalIdentifier: savedProfessional.professionalIdentifier,
+              professionalName: savedProfessional.professionalName,
+              categoryName: savedProfessional.categoryName,
+              cityDisplayName:
+                  '${savedProfessional.city.cityName} - ${savedProfessional.city.stateCode}',
+            ),
+          )
+          .toList(),
+      submittedReviews: customerProfile.submittedReviews
+          .map(
+            (submittedReview) => CustomerSubmittedReview(
+              professionalName: submittedReview.professionalName,
+              starRating: submittedReview.starRating,
+              publiclyAnonymous: submittedReview.publiclyAnonymous,
+              comment: submittedReview.comment,
+            ),
+          )
+          .toList(),
+      whatsappNotificationsEnabled:
+          customerProfile.whatsappNotificationsEnabled,
+      profilePersonalizationEnabled:
+          customerProfile.profilePersonalizationEnabled,
+    );
+  }
+
+  String _formatCustomerPhoneNumber(String phoneNumber) {
+    final digitsOnlyPhoneNumber = phoneNumber.replaceAll(RegExp(r'\D'), '');
+    if (digitsOnlyPhoneNumber.length != 11) {
+      return phoneNumber;
+    }
+    return '(${digitsOnlyPhoneNumber.substring(0, 2)}) '
+        '${digitsOnlyPhoneNumber.substring(2, 3)} '
+        '${digitsOnlyPhoneNumber.substring(3, 7)}-'
+        '${digitsOnlyPhoneNumber.substring(7)}';
+  }
 }
 
 class WorkLinkPreviewGateway implements WorkLinkApplicationGateway {
@@ -571,6 +688,61 @@ class WorkLinkPreviewGateway implements WorkLinkApplicationGateway {
     ProfessionalRegistrationDraft draft,
     WorkLinkHomeData homeData,
   ) async {}
+
+  @override
+  Future<CustomerProfileState> loadCustomerProfile() async {
+    return const CustomerProfileState(
+      customerName: 'Cliente WorkLink',
+      phoneNumber: '(51) 9 9999-1234',
+      mainCity: CustomerProfileCity(cityName: 'Canoas', stateCode: 'RS'),
+      selectedCities: [
+        CustomerProfileCity(cityName: 'Canoas', stateCode: 'RS'),
+        CustomerProfileCity(cityName: 'Porto Alegre', stateCode: 'RS'),
+      ],
+      savedProfessionals: [
+        CustomerSavedProfessional(
+          professionalIdentifier: 'maria-eletricista',
+          professionalName: 'Maria Eletricista',
+          categoryName: 'Eletricista',
+          cityDisplayName: 'Canoas - RS',
+        ),
+      ],
+      submittedReviews: [
+        CustomerSubmittedReview(
+          professionalName: 'Maria Eletricista',
+          starRating: 5,
+          publiclyAnonymous: true,
+          comment: 'Atendimento rapido e organizado.',
+        ),
+      ],
+    );
+  }
+
+  @override
+  Future<CustomerProfileState> updateCustomerProfilePreferences({
+    required bool whatsappNotificationsEnabled,
+    required bool profilePersonalizationEnabled,
+  }) async {
+    final currentProfile = await loadCustomerProfile();
+    return currentProfile.copyWith(
+      whatsappNotificationsEnabled: whatsappNotificationsEnabled,
+      profilePersonalizationEnabled: profilePersonalizationEnabled,
+    );
+  }
+
+  @override
+  Future<CustomerProfileState> saveProfessionalForCustomer(
+    String professionalIdentifier,
+  ) async {
+    return loadCustomerProfile();
+  }
+
+  @override
+  Future<CustomerProfileState> removeSavedProfessionalForCustomer(
+    String professionalIdentifier,
+  ) async {
+    return loadCustomerProfile();
+  }
 
   @override
   Future<void> requestProfessionalPhoneVerification(

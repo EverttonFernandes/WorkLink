@@ -42,6 +42,8 @@ void main() {
     ValueChanged<String>? onContactProfessional,
     ValueChanged<String>? onReportProfessional,
     ValueChanged<String>? onRequestReviewAnalysis,
+    bool savedByCustomer = false,
+    Future<bool> Function(bool currentlySaved)? onToggleSavedProfessional,
   }) async {
     await widgetTester.pumpWidget(
       MaterialApp(
@@ -50,6 +52,8 @@ void main() {
           onContactProfessional: onContactProfessional,
           onReportProfessional: onReportProfessional,
           onRequestReviewAnalysis: onRequestReviewAnalysis,
+          savedByCustomer: savedByCustomer,
+          onToggleSavedProfessional: onToggleSavedProfessional,
         ),
       ),
     );
@@ -193,5 +197,26 @@ void main() {
 
     // THEN
     expect(reviewAnalysisRequests, ['review-1']);
+  });
+
+  testWidgets(
+      'GIVEN perfil nao salvo WHEN tocar bookmark THEN deve alternar estado salvo',
+      (widgetTester) async {
+    // GIVEN
+    await pumpProfessionalProfileScreen(
+      widgetTester,
+      completeProfessionalProfile,
+      onToggleSavedProfessional: (_) async => true,
+    );
+
+    // WHEN
+    await widgetTester.tap(find.byTooltip('Salvar profissional'));
+    await widgetTester.pump();
+
+    // THEN
+    expect(
+      find.byIcon(Icons.bookmark),
+      findsOneWidget,
+    );
   });
 }

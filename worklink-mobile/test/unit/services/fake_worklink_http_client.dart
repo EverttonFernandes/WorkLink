@@ -83,6 +83,27 @@ class FakeWorkLinkHttpClient implements WorkLinkHttpClient {
   }
 
   @override
+  Future<void> deleteEmpty(
+    String path, {
+    Map<String, Object?> data = const {},
+  }) async {
+    requests.add(
+      RecordedHttpRequest(method: 'DELETE', path: path, data: data),
+    );
+  }
+
+  @override
+  Future<Map<String, dynamic>> deleteObject(
+    String path, {
+    Map<String, Object?> data = const {},
+  }) async {
+    requests.add(
+      RecordedHttpRequest(method: 'DELETE', path: path, data: data),
+    );
+    return objectResponses[path] ?? {};
+  }
+
+  @override
   void setBearerToken(String? token) {
     bearerTokens.add(token);
   }

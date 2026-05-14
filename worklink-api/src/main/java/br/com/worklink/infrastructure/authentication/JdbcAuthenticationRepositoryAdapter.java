@@ -1,6 +1,7 @@
 package br.com.worklink.infrastructure.authentication;
 
 import br.com.worklink.application.authentication.port.LoadActiveAuthenticationOtpChallengePort;
+import br.com.worklink.application.authentication.port.LoadCustomerAccountByIdentifierPort;
 import br.com.worklink.application.authentication.port.LoadCustomerAccountByPhoneNumberPort;
 import br.com.worklink.application.authentication.port.LoadRefreshSessionByTokenHashPort;
 import br.com.worklink.application.authentication.port.SaveAuthenticationOtpChallengePort;
@@ -27,6 +28,7 @@ public class JdbcAuthenticationRepositoryAdapter implements
         LoadActiveAuthenticationOtpChallengePort,
         UpdateAuthenticationOtpChallengePort,
         LoadCustomerAccountByPhoneNumberPort,
+        LoadCustomerAccountByIdentifierPort,
         SaveCustomerAccountPort,
         SaveRefreshSessionPort,
         LoadRefreshSessionByTokenHashPort,
@@ -114,6 +116,22 @@ public class JdbcAuthenticationRepositoryAdapter implements
                         """,
                 (resultSet, rowNumber) -> mapCustomerAccount(resultSet),
                 phoneNumber
+        );
+        return customerAccounts.stream().findFirst();
+    }
+
+    @Override
+    public Optional<CustomerAccount> loadCustomerAccountByIdentifier(UUID customerIdentifier) {
+        List<CustomerAccount> customerAccounts = jdbcTemplate.query(
+                """
+                        SELECT customer_identifier,
+                               phone_number,
+                               created_at
+                          FROM worklink.customer_accounts
+                         WHERE customer_identifier = ?
+                        """,
+                (resultSet, rowNumber) -> mapCustomerAccount(resultSet),
+                customerIdentifier
         );
         return customerAccounts.stream().findFirst();
     }

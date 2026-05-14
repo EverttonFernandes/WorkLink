@@ -30,6 +30,16 @@ abstract interface class WorkLinkHttpClient {
     Map<String, Object?> data = const {},
   });
 
+  Future<void> deleteEmpty(
+    String path, {
+    Map<String, Object?> data = const {},
+  });
+
+  Future<Map<String, dynamic>> deleteObject(
+    String path, {
+    Map<String, Object?> data = const {},
+  });
+
   void setBearerToken(String? token);
 
   void clearBearerToken();
@@ -120,6 +130,25 @@ class ApiClient implements WorkLinkHttpClient {
     Map<String, Object?> data = const {},
   }) async {
     await _request(() => _dio.post<dynamic>(path, data: _sanitizeBody(data)));
+  }
+
+  @override
+  Future<void> deleteEmpty(
+    String path, {
+    Map<String, Object?> data = const {},
+  }) async {
+    await _request(() => _dio.delete<dynamic>(path, data: _sanitizeBody(data)));
+  }
+
+  @override
+  Future<Map<String, dynamic>> deleteObject(
+    String path, {
+    Map<String, Object?> data = const {},
+  }) async {
+    final response = await _request(
+      () => _dio.delete<dynamic>(path, data: _sanitizeBody(data)),
+    );
+    return _requireObjectResponse(response);
   }
 
   @override

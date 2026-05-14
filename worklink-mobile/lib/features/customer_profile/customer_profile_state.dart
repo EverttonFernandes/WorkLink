@@ -51,7 +51,7 @@ class CustomerProfileState {
   const CustomerProfileState({
     required this.customerName,
     required this.phoneNumber,
-    required this.mainCity,
+    this.mainCity,
     this.selectedCities = const [],
     this.savedProfessionals = const [],
     this.submittedReviews = const [],
@@ -62,7 +62,7 @@ class CustomerProfileState {
 
   final String customerName;
   final String phoneNumber;
-  final CustomerProfileCity mainCity;
+  final CustomerProfileCity? mainCity;
   final List<CustomerProfileCity> selectedCities;
   final List<CustomerSavedProfessional> savedProfessionals;
   final List<CustomerSubmittedReview> submittedReviews;
@@ -70,7 +70,7 @@ class CustomerProfileState {
   final bool profilePersonalizationEnabled;
   final bool loggedOut;
 
-  String get mainCityDisplayName => mainCity.displayName;
+  String get mainCityDisplayName => mainCity?.displayName ?? 'Cidade principal pendente';
 
   bool get hasSelectedCities => selectedCities.isNotEmpty;
 
@@ -79,6 +79,10 @@ class CustomerProfileState {
   bool get hasSubmittedReviews => submittedReviews.isNotEmpty;
 
   CustomerProfileState copyWith({
+    CustomerProfileCity? mainCity,
+    List<CustomerProfileCity>? selectedCities,
+    List<CustomerSavedProfessional>? savedProfessionals,
+    List<CustomerSubmittedReview>? submittedReviews,
     bool? whatsappNotificationsEnabled,
     bool? profilePersonalizationEnabled,
     bool? loggedOut,
@@ -86,10 +90,10 @@ class CustomerProfileState {
     return CustomerProfileState(
       customerName: customerName,
       phoneNumber: phoneNumber,
-      mainCity: mainCity,
-      selectedCities: selectedCities,
-      savedProfessionals: savedProfessionals,
-      submittedReviews: submittedReviews,
+      mainCity: mainCity ?? this.mainCity,
+      selectedCities: selectedCities ?? this.selectedCities,
+      savedProfessionals: savedProfessionals ?? this.savedProfessionals,
+      submittedReviews: submittedReviews ?? this.submittedReviews,
       whatsappNotificationsEnabled:
           whatsappNotificationsEnabled ?? this.whatsappNotificationsEnabled,
       profilePersonalizationEnabled:

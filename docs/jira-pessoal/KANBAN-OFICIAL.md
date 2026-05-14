@@ -23,7 +23,6 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História                                                                       | Tipo    | Título                                                      | Relação com outras histórias                                         | Execução                                 | Versão | Entrega                                                                                |
 | ----- | ------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------- | ------ | -------------------------------------------------------------------------------------- |
-| 38    | [WL-020](historias/WL-020-profissionais-salvos-preferencias-persistentes.md)   | Negócio | Profissionais salvos e preferências persistentes do cliente | Complementa perfil do usuário                                        | Junto dos gates de privacidade           | MINOR  | [Entrega WL-020](../entregas/WL-020-profissionais-salvos-preferencias-persistentes.md) |
 | 39    | [WL-021](historias/WL-021-solicitacao-pos-contato.md)                          | Negócio | Solicitação de feedback pós-contato                         | Complementa contato e pós-contato estruturado                        | Junto dos gates de privacidade/auditoria | MINOR  | [Entrega WL-021](../entregas/WL-021-solicitacao-pos-contato.md)                        |
 | 40    | [WL-022](historias/WL-022-metricas-funcionais-detalhadas.md)                   | Negócio | Métricas funcionais detalhadas da V1                        | Complementa base para ranking futuro                                 | Separada                                 | MINOR  | [Entrega WL-022](../entregas/WL-022-metricas-funcionais-detalhadas.md)                 |
 | 41    | [WL-023](historias/WL-023-revisao-administrativa-moderacao.md)                 | Negócio | Revisão administrativa efetiva de denúncias e avaliações    | Complementa administração e moderação mínima                         | Junto dos gates de segurança/auditoria   | MINOR  | [Entrega WL-023](../entregas/WL-023-revisao-administrativa-moderacao.md)               |
@@ -35,8 +34,6 @@ Uma história só pode ir para `Done` quando:
 
 ## Doing
 
-| Ordem | História                                                   | Tipo    | Título                                         | Relação com outras histórias                | Execução                       | Versão | Entrega                                                              |
-| ----- | ---------------------------------------------------------- | ------- | ---------------------------------------------- | ------------------------------------------- | ------------------------------ | ------ | -------------------------------------------------------------------- |
 _Vazio._
 
 ## Review
@@ -84,6 +81,7 @@ _Vazio._
 | 35    | [WLT-018](historias-tecnicas/WLT-018-documentacao-adrs-release-mobile.md)          | Técnica | Documentação técnica, ADRs e release mobile             | Fechamento técnico/documental da V1                                        | Separada                         | MINOR  | [Entrega WLT-018](../entregas/WLT-018-documentacao-adrs-release-mobile.md)          |
 | 36    | [WL-018](historias/WL-018-verificacao-telefone-profissional.md)                    | Negócio | Verificação do telefone do profissional                 | Complementa confiança progressiva após cadastro/badges                     | Separada                         | MINOR  | [Entrega WL-018](../entregas/WL-018-verificacao-telefone-profissional.md)           |
 | 37    | [WL-019](historias/WL-019-portfolio-fotos-profissional.md)                         | Negócio | Portfólio e fotos de trabalhos do profissional          | Complementa perfil público e storage seguro                                | Junto de validações de storage   | MINOR  | [Entrega WL-019](../entregas/WL-019-portfolio-fotos-profissional.md)                |
+| 38    | [WL-020](historias/WL-020-profissionais-salvos-preferencias-persistentes.md)      | Negócio | Profissionais salvos e preferências persistentes do cliente | Complementa perfil do usuário                                           | Junto dos gates de privacidade   | MINOR  | [Entrega WL-020](../entregas/WL-020-profissionais-salvos-preferencias-persistentes.md) |
 | 46    | [WLT-022](historias-tecnicas/WLT-022-integracao-http-mobile-backend.md)            | Técnica | Integração HTTP mobile com backend                      | Substitui mock data por chamadas reais à API                               | Separada                         | MINOR  | [Entrega WLT-022](../entregas/WLT-022-integracao-http-mobile-backend.md)            |
 
 ## Histórias técnicas que podem ser executadas separadamente
