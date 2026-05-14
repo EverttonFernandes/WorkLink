@@ -44,9 +44,15 @@ import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActio
 import br.com.worklink.application.authorization.usecase.ResolveAuthenticatedPrincipalUseCase;
 import br.com.worklink.application.contact.port.CreateWhatsappContactLinkPort;
 import br.com.worklink.application.contact.port.CurrentContactTimePort;
+import br.com.worklink.application.contact.port.DismissPostContactFeedbackRequestPort;
+import br.com.worklink.application.contact.port.ListPendingPostContactFeedbackRequestsPort;
 import br.com.worklink.application.contact.port.LoadContactIntentByIdentifierPort;
+import br.com.worklink.application.contact.port.MarkPostContactFeedbackRequestAnsweredPort;
 import br.com.worklink.application.contact.port.SaveContactIntentPort;
 import br.com.worklink.application.contact.port.SavePostContactFeedbackPort;
+import br.com.worklink.application.contact.port.SavePostContactFeedbackRequestPort;
+import br.com.worklink.application.contact.usecase.DismissPostContactFeedbackRequestUseCase;
+import br.com.worklink.application.contact.usecase.ListPendingPostContactFeedbackRequestsUseCase;
 import br.com.worklink.application.contact.usecase.RegisterPostContactFeedbackUseCase;
 import br.com.worklink.application.contact.usecase.StartProfessionalContactUseCase;
 import br.com.worklink.application.metrics.port.CurrentFunctionalMetricTimePort;
@@ -373,12 +379,14 @@ public class WorkLinkUseCaseConfiguration {
     StartProfessionalContactUseCase startProfessionalContactUseCase(
             LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort,
             SaveContactIntentPort saveContactIntentPort,
+            SavePostContactFeedbackRequestPort savePostContactFeedbackRequestPort,
             CurrentContactTimePort currentContactTimePort,
             CreateWhatsappContactLinkPort createWhatsappContactLinkPort
     ) {
         return new StartProfessionalContactUseCase(
                 loadProfessionalByIdentifierPort,
                 saveContactIntentPort,
+                savePostContactFeedbackRequestPort,
                 currentContactTimePort,
                 createWhatsappContactLinkPort
         );
@@ -388,13 +396,29 @@ public class WorkLinkUseCaseConfiguration {
     RegisterPostContactFeedbackUseCase registerPostContactFeedbackUseCase(
             LoadContactIntentByIdentifierPort loadContactIntentByIdentifierPort,
             SavePostContactFeedbackPort savePostContactFeedbackPort,
+            MarkPostContactFeedbackRequestAnsweredPort markPostContactFeedbackRequestAnsweredPort,
             CurrentContactTimePort currentContactTimePort
     ) {
         return new RegisterPostContactFeedbackUseCase(
                 loadContactIntentByIdentifierPort,
                 savePostContactFeedbackPort,
+                markPostContactFeedbackRequestAnsweredPort,
                 currentContactTimePort
         );
+    }
+
+    @Bean
+    ListPendingPostContactFeedbackRequestsUseCase listPendingPostContactFeedbackRequestsUseCase(
+            ListPendingPostContactFeedbackRequestsPort listPendingPostContactFeedbackRequestsPort
+    ) {
+        return new ListPendingPostContactFeedbackRequestsUseCase(listPendingPostContactFeedbackRequestsPort);
+    }
+
+    @Bean
+    DismissPostContactFeedbackRequestUseCase dismissPostContactFeedbackRequestUseCase(
+            DismissPostContactFeedbackRequestPort dismissPostContactFeedbackRequestPort
+    ) {
+        return new DismissPostContactFeedbackRequestUseCase(dismissPostContactFeedbackRequestPort);
     }
 
     @Bean

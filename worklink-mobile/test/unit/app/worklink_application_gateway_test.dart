@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/app/worklink_application_gateway.dart';
+import 'package:worklink_mobile/features/post_contact_feedback/post_contact_feedback_request.dart';
 import 'package:worklink_mobile/features/post_contact_feedback/post_contact_feedback_state.dart';
 import 'package:worklink_mobile/features/professional_availability/professional_availability_status.dart';
 import 'package:worklink_mobile/features/professional_registration/professional_registration_draft.dart';
@@ -240,6 +241,49 @@ void main() {
       'oneTimePassword': '123456',
     });
     expect(httpClient.bearerTokens, ['access-token']);
+  });
+
+  test(
+      'GIVEN solicitacoes pendentes WHEN carregar e dispensar THEN deve mapear prompt de pós-contato',
+      () async {
+    // GIVEN
+    httpClient.listResponses['/api/v1/customers/me/post-contact-feedback-requests'] = [
+      {
+        'contactIntentIdentifier': 'contact-1',
+        'professionalIdentifier': 'professional-1',
+        'professionalName': 'Maria',
+        'contactCreatedAt': '2026-05-13T10:00:00Z',
+      },
+    ];
+
+    // WHEN
+    final requests = await gateway.loadPendingPostContactFeedbackRequests();
+    await gateway.dismissPostContactFeedbackRequest('contact-1');
+
+    // THEN
+    expect(
+      requests,
+      [
+        isA<PostContactFeedbackRequest>()
+            .having(
+              (request) => request.contactIntentionIdentifier,
+              'contactIntentionIdentifier',
+              'contact-1',
+            )
+            .having(
+              (request) => request.professionalName,
+              'professionalName',
+              'Maria',
+            ),
+      ],
+    );
+    expect(
+      httpClient.requests.map((request) => request.path),
+      [
+        '/api/v1/customers/me/post-contact-feedback-requests',
+        '/api/v1/customers/me/post-contact-feedback-requests/contact-1/dismiss',
+      ],
+    );
   });
 
   test(
@@ -860,9 +904,9 @@ Map<String, dynamic> customerProfileJsonWithoutMainCity() {
     'customerName': 'Cliente WorkLink',
     'phoneNumber': 'telefone-livre',
     'mainCity': null,
-    'selectedCities': const [],
-    'savedProfessionals': const [],
-    'submittedReviews': const [],
+    'selectedCities': const <Map<String, dynamic>>[],
+    'savedProfessionals': const <Map<String, dynamic>>[],
+    'submittedReviews': const <Map<String, dynamic>>[],
     'whatsappNotificationsEnabled': true,
     'profilePersonalizationEnabled': true,
   };

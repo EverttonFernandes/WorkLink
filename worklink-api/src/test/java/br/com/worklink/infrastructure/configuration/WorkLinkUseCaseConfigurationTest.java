@@ -23,9 +23,13 @@ import br.com.worklink.application.authentication.port.UpdateRefreshSessionPort;
 import br.com.worklink.application.authorization.port.ResolveAuthenticatedPrincipalPort;
 import br.com.worklink.application.contact.port.CreateWhatsappContactLinkPort;
 import br.com.worklink.application.contact.port.CurrentContactTimePort;
+import br.com.worklink.application.contact.port.DismissPostContactFeedbackRequestPort;
+import br.com.worklink.application.contact.port.ListPendingPostContactFeedbackRequestsPort;
 import br.com.worklink.application.contact.port.LoadContactIntentByIdentifierPort;
+import br.com.worklink.application.contact.port.MarkPostContactFeedbackRequestAnsweredPort;
 import br.com.worklink.application.contact.port.SaveContactIntentPort;
 import br.com.worklink.application.contact.port.SavePostContactFeedbackPort;
+import br.com.worklink.application.contact.port.SavePostContactFeedbackRequestPort;
 import br.com.worklink.application.metrics.port.CurrentFunctionalMetricTimePort;
 import br.com.worklink.application.metrics.port.LoadFunctionalMetricsPort;
 import br.com.worklink.application.metrics.port.SaveProfessionalSearchEventPort;
@@ -95,10 +99,20 @@ class WorkLinkUseCaseConfigurationTest {
         ResolveAuthenticatedPrincipalPort resolveAuthenticatedPrincipalPort = accessToken -> Optional.empty();
         SaveSensitiveAuditEventPort saveSensitiveAuditEventPort = sensitiveAuditEvent -> sensitiveAuditEvent;
         SaveContactIntentPort saveContactIntentPort = contactIntent -> contactIntent;
+        SavePostContactFeedbackRequestPort savePostContactFeedbackRequestPort =
+                (customerIdentifier, contactIntentIdentifier, createdAt) -> {
+                };
         CurrentContactTimePort currentContactTimePort = () -> Instant.parse("2026-05-08T20:00:00Z");
         CreateWhatsappContactLinkPort createWhatsappContactLinkPort = whatsappNumber -> "https://wa.me/%s".formatted(whatsappNumber);
         LoadContactIntentByIdentifierPort loadContactIntentByIdentifierPort = contactIntentIdentifier -> Optional.empty();
         SavePostContactFeedbackPort savePostContactFeedbackPort = postContactFeedback -> postContactFeedback;
+        MarkPostContactFeedbackRequestAnsweredPort markPostContactFeedbackRequestAnsweredPort =
+                (customerIdentifier, contactIntentIdentifier) -> {
+                };
+        ListPendingPostContactFeedbackRequestsPort listPendingPostContactFeedbackRequestsPort =
+                customerIdentifier -> java.util.List.of();
+        DismissPostContactFeedbackRequestPort dismissPostContactFeedbackRequestPort =
+                (customerIdentifier, contactIntentIdentifier) -> true;
         SaveProfessionalSearchEventPort saveProfessionalSearchEventPort = professionalSearchEvent -> professionalSearchEvent;
         CurrentFunctionalMetricTimePort currentFunctionalMetricTimePort = () -> Instant.parse("2026-05-08T20:00:00Z");
         LoadFunctionalMetricsPort loadFunctionalMetricsPort = () ->
@@ -186,13 +200,21 @@ class WorkLinkUseCaseConfigurationTest {
         assertThat(configuration.startProfessionalContactUseCase(
                 loadProfessionalByIdentifierPort,
                 saveContactIntentPort,
+                savePostContactFeedbackRequestPort,
                 currentContactTimePort,
                 createWhatsappContactLinkPort
         )).isNotNull();
         assertThat(configuration.registerPostContactFeedbackUseCase(
                 loadContactIntentByIdentifierPort,
                 savePostContactFeedbackPort,
+                markPostContactFeedbackRequestAnsweredPort,
                 currentContactTimePort
+        )).isNotNull();
+        assertThat(configuration.listPendingPostContactFeedbackRequestsUseCase(
+                listPendingPostContactFeedbackRequestsPort
+        )).isNotNull();
+        assertThat(configuration.dismissPostContactFeedbackRequestUseCase(
+                dismissPostContactFeedbackRequestPort
         )).isNotNull();
         assertThat(configuration.recordProfessionalSearchEventUseCase(
                 saveProfessionalSearchEventPort,

@@ -13,7 +13,9 @@ import 'features/customer_profile/customer_profile_screen.dart';
 import 'features/customer_profile/customer_profile_state.dart';
 import 'features/discovery/discovery_controller.dart';
 import 'features/discovery/discovery_screen.dart';
+import 'features/post_contact_feedback/pending_post_contact_feedback_prompt.dart';
 import 'features/post_contact_feedback/post_contact_feedback_controller.dart';
+import 'features/post_contact_feedback/post_contact_feedback_request.dart';
 import 'features/post_contact_feedback/post_contact_feedback_screen.dart';
 import 'features/professional_contact/professional_contact_controller.dart';
 import 'features/professional_contact/professional_contact_screen.dart';
@@ -56,6 +58,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
   bool customerAuthenticated = false;
   String customerPhoneNumber = '(51) 9 9999-9999';
   CustomerProfileState? customerProfileState;
+  List<PostContactFeedbackRequest> pendingPostContactFeedbackRequests = const [];
   late Future<WorkLinkHomeData> homeDataFuture;
 
   @override
@@ -101,6 +104,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
       discoveryController: DiscoveryController(
         availableProfessionals: homeData.discoveryProfessionals,
       ),
+      preFiltersContent: _buildPendingPostContactFeedbackPrompt(context),
       onOpenProfessionalProfile: (professionalIdentifier) {
         final professionalProfile = homeData.professionalProfiles.firstWhere(
           (profile) => profile.professionalIdentifier == professionalIdentifier,
@@ -176,6 +180,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
                 customerPhoneNumber =
                     _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
               });
+              unawaited(_refreshPendingPostContactFeedbackRequests());
               Navigator.of(authenticationContext).pop();
             },
           ),
@@ -185,7 +190,14 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
       return;
     }
 
-    Navigator.of(context).push(
+    unawaited(_openProfessionalContact(context, professionalProfile));
+  }
+
+  Future<void> _openProfessionalContact(
+    BuildContext context,
+    ProfessionalProfile professionalProfile,
+  ) async {
+    await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => ProfessionalContactScreen(
           professionalIdentifier: professionalProfile.professionalIdentifier,
@@ -200,6 +212,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
         ),
       ),
     );
+    await _refreshPendingPostContactFeedbackRequests();
   }
 
   Future<void> _handleOpenCustomerProfile(BuildContext context) async {
@@ -216,6 +229,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
                   customerPhoneNumber =
                       _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
                 });
+                unawaited(_refreshPendingPostContactFeedbackRequests());
                 Navigator.of(authenticationContext).pop();
                 unawaited(_openCustomerProfile(context));
               },
@@ -266,6 +280,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
             setState(() {
               customerAuthenticated = false;
               customerProfileState = null;
+              pendingPostContactFeedbackRequests = const [];
             });
             Navigator.of(profileContext).pop();
           },
@@ -283,11 +298,11 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
     );
   }
 
-  void _openPostContactFeedback(
+  Future<void> _openPostContactFeedback(
     BuildContext context,
     String contactIntentionIdentifier,
-  ) {
-    Navigator.of(context).push(
+  ) async {
+    await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => PostContactFeedbackScreen(
           postContactFeedbackController: PostContactFeedbackController(
@@ -303,6 +318,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
         ),
       ),
     );
+    await _refreshPendingPostContactFeedbackRequests();
   }
 
   void _openProfessionalReview(
@@ -403,6 +419,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
               customerPhoneNumber =
                   _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
             });
+            unawaited(_refreshPendingPostContactFeedbackRequests());
             authenticationCompleter.complete(true);
             Navigator.of(authenticationContext).pop();
           },
@@ -413,6 +430,52 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
       authenticationCompleter.complete(false);
     }
     return authenticationCompleter.future;
+  }
+
+  Widget? _buildPendingPostContactFeedbackPrompt(BuildContext context) {
+    if (!customerAuthenticated || pendingPostContactFeedbackRequests.isEmpty) {
+      return null;
+    }
+    final request = pendingPostContactFeedbackRequests.first;
+    return PendingPostContactFeedbackPrompt(
+      request: request,
+      onRespond: () => unawaited(
+        _openPostContactFeedback(context, request.contactIntentionIdentifier),
+      ),
+      onDismiss: () => unawaited(
+        _dismissPendingPostContactFeedbackRequest(
+          request.contactIntentionIdentifier,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _dismissPendingPostContactFeedbackRequest(
+    String contactIntentionIdentifier,
+  ) async {
+    await widget.applicationGateway.dismissPostContactFeedbackRequest(
+      contactIntentionIdentifier,
+    );
+    await _refreshPendingPostContactFeedbackRequests();
+  }
+
+  Future<void> _refreshPendingPostContactFeedbackRequests() async {
+    if (!customerAuthenticated) {
+      if (mounted) {
+        setState(() {
+          pendingPostContactFeedbackRequests = const [];
+        });
+      }
+      return;
+    }
+    final requests =
+        await widget.applicationGateway.loadPendingPostContactFeedbackRequests();
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      pendingPostContactFeedbackRequests = requests;
+    });
   }
 }
 

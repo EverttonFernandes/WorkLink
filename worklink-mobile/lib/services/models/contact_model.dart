@@ -89,3 +89,29 @@ class RegisterPostContactFeedbackRequest {
     };
   }
 }
+
+class PendingPostContactFeedbackRequestModel {
+  const PendingPostContactFeedbackRequestModel({
+    required this.contactIntentIdentifier,
+    required this.professionalIdentifier,
+    required this.professionalName,
+    required this.contactCreatedAt,
+  });
+
+  final String contactIntentIdentifier;
+  final String professionalIdentifier;
+  final String professionalName;
+  final DateTime contactCreatedAt;
+
+  factory PendingPostContactFeedbackRequestModel.fromJson(
+    Map<String, dynamic> json,
+  ) {
+    return PendingPostContactFeedbackRequestModel(
+      contactIntentIdentifier:
+          json['contactIntentIdentifier']?.toString() ?? '',
+      professionalIdentifier: json['professionalIdentifier']?.toString() ?? '',
+      professionalName: json['professionalName']?.toString() ?? '',
+      contactCreatedAt: DateTime.parse(json['contactCreatedAt'].toString()),
+    );
+  }
+}

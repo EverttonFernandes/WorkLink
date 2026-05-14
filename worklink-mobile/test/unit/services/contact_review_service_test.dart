@@ -74,6 +74,36 @@ void main() {
   });
 
   test(
+      'GIVEN solicitacoes pendentes WHEN carregar e dispensar THEN deve usar endpoints privados do cliente',
+      () async {
+    // GIVEN
+    httpClient.listResponses['/api/v1/customers/me/post-contact-feedback-requests'] = [
+      {
+        'contactIntentIdentifier': 'contact-1',
+        'professionalIdentifier': 'professional-1',
+        'professionalName': 'Maria Eletricista',
+        'contactCreatedAt': '2026-05-13T10:00:00Z',
+      },
+    ];
+    final contactService = ContactService(httpClient: httpClient);
+
+    // WHEN
+    final requests = await contactService.listPendingPostContactFeedbackRequests();
+    await contactService.dismissPostContactFeedbackRequest('contact-1');
+
+    // THEN
+    expect(requests.single.contactIntentIdentifier, 'contact-1');
+    expect(requests.single.professionalName, 'Maria Eletricista');
+    expect(
+      httpClient.requests.map((request) => request.path),
+      [
+        '/api/v1/customers/me/post-contact-feedback-requests',
+        '/api/v1/customers/me/post-contact-feedback-requests/contact-1/dismiss',
+      ],
+    );
+  });
+
+  test(
       'GIVEN contato concluido WHEN avaliar profissional THEN comentario deve ser opcional',
       () async {
     // GIVEN

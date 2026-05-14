@@ -10,6 +10,8 @@ import br.com.worklink.application.authorization.usecase.AuthenticatedPrincipal;
 import br.com.worklink.application.authorization.usecase.AuthorizationOwnership;
 import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
 import br.com.worklink.application.authorization.usecase.SensitiveAction;
+import br.com.worklink.application.contact.usecase.DismissPostContactFeedbackRequestUseCase;
+import br.com.worklink.application.contact.usecase.ListPendingPostContactFeedbackRequestsUseCase;
 import br.com.worklink.application.customer.usecase.CustomerProfileResponse;
 import br.com.worklink.application.customer.usecase.LoadCustomerProfileUseCase;
 import br.com.worklink.application.customer.usecase.RemoveCustomerSavedProfessionalUseCase;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.UUID;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/customers/me")
@@ -41,6 +44,8 @@ public class CustomerProfileController {
     private final UpdateCustomerProfilePreferencesUseCase updateCustomerProfilePreferencesUseCase;
     private final SaveCustomerProfessionalUseCase saveCustomerProfessionalUseCase;
     private final RemoveCustomerSavedProfessionalUseCase removeCustomerSavedProfessionalUseCase;
+    private final ListPendingPostContactFeedbackRequestsUseCase listPendingPostContactFeedbackRequestsUseCase;
+    private final DismissPostContactFeedbackRequestUseCase dismissPostContactFeedbackRequestUseCase;
     private final RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase;
 
     public CustomerProfileController(
@@ -50,6 +55,8 @@ public class CustomerProfileController {
             UpdateCustomerProfilePreferencesUseCase updateCustomerProfilePreferencesUseCase,
             SaveCustomerProfessionalUseCase saveCustomerProfessionalUseCase,
             RemoveCustomerSavedProfessionalUseCase removeCustomerSavedProfessionalUseCase,
+            ListPendingPostContactFeedbackRequestsUseCase listPendingPostContactFeedbackRequestsUseCase,
+            DismissPostContactFeedbackRequestUseCase dismissPostContactFeedbackRequestUseCase,
             RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase
     ) {
         this.authenticatedPrincipalHttpResolver = authenticatedPrincipalHttpResolver;
@@ -58,6 +65,8 @@ public class CustomerProfileController {
         this.updateCustomerProfilePreferencesUseCase = updateCustomerProfilePreferencesUseCase;
         this.saveCustomerProfessionalUseCase = saveCustomerProfessionalUseCase;
         this.removeCustomerSavedProfessionalUseCase = removeCustomerSavedProfessionalUseCase;
+        this.listPendingPostContactFeedbackRequestsUseCase = listPendingPostContactFeedbackRequestsUseCase;
+        this.dismissPostContactFeedbackRequestUseCase = dismissPostContactFeedbackRequestUseCase;
         this.recordSensitiveAuditEventUseCase = recordSensitiveAuditEventUseCase;
     }
 
@@ -70,6 +79,18 @@ public class CustomerProfileController {
                 authenticatedPrincipal.principalIdentifier()
         );
         return CustomerProfileHttpResponse.fromUseCaseResponse(customerProfileResponse);
+    }
+
+    @GetMapping("/post-contact-feedback-requests")
+    List<PendingPostContactFeedbackRequestHttpResponse> listPendingPostContactFeedbackRequests(
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
+    ) {
+        AuthenticatedPrincipal authenticatedPrincipal = resolveAndAuthorizeCustomer(authorizationHeader);
+        return listPendingPostContactFeedbackRequestsUseCase
+                .listPendingPostContactFeedbackRequests(authenticatedPrincipal.principalIdentifier())
+                .stream()
+                .map(PendingPostContactFeedbackRequestHttpResponse::fromUseCaseResponse)
+                .toList();
     }
 
     @PatchMapping("/profile/preferences")
@@ -136,6 +157,26 @@ public class CustomerProfileController {
                 SensitiveAuditOutcome.SUCCESS
         ));
         return CustomerProfileHttpResponse.fromUseCaseResponse(customerProfileResponse);
+    }
+
+    @PostMapping("/post-contact-feedback-requests/{contactIntentIdentifier}/dismiss")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void dismissPostContactFeedbackRequest(
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+            @PathVariable UUID contactIntentIdentifier
+    ) {
+        AuthenticatedPrincipal authenticatedPrincipal = resolveAndAuthorizeCustomer(authorizationHeader);
+        dismissPostContactFeedbackRequestUseCase.dismissPostContactFeedbackRequest(
+                authenticatedPrincipal.principalIdentifier(),
+                contactIntentIdentifier
+        );
+        recordSensitiveAuditEventUseCase.recordSensitiveAuditEvent(new RecordSensitiveAuditEventRequest(
+                authenticatedPrincipal,
+                SensitiveAuditAction.DISMISS_POST_CONTACT_FEEDBACK_REQUEST,
+                SensitiveAuditTargetType.CONTACT_INTENTION,
+                contactIntentIdentifier,
+                SensitiveAuditOutcome.SUCCESS
+        ));
     }
 
     private AuthenticatedPrincipal resolveAndAuthorizeCustomer(String authorizationHeader) {

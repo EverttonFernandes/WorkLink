@@ -26,4 +26,27 @@ class ContactService {
     );
     return PostContactFeedback.fromJson(response);
   }
+
+  Future<List<PendingPostContactFeedbackRequestModel>>
+  listPendingPostContactFeedbackRequests() async {
+    final response = await _httpClient.getList(
+      '/api/v1/customers/me/post-contact-feedback-requests',
+    );
+    return response
+        .map(
+          (item) => PendingPostContactFeedbackRequestModel.fromJson(
+            Map<String, dynamic>.from(item as Map),
+          ),
+        )
+        .toList();
+  }
+
+  Future<void> dismissPostContactFeedbackRequest(
+    String contactIntentIdentifier,
+  ) async {
+    await _httpClient.postEmpty(
+      '/api/v1/customers/me/post-contact-feedback-requests/'
+      '$contactIntentIdentifier/dismiss',
+    );
+  }
 }

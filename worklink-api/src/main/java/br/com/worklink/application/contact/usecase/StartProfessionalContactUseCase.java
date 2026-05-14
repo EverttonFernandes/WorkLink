@@ -7,6 +7,7 @@ import br.com.worklink.application.authorization.usecase.AuthenticatedProfile;
 import br.com.worklink.application.contact.port.CreateWhatsappContactLinkPort;
 import br.com.worklink.application.contact.port.CurrentContactTimePort;
 import br.com.worklink.application.contact.port.SaveContactIntentPort;
+import br.com.worklink.application.contact.port.SavePostContactFeedbackRequestPort;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.domain.BusinessRuleViolationException;
 import br.com.worklink.domain.contact.ContactIntent;
@@ -16,17 +17,20 @@ public class StartProfessionalContactUseCase {
 
     private final LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort;
     private final SaveContactIntentPort saveContactIntentPort;
+    private final SavePostContactFeedbackRequestPort savePostContactFeedbackRequestPort;
     private final CurrentContactTimePort currentContactTimePort;
     private final CreateWhatsappContactLinkPort createWhatsappContactLinkPort;
 
     public StartProfessionalContactUseCase(
             LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort,
             SaveContactIntentPort saveContactIntentPort,
+            SavePostContactFeedbackRequestPort savePostContactFeedbackRequestPort,
             CurrentContactTimePort currentContactTimePort,
             CreateWhatsappContactLinkPort createWhatsappContactLinkPort
     ) {
         this.loadProfessionalByIdentifierPort = loadProfessionalByIdentifierPort;
         this.saveContactIntentPort = saveContactIntentPort;
+        this.savePostContactFeedbackRequestPort = savePostContactFeedbackRequestPort;
         this.currentContactTimePort = currentContactTimePort;
         this.createWhatsappContactLinkPort = createWhatsappContactLinkPort;
     }
@@ -46,6 +50,11 @@ public class StartProfessionalContactUseCase {
                     currentContactTimePort.currentInstant()
             );
             ContactIntent savedContactIntent = saveContactIntentPort.saveContactIntent(contactIntent);
+            savePostContactFeedbackRequestPort.savePendingPostContactFeedbackRequest(
+                    savedContactIntent.customerIdentifier(),
+                    savedContactIntent.contactIntentIdentifier(),
+                    savedContactIntent.createdAt()
+            );
             String whatsappContactLink = createWhatsappContactLinkPort.createWhatsappContactLink(
                     professional.whatsappNumber()
             );

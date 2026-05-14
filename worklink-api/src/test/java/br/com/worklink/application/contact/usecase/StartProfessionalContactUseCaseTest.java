@@ -38,6 +38,8 @@ class StartProfessionalContactUseCaseTest {
                     savedContactIntent.set(contactIntent);
                     return contactIntent;
                 },
+                (customerIdentifier, contactIntentIdentifier, createdAt) -> {
+                },
                 () -> CREATED_AT,
                 whatsappNumber -> {
                     contactIntentSavedBeforeWhatsappLink.set(savedContactIntent.get() != null);
@@ -72,6 +74,8 @@ class StartProfessionalContactUseCaseTest {
         StartProfessionalContactUseCase useCase = new StartProfessionalContactUseCase(
                 professionalIdentifier -> Optional.of(validProfessional()),
                 contactIntent -> contactIntent,
+                (customerIdentifier, contactIntentIdentifier, createdAt) -> {
+                },
                 () -> CREATED_AT,
                 whatsappNumber -> "https://wa.me/%s".formatted(whatsappNumber)
         );
@@ -96,6 +100,8 @@ class StartProfessionalContactUseCaseTest {
         StartProfessionalContactUseCase useCase = new StartProfessionalContactUseCase(
                 professionalIdentifier -> Optional.empty(),
                 contactIntent -> contactIntent,
+                (customerIdentifier, contactIntentIdentifier, createdAt) -> {
+                },
                 () -> CREATED_AT,
                 whatsappNumber -> "https://wa.me/%s".formatted(whatsappNumber)
         );

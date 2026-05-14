@@ -37,6 +37,8 @@ class RegisterPostContactFeedbackUseCaseTest {
                     savedFeedback.set(postContactFeedback);
                     return postContactFeedback;
                 },
+                (savedCustomerIdentifier, savedContactIntentIdentifier) -> {
+                },
                 () -> FEEDBACK_CREATED_AT
         );
         AuthenticatedPrincipal customerPrincipal = new AuthenticatedPrincipal(customerIdentifier, AuthenticatedProfile.CUSTOMER);
@@ -61,6 +63,8 @@ class RegisterPostContactFeedbackUseCaseTest {
         RegisterPostContactFeedbackUseCase useCase = new RegisterPostContactFeedbackUseCase(
                 contactIntentIdentifier -> Optional.empty(),
                 postContactFeedback -> postContactFeedback,
+                (savedCustomerIdentifier, savedContactIntentIdentifier) -> {
+                },
                 () -> FEEDBACK_CREATED_AT
         );
 
@@ -85,6 +89,8 @@ class RegisterPostContactFeedbackUseCaseTest {
         RegisterPostContactFeedbackUseCase useCase = new RegisterPostContactFeedbackUseCase(
                 contactIntentIdentifier -> Optional.of(contactIntent),
                 postContactFeedback -> postContactFeedback,
+                (savedCustomerIdentifier, savedContactIntentIdentifier) -> {
+                },
                 () -> FEEDBACK_CREATED_AT
         );
 
@@ -104,6 +110,8 @@ class RegisterPostContactFeedbackUseCaseTest {
         RegisterPostContactFeedbackUseCase useCase = new RegisterPostContactFeedbackUseCase(
                 contactIntentIdentifier -> Optional.of(contactIntent),
                 postContactFeedback -> postContactFeedback,
+                (savedCustomerIdentifier, savedContactIntentIdentifier) -> {
+                },
                 () -> FEEDBACK_CREATED_AT
         );
 

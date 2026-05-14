@@ -3,8 +3,8 @@
 ## Identificador
 
 - História: `WL-021`
-- Data: `2026-05-10`
-- Tipo semântico sugerido: `MINOR`
+- Data: `2026-05-13`
+- Tipo semântico: `MINOR`
 
 ## Objetivo de negócio
 
@@ -18,59 +18,75 @@ Solicitar ativamente que o cliente deixe feedback após contactar um profissiona
 
 ## Requisitos atendidos
 
-- RF46 — Notificação/prompt de feedback após contato.
-- RN11/RN12 — Rastreabilidade de avaliação com timestamp de contato.
+- RF35 — solicitar feedback após contato iniciado
+- RF36 — permitir informar se conseguiu falar
+- RF37 — permitir informar responsividade
+- RF38 — permitir informar se o serviço foi realizado
+- RF39 — armazenar respostas para indicadores futuros
+- RN11 — fluxo continua elegível para avaliação apenas após contato + serviço realizado
+- RN18 — sinais de responsividade passam a ser coletados de forma ativa
 
 ## O que foi implementado
 
-- Persistência de intenção de contato (timestamp, profissional, cliente).
-- Tela de prompt/bottomsheet solicitando feedback após 2 horas de contato.
-- Ligação entre intenção de contato e avaliação deixada.
-- Testes unitários e de tela para notificação e submissão.
-- Rastreabilidade: timestamp de contato linkado com timestamp de avaliação.
+- Migração `V020__create_post_contact_feedback_requests.sql` criando fila persistida de solicitações pós-contato.
+- Retroalimentação de contatos antigos sem feedback para o novo mecanismo de pendências.
+- Criação automática da pendência quando o cliente inicia contato com um profissional.
+- Marcação automática da pendência como `ANSWERED` quando o pós-contato é respondido.
+- Endpoint privado para listar pendências do cliente autenticado.
+- Endpoint privado para dispensar pendência sem insistência imediata.
+- Prompt in-app no mobile, acima dos filtros da descoberta, reaproveitando a tela existente de pós-contato.
+- Testes backend/mobile cobrindo fluxo de criação, listagem, dispensa e conclusão.
 
 ## O que não foi implementado
 
-- Push notification (apenas in-app prompt).
-- Customização de delay de notificação por cliente.
-- Re-notificação se cliente ignorar prompt.
+- Push notification real.
+- Estratégias de reengajamento.
+- Agendamento temporal sofisticado para relembrar o cliente.
 
 ## Fluxos, telas, endpoints ou módulos envolvidos
 
-- Backend em `/api/v1/contacts/{id}/solicit-feedback`.
-- Tela mobile com prompt/bottomsheet após retorno do WhatsApp.
-- Tela de avaliação existente (WL-012).
-- Integração com auditoria (WLT-011).
+- `POST /api/v1/contact-intentions`
+- `POST /api/v1/post-contact-feedbacks`
+- `GET /api/v1/customers/me/post-contact-feedback-requests`
+- `POST /api/v1/customers/me/post-contact-feedback-requests/{contactIntentIdentifier}/dismiss`
+- Mobile:
+  - `worklink-mobile/lib/main.dart`
+  - `worklink-mobile/lib/features/post_contact_feedback/pending_post_contact_feedback_prompt.dart`
+- Integração com auditoria sensível para a ação de dispensa.
 
 ## Estratégia de testes
 
-- Backend unitário: persistência de intenção, cálculo de delay.
-- Mobile unitário: controller de prompt.
-- Mobile tela: exibição do prompt, aceitação, rejeição.
-- Integração backend: relacionamento entre intenção e avaliação.
-- Funcional/E2E: fluxo completo contato→delay→prompt→avaliação.
+- Backend unitário: use cases de criação/listagem/dispensa e adaptação JDBC.
+- Backend integração: Flyway até `v020`.
+- Mobile unitário: serviço HTTP, gateway e contrato do prompt.
+- Mobile tela: renderização do prompt e composição com descoberta.
+- Mobile integração: contrato HTTP real backend/mobile.
 
 ## Evidências de validação
 
-- `make backend-unit-test`: PASS, lógica de solicitação atendida.
-- `make backend-integration-test`: PASS, Flyway até `v021`.
-- `make mobile-unit-test`: PASS, cobertura 95%+.
-- `make mobile-screen-test`: PASS, 5+ testes.
-- `make mobile-integration-test`: PASS com emulador remoto.
-- `make functional-test`: PASS, fluxo E2E validado.
+- `make backend-unit-test`: PASS
+- `make backend-integration-test`: PASS, Flyway até `v020`
+- `make mobile-unit-test`: PASS, cobertura `95.44%`
+- `make mobile-screen-test`: PASS
+- `make mobile-static-analysis`: PASS
+- `make mobile-integration-test`: PASS
 
 ## Riscos ou limitações remanescentes
 
-- Delay fixo de 2 horas pode não ser ideal para todos os serviços.
-- Cliente pode ignorar prompt e nunca avaliar.
-- Sem re-tentativa se cliente rejeitar prompt inicialmente.
+- O prompt ainda é somente in-app.
+- A fila usa a primeira pendência elegível na home; ordenação mais sofisticada pode entrar depois.
+- A dispensa atual evita insistência imediata, mas não implementa reabordagem futura.
 
 ## Arquivos ou módulos relevantes
 
-- `worklink-mobile/lib/features/post_contact_feedback/` — prompt.
-- `worklink-api/src/main/java/br/com/worklink/contacts/` — persistência.
-- Migration: `worklink-api/src/main/resources/db/migration/V021__*.sql`.
+- `worklink-api/src/main/java/br/com/worklink/application/contact/`
+- `worklink-api/src/main/java/br/com/worklink/api/customer/`
+- `worklink-api/src/main/java/br/com/worklink/infrastructure/contact/`
+- `worklink-mobile/lib/features/post_contact_feedback/`
+- `worklink-mobile/lib/services/contact_service.dart`
+- `worklink-mobile/lib/app/worklink_application_gateway.dart`
+- Migração: `worklink-api/src/main/resources/db/migration/V020__create_post_contact_feedback_requests.sql`
 
 ## Justificativa do versionamento
 
-Entrega `MINOR` porque adiciona retenção de avaliações sem quebra. Depende de WL-011 e complementa WL-012.
+Entrega `MINOR` porque adiciona capacidade funcional nova de coleta ativa de pós-contato sem quebrar contratos existentes.

@@ -13,6 +13,9 @@ import br.com.worklink.application.authorization.usecase.AuthenticatedProfile;
 import br.com.worklink.application.authorization.usecase.AuthorizationOwnership;
 import br.com.worklink.application.authorization.usecase.AuthorizeSensitiveActionUseCase;
 import br.com.worklink.application.authorization.usecase.SensitiveAction;
+import br.com.worklink.application.contact.usecase.DismissPostContactFeedbackRequestUseCase;
+import br.com.worklink.application.contact.usecase.ListPendingPostContactFeedbackRequestsUseCase;
+import br.com.worklink.application.contact.usecase.PendingPostContactFeedbackRequestResponse;
 import br.com.worklink.application.customer.usecase.CustomerProfileCityResponse;
 import br.com.worklink.application.customer.usecase.CustomerProfileResponse;
 import br.com.worklink.application.customer.usecase.CustomerSavedProfessionalResponse;
@@ -76,6 +79,12 @@ class CustomerProfileControllerTest {
 
     @MockBean
     private RemoveCustomerSavedProfessionalUseCase removeCustomerSavedProfessionalUseCase;
+
+    @MockBean
+    private ListPendingPostContactFeedbackRequestsUseCase listPendingPostContactFeedbackRequestsUseCase;
+
+    @MockBean
+    private DismissPostContactFeedbackRequestUseCase dismissPostContactFeedbackRequestUseCase;
 
     @MockBean
     private RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase;
@@ -157,6 +166,59 @@ class CustomerProfileControllerTest {
         mockMvc.perform(delete("/api/v1/customers/me/saved-professionals/{professionalIdentifier}", professionalIdentifier)
                         .header("Authorization", AUTHORIZATION_HEADER))
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    @DisplayName("GIVEN cliente autenticado WHEN listar solicitacoes pendentes THEN deve expor contatos aguardando feedback")
+    void shouldListPendingPostContactFeedbackRequestsThroughApi() throws Exception {
+        // GIVEN
+        AuthenticatedPrincipal authenticatedPrincipal = authenticatedCustomer();
+        UUID contactIntentIdentifier = UUID.randomUUID();
+        UUID professionalIdentifier = UUID.randomUUID();
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER))
+                .thenReturn(authenticatedPrincipal);
+        when(listPendingPostContactFeedbackRequestsUseCase.listPendingPostContactFeedbackRequests(
+                authenticatedPrincipal.principalIdentifier()
+        )).thenReturn(List.of(new PendingPostContactFeedbackRequestResponse(
+                contactIntentIdentifier,
+                professionalIdentifier,
+                "Maria Eletricista",
+                java.time.Instant.parse("2026-05-13T12:00:00Z")
+        )));
+
+        // WHEN / THEN
+        mockMvc.perform(get("/api/v1/customers/me/post-contact-feedback-requests")
+                        .header("Authorization", AUTHORIZATION_HEADER))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].contactIntentIdentifier").value(contactIntentIdentifier.toString()))
+                .andExpect(jsonPath("$[0].professionalName").value("Maria Eletricista"));
+    }
+
+    @Test
+    @DisplayName("GIVEN cliente autenticado WHEN dispensar solicitacao pendente THEN deve registrar auditoria")
+    void shouldDismissPendingPostContactFeedbackRequestThroughApi() throws Exception {
+        // GIVEN
+        AuthenticatedPrincipal authenticatedPrincipal = authenticatedCustomer();
+        UUID contactIntentIdentifier = UUID.randomUUID();
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER))
+                .thenReturn(authenticatedPrincipal);
+
+        // WHEN / THEN
+        mockMvc.perform(post("/api/v1/customers/me/post-contact-feedback-requests/{contactIntentIdentifier}/dismiss",
+                        contactIntentIdentifier)
+                        .header("Authorization", AUTHORIZATION_HEADER))
+                .andExpect(status().isNoContent());
+        verify(dismissPostContactFeedbackRequestUseCase).dismissPostContactFeedbackRequest(
+                authenticatedPrincipal.principalIdentifier(),
+                contactIntentIdentifier
+        );
+        verify(recordSensitiveAuditEventUseCase).recordSensitiveAuditEvent(argThat(auditRequest ->
+                auditRequest.authenticatedPrincipal().equals(authenticatedPrincipal)
+                        && auditRequest.sensitiveAuditAction() == SensitiveAuditAction.DISMISS_POST_CONTACT_FEEDBACK_REQUEST
+                        && auditRequest.sensitiveAuditTargetType() == SensitiveAuditTargetType.CONTACT_INTENTION
+                        && auditRequest.targetIdentifier().equals(contactIntentIdentifier)
+                        && auditRequest.sensitiveAuditOutcome() == SensitiveAuditOutcome.SUCCESS
+        ));
     }
 
     @Test

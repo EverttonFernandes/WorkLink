@@ -1,5 +1,6 @@
 import '../features/customer_profile/customer_profile_state.dart';
 import '../features/discovery/discovery_professional.dart';
+import '../features/post_contact_feedback/post_contact_feedback_request.dart';
 import '../features/post_contact_feedback/post_contact_feedback_state.dart';
 import '../features/professional_availability/professional_availability_status.dart';
 import '../features/professional_contact/professional_contact_intention.dart';
@@ -65,6 +66,13 @@ abstract interface class WorkLinkApplicationGateway {
 
   Future<CustomerProfileState> removeSavedProfessionalForCustomer(
     String professionalIdentifier,
+  );
+
+  Future<List<PostContactFeedbackRequest>>
+  loadPendingPostContactFeedbackRequests();
+
+  Future<void> dismissPostContactFeedbackRequest(
+    String contactIntentionIdentifier,
   );
 
   Future<void> registerProfessional(
@@ -255,6 +263,24 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
     final customerProfile =
         await customerService.removeSavedProfessional(professionalIdentifier);
     return _mapCustomerProfile(customerProfile);
+  }
+
+  @override
+  Future<List<PostContactFeedbackRequest>>
+  loadPendingPostContactFeedbackRequests() async {
+    final contactService = ContactService(httpClient: _httpClient);
+    final requests = await contactService.listPendingPostContactFeedbackRequests();
+    return requests.map(_mapPendingPostContactFeedbackRequest).toList();
+  }
+
+  @override
+  Future<void> dismissPostContactFeedbackRequest(
+    String contactIntentionIdentifier,
+  ) async {
+    final contactService = ContactService(httpClient: _httpClient);
+    await contactService.dismissPostContactFeedbackRequest(
+      contactIntentionIdentifier,
+    );
   }
 
   @override
@@ -503,6 +529,17 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
     );
   }
 
+  PostContactFeedbackRequest _mapPendingPostContactFeedbackRequest(
+    contact_models.PendingPostContactFeedbackRequestModel request,
+  ) {
+    return PostContactFeedbackRequest(
+      contactIntentionIdentifier: request.contactIntentIdentifier,
+      professionalIdentifier: request.professionalIdentifier,
+      professionalName: request.professionalName,
+      contactCreatedAt: request.contactCreatedAt,
+    );
+  }
+
   ProfessionalProfileReviewSummary? _mapReviewSummary(
     review_models.ProfessionalReviewProfile? reviewProfile,
   ) {
@@ -743,6 +780,17 @@ class WorkLinkPreviewGateway implements WorkLinkApplicationGateway {
   ) async {
     return loadCustomerProfile();
   }
+
+  @override
+  Future<List<PostContactFeedbackRequest>>
+  loadPendingPostContactFeedbackRequests() async {
+    return const [];
+  }
+
+  @override
+  Future<void> dismissPostContactFeedbackRequest(
+    String contactIntentionIdentifier,
+  ) async {}
 
   @override
   Future<void> requestProfessionalPhoneVerification(

@@ -9,12 +9,14 @@ class DiscoveryScreen extends StatefulWidget {
   const DiscoveryScreen({
     super.key,
     required this.discoveryController,
+    this.preFiltersContent,
     this.onOpenProfessionalProfile,
     this.onOpenProfessionalRegistration,
     this.onOpenCustomerProfile,
   });
 
   final DiscoveryController discoveryController;
+  final Widget? preFiltersContent;
   final ValueChanged<String>? onOpenProfessionalProfile;
   final VoidCallback? onOpenProfessionalRegistration;
   final VoidCallback? onOpenCustomerProfile;
@@ -71,6 +73,10 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          if (widget.preFiltersContent != null) ...[
+            widget.preFiltersContent!,
+            const SizedBox(height: 16),
+          ],
           TextField(
             key: const ValueKey('keyword-search-field'),
             decoration: const InputDecoration(

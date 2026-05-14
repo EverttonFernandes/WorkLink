@@ -6,6 +6,7 @@ import br.com.worklink.application.authorization.usecase.AuthenticatedPrincipal;
 import br.com.worklink.application.authorization.usecase.AuthenticatedProfile;
 import br.com.worklink.application.contact.port.CurrentContactTimePort;
 import br.com.worklink.application.contact.port.LoadContactIntentByIdentifierPort;
+import br.com.worklink.application.contact.port.MarkPostContactFeedbackRequestAnsweredPort;
 import br.com.worklink.application.contact.port.SavePostContactFeedbackPort;
 import br.com.worklink.domain.BusinessRuleViolationException;
 import br.com.worklink.domain.contact.ContactConversationOutcome;
@@ -18,15 +19,18 @@ public class RegisterPostContactFeedbackUseCase {
 
     private final LoadContactIntentByIdentifierPort loadContactIntentByIdentifierPort;
     private final SavePostContactFeedbackPort savePostContactFeedbackPort;
+    private final MarkPostContactFeedbackRequestAnsweredPort markPostContactFeedbackRequestAnsweredPort;
     private final CurrentContactTimePort currentContactTimePort;
 
     public RegisterPostContactFeedbackUseCase(
             LoadContactIntentByIdentifierPort loadContactIntentByIdentifierPort,
             SavePostContactFeedbackPort savePostContactFeedbackPort,
+            MarkPostContactFeedbackRequestAnsweredPort markPostContactFeedbackRequestAnsweredPort,
             CurrentContactTimePort currentContactTimePort
     ) {
         this.loadContactIntentByIdentifierPort = loadContactIntentByIdentifierPort;
         this.savePostContactFeedbackPort = savePostContactFeedbackPort;
+        this.markPostContactFeedbackRequestAnsweredPort = markPostContactFeedbackRequestAnsweredPort;
         this.currentContactTimePort = currentContactTimePort;
     }
 
@@ -50,6 +54,10 @@ public class RegisterPostContactFeedbackUseCase {
                     currentContactTimePort.currentInstant()
             );
             PostContactFeedback savedPostContactFeedback = savePostContactFeedbackPort.savePostContactFeedback(postContactFeedback);
+            markPostContactFeedbackRequestAnsweredPort.markPostContactFeedbackRequestAnswered(
+                    contactIntent.customerIdentifier(),
+                    contactIntent.contactIntentIdentifier()
+            );
             return new RegisterPostContactFeedbackResponse(
                     savedPostContactFeedback.postContactFeedbackIdentifier(),
                     savedPostContactFeedback.contactIntentIdentifier(),
