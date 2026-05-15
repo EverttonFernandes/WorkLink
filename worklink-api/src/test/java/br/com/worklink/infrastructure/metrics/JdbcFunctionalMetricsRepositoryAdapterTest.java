@@ -14,6 +14,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Set;
@@ -56,7 +57,7 @@ class JdbcFunctionalMetricsRepositoryAdapterTest {
                 eq(categoryIdentifier),
                 eq("eletricista"),
                 eq(3),
-                eq(Instant.parse("2026-05-09T23:50:00Z"))
+                eq(Timestamp.from(Instant.parse("2026-05-09T23:50:00Z")))
         );
         verify(jdbcTemplate).batchUpdate(anyString(), any(BatchPreparedStatementSetter.class));
     }

@@ -14,6 +14,7 @@ import br.com.worklink.domain.review.ProfessionalReviewAnalysisRequest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -64,7 +65,7 @@ public class JdbcProfessionalReviewRepositoryAdapter implements
                 professionalReview.publicAuthorIdentifier(),
                 professionalReview.publicAuthorDisplayName(),
                 professionalReview.hiddenFromPublic(),
-                professionalReview.createdAt()
+                Timestamp.from(professionalReview.createdAt())
         );
         return professionalReview;
     }
@@ -135,8 +136,10 @@ public class JdbcProfessionalReviewRepositoryAdapter implements
                         ? null
                         : professionalReviewAnalysisRequest.moderationDecision().name(),
                 professionalReviewAnalysisRequest.moderationNotes(),
-                professionalReviewAnalysisRequest.decidedAt(),
-                professionalReviewAnalysisRequest.createdAt()
+                professionalReviewAnalysisRequest.decidedAt() == null
+                        ? null
+                        : Timestamp.from(professionalReviewAnalysisRequest.decidedAt()),
+                Timestamp.from(professionalReviewAnalysisRequest.createdAt())
         );
         return professionalReviewAnalysisRequest;
     }

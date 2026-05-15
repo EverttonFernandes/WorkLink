@@ -6,6 +6,8 @@ import br.com.worklink.domain.report.ProfessionalReport;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
+
 @Repository
 public class JdbcProfessionalReportRepositoryAdapter implements SaveProfessionalReportPort {
 
@@ -40,7 +42,7 @@ public class JdbcProfessionalReportRepositoryAdapter implements SaveProfessional
                 professionalReport.evidenceFileIdentifier(),
                 professionalReport.seriousCase(),
                 professionalReport.authorityGuidance(),
-                professionalReport.createdAt()
+                Timestamp.from(professionalReport.createdAt())
         );
         return professionalReport;
     }

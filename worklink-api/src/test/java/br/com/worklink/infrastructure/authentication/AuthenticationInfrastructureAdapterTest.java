@@ -29,6 +29,20 @@ class AuthenticationInfrastructureAdapterTest {
     }
 
     @Test
+    @DisplayName("GIVEN OTP fixo configurado WHEN gerar codigo THEN deve retornar valor deterministico")
+    void shouldReturnFixedOneTimePasswordWhenConfigured() {
+        // GIVEN
+        SecureRandomOneTimePasswordGeneratorAdapter adapter =
+                new SecureRandomOneTimePasswordGeneratorAdapter(new SecureRandom(new byte[] {1, 2, 3, 4}), "123456");
+
+        // WHEN
+        String oneTimePassword = adapter.generateOneTimePassword();
+
+        // THEN
+        assertThat(oneTimePassword).isEqualTo("123456");
+    }
+
+    @Test
     @DisplayName("GIVEN gerador token WHEN gerar token THEN deve retornar valor opaco seguro")
     void shouldGenerateOpaqueSecureToken() {
         // GIVEN

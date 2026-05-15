@@ -79,3 +79,5 @@ worklink:
   features:
     sms-enabled: ${WORKLINK_FEATURE_SMS_ENABLED}
     storage-enabled: ${WORKLINK_FEATURE_STORAGE_ENABLED}
+  test-support:
+    fixed-otp: ${WORKLINK_TEST_SUPPORT_FIXED_OTP:}

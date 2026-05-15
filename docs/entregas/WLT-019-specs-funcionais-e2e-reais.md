@@ -3,77 +3,82 @@
 ## Identificador
 
 - História: `WLT-019`
-- Data: `2026-05-10`
+- Data: `2026-05-15`
 - Tipo semântico sugerido: `MINOR`
 
 ## Objetivo técnico
 
-Implementar suite de testes E2E reais que validem jornadas críticas do usuário (descoberta, contato, avaliação) contra API backend em ambiente controlado.
+Implementar suite funcional HTTP real que valide jornadas criticas do WorkLink V1 contra a API backend em ambiente Docker reproduzivel.
 
 ## Contexto
 
-Após todas as histórias WL-001 a WL-024 estarem implementadas, testes E2E garantem que integração entre mobile e backend funciona em cenários de negócio reais, não apenas unitários.
+O projeto ja possuia infraestrutura para testes funcionais, mas sem specs reais. A entrega fecha esse gap com cenarios caixa-preta que exercitam autenticacao, descoberta, contato, pos-contato, avaliacao, denuncia e bloqueios de autorizacao sem depender de detalhes internos do backend.
 
 ## Requisitos técnicos atendidos
 
-- RF (todos os fluxos críticos) — Cobertura E2E.
-- RN01/RN02 — Segurança, autenticação em fluxos.
-- RN09/RN10 — Rastreabilidade de avaliação.
+- RF dos fluxos criticos da V1 com validacao funcional de ponta a ponta por HTTP.
+- RN de ambiente reproduzivel e automacao em container.
+- RN de autenticacao, autorizacao, rastreabilidade e isolamento de dados entre clientes.
 
 ## O que foi implementado
 
-- Suite de testes E2E em `functional-tests/`:
-  - **Descoberta**: busca por cidade, filtro por categoria, click em profissional.
-  - **Autenticação**: login por telefone, OTP, erro de código.
-  - **Contato**: iniciar contato, validação de intenção de contato persistida.
-  - **Avaliação**: submeter avaliação anônima, validar persistência e rastreabilidade.
-  - **Admin**: revisão de denúncia, validação, marcação em auditoria.
-
-- Cenários em Jest/Playwright:
-  - Happy path por fluxo crítico.
-  - Validações de erro (telefone inválido, código expirado, permissões insuficientes).
-  - Rastreabilidade (verificar auditoria após ação sensível).
-
-- Relatório de cobertura de casos de teste.
-- Integração em CI/CD: `make functional-test` testa contra backend real (via Docker Compose).
+- Suite funcional real em `functional-tests/src/specs/`:
+  - `autenticacao-e-catalogo.spec.js`
+  - `contato-e-pos-contato.spec.js`
+  - `avaliacao-e-denuncia.spec.js`
+  - `autorizacao-e-bloqueios.spec.js`
+- Helpers de suporte em `functional-tests/src/support/` para:
+  - bootstrap de sessao autenticada
+  - criacao de massa deterministica
+  - reset de estado entre cenarios
+- Endpoint local de suporte funcional para reset deterministico do banco.
+- OTP previsivel por configuracao de ambiente apenas para o profile local de testes.
+- Ajuste do `make functional-test` para subir dependencias, aplicar migracoes, construir a API e executar a suite dentro do container `functional-tests`.
+- Correcoes em adaptadores JDBC que persistiam `Instant` sem `Timestamp`, quebrando cenarios reais.
+- Correcao arquitetural para manter o suporte funcional aderente a Ports and Adapters.
 
 ## O que não foi implementado
 
-- Testes de carga/stress.
-- Casos de fluxo alternativo (ex: cliente muda de cidade durante busca).
-- Mobile E2E real (Appium, Driver etc) — apenas server-side validado.
+- Testes de carga, resiliencia e concorrencia.
+- E2E de interface mobile nativa.
+- Casos de rede degradada e falhas externas simuladas.
 
 ## Fluxos, telas, endpoints ou módulos envolvidos
 
-- Testes em `functional-tests/src/`.
-- Endpoints backend de descoberta, autenticação, contato, avaliação, admin.
-- Database real PostgreSQL e storage MinIO em `docker-compose.yml`.
+- `functional-tests/src/specs/`
+- `functional-tests/src/support/`
+- `worklink-api` com endpoints de autenticacao, catalogo, contato, avaliacao, denuncia e perfil privado
+- `compose.yml`, `.env.example` e `Makefile`
 
 ## Estratégia de testes
 
-- Setup: Docker Compose com backend, DB, MinIO.
-- Execução: Playwright/Jest contra endpoints reais.
-- Validação: status HTTP, respostas esperadas, auditoria.
-- Limpeza: truncate de tabelas após cada cenário.
+- Setup: Docker Compose com PostgreSQL, Redis, MinIO e API.
+- Execucao: Jest contra endpoints HTTP reais do backend.
+- Validacao: status HTTP, contratos JSON, efeitos persistidos e regras de autorizacao.
+- Limpeza: reset deterministico via endpoint local de suporte funcional.
 
 ## Evidências de validação
 
-- `make functional-test`: Todos os cenários E2E PASS (min 45 testes).
-- Relatório html com evidência: `functional-tests/coverage/e2e-report.html`.
-- CI/CD executa E2E em push e pull request.
+- `make backend-static-analysis`: PASS
+- `make backend-unit-test`: PASS, `313` testes, cobertura minima `95%` atendida
+- `make backend-integration-test`: PASS, Flyway ate `v021`
+- `make functional-test`: PASS, `4` suites e `10` cenarios
 
 ## Riscos ou limitações remanescentes
 
-- Testes dependem de estado do banco (requer limpeza rigorosa entre cenários).
-- Sem teste de concorrência (múltiplos clientes simultâneos).
-- Cenários de falha de rede simulada não estão incluídos.
+- A suite depende de infraestrutura Docker funcional.
+- Ainda nao cobre concorrencia ou caos de rede.
+- O endpoint de reset existe apenas para ambiente local e deve permanecer fora de ambientes nao locais.
 
 ## Arquivos ou módulos relevantes
 
 - `functional-tests/` — suite E2E.
 - `functional-tests/src/specs/` — casos de teste por fluxo.
-- `.github/workflows/ci.yml` — job de E2E no CI/CD.
+- `functional-tests/src/support/` — helpers e lifecycle deterministico.
+- `worklink-api/src/main/java/br/com/worklink/api/testsupport/` — endpoint local de reset.
+- `worklink-api/src/main/java/br/com/worklink/application/testsupport/` — use case e port do suporte funcional.
+- `worklink-api/src/main/java/br/com/worklink/infrastructure/testsupport/` — adapter JDBC de reset.
 
 ## Justificativa do versionamento
 
-Entrega `MINOR` porque adiciona validação sem mudança de código produção. Necessária antes de qualquer publicação em lojas.
+Entrega `MINOR` porque adiciona uma capacidade tecnica nova e obrigatoria ao projeto: validacao funcional real, reproduzivel e executavel na pipeline sem instalacao local.

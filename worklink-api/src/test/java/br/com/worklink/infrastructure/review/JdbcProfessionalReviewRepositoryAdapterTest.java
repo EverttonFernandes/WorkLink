@@ -64,7 +64,7 @@ class JdbcProfessionalReviewRepositoryAdapterTest {
                 eq(professionalReview.publicAuthorIdentifier()),
                 eq(professionalReview.publicAuthorDisplayName()),
                 eq(professionalReview.hiddenFromPublic()),
-                eq(professionalReview.createdAt())
+                eq(Timestamp.from(professionalReview.createdAt()))
         );
     }
 
@@ -221,8 +221,8 @@ class JdbcProfessionalReviewRepositoryAdapterTest {
                 eq(analysisRequest.moderationStatus().name()),
                 eq((String) null),
                 eq(analysisRequest.moderationNotes()),
-                eq(analysisRequest.decidedAt()),
-                eq(analysisRequest.createdAt())
+                eq((Timestamp) null),
+                eq(Timestamp.from(analysisRequest.createdAt()))
         );
     }
 

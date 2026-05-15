@@ -71,6 +71,10 @@ mobile-android-build: $(COMPOSE_ENV_FILE)
 mobile-test: mobile-unit-test mobile-screen-test mobile-integration-test
 
 functional-test: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) down -v --remove-orphans
+	$(DOCKER_COMPOSE) up -d postgres redis minio
+	$(DOCKER_COMPOSE) run --rm database-migrations
+	$(DOCKER_COMPOSE) up -d --build --wait worklink-api
 	$(DOCKER_COMPOSE) run --rm functional-tests
 
 test-unit: backend-unit-test mobile-unit-test

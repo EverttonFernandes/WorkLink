@@ -7,6 +7,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -48,7 +49,7 @@ class JdbcProfessionalReportRepositoryAdapterTest {
                 eq(professionalReport.evidenceFileIdentifier()),
                 eq(professionalReport.seriousCase()),
                 eq(professionalReport.authorityGuidance()),
-                eq(professionalReport.createdAt())
+                eq(Timestamp.from(professionalReport.createdAt()))
         );
     }
 }

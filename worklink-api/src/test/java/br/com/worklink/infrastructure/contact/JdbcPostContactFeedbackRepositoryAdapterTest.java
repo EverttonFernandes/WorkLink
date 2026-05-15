@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +53,7 @@ class JdbcPostContactFeedbackRepositoryAdapterTest {
                 eq(postContactFeedback.conversationOutcome().name()),
                 eq(postContactFeedback.contactResponsiveness().name()),
                 eq(postContactFeedback.serviceExecutionOutcome().name()),
-                eq(postContactFeedback.createdAt())
+                eq(Timestamp.from(postContactFeedback.createdAt()))
         );
     }
 

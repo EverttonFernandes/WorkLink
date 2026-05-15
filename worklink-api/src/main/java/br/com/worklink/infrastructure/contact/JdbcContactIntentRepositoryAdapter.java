@@ -7,6 +7,7 @@ import br.com.worklink.domain.contact.ContactIntent;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Timestamp;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,7 +37,7 @@ public class JdbcContactIntentRepositoryAdapter implements SaveContactIntentPort
                 contactIntent.customerIdentifier(),
                 contactIntent.professionalIdentifier(),
                 contactIntent.professionalWhatsappNumber(),
-                contactIntent.createdAt()
+                Timestamp.from(contactIntent.createdAt())
         );
         return contactIntent;
     }

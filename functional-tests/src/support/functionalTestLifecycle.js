@@ -1,9 +1,13 @@
+const { createWorkLinkHttpClient } = require('./worklinkHttpClient');
+
+const worklinkHttpClient = createWorkLinkHttpClient();
+
 async function prepareFunctionalScenario() {
-  // GIVEN: reservado para seeders determinísticos quando os endpoints reais existirem.
+  await worklinkHttpClient.post('/api/v1/test-support/reset');
 }
 
 async function cleanFunctionalScenario() {
-  // THEN: reservado para cleanup explícito quando os endpoints reais existirem.
+  await worklinkHttpClient.post('/api/v1/test-support/reset');
 }
 
 module.exports = {

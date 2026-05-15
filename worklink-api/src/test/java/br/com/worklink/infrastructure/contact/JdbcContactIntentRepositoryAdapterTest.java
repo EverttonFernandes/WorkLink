@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -46,7 +47,7 @@ class JdbcContactIntentRepositoryAdapterTest {
                 eq(contactIntent.customerIdentifier()),
                 eq(contactIntent.professionalIdentifier()),
                 eq(contactIntent.professionalWhatsappNumber()),
-                eq(contactIntent.createdAt())
+                eq(Timestamp.from(contactIntent.createdAt()))
         );
     }
 

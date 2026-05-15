@@ -8,6 +8,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.ResultSet;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
@@ -90,7 +91,13 @@ class JdbcPostContactFeedbackRequestRepositoryAdapterTest {
         adapter.markPostContactFeedbackRequestAnswered(customerIdentifier, contactIntentIdentifier);
 
         // THEN
-        verify(jdbcTemplate).update(any(String.class), eq(contactIntentIdentifier), eq(customerIdentifier), eq(createdAt), eq(createdAt));
+        verify(jdbcTemplate).update(
+                any(String.class),
+                eq(contactIntentIdentifier),
+                eq(customerIdentifier),
+                eq(Timestamp.from(createdAt)),
+                eq(Timestamp.from(createdAt))
+        );
         verify(jdbcTemplate).update(any(String.class), eq(contactIntentIdentifier), eq(customerIdentifier));
     }
 }

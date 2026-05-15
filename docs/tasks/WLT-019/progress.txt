@@ -1,0 +1,26 @@
+# WLT-019 — Progress Log
+
+**Status**: DONE
+
+## Timeline
+
+### Fresh Context 1
+
+- [x] História lida e foco trocado para `WLT-019`.
+- [x] Criados artefatos `TASK.md`, `IMPLEMENTATION.md` e `progress.txt`.
+- [x] Confirmado que `functional-tests` ainda não possui nenhum spec real.
+- [x] Implementado reset determinístico local com endpoint dedicado de test support.
+- [x] Implementada autenticação OTP previsível via configuração de ambiente no container.
+- [x] Criados helpers e specs reais para autenticação, catálogo, contato, pós-contato, avaliação, denúncia e autorização.
+- [x] Corrigidos adaptadores JDBC que persistiam `Instant` sem `Timestamp`, quebrando fluxos reais.
+- [x] Corrigido acoplamento arquitetural do test support para respeitar Ports and Adapters.
+- [x] `make functional-test` executado com 4 suítes e 10 cenários BDD passando.
+
+### Fresh Context 2
+
+- [x] Adicionados testes unitarios dedicados para controller, use case e reset service do suporte funcional local.
+- [x] `make backend-static-analysis` aprovado.
+- [x] `make backend-unit-test` aprovado com `313` testes e cobertura minima atendida.
+- [x] `make backend-integration-test` aprovado com migracoes ate `v021`.
+- [x] `make functional-test` rerodado apos os reforcos de cobertura e aprovado novamente.
+- [x] Documentacao da entrega revisada para refletir a implementacao real da suite HTTP/Jest em Docker.

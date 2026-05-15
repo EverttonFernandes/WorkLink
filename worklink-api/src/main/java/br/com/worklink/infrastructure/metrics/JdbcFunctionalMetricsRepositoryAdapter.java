@@ -17,6 +17,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -49,7 +50,7 @@ public class JdbcFunctionalMetricsRepositoryAdapter
                 professionalSearchEvent.categoryIdentifier(),
                 professionalSearchEvent.keyword(),
                 professionalSearchEvent.resultCount(),
-                professionalSearchEvent.createdAt()
+                Timestamp.from(professionalSearchEvent.createdAt())
         );
         insertSearchEventCities(
                 professionalSearchEvent.professionalSearchEventIdentifier(),
