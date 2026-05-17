@@ -19,3 +19,8 @@ Ativar o job iOS real quando:
 - o diretório `worklink-mobile/ios` existir;
 - houver runner macOS disponível;
 - os secrets de assinatura necessários estiverem definidos fora do repositório.
+
+## Estado atual
+
+- O diretório `worklink-mobile/ios` já existe no repositório.
+- O próximo passo para ativação real é adicionar um job macOS na pipeline para executar `flutter build ios --no-codesign`.

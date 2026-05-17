@@ -23,13 +23,13 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História                                                                       | Tipo    | Título                                                      | Relação com outras histórias                                         | Execução                                 | Versão | Entrega                                                                                |
 | ----- | ------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------- | ------ | -------------------------------------------------------------------------------------- |
-| 44    | [WLT-020](historias-tecnicas/WLT-020-projeto-nativo-mobile-android-ios.md)     | Técnica | Projeto nativo mobile Android/iOS                           | Pré-requisito para builds reais e publicação nas lojas               | Separada                                 | MINOR  | [Entrega WLT-020](../entregas/WLT-020-projeto-nativo-mobile-android-ios.md)            |
-| 45    | [WLT-021](historias-tecnicas/WLT-021-analise-estatica-avancada-backend.md)     | Técnica | Análise estática avançada backend                           | Complementa gate de qualidade do backend (SpotBugs, PMD, SonarCloud) | Separada                                 | MINOR  | [Entrega WLT-021](../entregas/WLT-021-analise-estatica-avancada-backend.md)            |
 | 47    | [WLT-023](historias-tecnicas/WLT-023-emulador-remoto-ambiente-teste-online.md) | Técnica | Emulador remoto e ambiente de teste online na pipeline      | Habilita testes de integração mobile em CI/CD                        | Separada                                 | MINOR  | [Entrega WLT-023](../entregas/WLT-023-emulador-remoto-ambiente-teste-online.md)        |
 
 ## Doing
 
-_Vazio._
+| Ordem | História                                                                       | Tipo    | Título                            | Relação com outras histórias                           | Execução | Versão | Entrega                                                                     |
+| ----- | ------------------------------------------------------------------------------ | ------- | --------------------------------- | ------------------------------------------------------ | -------- | ------ | --------------------------------------------------------------------------- |
+| 45    | [WLT-021](historias-tecnicas/WLT-021-analise-estatica-avancada-backend.md)     | Técnica | Análise estática avançada backend | Complementa gate de qualidade do backend (SpotBugs, PMD, SonarCloud) | Separada | MINOR  | [Entrega WLT-021](../entregas/WLT-021-analise-estatica-avancada-backend.md) |
 
 ## Review
 
@@ -82,6 +82,7 @@ _Vazio._
 | 41    | [WL-023](historias/WL-023-revisao-administrativa-moderacao.md)                     | Negócio | Revisão administrativa efetiva de denúncias e avaliações  | Complementa administração e moderação mínima                             | Junto dos gates de segurança/auditoria | MINOR  | [Entrega WL-023](../entregas/WL-023-revisao-administrativa-moderacao.md) |
 | 42    | [WL-024](historias/WL-024-console-administrativo-minimo.md)                        | Negócio | Console administrativo mínimo                             | Depende de administração, métricas e revisão administrativa             | Separada                         | MINOR  | [Entrega WL-024](../entregas/WL-024-console-administrativo-minimo.md)    |
 | 43    | [WLT-019](historias-tecnicas/WLT-019-specs-funcionais-e2e-reais.md)                | Técnica | Specs funcionais E2E reais                                 | Depende de todos os fluxos críticos implementados                        | Separada                         | MINOR  | [Entrega WLT-019](../entregas/WLT-019-specs-funcionais-e2e-reais.md)    |
+| 44    | [WLT-020](historias-tecnicas/WLT-020-projeto-nativo-mobile-android-ios.md)        | Técnica | Projeto nativo mobile Android/iOS                          | Pré-requisito para builds reais e publicação nas lojas                   | Separada                         | MINOR  | [Entrega WLT-020](../entregas/WLT-020-projeto-nativo-mobile-android-ios.md) |
 | 46    | [WLT-022](historias-tecnicas/WLT-022-integracao-http-mobile-backend.md)            | Técnica | Integração HTTP mobile com backend                      | Substitui mock data por chamadas reais à API                               | Separada                         | MINOR  | [Entrega WLT-022](../entregas/WLT-022-integracao-http-mobile-backend.md)            |
 
 ## Histórias técnicas que podem ser executadas separadamente

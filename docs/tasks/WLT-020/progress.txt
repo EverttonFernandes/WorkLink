@@ -1,0 +1,20 @@
+# WLT-020 — Progress Log
+
+**Status**: DONE
+
+## Timeline
+
+### Fresh Context 1
+
+- [x] `WL-024` concluida e versionada em `v0.44.0`.
+- [x] `WLT-020` confirmada como proxima historia elegivel no `KANBAN-OFICIAL.md`.
+- [x] Artefatos `TASK.md`, `IMPLEMENTATION.md` e `progress.txt` criados.
+- [x] Levantar a geracao nativa Android/iOS sem instalar dependencias diretamente na maquina host.
+- [x] Gerar `android/` e `ios/` via `flutter create` em container.
+- [x] Ajustar namespace e identificadores nativos para `br.com.worklink.mobile`.
+- [x] Ajustar `make mobile-android-build` para evitar lock de `.gradle` em bind mount.
+- [x] Validar `make mobile-static-analysis`.
+- [x] Validar `make mobile-unit-test` com cobertura mobile unitária em `95.81%`.
+- [x] Validar `make mobile-screen-test`.
+- [x] Validar `make mobile-integration-test` no contrato HTTP com backend real.
+- [x] Validar `make mobile-android-build` com geração do `app-debug.apk`.

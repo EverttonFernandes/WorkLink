@@ -66,6 +66,7 @@ mobile-integration-test: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm -e API_BASE_URL=http://worklink-api:8080 mobile-tests sh -lc "./tool/run_mobile_integration_tests.sh"
 
 mobile-android-build: $(COMPOSE_ENV_FILE)
+	rm -rf worklink-mobile/android/.gradle
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && if [ -d android ]; then flutter build apk --debug; else echo 'N/A: projeto Android ainda nao foi gerado.'; fi"
 
 mobile-test: mobile-unit-test mobile-screen-test mobile-integration-test

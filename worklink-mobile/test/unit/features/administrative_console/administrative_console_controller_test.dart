@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/features/administrative_console/administrative_console_controller.dart';
 import 'package:worklink_mobile/features/administrative_console/administrative_console_state.dart';
+import 'package:worklink_mobile/services/exceptions.dart';
 
 void main() {
   test(
@@ -44,7 +45,7 @@ void main() {
     // GIVEN
     final authorizationController = AdministrativeConsoleController(
       loadAdministrativeConsole: () async =>
-          throw Exception('AuthorizationException: forbidden'),
+          throw const AuthorizationException(message: 'forbidden'),
       blockProfessional: (_) async => administrativeConsoleStateFixture,
       unblockProfessional: (_) async => administrativeConsoleStateFixture,
       approveProfessionalReport: (_) async => administrativeConsoleStateFixture,
@@ -57,7 +58,7 @@ void main() {
     final validationController = AdministrativeConsoleController(
       loadAdministrativeConsole: () async => administrativeConsoleStateFixture,
       blockProfessional: (_) async =>
-          throw Exception('ValidationException: invalid'),
+          throw const ValidationException(message: 'invalid'),
       unblockProfessional: (_) async => administrativeConsoleStateFixture,
       approveProfessionalReport: (_) async => administrativeConsoleStateFixture,
       escalateProfessionalReport: (_) async =>
