@@ -4,6 +4,9 @@ import br.com.worklink.domain.catalog.ServiceCategory;
 
 import java.util.List;
 
+
+
+@FunctionalInterface
 public interface ListServiceCategoriesPort {
 
     List<ServiceCategory> listServiceCategories();

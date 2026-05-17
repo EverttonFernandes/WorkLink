@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+
+
+@FunctionalInterface
 public interface LoadServiceCitiesByIdentifiersPort {
 
     List<ServiceCity> loadServiceCitiesByIdentifiers(Set<UUID> cityIdentifiers);

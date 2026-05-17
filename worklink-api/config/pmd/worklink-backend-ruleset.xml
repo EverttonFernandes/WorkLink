@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset
+    name="WorkLink Backend Ruleset"
+    xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.github.io/pmd-6.55.0/ruleset_xml_schema.xsd"
+>
+    <description>
+        Regras mínimas e pragmáticas para o backend do WorkLink. O gate falha apenas para prioridades 1 e 2.
+    </description>
+
+    <rule ref="category/java/errorprone.xml"/>
+    <rule ref="category/java/bestpractices.xml"/>
+</ruleset>

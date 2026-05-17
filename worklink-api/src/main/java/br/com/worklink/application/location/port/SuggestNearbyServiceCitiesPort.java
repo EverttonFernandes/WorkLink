@@ -5,6 +5,9 @@ import br.com.worklink.domain.catalog.ServiceCity;
 
 import java.util.List;
 
+
+
+@FunctionalInterface
 public interface SuggestNearbyServiceCitiesPort {
 
     List<ServiceCity> suggestNearbyServiceCities(CurrentLocationRequest currentLocationRequest, int maximumSuggestions);

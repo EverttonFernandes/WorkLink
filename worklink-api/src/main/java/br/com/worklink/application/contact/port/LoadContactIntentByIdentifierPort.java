@@ -5,6 +5,9 @@ import br.com.worklink.domain.contact.ContactIntent;
 import java.util.Optional;
 import java.util.UUID;
 
+
+
+@FunctionalInterface
 public interface LoadContactIntentByIdentifierPort {
 
     Optional<ContactIntent> loadContactIntentByIdentifier(UUID contactIntentIdentifier);

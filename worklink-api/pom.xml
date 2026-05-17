@@ -24,6 +24,8 @@
         <jacoco.minimum.coverage>0.95</jacoco.minimum.coverage>
         <archunit.version>1.3.0</archunit.version>
         <maven-checkstyle-plugin.version>3.5.0</maven-checkstyle-plugin.version>
+        <spotbugs-maven-plugin.version>4.9.8.3</spotbugs-maven-plugin.version>
+        <maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
         <checkstyle.version>10.18.2</checkstyle.version>
         <maven-failsafe-plugin.version>3.5.2</maven-failsafe-plugin.version>
         <maven-surefire-plugin.version>3.5.2</maven-surefire-plugin.version>
@@ -135,6 +137,29 @@
             </plugin>
 
             <plugin>
+                <groupId>com.github.spotbugs</groupId>
+                <artifactId>spotbugs-maven-plugin</artifactId>
+                <version>${spotbugs-maven-plugin.version}</version>
+                <configuration>
+                    <effort>Max</effort>
+                    <threshold>Low</threshold>
+                    <failThreshold>Low</failThreshold>
+                    <maxAllowedViolations>0</maxAllowedViolations>
+                    <xmlOutput>true</xmlOutput>
+                    <includeFilterFile>config/spotbugs/include-correctness-security.xml</includeFilterFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>spotbugs-validation</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.12</version>
@@ -177,6 +202,31 @@
                                 </rule>
                             </rules>
                         </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>${maven-pmd-plugin.version}</version>
+                <configuration>
+                    <failOnViolation>true</failOnViolation>
+                    <failurePriority>2</failurePriority>
+                    <maxAllowedViolations>0</maxAllowedViolations>
+                    <printFailingErrors>true</printFailingErrors>
+                    <verbose>true</verbose>
+                    <rulesets>
+                        <ruleset>config/pmd/worklink-backend-ruleset.xml</ruleset>
+                    </rulesets>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>pmd-validation</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
                     </execution>
                 </executions>
             </plugin>

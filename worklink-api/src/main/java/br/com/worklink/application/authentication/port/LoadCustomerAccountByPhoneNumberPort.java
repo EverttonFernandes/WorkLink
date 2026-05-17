@@ -4,6 +4,9 @@ import br.com.worklink.domain.authentication.CustomerAccount;
 
 import java.util.Optional;
 
+
+
+@FunctionalInterface
 public interface LoadCustomerAccountByPhoneNumberPort {
 
     Optional<CustomerAccount> loadCustomerAccountByPhoneNumber(String phoneNumber);

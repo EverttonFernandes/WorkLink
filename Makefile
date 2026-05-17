@@ -34,7 +34,7 @@ clean: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) down -v --remove-orphans
 	sudo rm -rf worklink-api/target worklink-mobile/build worklink-mobile/.dart_tool worklink-mobile/coverage
 backend-static-analysis: $(COMPOSE_ENV_FILE)
-	$(DOCKER_COMPOSE) run --rm backend-tests mvn checkstyle:check
+	$(DOCKER_COMPOSE) run --rm backend-tests mvn -DskipTests -DskipITs -Djacoco.skip=true compile test-compile checkstyle:check spotbugs:check pmd:check
 
 mobile-static-analysis: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && flutter analyze"
