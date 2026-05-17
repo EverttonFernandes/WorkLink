@@ -219,8 +219,7 @@ void main() {
     );
   });
 
-  test(
-      'GIVEN codigo remoto aceito WHEN confirmar THEN deve autenticar cliente',
+  test('GIVEN codigo remoto aceito WHEN confirmar THEN deve autenticar cliente',
       () async {
     // GIVEN
     final confirmedCredentials = <String>[];

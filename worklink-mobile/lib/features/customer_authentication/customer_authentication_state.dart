@@ -57,7 +57,8 @@ class CustomerAuthenticationState {
     return CustomerAuthenticationState(
       authenticationStep: authenticationStep ?? this.authenticationStep,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      normalizedPhoneNumber: normalizedPhoneNumber ?? this.normalizedPhoneNumber,
+      normalizedPhoneNumber:
+          normalizedPhoneNumber ?? this.normalizedPhoneNumber,
       verificationCode: verificationCode ?? this.verificationCode,
       errorMessage:
           clearErrorMessage ? null : errorMessage ?? this.errorMessage,

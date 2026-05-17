@@ -44,7 +44,9 @@ Future<void> _waitForBackendReady(
 }) async {
   for (int i = 0; i < maxRetries; i++) {
     try {
-      debugPrint('Waiting for backend to be ready... (attempt ${i + 1}/$maxRetries)');
+      debugPrint(
+        'Waiting for backend to be ready... (attempt ${i + 1}/$maxRetries)',
+      );
       await apiClient.getObject('/actuator/health/readiness');
       debugPrint('Backend is ready!');
       return;

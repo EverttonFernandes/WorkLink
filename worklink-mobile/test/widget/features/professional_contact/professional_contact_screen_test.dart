@@ -14,11 +14,9 @@ void main() {
 
   Future<void> pumpProfessionalContactScreen(
     WidgetTester widgetTester,
-    ProfessionalContactController controller,
-    {
+    ProfessionalContactController controller, {
     ValueChanged<String>? onOpenPostContactFeedback,
-  }
-  ) async {
+  }) async {
     await widgetTester.pumpWidget(
       MaterialApp(
         home: ProfessionalContactScreen(

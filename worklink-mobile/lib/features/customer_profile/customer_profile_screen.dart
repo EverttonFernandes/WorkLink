@@ -100,7 +100,8 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
             key: const ValueKey('customer-profile-whatsapp-notifications'),
             value: customerProfileState.whatsappNotificationsEnabled,
             onChanged: (enabled) async {
-              await widget.customerProfileController.changeWhatsappNotifications(
+              await widget.customerProfileController
+                  .changeWhatsappNotifications(
                 enabled,
               );
             },
@@ -111,7 +112,8 @@ class _CustomerProfileScreenState extends State<CustomerProfileScreen> {
             key: const ValueKey('customer-profile-personalization'),
             value: customerProfileState.profilePersonalizationEnabled,
             onChanged: (enabled) async {
-              await widget.customerProfileController.changeProfilePersonalization(
+              await widget.customerProfileController
+                  .changeProfilePersonalization(
                 enabled,
               );
             },

@@ -70,7 +70,8 @@ class CustomerProfileState {
   final bool profilePersonalizationEnabled;
   final bool loggedOut;
 
-  String get mainCityDisplayName => mainCity?.displayName ?? 'Cidade principal pendente';
+  String get mainCityDisplayName =>
+      mainCity?.displayName ?? 'Cidade principal pendente';
 
   bool get hasSelectedCities => selectedCities.isNotEmpty;
 

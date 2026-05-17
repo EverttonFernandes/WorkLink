@@ -12,6 +12,7 @@ class DiscoveryScreen extends StatefulWidget {
     this.preFiltersContent,
     this.onOpenProfessionalProfile,
     this.onOpenProfessionalRegistration,
+    this.onOpenAdministrativeConsole,
     this.onOpenCustomerProfile,
   });
 
@@ -19,6 +20,7 @@ class DiscoveryScreen extends StatefulWidget {
   final Widget? preFiltersContent;
   final ValueChanged<String>? onOpenProfessionalProfile;
   final VoidCallback? onOpenProfessionalRegistration;
+  final VoidCallback? onOpenAdministrativeConsole;
   final VoidCallback? onOpenCustomerProfile;
 
   @override
@@ -62,6 +64,13 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             onPressed: widget.onOpenProfessionalRegistration,
             icon: const Icon(Icons.person_add_alt_outlined),
           ),
+          if (widget.onOpenAdministrativeConsole != null)
+            IconButton(
+              key: const ValueKey('open-administrative-console-button'),
+              tooltip: 'Console administrativo',
+              onPressed: widget.onOpenAdministrativeConsole,
+              icon: const Icon(Icons.admin_panel_settings_outlined),
+            ),
           IconButton(
             key: const ValueKey('open-customer-profile-button'),
             tooltip: 'Meu perfil',

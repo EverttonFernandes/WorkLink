@@ -6,15 +6,18 @@ import 'package:worklink_mobile/features/professional_availability/professional_
 import 'package:worklink_mobile/features/professional_registration/professional_registration_draft.dart';
 import 'package:worklink_mobile/features/professional_report/professional_report_state.dart';
 import 'package:worklink_mobile/features/professional_review/professional_review_state.dart';
+import 'package:worklink_mobile/services/exceptions.dart';
 
 import '../services/fake_worklink_http_client.dart';
 
 void main() {
   late FakeWorkLinkHttpClient httpClient;
+  late FakeWorkLinkHttpClient administrativeHttpClient;
   late WorkLinkBackendGateway gateway;
 
   setUp(() {
     httpClient = FakeWorkLinkHttpClient();
+    administrativeHttpClient = FakeWorkLinkHttpClient();
     gateway = WorkLinkBackendGateway(httpClient: httpClient);
   });
 
@@ -181,6 +184,461 @@ void main() {
   });
 
   test(
+      'GIVEN console administrativo autorizado WHEN carregar dados THEN deve mapear profissionais denuncias categorias e metricas',
+      () async {
+    // GIVEN
+    gateway = WorkLinkBackendGateway(
+      httpClient: httpClient,
+      administrativeHttpClient: administrativeHttpClient,
+    );
+    httpClient.listResponses['/api/v1/categories'] = [
+      {
+        'categoryIdentifier': 'category-1',
+        'categoryName': 'Eletricista',
+        'categorySlug': 'eletricista',
+      },
+      {
+        'categoryIdentifier': 'category-2',
+        'categoryName': 'Pintora',
+        'categorySlug': 'pintora',
+      },
+    ];
+    httpClient.listResponses['/api/v1/cities'] = [
+      {
+        'cityIdentifier': 'city-1',
+        'cityName': 'Canoas',
+        'stateCode': 'RS',
+        'citySlug': 'canoas-rs',
+      },
+      {
+        'cityIdentifier': 'city-2',
+        'cityName': 'Porto Alegre',
+        'stateCode': 'RS',
+        'citySlug': 'porto-alegre-rs',
+      },
+    ];
+    administrativeHttpClient.listResponses['/api/v1/admin/professionals'] = [
+      {
+        'professionalIdentifier': 'professional-1',
+        'professionalName': 'Maria Eletricista',
+        'cityIdentifier': 'city-1',
+        'categoryIdentifier': 'category-1',
+        'profileClassification': 'Perfil completo',
+        'availabilityStatus': 'AVAILABLE_THIS_WEEK',
+        'blocked': false,
+      },
+      {
+        'professionalIdentifier': 'professional-2',
+        'professionalName': 'Ana Pintora',
+        'cityIdentifier': 'city-sem-mapa',
+        'categoryIdentifier': 'category-sem-mapa',
+        'profileClassification': 'Perfil basico',
+        'availabilityStatus': 'UNKNOWN_STATUS',
+        'blocked': true,
+      },
+    ];
+    administrativeHttpClient.listResponses['/api/v1/admin/reports'] = [
+      {
+        'professionalReportIdentifier': 'report-1',
+        'professionalIdentifier': 'professional-1',
+        'reportReason': 'FAKE_PROFILE',
+        'seriousCase': true,
+        'evidenceFileIdentifier': 'file-1',
+        'moderationStatus': 'ACTION_REQUIRED',
+        'moderationDecision': 'REQUIRE_ADDITIONAL_ACTION',
+        'moderationNotes': 'Escalar moderacao.',
+        'decidedAt': '2026-05-17T10:05:00Z',
+        'createdAt': '2026-05-17T10:00:00Z',
+      },
+    ];
+    administrativeHttpClient
+        .listResponses['/api/v1/admin/review-analysis-requests'] = [
+      {
+        'reviewAnalysisRequestIdentifier': 'analysis-1',
+        'professionalReviewIdentifier': 'review-1',
+        'professionalIdentifier': 'professional-2',
+        'requestedByProfessionalIdentifier': 'professional-2',
+        'moderationStatus': 'RESOLVED',
+        'moderationDecision': 'HIDE_FROM_PUBLIC',
+        'moderationNotes': 'Ocultada pela administracao.',
+        'decidedAt': '2026-05-17T11:05:00Z',
+        'createdAt': '2026-05-17T11:00:00Z',
+      },
+    ];
+    administrativeHttpClient.objectResponses['/api/v1/admin/metrics'] = {
+      'professionalCount': 2,
+      'blockedProfessionalCount': 1,
+      'professionalReportCount': 1,
+      'reviewAnalysisRequestCount': 1,
+      'serviceCategoryCount': 2,
+    };
+    administrativeHttpClient
+        .objectResponses['/api/v1/admin/functional-metrics'] = {
+      'searchCount': 12,
+      'searchWithoutResultCount': 2,
+      'contactCount': 8,
+      'postContactFeedbackCount': 5,
+      'reviewCount': 4,
+      'anonymousReviewCount': 2,
+      'professionalReportCount': 1,
+      'reviewAnalysisRequestCount': 1,
+      'rankingAlgorithmEnabled': false,
+      'searchesByCategory': [
+        {'metricIdentifier': 'category-1', 'contactCount': 7},
+        {'metricIdentifier': 'category-sem-mapa', 'contactCount': 1},
+      ],
+      'searchesByCity': [
+        {'metricIdentifier': 'city-1', 'contactCount': 6},
+        {'metricIdentifier': 'city-sem-mapa', 'contactCount': 1},
+      ],
+      'contactsByProfessional': [
+        {'metricIdentifier': 'professional-1', 'contactCount': 3},
+        {'metricIdentifier': 'professional-sem-mapa', 'contactCount': 1},
+      ],
+      'contactsByCategory': <Map<String, Object?>>[],
+      'contactsByCity': <Map<String, Object?>>[],
+      'professionalSummary': {
+        'activeProfessionalCount': 2,
+        'completeProfessionalCount': 1,
+        'availableProfessionalCount': 1,
+        'unavailableProfessionalCount': 1,
+        'professionalsWithContactCount': 2,
+      },
+      'responsivenessSummary': {
+        'respondedContactPercentage': 87.5,
+        'noResponsePercentage': 12.5,
+        'servicePerformedPercentage': 50.0,
+        'postContactAnswerRatePercentage': 75.0,
+      },
+      'responsivenessSignals': [
+        {'contactResponsiveness': 'FAST_RESPONSE', 'feedbackCount': 4},
+        {'contactResponsiveness': 'UNKNOWN_SIGNAL', 'feedbackCount': 1},
+      ],
+      'reputationSummary': {
+        'reviewCount': 4,
+        'averageRating': 4.6,
+        'anonymousReviewCount': 2,
+        'professionalReportCount': 1,
+        'reviewAnalysisRequestCount': 1,
+      },
+      'reputationSignals': [
+        {
+          'professionalIdentifier': 'professional-1',
+          'averageRating': 4.8,
+          'reviewCount': 3,
+        },
+        {
+          'professionalIdentifier': 'professional-sem-mapa',
+          'averageRating': 3.5,
+          'reviewCount': 1,
+        },
+      ],
+    };
+
+    // WHEN
+    final administrativeConsoleState =
+        await gateway.loadAdministrativeConsole();
+
+    // THEN
+    expect(gateway.administrativeConsoleAvailable, isTrue);
+    expect(
+      administrativeConsoleState.statusMessage,
+      'Console administrativo carregado.',
+    );
+    expect(administrativeConsoleState.professionals, hasLength(2));
+    expect(
+      administrativeConsoleState.professionals.first.availabilityLabel,
+      'Disponível esta semana',
+    );
+    expect(
+      administrativeConsoleState.professionals.last.cityDisplayName,
+      'city-sem-mapa',
+    );
+    expect(
+      administrativeConsoleState.professionals.last.categoryName,
+      'category-sem-mapa',
+    );
+    expect(
+      administrativeConsoleState.professionalReports.single.reportReasonLabel,
+      'Perfil falso',
+    );
+    expect(
+      administrativeConsoleState
+          .professionalReports.single.moderationDecisionLabel,
+      'Exigir acao adicional',
+    );
+    expect(
+      administrativeConsoleState
+          .reviewAnalysisRequests.single.moderationDecisionLabel,
+      'Ocultar publicamente',
+    );
+    expect(
+      administrativeConsoleState.categoryNames,
+      ['Eletricista', 'Pintora'],
+    );
+    expect(
+      administrativeConsoleState
+          .functionalMetrics.topSearchCategories.first.label,
+      'Eletricista',
+    );
+    expect(
+      administrativeConsoleState.functionalMetrics.topSearchCities.first.label,
+      'Canoas - RS',
+    );
+    expect(
+      administrativeConsoleState
+          .functionalMetrics.topContactProfessionals.first.label,
+      'Maria Eletricista',
+    );
+    expect(
+      administrativeConsoleState
+          .functionalMetrics.responsivenessSignals.first.label,
+      'Resposta rapida',
+    );
+    expect(
+      administrativeConsoleState
+          .functionalMetrics.responsivenessSignals.last.label,
+      'UNKNOWN_SIGNAL',
+    );
+    expect(
+      administrativeConsoleState.functionalMetrics.reputationSignals.last.label,
+      'professional-sem-mapa',
+    );
+    expect(
+      administrativeHttpClient.requests.map((request) => request.path),
+      [
+        '/api/v1/admin/professionals',
+        '/api/v1/admin/reports',
+        '/api/v1/admin/review-analysis-requests',
+        '/api/v1/admin/metrics',
+        '/api/v1/admin/functional-metrics',
+      ],
+    );
+  });
+
+  test(
+      'GIVEN console administrativo autorizado WHEN executar mutacoes THEN deve recarregar estado com mensagens de sucesso',
+      () async {
+    // GIVEN
+    gateway = WorkLinkBackendGateway(
+      httpClient: httpClient,
+      administrativeHttpClient: administrativeHttpClient,
+    );
+    httpClient.listResponses['/api/v1/categories'] = [
+      {
+        'categoryIdentifier': 'category-1',
+        'categoryName': 'Eletricista',
+        'categorySlug': 'eletricista',
+      },
+    ];
+    httpClient.listResponses['/api/v1/cities'] = [
+      {
+        'cityIdentifier': 'city-1',
+        'cityName': 'Canoas',
+        'stateCode': 'RS',
+        'citySlug': 'canoas-rs',
+      },
+    ];
+    administrativeHttpClient.listResponses['/api/v1/admin/professionals'] = [
+      {
+        'professionalIdentifier': 'professional-1',
+        'professionalName': 'Maria Eletricista',
+        'cityIdentifier': 'city-1',
+        'categoryIdentifier': 'category-1',
+        'profileClassification': 'Perfil completo',
+        'availabilityStatus': 'AVAILABLE_TODAY',
+        'blocked': false,
+      },
+    ];
+    administrativeHttpClient.listResponses['/api/v1/admin/reports'] = [
+      {
+        'professionalReportIdentifier': 'report-1',
+        'professionalIdentifier': 'professional-1',
+        'reportReason': 'FRAUD',
+        'seriousCase': false,
+        'moderationStatus': 'PENDING',
+        'createdAt': '2026-05-17T10:00:00Z',
+      },
+    ];
+    administrativeHttpClient
+        .listResponses['/api/v1/admin/review-analysis-requests'] = [
+      {
+        'reviewAnalysisRequestIdentifier': 'analysis-1',
+        'professionalReviewIdentifier': 'review-1',
+        'professionalIdentifier': 'professional-1',
+        'requestedByProfessionalIdentifier': 'professional-1',
+        'moderationStatus': 'PENDING',
+        'createdAt': '2026-05-17T11:00:00Z',
+      },
+    ];
+    administrativeHttpClient.objectResponses['/api/v1/admin/metrics'] = {
+      'professionalCount': 1,
+      'blockedProfessionalCount': 0,
+      'professionalReportCount': 1,
+      'reviewAnalysisRequestCount': 1,
+      'serviceCategoryCount': 1,
+    };
+    administrativeHttpClient
+            .objectResponses['/api/v1/admin/functional-metrics'] =
+        minimalFunctionalMetricsJson();
+    administrativeHttpClient.objectResponses[
+            '/api/v1/admin/professionals/professional-1/block'] =
+        administrativeProfessionalJson(blocked: true);
+    administrativeHttpClient.objectResponses[
+            '/api/v1/admin/professionals/professional-1/unblock'] =
+        administrativeProfessionalJson();
+    administrativeHttpClient
+            .objectResponses['/api/v1/admin/reports/report-1/moderation'] =
+        administrativeReportJson(
+      moderationStatus: 'RESOLVED',
+      moderationDecision: 'KEEP_AS_IS',
+      moderationNotes: 'Resolvido',
+    );
+    administrativeHttpClient.objectResponses[
+            '/api/v1/admin/review-analysis-requests/analysis-1/moderation'] =
+        administrativeReviewAnalysisJson(
+      moderationStatus: 'ACTION_REQUIRED',
+      moderationDecision: 'HIDE_FROM_PUBLIC',
+      moderationNotes: 'Ocultada',
+    );
+    administrativeHttpClient.objectResponses['/api/v1/categories'] = {
+      'categoryIdentifier': 'category-2',
+      'categoryName': 'Eletricista',
+      'categorySlug': 'eletricista',
+    };
+
+    // WHEN
+    final blockedState =
+        await gateway.blockAdministrativeProfessional('professional-1');
+    final unblockedState =
+        await gateway.unblockAdministrativeProfessional('professional-1');
+    final approvedReportState =
+        await gateway.approveAdministrativeProfessionalReport('report-1');
+    final escalatedReportState =
+        await gateway.escalateAdministrativeProfessionalReport('report-1');
+    final keptReviewState =
+        await gateway.keepAdministrativeReviewPublic('analysis-1');
+    final hiddenReviewState =
+        await gateway.hideAdministrativeReviewFromPublic('analysis-1');
+    final registeredCategoryState =
+        await gateway.registerAdministrativeCategory(' Eletricista ');
+
+    // THEN
+    expect(
+      blockedState.statusMessage,
+      'Profissional bloqueado no console administrativo.',
+    );
+    expect(
+      unblockedState.statusMessage,
+      'Profissional desbloqueado no console administrativo.',
+    );
+    expect(
+      approvedReportState.statusMessage,
+      'Denuncia revisada e mantida.',
+    );
+    expect(
+      escalatedReportState.statusMessage,
+      'Denuncia sinalizada para acao adicional.',
+    );
+    expect(
+      keptReviewState.statusMessage,
+      'Contestacao revisada e avaliacao mantida publica.',
+    );
+    expect(
+      hiddenReviewState.statusMessage,
+      'Avaliacao ocultada do perfil publico.',
+    );
+    expect(
+      registeredCategoryState.statusMessage,
+      'Categoria administrativa registrada com sucesso.',
+    );
+    expect(
+      administrativeHttpClient.requests
+          .where((request) => request.method == 'POST')
+          .map((request) => request.path),
+      [
+        '/api/v1/admin/professionals/professional-1/block',
+        '/api/v1/admin/professionals/professional-1/unblock',
+        '/api/v1/admin/reports/report-1/moderation',
+        '/api/v1/admin/reports/report-1/moderation',
+        '/api/v1/admin/review-analysis-requests/analysis-1/moderation',
+        '/api/v1/admin/review-analysis-requests/analysis-1/moderation',
+        '/api/v1/categories',
+      ],
+    );
+    final moderationRequests = administrativeHttpClient.requests
+        .where((request) => request.path.contains('/moderation'))
+        .toList();
+    expect(moderationRequests[0].data['moderationDecision'], 'KEEP_AS_IS');
+    expect(
+      moderationRequests[1].data['moderationDecision'],
+      'REQUIRE_ADDITIONAL_ACTION',
+    );
+    expect(moderationRequests[2].data['moderationDecision'], 'KEEP_AS_IS');
+    expect(
+      moderationRequests[3].data['moderationDecision'],
+      'HIDE_FROM_PUBLIC',
+    );
+    final categoryRegistrationRequest = administrativeHttpClient.requests
+        .singleWhere((request) => request.path == '/api/v1/categories');
+    expect(categoryRegistrationRequest.data['categoryName'], 'Eletricista');
+  });
+
+  test(
+      'GIVEN console administrativo sem credencial WHEN carregar THEN deve falhar com autorizacao',
+      () async {
+    // WHEN / THEN
+    expect(
+      gateway.loadAdministrativeConsole,
+      throwsA(
+        isA<AuthorizationException>().having(
+          (error) => error.message,
+          'message',
+          'Console administrativo indisponivel sem token interno.',
+        ),
+      ),
+    );
+    expect(gateway.administrativeConsoleAvailable, isFalse);
+  });
+
+  test(
+      'GIVEN preview gateway WHEN operar console administrativo THEN deve manter estado consistente',
+      () async {
+    // GIVEN
+    const previewGateway = WorkLinkPreviewGateway();
+
+    // WHEN
+    final loadedState = await previewGateway.loadAdministrativeConsole();
+    final blockedState = await previewGateway.blockAdministrativeProfessional(
+      'maria-eletricista',
+    );
+    final approvedState = await previewGateway
+        .approveAdministrativeProfessionalReport('report-1');
+    final hiddenState = await previewGateway.hideAdministrativeReviewFromPublic(
+      'review-analysis-1',
+    );
+    final categoryState =
+        await previewGateway.registerAdministrativeCategory('Pintora');
+
+    // THEN
+    expect(previewGateway.administrativeConsoleAvailable, isTrue);
+    expect(loadedState.professionals, isNotEmpty);
+    expect(
+      blockedState.professionals.first.professionalName,
+      'Maria Eletricista',
+    );
+    expect(
+      approvedState.professionalReports.single.reportReasonLabel,
+      'Perfil falso',
+    );
+    expect(
+      hiddenState.reviewAnalysisRequests.single.professionalName,
+      'Maria Eletricista',
+    );
+    expect(categoryState.categoryNames, contains('Eletricista'));
+  });
+
+  test(
       'GIVEN profissional escolhido WHEN iniciar contato THEN deve mapear intencao para a UI',
       () async {
     // GIVEN
@@ -247,7 +705,8 @@ void main() {
       'GIVEN solicitacoes pendentes WHEN carregar e dispensar THEN deve mapear prompt de pós-contato',
       () async {
     // GIVEN
-    httpClient.listResponses['/api/v1/customers/me/post-contact-feedback-requests'] = [
+    httpClient.listResponses[
+        '/api/v1/customers/me/post-contact-feedback-requests'] = [
       {
         'contactIntentIdentifier': 'contact-1',
         'professionalIdentifier': 'professional-1',
@@ -326,11 +785,17 @@ void main() {
 
     // THEN
     expect(
-      httpClient.requests.where((request) => request.method == 'POST').last.path,
+      httpClient.requests
+          .where((request) => request.method == 'POST')
+          .last
+          .path,
       '/api/v1/customers/me/saved-professionals/professional-1',
     );
     expect(
-      httpClient.requests.where((request) => request.method == 'DELETE').single.path,
+      httpClient.requests
+          .where((request) => request.method == 'DELETE')
+          .single
+          .path,
       '/api/v1/customers/me/saved-professionals/professional-1',
     );
   });
@@ -764,7 +1229,8 @@ void main() {
       whatsappNotificationsEnabled: false,
       profilePersonalizationEnabled: false,
     );
-    final savedCustomerProfile = await previewGateway.saveProfessionalForCustomer(
+    final savedCustomerProfile =
+        await previewGateway.saveProfessionalForCustomer(
       'maria-eletricista',
     );
     final removedCustomerProfile =
@@ -811,6 +1277,97 @@ Map<String, dynamic> professionalJson({
     'availabilityReducesListingHighlight': false,
     'phoneNumberVerified': phoneNumberVerified,
     'qualityGuarantee': qualityGuarantee,
+  };
+}
+
+Map<String, dynamic> administrativeProfessionalJson({
+  bool blocked = false,
+}) {
+  return {
+    'professionalIdentifier': 'professional-1',
+    'professionalName': 'Maria Eletricista',
+    'cityIdentifier': 'city-1',
+    'categoryIdentifier': 'category-1',
+    'profileClassification': 'Perfil completo',
+    'availabilityStatus': 'AVAILABLE_TODAY',
+    'blocked': blocked,
+  };
+}
+
+Map<String, dynamic> administrativeReportJson({
+  String moderationStatus = 'PENDING',
+  String? moderationDecision,
+  String? moderationNotes,
+}) {
+  return {
+    'professionalReportIdentifier': 'report-1',
+    'professionalIdentifier': 'professional-1',
+    'reportReason': 'FRAUD',
+    'seriousCase': false,
+    'moderationStatus': moderationStatus,
+    'moderationDecision': moderationDecision,
+    'moderationNotes': moderationNotes,
+    'decidedAt': moderationDecision == null ? null : '2026-05-17T10:05:00Z',
+    'createdAt': '2026-05-17T10:00:00Z',
+  };
+}
+
+Map<String, dynamic> administrativeReviewAnalysisJson({
+  String moderationStatus = 'PENDING',
+  String? moderationDecision,
+  String? moderationNotes,
+}) {
+  return {
+    'reviewAnalysisRequestIdentifier': 'analysis-1',
+    'professionalReviewIdentifier': 'review-1',
+    'professionalIdentifier': 'professional-1',
+    'requestedByProfessionalIdentifier': 'professional-1',
+    'moderationStatus': moderationStatus,
+    'moderationDecision': moderationDecision,
+    'moderationNotes': moderationNotes,
+    'decidedAt': moderationDecision == null ? null : '2026-05-17T11:05:00Z',
+    'createdAt': '2026-05-17T11:00:00Z',
+  };
+}
+
+Map<String, dynamic> minimalFunctionalMetricsJson() {
+  return {
+    'searchCount': 1,
+    'searchWithoutResultCount': 0,
+    'contactCount': 1,
+    'postContactFeedbackCount': 0,
+    'reviewCount': 0,
+    'anonymousReviewCount': 0,
+    'professionalReportCount': 1,
+    'reviewAnalysisRequestCount': 1,
+    'rankingAlgorithmEnabled': false,
+    'searchesByCategory': <Map<String, Object?>>[],
+    'searchesByCity': <Map<String, Object?>>[],
+    'contactsByProfessional': <Map<String, Object?>>[],
+    'contactsByCategory': <Map<String, Object?>>[],
+    'contactsByCity': <Map<String, Object?>>[],
+    'professionalSummary': {
+      'activeProfessionalCount': 1,
+      'completeProfessionalCount': 1,
+      'availableProfessionalCount': 1,
+      'unavailableProfessionalCount': 0,
+      'professionalsWithContactCount': 1,
+    },
+    'responsivenessSummary': {
+      'respondedContactPercentage': 100.0,
+      'noResponsePercentage': 0.0,
+      'servicePerformedPercentage': 100.0,
+      'postContactAnswerRatePercentage': 0.0,
+    },
+    'responsivenessSignals': <Map<String, Object?>>[],
+    'reputationSummary': {
+      'reviewCount': 0,
+      'averageRating': 0.0,
+      'anonymousReviewCount': 0,
+      'professionalReportCount': 1,
+      'reviewAnalysisRequestCount': 1,
+    },
+    'reputationSignals': <Map<String, Object?>>[],
   };
 }
 

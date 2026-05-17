@@ -8,7 +8,8 @@ class CustomerService {
   final WorkLinkHttpClient _httpClient;
 
   Future<CustomerProfileModel> loadCustomerProfile() async {
-    final response = await _httpClient.getObject('/api/v1/customers/me/profile');
+    final response =
+        await _httpClient.getObject('/api/v1/customers/me/profile');
     return CustomerProfileModel.fromJson(response);
   }
 
@@ -26,7 +27,9 @@ class CustomerService {
     return CustomerProfileModel.fromJson(response);
   }
 
-  Future<CustomerProfileModel> saveProfessional(String professionalIdentifier) async {
+  Future<CustomerProfileModel> saveProfessional(
+    String professionalIdentifier,
+  ) async {
     final response = await _httpClient.postObject(
       '/api/v1/customers/me/saved-professionals/$professionalIdentifier',
     );

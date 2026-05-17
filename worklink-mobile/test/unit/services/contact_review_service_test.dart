@@ -77,7 +77,8 @@ void main() {
       'GIVEN solicitacoes pendentes WHEN carregar e dispensar THEN deve usar endpoints privados do cliente',
       () async {
     // GIVEN
-    httpClient.listResponses['/api/v1/customers/me/post-contact-feedback-requests'] = [
+    httpClient.listResponses[
+        '/api/v1/customers/me/post-contact-feedback-requests'] = [
       {
         'contactIntentIdentifier': 'contact-1',
         'professionalIdentifier': 'professional-1',
@@ -88,7 +89,8 @@ void main() {
     final contactService = ContactService(httpClient: httpClient);
 
     // WHEN
-    final requests = await contactService.listPendingPostContactFeedbackRequests();
+    final requests =
+        await contactService.listPendingPostContactFeedbackRequests();
     await contactService.dismissPostContactFeedbackRequest('contact-1');
 
     // THEN

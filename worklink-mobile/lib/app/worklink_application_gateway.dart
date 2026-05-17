@@ -1,3 +1,4 @@
+import '../features/administrative_console/administrative_console_state.dart';
 import '../features/customer_profile/customer_profile_state.dart';
 import '../features/discovery/discovery_professional.dart';
 import '../features/post_contact_feedback/post_contact_feedback_request.dart';
@@ -9,11 +10,15 @@ import '../features/professional_profile/professional_profile_review.dart';
 import '../features/professional_registration/professional_registration_draft.dart';
 import '../features/professional_report/professional_report_state.dart';
 import '../features/professional_review/professional_review_state.dart';
+import '../services/admin_service.dart';
 import '../services/api_client.dart';
 import '../services/authentication_service.dart';
 import '../services/catalog_service.dart';
 import '../services/contact_service.dart';
 import '../services/customer_service.dart';
+import '../services/exceptions.dart';
+import '../services/models/admin_model.dart' as admin_models;
+import '../services/models/catalog_model.dart';
 import '../services/models/contact_model.dart' as contact_models;
 import '../services/models/customer_model.dart' as customer_models;
 import '../services/models/professional_model.dart' as professional_models;
@@ -42,6 +47,8 @@ class WorkLinkHomeData {
 }
 
 abstract interface class WorkLinkApplicationGateway {
+  bool get administrativeConsoleAvailable;
+
   WorkLinkHomeData? get initialHomeData;
 
   Future<WorkLinkHomeData> loadHomeData();
@@ -69,7 +76,7 @@ abstract interface class WorkLinkApplicationGateway {
   );
 
   Future<List<PostContactFeedbackRequest>>
-  loadPendingPostContactFeedbackRequests();
+      loadPendingPostContactFeedbackRequests();
 
   Future<void> dismissPostContactFeedbackRequest(
     String contactIntentionIdentifier,
@@ -119,13 +126,56 @@ abstract interface class WorkLinkApplicationGateway {
   Future<void> requestProfessionalReviewAnalysis(
     String professionalReviewIdentifier,
   );
+
+  Future<AdministrativeConsoleState> loadAdministrativeConsole();
+
+  Future<AdministrativeConsoleState> blockAdministrativeProfessional(
+    String professionalIdentifier,
+  );
+
+  Future<AdministrativeConsoleState> unblockAdministrativeProfessional(
+    String professionalIdentifier,
+  );
+
+  Future<AdministrativeConsoleState> approveAdministrativeProfessionalReport(
+    String professionalReportIdentifier,
+  );
+
+  Future<AdministrativeConsoleState> escalateAdministrativeProfessionalReport(
+    String professionalReportIdentifier,
+  );
+
+  Future<AdministrativeConsoleState> keepAdministrativeReviewPublic(
+    String reviewAnalysisRequestIdentifier,
+  );
+
+  Future<AdministrativeConsoleState> hideAdministrativeReviewFromPublic(
+    String reviewAnalysisRequestIdentifier,
+  );
+
+  Future<AdministrativeConsoleState> registerAdministrativeCategory(
+    String categoryName,
+  );
 }
 
 class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
-  WorkLinkBackendGateway({WorkLinkHttpClient? httpClient})
-      : _httpClient = httpClient ?? ApiClient();
+  WorkLinkBackendGateway({
+    WorkLinkHttpClient? httpClient,
+    WorkLinkHttpClient? administrativeHttpClient,
+    String? administrativeAccessToken,
+  })  : _httpClient = httpClient ?? ApiClient(),
+        _administrativeHttpClient = administrativeHttpClient,
+        _administrativeAccessToken = administrativeAccessToken;
 
   final WorkLinkHttpClient _httpClient;
+  final WorkLinkHttpClient? _administrativeHttpClient;
+  final String? _administrativeAccessToken;
+
+  @override
+  bool get administrativeConsoleAvailable =>
+      _administrativeHttpClient != null ||
+      (_administrativeAccessToken != null &&
+          _administrativeAccessToken.trim().isNotEmpty);
 
   @override
   WorkLinkHomeData? get initialHomeData => null;
@@ -238,7 +288,8 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
     required bool profilePersonalizationEnabled,
   }) async {
     final customerService = CustomerService(httpClient: _httpClient);
-    final customerProfile = await customerService.updateCustomerProfilePreferences(
+    final customerProfile =
+        await customerService.updateCustomerProfilePreferences(
       whatsappNotificationsEnabled: whatsappNotificationsEnabled,
       profilePersonalizationEnabled: profilePersonalizationEnabled,
     );
@@ -267,9 +318,10 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
 
   @override
   Future<List<PostContactFeedbackRequest>>
-  loadPendingPostContactFeedbackRequests() async {
+      loadPendingPostContactFeedbackRequests() async {
     final contactService = ContactService(httpClient: _httpClient);
-    final requests = await contactService.listPendingPostContactFeedbackRequests();
+    final requests =
+        await contactService.listPendingPostContactFeedbackRequests();
     return requests.map(_mapPendingPostContactFeedbackRequest).toList();
   }
 
@@ -437,6 +489,142 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
     await reviewService.requestProfessionalReviewAnalysis(
       professionalReviewIdentifier: professionalReviewIdentifier,
       reason: 'Solicitacao de analise pelo profissional.',
+    );
+  }
+
+  @override
+  Future<AdministrativeConsoleState> loadAdministrativeConsole() async {
+    final adminService = _createAdministrativeService();
+    final catalogService = CatalogService(httpClient: _httpClient);
+    final administrativeProfessionalsFuture =
+        adminService.listAdministrativeProfessionals();
+    final administrativeReportsFuture =
+        adminService.listAdministrativeProfessionalReports();
+    final administrativeReviewAnalysisRequestsFuture =
+        adminService.listAdministrativeReviewAnalysisRequests();
+    final administrativeMetricsFuture =
+        adminService.loadAdministrativeMetrics();
+    final functionalMetricsFuture = adminService.loadFunctionalMetrics();
+    final categoriesFuture = catalogService.listServiceCategories();
+    final citiesFuture = catalogService.listServiceCities();
+
+    final administrativeProfessionals = await administrativeProfessionalsFuture;
+    final administrativeReports = await administrativeReportsFuture;
+    final administrativeReviewAnalysisRequests =
+        await administrativeReviewAnalysisRequestsFuture;
+    final administrativeMetrics = await administrativeMetricsFuture;
+    final functionalMetrics = await functionalMetricsFuture;
+    final categories = await categoriesFuture;
+    final cities = await citiesFuture;
+
+    return _mapAdministrativeConsoleState(
+      administrativeProfessionals: administrativeProfessionals,
+      administrativeReports: administrativeReports,
+      administrativeReviewAnalysisRequests:
+          administrativeReviewAnalysisRequests,
+      administrativeMetrics: administrativeMetrics,
+      functionalMetrics: functionalMetrics,
+      categories: categories,
+      cities: cities,
+      statusMessage: 'Console administrativo carregado.',
+    );
+  }
+
+  @override
+  Future<AdministrativeConsoleState> blockAdministrativeProfessional(
+    String professionalIdentifier,
+  ) async {
+    final adminService = _createAdministrativeService();
+    await adminService.blockProfessional(professionalIdentifier);
+    return _reloadAdministrativeConsoleAfterMutation(
+      'Profissional bloqueado no console administrativo.',
+    );
+  }
+
+  @override
+  Future<AdministrativeConsoleState> unblockAdministrativeProfessional(
+    String professionalIdentifier,
+  ) async {
+    final adminService = _createAdministrativeService();
+    await adminService.unblockProfessional(professionalIdentifier);
+    return _reloadAdministrativeConsoleAfterMutation(
+      'Profissional desbloqueado no console administrativo.',
+    );
+  }
+
+  @override
+  Future<AdministrativeConsoleState> approveAdministrativeProfessionalReport(
+    String professionalReportIdentifier,
+  ) async {
+    final adminService = _createAdministrativeService();
+    await adminService.moderateProfessionalReport(
+      professionalReportIdentifier: professionalReportIdentifier,
+      moderationStatus: 'RESOLVED',
+      moderationDecision: 'KEEP_AS_IS',
+      moderationNotes: 'Denuncia revisada e mantida sem acao adicional.',
+    );
+    return _reloadAdministrativeConsoleAfterMutation(
+      'Denuncia revisada e mantida.',
+    );
+  }
+
+  @override
+  Future<AdministrativeConsoleState> escalateAdministrativeProfessionalReport(
+    String professionalReportIdentifier,
+  ) async {
+    final adminService = _createAdministrativeService();
+    await adminService.moderateProfessionalReport(
+      professionalReportIdentifier: professionalReportIdentifier,
+      moderationStatus: 'ACTION_REQUIRED',
+      moderationDecision: 'REQUIRE_ADDITIONAL_ACTION',
+      moderationNotes:
+          'Denuncia exige acompanhamento administrativo adicional.',
+    );
+    return _reloadAdministrativeConsoleAfterMutation(
+      'Denuncia sinalizada para acao adicional.',
+    );
+  }
+
+  @override
+  Future<AdministrativeConsoleState> keepAdministrativeReviewPublic(
+    String reviewAnalysisRequestIdentifier,
+  ) async {
+    final adminService = _createAdministrativeService();
+    await adminService.moderateReviewAnalysisRequest(
+      reviewAnalysisRequestIdentifier: reviewAnalysisRequestIdentifier,
+      moderationStatus: 'RESOLVED',
+      moderationDecision: 'KEEP_AS_IS',
+      moderationNotes: 'Avaliacao mantida publica pela administracao.',
+    );
+    return _reloadAdministrativeConsoleAfterMutation(
+      'Contestacao revisada e avaliacao mantida publica.',
+    );
+  }
+
+  @override
+  Future<AdministrativeConsoleState> hideAdministrativeReviewFromPublic(
+    String reviewAnalysisRequestIdentifier,
+  ) async {
+    final adminService = _createAdministrativeService();
+    await adminService.moderateReviewAnalysisRequest(
+      reviewAnalysisRequestIdentifier: reviewAnalysisRequestIdentifier,
+      moderationStatus: 'ACTION_REQUIRED',
+      moderationDecision: 'HIDE_FROM_PUBLIC',
+      moderationNotes: 'Avaliacao ocultada do perfil publico.',
+    );
+    return _reloadAdministrativeConsoleAfterMutation(
+      'Avaliacao ocultada do perfil publico.',
+    );
+  }
+
+  @override
+  Future<AdministrativeConsoleState> registerAdministrativeCategory(
+    String categoryName,
+  ) async {
+    final adminService = _createAdministrativeService();
+    await adminService.registerServiceCategory(categoryName);
+    return _reloadAdministrativeConsoleAfterMutation(
+      'Categoria administrativa registrada com sucesso.',
     );
   }
 
@@ -694,10 +882,246 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
         '${digitsOnlyPhoneNumber.substring(3, 7)}-'
         '${digitsOnlyPhoneNumber.substring(7)}';
   }
+
+  AdminService _createAdministrativeService() {
+    if (!administrativeConsoleAvailable) {
+      throw const AuthorizationException(
+        message: 'Console administrativo indisponivel sem token interno.',
+      );
+    }
+    return AdminService(
+      httpClient: _administrativeHttpClient ??
+          ApiClient(
+            bearerToken: _administrativeAccessToken,
+          ),
+    );
+  }
+
+  Future<AdministrativeConsoleState> _reloadAdministrativeConsoleAfterMutation(
+    String statusMessage,
+  ) async {
+    final loadedState = await loadAdministrativeConsole();
+    return loadedState.copyWith(statusMessage: statusMessage);
+  }
+
+  AdministrativeConsoleState _mapAdministrativeConsoleState({
+    required List<admin_models.AdministrativeProfessionalModel>
+        administrativeProfessionals,
+    required List<admin_models.AdministrativeProfessionalReportModel>
+        administrativeReports,
+    required List<admin_models.AdministrativeReviewAnalysisRequestModel>
+        administrativeReviewAnalysisRequests,
+    required admin_models.AdministrativeMetricsModel administrativeMetrics,
+    required admin_models.FunctionalMetricsModel functionalMetrics,
+    required List<ServiceCategory> categories,
+    required List<ServiceCity> cities,
+    required String statusMessage,
+  }) {
+    final categoryNamesByIdentifier = {
+      for (final category in categories)
+        category.categoryIdentifier: category.categoryName,
+    };
+    final cityDisplayNamesByIdentifier = {
+      for (final city in cities) city.cityIdentifier: city.displayName,
+    };
+    final professionalNamesByIdentifier = {
+      for (final professional in administrativeProfessionals)
+        professional.professionalIdentifier: professional.professionalName,
+    };
+
+    return AdministrativeConsoleState(
+      statusMessage: statusMessage,
+      professionals: administrativeProfessionals
+          .map(
+            (professional) => AdministrativeProfessionalItem(
+              professionalIdentifier: professional.professionalIdentifier,
+              professionalName: professional.professionalName,
+              cityDisplayName:
+                  cityDisplayNamesByIdentifier[professional.cityIdentifier] ??
+                      professional.cityIdentifier,
+              categoryName:
+                  categoryNamesByIdentifier[professional.categoryIdentifier] ??
+                      professional.categoryIdentifier,
+              profileClassification: professional.profileClassification,
+              availabilityLabel:
+                  _mapAvailabilityStatus(professional.availabilityStatus)
+                      .badgeLabel,
+              blocked: professional.blocked,
+            ),
+          )
+          .toList(),
+      professionalReports: administrativeReports
+          .map(
+            (report) => AdministrativeProfessionalReportItem(
+              professionalReportIdentifier: report.professionalReportIdentifier,
+              professionalIdentifier: report.professionalIdentifier,
+              professionalName: professionalNamesByIdentifier[
+                      report.professionalIdentifier] ??
+                  report.professionalIdentifier,
+              reportReasonLabel: _mapReportReasonLabel(report.reportReason),
+              seriousCase: report.seriousCase,
+              moderationStatusLabel:
+                  _mapModerationStatusLabel(report.moderationStatus),
+              moderationDecisionLabel: report.moderationDecision == null
+                  ? null
+                  : _mapModerationDecisionLabel(report.moderationDecision!),
+              moderationNotes: report.moderationNotes,
+              createdAtLabel: _formatAdministrativeDate(report.createdAt),
+            ),
+          )
+          .toList(),
+      reviewAnalysisRequests: administrativeReviewAnalysisRequests
+          .map(
+            (request) => AdministrativeReviewAnalysisItem(
+              reviewAnalysisRequestIdentifier:
+                  request.reviewAnalysisRequestIdentifier,
+              professionalReviewIdentifier:
+                  request.professionalReviewIdentifier,
+              professionalIdentifier: request.professionalIdentifier,
+              professionalName: professionalNamesByIdentifier[
+                      request.professionalIdentifier] ??
+                  request.professionalIdentifier,
+              requestedByProfessionalIdentifier:
+                  request.requestedByProfessionalIdentifier,
+              moderationStatusLabel:
+                  _mapModerationStatusLabel(request.moderationStatus),
+              moderationDecisionLabel: request.moderationDecision == null
+                  ? null
+                  : _mapModerationDecisionLabel(request.moderationDecision!),
+              moderationNotes: request.moderationNotes,
+              createdAtLabel: _formatAdministrativeDate(request.createdAt),
+            ),
+          )
+          .toList(),
+      categoryNames:
+          categories.map((category) => category.categoryName).toList()..sort(),
+      administrativeMetrics: AdministrativeMetricsSummary(
+        professionalCount: administrativeMetrics.professionalCount,
+        blockedProfessionalCount:
+            administrativeMetrics.blockedProfessionalCount,
+        professionalReportCount: administrativeMetrics.professionalReportCount,
+        reviewAnalysisRequestCount:
+            administrativeMetrics.reviewAnalysisRequestCount,
+        serviceCategoryCount: administrativeMetrics.serviceCategoryCount,
+      ),
+      functionalMetrics: AdministrativeFunctionalMetricsSummary(
+        searchCount: functionalMetrics.searchCount,
+        searchWithoutResultCount: functionalMetrics.searchWithoutResultCount,
+        contactCount: functionalMetrics.contactCount,
+        postContactFeedbackCount: functionalMetrics.postContactFeedbackCount,
+        reviewCount: functionalMetrics.reviewCount,
+        anonymousReviewCount: functionalMetrics.anonymousReviewCount,
+        rankingAlgorithmEnabled: functionalMetrics.rankingAlgorithmEnabled,
+        topSearchCategories: functionalMetrics.searchesByCategory
+            .map(
+              (metric) => AdministrativeLabeledMetric(
+                label: categoryNamesByIdentifier[metric.metricIdentifier] ??
+                    metric.metricIdentifier,
+                value: metric.contactCount.toString(),
+              ),
+            )
+            .toList(),
+        topSearchCities: functionalMetrics.searchesByCity
+            .map(
+              (metric) => AdministrativeLabeledMetric(
+                label: cityDisplayNamesByIdentifier[metric.metricIdentifier] ??
+                    metric.metricIdentifier,
+                value: metric.contactCount.toString(),
+              ),
+            )
+            .toList(),
+        topContactProfessionals: functionalMetrics.contactsByProfessional
+            .map(
+              (metric) => AdministrativeLabeledMetric(
+                label: professionalNamesByIdentifier[metric.metricIdentifier] ??
+                    metric.metricIdentifier,
+                value: metric.contactCount.toString(),
+              ),
+            )
+            .toList(),
+        responsivenessSignals: functionalMetrics.responsivenessSignals
+            .map(
+              (metric) => AdministrativeLabeledMetric(
+                label: _mapResponsivenessLabel(metric.contactResponsiveness),
+                value: metric.feedbackCount.toString(),
+              ),
+            )
+            .toList(),
+        reputationSignals: functionalMetrics.reputationSignals
+            .map(
+              (metric) => AdministrativeLabeledMetric(
+                label: professionalNamesByIdentifier[
+                        metric.professionalIdentifier] ??
+                    metric.professionalIdentifier,
+                value:
+                    '${metric.averageRating.toStringAsFixed(1)} (${metric.reviewCount})',
+              ),
+            )
+            .toList(),
+        averageRating: functionalMetrics.reputationSummary.averageRating,
+        respondedContactPercentage:
+            functionalMetrics.responsivenessSummary.respondedContactPercentage,
+      ),
+    );
+  }
+
+  String _mapModerationStatusLabel(String moderationStatus) {
+    return switch (moderationStatus) {
+      'PENDING' => 'Pendente',
+      'IN_REVIEW' => 'Em revisao',
+      'RESOLVED' => 'Resolvido',
+      'ACTION_REQUIRED' => 'Acao necessaria',
+      _ => moderationStatus,
+    };
+  }
+
+  String _mapModerationDecisionLabel(String moderationDecision) {
+    return switch (moderationDecision) {
+      'KEEP_AS_IS' => 'Manter como esta',
+      'HIDE_FROM_PUBLIC' => 'Ocultar publicamente',
+      'RESOLVE_CASE' => 'Resolver caso',
+      'REQUIRE_ADDITIONAL_ACTION' => 'Exigir acao adicional',
+      _ => moderationDecision,
+    };
+  }
+
+  String _mapReportReasonLabel(String reportReason) {
+    return switch (reportReason) {
+      'FRAUD' => 'Fraude',
+      'HARASSMENT' => 'Assedio',
+      'THREAT' => 'Ameaca',
+      'FAKE_PROFILE' => 'Perfil falso',
+      'SERVICE_NOT_PERFORMED' => 'Servico nao realizado',
+      'OTHER' => 'Outro',
+      _ => reportReason,
+    };
+  }
+
+  String _mapResponsivenessLabel(String contactResponsiveness) {
+    return switch (contactResponsiveness) {
+      'FAST_RESPONSE' => 'Resposta rapida',
+      'SLOW_RESPONSE' => 'Resposta lenta',
+      'NO_RESPONSE' => 'Sem resposta',
+      _ => contactResponsiveness,
+    };
+  }
+
+  String _formatAdministrativeDate(DateTime dateTime) {
+    final normalizedDateTime = dateTime.toLocal();
+    final day = normalizedDateTime.day.toString().padLeft(2, '0');
+    final month = normalizedDateTime.month.toString().padLeft(2, '0');
+    final year = normalizedDateTime.year;
+    final hour = normalizedDateTime.hour.toString().padLeft(2, '0');
+    final minute = normalizedDateTime.minute.toString().padLeft(2, '0');
+    return '$day/$month/$year $hour:$minute';
+  }
 }
 
 class WorkLinkPreviewGateway implements WorkLinkApplicationGateway {
   const WorkLinkPreviewGateway();
+
+  @override
+  bool get administrativeConsoleAvailable => true;
 
   @override
   WorkLinkHomeData get initialHomeData => previewHomeData;
@@ -783,7 +1207,7 @@ class WorkLinkPreviewGateway implements WorkLinkApplicationGateway {
 
   @override
   Future<List<PostContactFeedbackRequest>>
-  loadPendingPostContactFeedbackRequests() async {
+      loadPendingPostContactFeedbackRequests() async {
     return const [];
   }
 
@@ -854,6 +1278,145 @@ class WorkLinkPreviewGateway implements WorkLinkApplicationGateway {
   Future<void> requestProfessionalReviewAnalysis(
     String professionalReviewIdentifier,
   ) async {}
+
+  @override
+  Future<AdministrativeConsoleState> loadAdministrativeConsole() async {
+    return const AdministrativeConsoleState(
+      statusMessage: 'Console administrativo de preview carregado.',
+      professionals: [
+        AdministrativeProfessionalItem(
+          professionalIdentifier: 'maria-eletricista',
+          professionalName: 'Maria Eletricista',
+          cityDisplayName: 'Canoas - RS',
+          categoryName: 'Eletricista',
+          profileClassification: 'Perfil completo',
+          availabilityLabel: 'Disponivel esta semana',
+          blocked: false,
+        ),
+        AdministrativeProfessionalItem(
+          professionalIdentifier: 'ana-pintora',
+          professionalName: 'Ana Pintora',
+          cityDisplayName: 'Porto Alegre - RS',
+          categoryName: 'Pintora',
+          profileClassification: 'Perfil basico',
+          availabilityLabel: 'Aceitando novos clientes',
+          blocked: true,
+        ),
+      ],
+      professionalReports: [
+        AdministrativeProfessionalReportItem(
+          professionalReportIdentifier: 'report-1',
+          professionalIdentifier: 'ana-pintora',
+          professionalName: 'Ana Pintora',
+          reportReasonLabel: 'Perfil falso',
+          seriousCase: false,
+          moderationStatusLabel: 'Pendente',
+          createdAtLabel: '15/05/2026 10:00',
+        ),
+      ],
+      reviewAnalysisRequests: [
+        AdministrativeReviewAnalysisItem(
+          reviewAnalysisRequestIdentifier: 'review-analysis-1',
+          professionalReviewIdentifier: 'review-1',
+          professionalIdentifier: 'maria-eletricista',
+          professionalName: 'Maria Eletricista',
+          requestedByProfessionalIdentifier: 'maria-eletricista',
+          moderationStatusLabel: 'Pendente',
+          createdAtLabel: '15/05/2026 11:30',
+        ),
+      ],
+      categoryNames: ['Eletricista', 'Pintora'],
+      administrativeMetrics: AdministrativeMetricsSummary(
+        professionalCount: 2,
+        blockedProfessionalCount: 1,
+        professionalReportCount: 1,
+        reviewAnalysisRequestCount: 1,
+        serviceCategoryCount: 2,
+      ),
+      functionalMetrics: AdministrativeFunctionalMetricsSummary(
+        searchCount: 12,
+        searchWithoutResultCount: 2,
+        contactCount: 5,
+        postContactFeedbackCount: 3,
+        reviewCount: 2,
+        anonymousReviewCount: 1,
+        averageRating: 4.5,
+        respondedContactPercentage: 80,
+        topSearchCategories: [
+          AdministrativeLabeledMetric(label: 'Eletricista', value: '7'),
+          AdministrativeLabeledMetric(label: 'Pintora', value: '5'),
+        ],
+        topSearchCities: [
+          AdministrativeLabeledMetric(label: 'Canoas - RS', value: '6'),
+          AdministrativeLabeledMetric(label: 'Porto Alegre - RS', value: '4'),
+        ],
+        topContactProfessionals: [
+          AdministrativeLabeledMetric(
+            label: 'Maria Eletricista',
+            value: '3',
+          ),
+        ],
+        responsivenessSignals: [
+          AdministrativeLabeledMetric(label: 'Resposta rapida', value: '2'),
+        ],
+        reputationSignals: [
+          AdministrativeLabeledMetric(
+            label: 'Maria Eletricista',
+            value: '4.5 (2)',
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Future<AdministrativeConsoleState> blockAdministrativeProfessional(
+    String professionalIdentifier,
+  ) async {
+    return loadAdministrativeConsole();
+  }
+
+  @override
+  Future<AdministrativeConsoleState> unblockAdministrativeProfessional(
+    String professionalIdentifier,
+  ) async {
+    return loadAdministrativeConsole();
+  }
+
+  @override
+  Future<AdministrativeConsoleState> approveAdministrativeProfessionalReport(
+    String professionalReportIdentifier,
+  ) async {
+    return loadAdministrativeConsole();
+  }
+
+  @override
+  Future<AdministrativeConsoleState> escalateAdministrativeProfessionalReport(
+    String professionalReportIdentifier,
+  ) async {
+    return loadAdministrativeConsole();
+  }
+
+  @override
+  Future<AdministrativeConsoleState> keepAdministrativeReviewPublic(
+    String reviewAnalysisRequestIdentifier,
+  ) async {
+    return loadAdministrativeConsole();
+  }
+
+  @override
+  Future<AdministrativeConsoleState> hideAdministrativeReviewFromPublic(
+    String reviewAnalysisRequestIdentifier,
+  ) async {
+    return loadAdministrativeConsole();
+  }
+
+  @override
+  Future<AdministrativeConsoleState> registerAdministrativeCategory(
+    String categoryName,
+  ) async {
+    return loadAdministrativeConsole();
+  }
 }
 
 const previewHomeData = WorkLinkHomeData(

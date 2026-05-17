@@ -50,7 +50,8 @@ class _ProfessionalProfileScreenState extends State<ProfessionalProfileScreen> {
             onPressed: widget.onToggleSavedProfessional == null
                 ? null
                 : () async {
-                    final nextSavedState = await widget.onToggleSavedProfessional!(
+                    final nextSavedState =
+                        await widget.onToggleSavedProfessional!(
                       _savedByCustomer,
                     );
                     if (!mounted) {
@@ -74,7 +75,9 @@ class _ProfessionalProfileScreenState extends State<ProfessionalProfileScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _ProfessionalProfileHeader(professionalProfile: widget.professionalProfile),
+          _ProfessionalProfileHeader(
+            professionalProfile: widget.professionalProfile,
+          ),
           const SizedBox(height: 16),
           _ProfileDisclaimer(),
           const SizedBox(height: 16),

@@ -34,10 +34,14 @@ void main() {
       ),
     );
     await tester.tap(
-      find.byKey(const ValueKey('respond-pending-post-contact-feedback-button')),
+      find.byKey(
+        const ValueKey('respond-pending-post-contact-feedback-button'),
+      ),
     );
     await tester.tap(
-      find.byKey(const ValueKey('dismiss-pending-post-contact-feedback-button')),
+      find.byKey(
+        const ValueKey('dismiss-pending-post-contact-feedback-button'),
+      ),
     );
 
     // THEN

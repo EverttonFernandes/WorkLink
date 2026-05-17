@@ -39,12 +39,14 @@ void main() {
     WidgetTester widgetTester,
     DiscoveryController discoveryController, {
     ValueChanged<String>? onOpenProfessionalProfile,
+    VoidCallback? onOpenAdministrativeConsole,
   }) async {
     await widgetTester.pumpWidget(
       MaterialApp(
         home: DiscoveryScreen(
           discoveryController: discoveryController,
           onOpenProfessionalProfile: onOpenProfessionalProfile,
+          onOpenAdministrativeConsole: onOpenAdministrativeConsole,
         ),
       ),
     );
@@ -145,5 +147,29 @@ void main() {
 
     // THEN
     expect(openedProfessionalIdentifiers, ['maria-eletricista']);
+  });
+
+  testWidgets(
+      'GIVEN console administrativo habilitado WHEN tocar no atalho THEN deve executar callback',
+      (widgetTester) async {
+    // GIVEN
+    var administrativeConsoleOpened = false;
+    final discoveryController = createDiscoveryController();
+    await pumpDiscoveryScreen(
+      widgetTester,
+      discoveryController,
+      onOpenAdministrativeConsole: () {
+        administrativeConsoleOpened = true;
+      },
+    );
+
+    // WHEN
+    await widgetTester.tap(
+      find.byKey(const ValueKey('open-administrative-console-button')),
+    );
+    await widgetTester.pump();
+
+    // THEN
+    expect(administrativeConsoleOpened, isTrue);
   });
 }

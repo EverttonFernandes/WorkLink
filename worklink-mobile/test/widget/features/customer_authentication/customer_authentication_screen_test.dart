@@ -58,7 +58,10 @@ void main() {
     // THEN
     expect(find.text('Verifique seu numero'), findsOneWidget);
     expect(find.text('(51) 9 9999-1234'), findsOneWidget);
-    expect(find.byKey(const ValueKey('verification-code-field')), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('verification-code-field')),
+      findsOneWidget,
+    );
   });
 
   testWidgets(
@@ -117,7 +120,10 @@ void main() {
     await widgetTester.pumpAndSettle();
 
     // THEN
-    expect(find.text('Nao foi possivel concluir a autenticacao.'), findsOneWidget);
+    expect(
+      find.text('Nao foi possivel concluir a autenticacao.'),
+      findsOneWidget,
+    );
   });
 
   testWidgets(

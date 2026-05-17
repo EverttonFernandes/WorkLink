@@ -28,7 +28,7 @@ class ContactService {
   }
 
   Future<List<PendingPostContactFeedbackRequestModel>>
-  listPendingPostContactFeedbackRequests() async {
+      listPendingPostContactFeedbackRequests() async {
     final response = await _httpClient.getList(
       '/api/v1/customers/me/post-contact-feedback-requests',
     );

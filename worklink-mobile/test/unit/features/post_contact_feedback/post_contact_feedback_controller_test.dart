@@ -89,7 +89,8 @@ void main() {
     controller.selectConversationOutcome(
       PostContactConversationOutcome.customerDidNotReachProfessional,
     );
-    controller.selectContactResponsiveness(PostContactResponsiveness.noResponse);
+    controller
+        .selectContactResponsiveness(PostContactResponsiveness.noResponse);
     controller.selectServiceExecutionOutcome(
       PostContactServiceExecutionOutcome.serviceNotPerformed,
     );

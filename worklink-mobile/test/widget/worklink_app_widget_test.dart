@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/app/worklink_app_configuration.dart';
+import 'package:worklink_mobile/app/worklink_application_gateway.dart';
+import 'package:worklink_mobile/features/administrative_console/administrative_console_state.dart';
 import 'package:worklink_mobile/main.dart';
+import 'package:worklink_mobile/services/exceptions.dart';
 
 void main() {
   testWidgets(
@@ -248,6 +251,53 @@ void main() {
   });
 
   testWidgets(
+      'GIVEN console administrativo habilitado WHEN abrir atalho interno THEN deve navegar para o console',
+      (tester) async {
+    // GIVEN
+    const application = WorkLinkApp.preview(
+      applicationConfiguration: WorkLinkAppConfiguration(
+        administrativeConsoleEnabled: true,
+      ),
+    );
+    await tester.pumpWidget(application);
+
+    // WHEN
+    await tester
+        .tap(find.byKey(const ValueKey('open-administrative-console-button')));
+    await tester.pumpAndSettle();
+
+    // THEN
+    expect(find.text('Console administrativo'), findsOneWidget);
+    expect(find.text('Resumo operacional'), findsOneWidget);
+    expect(find.text('Gestao minima de categorias'), findsOneWidget);
+  });
+
+  testWidgets(
+      'GIVEN token nao administrador WHEN abrir console interno THEN deve exibir acesso negado',
+      (tester) async {
+    // GIVEN
+    final application = WorkLinkApp(
+      applicationConfiguration: const WorkLinkAppConfiguration(
+        administrativeConsoleEnabled: true,
+      ),
+      applicationGateway: _BlockedAdministrativeGateway(),
+    );
+    await tester.pumpWidget(application);
+
+    // WHEN
+    await tester
+        .tap(find.byKey(const ValueKey('open-administrative-console-button')));
+    await tester.pumpAndSettle();
+
+    // THEN
+    expect(find.text('Console administrativo'), findsOneWidget);
+    expect(
+      find.text('Acesso administrativo negado para esta sessao.'),
+      findsOneWidget,
+    );
+  });
+
+  testWidgets(
       'GIVEN cliente sem login WHEN abrir perfil do usuario THEN deve autenticar antes do perfil',
       (tester) async {
     // GIVEN
@@ -316,4 +366,13 @@ void main() {
     expect(find.text('Maria Eletricista'), findsOneWidget);
     expect(find.text('Motivo'), findsOneWidget);
   });
+}
+
+class _BlockedAdministrativeGateway extends WorkLinkPreviewGateway {
+  @override
+  Future<AdministrativeConsoleState> loadAdministrativeConsole() {
+    throw const AuthorizationException(
+      message: 'Token sem perfil administrativo.',
+    );
+  }
 }

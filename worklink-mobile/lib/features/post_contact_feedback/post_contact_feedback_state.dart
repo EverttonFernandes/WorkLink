@@ -34,8 +34,7 @@ class PostContactFeedbackState {
       contactResponsiveness != null &&
       serviceExecutionOutcome != null;
 
-  bool get hasError =>
-      errorMessage != null && errorMessage!.trim().isNotEmpty;
+  bool get hasError => errorMessage != null && errorMessage!.trim().isNotEmpty;
 
   PostContactFeedbackState copyWith({
     PostContactConversationOutcome? conversationOutcome,

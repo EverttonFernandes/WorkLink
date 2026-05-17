@@ -103,9 +103,8 @@ class CustomerAuthenticationController extends ChangeNotifier {
       RegExp('[^0-9]'),
       '',
     );
-    final verificationCodeLength = verificationCodeDigits.length > 4
-        ? 4
-        : verificationCodeDigits.length;
+    final verificationCodeLength =
+        verificationCodeDigits.length > 4 ? 4 : verificationCodeDigits.length;
     final sanitizedVerificationCode = verificationCodeDigits.substring(
       0,
       verificationCodeLength,
@@ -170,7 +169,8 @@ class CustomerAuthenticationController extends ChangeNotifier {
   }
 
   void resendVerificationCode() {
-    if (_state.authenticationStep != CustomerAuthenticationStep.codeVerification) {
+    if (_state.authenticationStep !=
+        CustomerAuthenticationStep.codeVerification) {
       return;
     }
     _updateState(

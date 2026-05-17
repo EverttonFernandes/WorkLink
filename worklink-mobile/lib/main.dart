@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 
 import 'app/worklink_app_configuration.dart';
 import 'app/worklink_application_gateway.dart';
+import 'features/administrative_console/administrative_console_controller.dart';
+import 'features/administrative_console/administrative_console_screen.dart';
 import 'features/customer_authentication/customer_authentication_controller.dart';
 import 'features/customer_authentication/customer_authentication_screen.dart';
 import 'features/customer_profile/customer_profile_controller.dart';
@@ -31,9 +33,30 @@ import 'features/professional_review/professional_review_screen.dart';
 
 // coverage:ignore-start
 void main() {
-  runApp(WorkLinkApp(applicationGateway: WorkLinkBackendGateway()));
+  runApp(
+    WorkLinkApp(
+      applicationConfiguration: WorkLinkAppConfiguration(
+        administrativeConsoleEnabled: _loadAdministrativeConsoleEnabled(),
+      ),
+      applicationGateway: WorkLinkBackendGateway(
+        administrativeAccessToken: _loadAdministrativeAccessToken(),
+      ),
+    ),
+  );
 }
 // coverage:ignore-end
+
+bool _loadAdministrativeConsoleEnabled() {
+  return const String.fromEnvironment('WORKLINK_ENABLE_ADMIN_CONSOLE') ==
+      'true';
+}
+
+String? _loadAdministrativeAccessToken() {
+  const administrativeAccessToken = String.fromEnvironment(
+    'WORKLINK_ADMIN_ACCESS_TOKEN',
+  );
+  return administrativeAccessToken.isEmpty ? null : administrativeAccessToken;
+}
 
 class WorkLinkApp extends StatefulWidget {
   const WorkLinkApp({
@@ -58,7 +81,8 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
   bool customerAuthenticated = false;
   String customerPhoneNumber = '(51) 9 9999-9999';
   CustomerProfileState? customerProfileState;
-  List<PostContactFeedbackRequest> pendingPostContactFeedbackRequests = const [];
+  List<PostContactFeedbackRequest> pendingPostContactFeedbackRequests =
+      const [];
   late Future<WorkLinkHomeData> homeDataFuture;
 
   @override
@@ -159,8 +183,17 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
           ),
         );
       },
-      onOpenCustomerProfile: () => unawaited(_handleOpenCustomerProfile(context)),
+      onOpenAdministrativeConsole: _shouldExposeAdministrativeConsole()
+          ? () => _openAdministrativeConsole(context)
+          : null,
+      onOpenCustomerProfile: () =>
+          unawaited(_handleOpenCustomerProfile(context)),
     );
+  }
+
+  bool _shouldExposeAdministrativeConsole() {
+    return widget.applicationConfiguration.administrativeConsoleEnabled &&
+        widget.applicationGateway.administrativeConsoleAvailable;
   }
 
   void _handleContactProfessional(
@@ -174,16 +207,16 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
             builder: (authenticationContext) => CustomerAuthenticationScreen(
               customerAuthenticationController:
                   _buildCustomerAuthenticationController(),
-            onAuthenticationCompleted: (authenticatedPhoneNumber) {
-              setState(() {
-                customerAuthenticated = true;
-                customerPhoneNumber =
-                    _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
-              });
-              unawaited(_refreshPendingPostContactFeedbackRequests());
-              Navigator.of(authenticationContext).pop();
-            },
-          ),
+              onAuthenticationCompleted: (authenticatedPhoneNumber) {
+                setState(() {
+                  customerAuthenticated = true;
+                  customerPhoneNumber =
+                      _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
+                });
+                unawaited(_refreshPendingPostContactFeedbackRequests());
+                Navigator.of(authenticationContext).pop();
+              },
+            ),
           ),
         ),
       );
@@ -289,6 +322,33 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
     );
   }
 
+  Future<void> _openAdministrativeConsole(BuildContext context) async {
+    await Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => AdministrativeConsoleScreen(
+          administrativeConsoleController: AdministrativeConsoleController(
+            loadAdministrativeConsole:
+                widget.applicationGateway.loadAdministrativeConsole,
+            blockProfessional:
+                widget.applicationGateway.blockAdministrativeProfessional,
+            unblockProfessional:
+                widget.applicationGateway.unblockAdministrativeProfessional,
+            approveProfessionalReport: widget
+                .applicationGateway.approveAdministrativeProfessionalReport,
+            escalateProfessionalReport: widget
+                .applicationGateway.escalateAdministrativeProfessionalReport,
+            keepReviewPublic:
+                widget.applicationGateway.keepAdministrativeReviewPublic,
+            hideReviewFromPublic:
+                widget.applicationGateway.hideAdministrativeReviewFromPublic,
+            registerCategory:
+                widget.applicationGateway.registerAdministrativeCategory,
+          ),
+        ),
+      ),
+    );
+  }
+
   CustomerAuthenticationController _buildCustomerAuthenticationController() {
     return CustomerAuthenticationController(
       requestCustomerAuthenticationCode:
@@ -372,7 +432,8 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
   bool _isProfessionalSavedByCustomer(String professionalIdentifier) {
     return customerProfileState?.savedProfessionals.any(
           (savedProfessional) =>
-              savedProfessional.professionalIdentifier == professionalIdentifier,
+              savedProfessional.professionalIdentifier ==
+              professionalIdentifier,
         ) ??
         false;
   }
@@ -412,7 +473,8 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (authenticationContext) => CustomerAuthenticationScreen(
-          customerAuthenticationController: _buildCustomerAuthenticationController(),
+          customerAuthenticationController:
+              _buildCustomerAuthenticationController(),
           onAuthenticationCompleted: (authenticatedPhoneNumber) {
             setState(() {
               customerAuthenticated = true;
@@ -468,8 +530,8 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
       }
       return;
     }
-    final requests =
-        await widget.applicationGateway.loadPendingPostContactFeedbackRequests();
+    final requests = await widget.applicationGateway
+        .loadPendingPostContactFeedbackRequests();
     if (!mounted) {
       return;
     }

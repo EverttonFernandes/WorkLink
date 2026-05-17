@@ -78,7 +78,10 @@ void main() {
     await customerProfileController.changeWhatsappNotifications(false);
 
     // THEN
-    expect(customerProfileController.state.whatsappNotificationsEnabled, isFalse);
+    expect(
+      customerProfileController.state.whatsappNotificationsEnabled,
+      isFalse,
+    );
     expect(customerProfileController.state.savedProfessionals, isEmpty);
   });
 }

@@ -1,0 +1,33 @@
+# WL-024 — Progress Log
+
+**Status**: DONE
+
+## Timeline
+
+### Fresh Context 1
+
+- [x] `WLT-019` concluida e versionada em `v0.43.0`.
+- [x] `WL-024` confirmada como proxima historia elegivel no `KANBAN-OFICIAL.md`.
+- [x] Artefatos `TASK.md`, `IMPLEMENTATION.md` e `progress.txt` criados.
+- [x] Arquitetura administrativa atual e endpoints reutilizaveis mapeados.
+
+### Implementacao
+
+- [x] `AdminService` criado para os contratos administrativos do app.
+- [x] `admin_model.dart` criado para modelagem dos contratos administrativos.
+- [x] `AdministrativeConsoleScreen`, `AdministrativeConsoleController` e `AdministrativeConsoleState` implementados.
+- [x] Atalho administrativo incorporado ao fluxo principal do app.
+- [x] `WorkLinkBackendGateway` adaptado para carregar e operar o console administrativo.
+- [x] Injeção opcional do cliente administrativo adicionada para testes e desacoplamento.
+
+### Qualidade
+
+- [x] Testes unitarios administrativos criados para gateway, service, model, state e controller.
+- [x] Testes de widget administrativos criados e estabilizados.
+- [x] Cobertura oficial mobile restaurada para `95.81%`.
+- [x] Contrato mobile-backend validado em container.
+
+### Fechamento
+
+- [x] Documentacao da entrega atualizada.
+- [x] Kanban oficial pronto para mover `WL-024` para `Done`.

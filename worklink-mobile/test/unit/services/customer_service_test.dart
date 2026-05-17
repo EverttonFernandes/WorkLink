@@ -16,7 +16,8 @@ void main() {
       'GIVEN backend profile WHEN carregar perfil do cliente THEN deve mapear resposta agregada',
       () async {
     // GIVEN
-    httpClient.objectResponses['/api/v1/customers/me/profile'] = customerProfileJson();
+    httpClient.objectResponses['/api/v1/customers/me/profile'] =
+        customerProfileJson();
 
     // WHEN
     final customerProfile = await customerService.loadCustomerProfile();
@@ -48,8 +49,14 @@ void main() {
 
     // THEN
     expect(updatedPreferences.whatsappNotificationsEnabled, isFalse);
-    expect(httpClient.requests[0].path, '/api/v1/customers/me/profile/preferences');
-    expect(httpClient.requests[1].path, '/api/v1/customers/me/saved-professionals/professional-1');
+    expect(
+      httpClient.requests[0].path,
+      '/api/v1/customers/me/profile/preferences',
+    );
+    expect(
+      httpClient.requests[1].path,
+      '/api/v1/customers/me/saved-professionals/professional-1',
+    );
     expect(httpClient.requests[2].method, 'DELETE');
   });
 }
