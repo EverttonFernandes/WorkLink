@@ -1,7 +1,7 @@
 COMPOSE_ENV_FILE ?= .env
 DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) docker compose --env-file $(COMPOSE_ENV_FILE)
 
-.PHONY: up down restart logs api db redis storage migrate clean backend-static-analysis mobile-static-analysis static-analysis backend-unit-test backend-integration-test backend-test backend-image-build mobile-unit-test mobile-screen-test mobile-integration-test mobile-android-build mobile-test functional-test test-unit test-integration test-functional db-up db-down db-logs db-migrate test ci
+.PHONY: up down restart logs api db redis storage migrate clean backend-static-analysis mobile-static-analysis static-analysis backend-unit-test backend-integration-test backend-test backend-image-[...]
 
 $(COMPOSE_ENV_FILE):
 	cp .env.example $(COMPOSE_ENV_FILE)
@@ -42,11 +42,11 @@ mobile-static-analysis: $(COMPOSE_ENV_FILE)
 static-analysis: backend-static-analysis mobile-static-analysis
 
 backend-unit-test: $(COMPOSE_ENV_FILE)
-	rm -f worklink-api/target/jacoco.exec
+	rm -rf worklink-api/target/jacoco.exec || true
 	$(DOCKER_COMPOSE) run --rm backend-tests mvn test jacoco:report jacoco:check@check
 
 backend-integration-test: $(COMPOSE_ENV_FILE)
-	rm -f worklink-api/target/jacoco.exec
+	rm -rf worklink-api/target/jacoco.exec || true
 	$(DOCKER_COMPOSE) run --rm backend-tests mvn verify
 
 backend-test: backend-unit-test backend-integration-test
@@ -55,10 +55,10 @@ backend-image-build:
 	docker build -f docker/worklink-api.Dockerfile -t worklink-api:local .
 
 mobile-unit-test: $(COMPOSE_ENV_FILE)
-	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "rm -rf coverage && flutter pub get && flutter test test/unit --coverage && awk -F: '/^LF:/{lf+=\$$2}/^LH:/{lh+=\$$2} END { if (lf == 0) { print \"N/A: cobertura mobile sem linhas rastreaveis.\"; exit 0 } coverage=(lh/lf)*100; printf \"Cobertura mobile unitarios: %.2f%%\\n\", coverage; if (coverage < 95) exit 1 }' coverage/lcov.info"
+	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "rm -rf coverage && flutter pub get && flutter test test/unit --coverage && awk -F: '/^LF:/{lf+=\$$2}/^LH:/{lh+=\$$2} END { if (lf == 0) { print \"N[...]
 
 mobile-screen-test: $(COMPOSE_ENV_FILE)
-	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "rm -rf coverage && flutter pub get && if find test -type f \( -path '*/widget/*' -o -path '*/widgets/*' -o -path '*/screen/*' -o -path '*/screens/*' -o -path '*/tela/*' -o -path '*/telas/*' -o -name '*widget_test.dart' -o -name '*screen_test.dart' -o -name '*tela_test.dart' \) | grep -q .; then flutter test test/widget --coverage; else echo 'N/A: testes de tela ainda nao foram criados.'; fi"
+	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "rm -rf coverage && flutter pub get && if find test -type f \( -path '*/widget/*' -o -path '*/widgets/*' -o -path '*/screen/*' -o -path '*/screens/*[...]
 
 mobile-integration-test: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm database-migrations
