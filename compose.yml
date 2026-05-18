@@ -102,6 +102,30 @@ services:
       - flutter-pub-cache:/root/.pub-cache
     command: sh -lc "flutter pub get && flutter test --coverage"
 
+  android-emulator:
+    build:
+      context: .
+      dockerfile: docker/android-emulator.Dockerfile
+    image: worklink-android-emulator
+    user: root
+    privileged: true
+    environment:
+      EMULATOR_DEVICE: Nexus 5
+      EMULATOR_DATA_PARTITION: 2048m
+      EMULATOR_ADDITIONAL_ARGS: -partition-size 2048 -no-metrics
+      WEB_VNC: "true"
+    devices:
+      - /dev/kvm:/dev/kvm
+    ports:
+      - "6080:6080"
+      - "5554:5554"
+      - "5555:5555"
+    shm_size: 2gb
+    stop_grace_period: 120s
+    volumes:
+      - .:/workspace:ro
+      - android-emulator-data:/home/androidusr/emulator
+
   functional-tests:
     image: node:20-alpine
     env_file:
@@ -123,3 +147,4 @@ volumes:
   maven-cache:
   flutter-pub-cache:
   functional-node-modules:
+  android-emulator-data:

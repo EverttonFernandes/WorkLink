@@ -3,83 +3,52 @@
 ## Identificador
 
 - História: `WLT-023`
-- Data: `2026-05-10`
 - Tipo semântico sugerido: `MINOR`
 
 ## Objetivo técnico
 
-Configurar emulador remoto (Android Emulator na nuvem ou GitHub Actions) para que testes de integração mobile rodem automaticamente na pipeline, sem exigir device físico ou setup local.
+Executar os testes mobile de integração em Android Emulator dentro da CI, cobrindo a suíte `integration_test/` sem exigir Flutter SDK ou emulador configurado na máquina local do usuário.
 
 ## Contexto
 
-Atualmente, `make mobile-integration-test` retorna "N/A: environment não tem emulador". Esta história habilita testes automatizados contra emulador remoto.
+O projeto já valida contrato HTTP mobile x backend real em Docker, mas ainda deixa `integration_test/` como `N/A` fora de ambientes com device. Esta história move essa validação para o pipeline.
 
-## Requisitos técnicos atendidos
+## Implementação em progresso
 
-- Emulador Android rodando em CI/CD.
-- Testes mobile executáveis contra emulador real.
-- Resultado integrado em relatório de CI.
+- job `mobile-emulator` em [.github/workflows/ci.yml](/home/umov/Documents/ProjetosPessoais/WorkLink/.github/workflows/ci.yml)
+- script [worklink-mobile/tool/run_mobile_emulator_integration_tests.sh](/home/umov/Documents/ProjetosPessoais/WorkLink/worklink-mobile/tool/run_mobile_emulator_integration_tests.sh)
+- scripts auxiliares:
+  - [scripts/wait_for_android_emulator.sh](/home/umov/Documents/ProjetosPessoais/WorkLink/scripts/wait_for_android_emulator.sh)
+  - [scripts/install_debug_apk_on_emulator.sh](/home/umov/Documents/ProjetosPessoais/WorkLink/scripts/install_debug_apk_on_emulator.sh)
+- backend e dependências sobem com Docker Compose no runner
+- emulador acessa o backend via `http://10.0.2.2:8080`
+- emulador local em Docker com noVNC para teste manual em `http://localhost:6080`
 
-## O que foi implementado
+## Escopo assumido
 
-- **GitHub Actions workflow** (`.github/workflows/ci.yml`):
-  - Job `mobile-integration-tests` com emulador Android API 31.
-  - Ativa emulador com: `reactivecircus/android-emulator-runner`.
-  - Executa testes Flutter contra emulador: `flutter test integration_test/`.
+- Android Emulator em GitHub Actions
+- execução de `test/integration` e `integration_test/`
+- documentação mínima do fluxo local versus remoto
 
-- **Docker Compose**:
-  - Configuração para rodar emulador em Docker (alternativa local).
-  - Docker image com Android SDK e emulador pré-configurado.
-  - Target `docker compose up android-emulator`.
+## Fora do escopo
 
-- **Makefile target**: `make mobile-integration-emulator` para rodar localmente.
+- iOS Simulator em CI
+- device farm terceirizada
+- ambiente remoto persistente para QA manual
 
-- **Script de setup**: `worklink-mobile/tool/setup_emulator.sh` — configuração initial.
+## Evidências esperadas para fechamento
 
-- **Selênio/Appium** (opcional):
-  - Setup para Appium se integração mais profunda for necessária.
-  - Documentado em `worklink-mobile/INTEGRATION-TEST-GUIDE.md`.
+- workflow remoto executado com sucesso
+- suíte `integration_test/` rodando em Android Emulator
+- documentação atualizada sem prometer setup local fora do modelo em Docker
 
-## O que não foi implementado
+## Estado atual
 
-- Emulador iOS em CI (requer runner macOS, mais caro).
-- Selenium Grid remoto (apenas emulador padrão).
-- Upload de artifacts (screenshots/videos) após falha.
+- o job remoto de CI para Android Emulator foi preparado em `.github/workflows/ci.yml`
+- o fluxo local containerizado foi estruturado com scripts, `Makefile` e imagem derivada do emulador
+- o host atual ainda bloqueia o boot completo da AVD por limitação de espaço livre em disco
+- por isso a história ainda depende da execução remota no GitHub Actions para ser fechada
 
-## Fluxos, telas, endpoints ou módulos envolvidos
+## Observação
 
-- `.github/workflows/ci.yml` — novo job de integração.
-- `worklink-mobile/integration_test/` — testes de integração.
-- `worklink-mobile/tool/setup_emulator.sh` — setup script.
-- `docker-compose.yml` — serviço android-emulator (opcional).
-
-## Estratégia de testes
-
-- CI: Emulador setup automático, testes executados contra ele.
-- Local: `flutter run -d emulator` ou `docker compose up android-emulator`.
-- Backend: Roda em container Docker durante testes.
-
-## Evidências de validação
-
-- `make mobile-integration-test` em CI sem timeout.
-- Todos os testes passam contra emulador remoto.
-- CI log mostra execução de testes e cobertura.
-- Relatório gerado: `worklink-mobile/coverage/integration-report.html`.
-
-## Riscos ou limitações remanescentes
-
-- Emulador em CI pode ser lento (~5-10min por suite).
-- Flakiness em emulador pode causar falsos negativos (requer retry logic).
-- iOS integration tests ainda requerem setup manualem runner macOS.
-
-## Arquivos ou módulos relevantes
-
-- `.github/workflows/ci.yml` — novo job.
-- `worklink-mobile/integration_test/` — testes mobile.
-- `worklink-mobile/tool/setup_emulator.sh` — script de setup.
-- `worklink-mobile/INTEGRATION-TEST-GUIDE.md` — documentação.
-- `docker-compose.yml` — serviço emulador (opcional).
-
-## Justificativa do versionamento
-
-Entrega `MINOR` porque adiciona capacidade de teste sem mudança de produção. Essencial para E2E automático na pipeline.
+Enquanto a execução remota ainda não for observada no GitHub Actions, esta entrega deve permanecer em progresso e não pode ser considerada fechada.

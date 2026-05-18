@@ -1,0 +1,31 @@
+# WLT-023 — Progress Log
+
+**Status**: DOING
+
+## Timeline
+
+### Fresh Context 1
+
+- [x] `WLT-021` concluida e versionada.
+- [x] `WLT-023` identificada como proxima historia elegivel no `KANBAN-OFICIAL.md`.
+- [x] Historia tecnica oficial criada em `docs/jira-pessoal/historias-tecnicas/`.
+- [x] Artefatos `TASK.md`, `IMPLEMENTATION.md` e `progress.txt` criados.
+- [x] Revisar workflow mobile atual e preparar a execucao em Android Emulator.
+
+### Execucao 1
+
+- [x] Criado script `worklink-mobile/tool/run_mobile_emulator_integration_tests.sh`.
+- [x] Criados scripts auxiliares para espera do boot e instalacao do APK no emulador.
+- [x] Adicionado job `mobile-emulator` no GitHub Actions com Android Emulator.
+- [x] Configurado acesso do emulador ao backend do runner via `10.0.2.2:8080`.
+- [x] Adicionado emulador Android em Docker para teste manual local com noVNC.
+- [x] Atualizada a documentacao do modulo mobile.
+- [x] `sh -n worklink-mobile/tool/run_mobile_emulator_integration_tests.sh`: PASS.
+- [x] `sh -n scripts/wait_for_android_emulator.sh`: PASS.
+- [x] `sh -n scripts/install_debug_apk_on_emulator.sh`: PASS.
+- [x] Corrigido o fluxo local para usar `docker exec -u 0` em vez de `docker compose exec`.
+- [x] Criada imagem derivada do emulador para contornar a tentativa upstream de `chown /dev/kvm`.
+- [x] Adicionado preflight local para `/dev/kvm`, Docker e espaco minimo em disco.
+- [ ] Host atual ainda nao possui espaco suficiente para boot completo da AVD local; validacao local fim a fim segue bloqueada por ambiente.
+- [x] `git diff --check`: PASS.
+- [ ] Validar execucao remota do workflow no GitHub Actions antes de fechar a historia.

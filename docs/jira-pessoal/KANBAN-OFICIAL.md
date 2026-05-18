@@ -23,11 +23,13 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História                                                                       | Tipo    | Título                                                      | Relação com outras histórias                                         | Execução                                 | Versão | Entrega                                                                                |
 | ----- | ------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------- | ------ | -------------------------------------------------------------------------------------- |
-| 47    | [WLT-023](historias-tecnicas/WLT-023-emulador-remoto-ambiente-teste-online.md) | Técnica | Emulador remoto e ambiente de teste online na pipeline      | Habilita testes de integração mobile em CI/CD                        | Separada                                 | MINOR  | [Entrega WLT-023](../entregas/WLT-023-emulador-remoto-ambiente-teste-online.md)        |
+_Vazio._
 
 ## Doing
 
-_Vazio._
+| Ordem | História                                                                       | Tipo    | Título                                                 | Relação com outras histórias                  | Execução | Versão | Entrega                                                                              |
+| ----- | ------------------------------------------------------------------------------ | ------- | ------------------------------------------------------ | --------------------------------------------- | -------- | ------ | ------------------------------------------------------------------------------------ |
+| 47    | [WLT-023](historias-tecnicas/WLT-023-emulador-remoto-ambiente-teste-online.md) | Técnica | Emulador remoto e ambiente de teste online na pipeline | Habilita testes de integração mobile em CI/CD | Separada | MINOR  | [Entrega WLT-023](../entregas/WLT-023-emulador-remoto-ambiente-teste-online.md)     |
 
 ## Review
 
