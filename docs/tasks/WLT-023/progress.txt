@@ -48,4 +48,7 @@
 - [x] Terceira falha analisada: timeout de conexao com o VM Service permaneceu mesmo com o AVD mais leve.
 - [x] Fluxo de device migrado para `flutter drive` com `--no-dds`.
 - [x] Driver oficial criado em `worklink-mobile/test_driver/integration_test.dart`.
-- [ ] Disparar novo run remoto com `flutter drive` e validar convergencia.
+- [x] Quarto run remoto analisado: falha de sintaxe/parametro no `flutter drive`.
+- [x] Causa identificada: `--device-timeout=20m` invalido; o Flutter exige inteiro.
+- [x] Parametro corrigido para segundos inteiros.
+- [ ] Disparar novo run remoto com `flutter drive` corrigido e validar convergencia.

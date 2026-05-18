@@ -99,6 +99,7 @@ Fechar o gap entre o contrato HTTP mobile em Docker e a execução real do app F
   - `emulator-options` explicitas e enxutas
 - O terceiro run remoto manteve a mesma causa final: `Connecting to the VM Service timed out`.
 - A execucao em device foi entao migrada de `flutter test integration_test -d ...` para `flutter drive`, com `--no-dds`, conforme o fluxo oficial do Flutter para device/emulador e a recomendacao de desabilitar DDS em mobile.
+- O quarto run remoto nao chegou a executar o teste em device porque o argumento `--device-timeout` foi passado como `20m`, e o `flutter drive` exige inteiro.
 
 ## Limitações atuais
 

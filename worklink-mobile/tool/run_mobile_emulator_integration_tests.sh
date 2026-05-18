@@ -62,7 +62,7 @@ if [ -n "${DEVICE_ID}" ]; then
     flutter drive \
       --driver=test_driver/integration_test.dart \
       --target="${integration_test_file}" \
-      --device-timeout=20m \
+      --device-timeout=1200 \
       --no-dds \
       -d "${DEVICE_ID}" \
       --dart-define="API_BASE_URL=${DEVICE_API_BASE_URL}"
