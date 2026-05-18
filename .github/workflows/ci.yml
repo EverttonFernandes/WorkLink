@@ -125,9 +125,7 @@ jobs:
           api-level: 34
           arch: x86_64
           profile: pixel_7
-          script: |
-            cd worklink-mobile
-            DEVICE_ID=emulator-5554 API_BASE_URL=http://10.0.2.2:8080 ./tool/run_mobile_emulator_integration_tests.sh
+          script: cd worklink-mobile && DEVICE_ID=emulator-5554 API_BASE_URL=http://10.0.2.2:8080 ./tool/run_mobile_emulator_integration_tests.sh
 
       - name: Cleanup
         if: always()
