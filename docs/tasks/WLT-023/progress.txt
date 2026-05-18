@@ -44,4 +44,8 @@
 - [x] Novo run remoto disparado em `main`.
 - [x] Segunda falha analisada: instalacao do APK passou, mas o app nao conectou ao VM Service dentro do timeout do Flutter.
 - [x] Ajustado o workflow para usar AVD mais leve e orientado a CI (`api-level 30`, `google_atd`, `pixel`, `2048M`).
-- [ ] Disparar novo run remoto com o AVD otimizado e validar convergencia.
+- [x] Terceiro run remoto executado com AVD otimizado.
+- [x] Terceira falha analisada: timeout de conexao com o VM Service permaneceu mesmo com o AVD mais leve.
+- [x] Fluxo de device migrado para `flutter drive` com `--no-dds`.
+- [x] Driver oficial criado em `worklink-mobile/test_driver/integration_test.dart`.
+- [ ] Disparar novo run remoto com `flutter drive` e validar convergencia.

@@ -58,9 +58,15 @@ fi
 
 if [ -n "${DEVICE_ID}" ]; then
   wait_for_android_runtime_services
-  flutter build apk --debug
-  wait_for_android_runtime_services
-  flutter test --dart-define="API_BASE_URL=${DEVICE_API_BASE_URL}" integration_test -d "${DEVICE_ID}"
+  for integration_test_file in integration_test/*_test.dart; do
+    flutter drive \
+      --driver=test_driver/integration_test.dart \
+      --target="${integration_test_file}" \
+      --device-timeout=20m \
+      --no-dds \
+      -d "${DEVICE_ID}" \
+      --dart-define="API_BASE_URL=${DEVICE_API_BASE_URL}"
+  done
   exit 0
 fi
 
