@@ -77,6 +77,17 @@ Fechar o gap entre o contrato HTTP mobile em Docker e a execução real do app F
 - `sh -n scripts/install_debug_apk_on_emulator.sh`
 - `git diff --check`
 
+## Ajustes apos validacao remota
+
+- O primeiro run remoto com `mobile-emulator` confirmou o boot do emulador, a disponibilidade do backend e o sucesso do contrato HTTP.
+- A falha ocorreu no `adb install` durante `flutter test integration_test -d emulator-5554`, com o Android retornando `Can't find service: activity` e `Can't find service: package`.
+- O script [worklink-mobile/tool/run_mobile_emulator_integration_tests.sh](/home/umov/Documents/ProjetosPessoais/WorkLink/worklink-mobile/tool/run_mobile_emulator_integration_tests.sh) foi reforcado para:
+  - aguardar explicitamente `sys.boot_completed`
+  - aguardar `pm path android`
+  - aguardar `cmd activity get-config`
+  - aquecer o `flutter build apk --debug` antes da execucao do `integration_test`
+  - revalidar o runtime Android imediatamente antes do teste em device
+
 ## Limitações atuais
 
 - A validação fim a fim da `WLT-023` ainda depende da execução do workflow remoto no GitHub Actions.

@@ -29,3 +29,16 @@
 - [ ] Host atual ainda nao possui espaco suficiente para boot completo da AVD local; validacao local fim a fim segue bloqueada por ambiente.
 - [x] `git diff --check`: PASS.
 - [ ] Validar execucao remota do workflow no GitHub Actions antes de fechar a historia.
+
+### Execucao 2
+
+- [x] Workflow remoto `run 26013513236` executado no GitHub Actions.
+- [x] `Backend quality gates`: PASS.
+- [x] `Mobile quality gates`: PASS.
+- [x] `API Docker image`: PASS.
+- [x] `Dependency scan`: PASS.
+- [ ] `Mobile integration on Android emulator`: FAIL no `adb install`.
+- [x] Log remoto analisado: o emulador subiu, o contrato HTTP passou e o APK foi gerado.
+- [x] Causa identificada: Android respondeu `Can't find service: activity` e `Can't find service: package` no momento da instalacao do app no device.
+- [x] Script do emulador reforcado para aguardar `package manager` e `activity manager`, com prebuild do APK antes do `integration_test`.
+- [ ] Disparar novo run remoto e validar convergencia.
