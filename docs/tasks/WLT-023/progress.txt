@@ -51,4 +51,10 @@
 - [x] Quarto run remoto analisado: falha de sintaxe/parametro no `flutter drive`.
 - [x] Causa identificada: `--device-timeout=20m` invalido; o Flutter exige inteiro.
 - [x] Parametro corrigido para segundos inteiros.
-- [ ] Disparar novo run remoto com `flutter drive` corrigido e validar convergencia.
+- [x] Quinto run remoto analisado: falha antes do `script` do usuario.
+- [x] Causa identificada: `reactivecircus/android-emulator-runner` executa `adb shell input keyevent 82` apos o boot; o AVD respondeu com `android.os.DeadSystemException`.
+- [x] Fluxo de CI ajustado para seguir o setup oficial de KVM da action.
+- [x] Trocada a combinacao de system image para `google_apis` sem `profile` customizado.
+- [x] `disable-linux-hw-accel` forcado para `false`.
+- [x] `disable-animations` da action desabilitado para reduzir interacoes `adb` internas apos o boot.
+- [ ] Disparar novo run remoto com AVD mais estavel e validar convergencia.

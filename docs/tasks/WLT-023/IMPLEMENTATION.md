@@ -100,6 +100,15 @@ Fechar o gap entre o contrato HTTP mobile em Docker e a execução real do app F
 - O terceiro run remoto manteve a mesma causa final: `Connecting to the VM Service timed out`.
 - A execucao em device foi entao migrada de `flutter test integration_test -d ...` para `flutter drive`, com `--no-dds`, conforme o fluxo oficial do Flutter para device/emulador e a recomendacao de desabilitar DDS em mobile.
 - O quarto run remoto nao chegou a executar o teste em device porque o argumento `--device-timeout` foi passado como `20m`, e o `flutter drive` exige inteiro.
+- O quinto run remoto revelou uma mudanca de classe de falha: o erro ocorreu antes do `script` do usuario.
+- A analise do codigo-fonte da propria action `reactivecircus/android-emulator-runner` mostrou que ela executa `adb shell input keyevent 82` logo apos considerar o boot concluido.
+- O log do run `26033225496` mostrou `android.os.DeadSystemException` exatamente nesse ponto, o que indica colapso do system server do AVD durante a etapa interna de desbloqueio da action.
+- Como resposta, o workflow foi ajustado para:
+  - habilitar KVM explicitamente no runner Linux, conforme README oficial da action
+  - trocar `target: google_atd` por `target: google_apis`
+  - remover o `profile` customizado
+  - forcar `disable-linux-hw-accel: false`
+  - evitar a etapa de `disable-animations` da action
 
 ## Limitações atuais
 

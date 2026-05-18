@@ -98,6 +98,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
@@ -123,13 +129,14 @@ jobs:
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 30
-          target: google_atd
+          target: google_apis
           arch: x86_64
-          profile: pixel
           cores: 2
           ram-size: 2048M
           emulator-boot-timeout: 900
           emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
+          disable-linux-hw-accel: false
+          disable-animations: false
           script: cd worklink-mobile && DEVICE_ID=emulator-5554 CONTRACT_TEST_API_BASE_URL=http://localhost:8080 DEVICE_API_BASE_URL=http://10.0.2.2:8080 ./tool/run_mobile_emulator_integration_tests.sh
 
       - name: Cleanup
