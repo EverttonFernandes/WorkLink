@@ -87,6 +87,16 @@ Fechar o gap entre o contrato HTTP mobile em Docker e a execução real do app F
   - aguardar `cmd activity get-config`
   - aquecer o `flutter build apk --debug` antes da execucao do `integration_test`
   - revalidar o runtime Android imediatamente antes do teste em device
+- O segundo run remoto mostrou convergencia parcial:
+  - `adb install` passou
+  - o contrato HTTP continuou verde
+  - a nova falha ocorreu no timeout de conexao com o VM Service do app em device
+- Diante disso, o job [ci.yml](/home/umov/Documents/ProjetosPessoais/WorkLink/.github/workflows/ci.yml) foi ajustado para usar um AVD mais leve e apropriado para CI:
+  - `api-level: 30`
+  - `target: google_atd`
+  - `profile: pixel`
+  - `ram-size: 2048M`
+  - `emulator-options` explicitas e enxutas
 
 ## Limitações atuais
 

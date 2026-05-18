@@ -41,4 +41,7 @@
 - [x] Log remoto analisado: o emulador subiu, o contrato HTTP passou e o APK foi gerado.
 - [x] Causa identificada: Android respondeu `Can't find service: activity` e `Can't find service: package` no momento da instalacao do app no device.
 - [x] Script do emulador reforcado para aguardar `package manager` e `activity manager`, com prebuild do APK antes do `integration_test`.
-- [ ] Disparar novo run remoto e validar convergencia.
+- [x] Novo run remoto disparado em `main`.
+- [x] Segunda falha analisada: instalacao do APK passou, mas o app nao conectou ao VM Service dentro do timeout do Flutter.
+- [x] Ajustado o workflow para usar AVD mais leve e orientado a CI (`api-level 30`, `google_atd`, `pixel`, `2048M`).
+- [ ] Disparar novo run remoto com o AVD otimizado e validar convergencia.
