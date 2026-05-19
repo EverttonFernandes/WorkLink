@@ -39,12 +39,6 @@ coverage/
 .codex
 *.agents
 *.agent-packages
-!.agents/
-.agents/*
-!.agents/skills/
-.agents/skills/*
-!.agents/skills/skills/
-!.agents/skills/skills/**
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
