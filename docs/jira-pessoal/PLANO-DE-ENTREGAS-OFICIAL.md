@@ -39,6 +39,23 @@ Este plano acompanha [KANBAN-OFICIAL.md](KANBAN-OFICIAL.md). Ele define a ordem 
 | 33 | WL-016 | `docs/entregas/<data>-033-admin-minimo-moderacao.md` | MINOR |
 | 34 | WL-017 | `docs/entregas/<data>-034-metricas-ranking-futuro.md` | MINOR |
 | 35 | WLT-018 | `docs/entregas/<data>-035-documentacao-adrs-release-mobile.md` | MINOR |
+| 36 | WL-018 | `docs/entregas/<data>-036-verificacao-telefone-profissional.md` | MINOR |
+| 37 | WL-019 | `docs/entregas/<data>-037-portfolio-fotos-profissional.md` | MINOR |
+| 38 | WL-020 | `docs/entregas/<data>-038-profissionais-salvos-preferencias-persistentes.md` | MINOR |
+| 39 | WL-021 | `docs/entregas/<data>-039-solicitacao-pos-contato.md` | MINOR |
+| 40 | WL-022 | `docs/entregas/<data>-040-metricas-funcionais-detalhadas.md` | MINOR |
+| 41 | WL-023 | `docs/entregas/<data>-041-revisao-administrativa-moderacao.md` | MINOR |
+| 42 | WL-024 | `docs/entregas/<data>-042-console-administrativo-minimo.md` | MINOR |
+| 43 | WLT-019 | `docs/entregas/<data>-043-specs-funcionais-e2e-reais.md` | MINOR |
+| 44 | WLT-020 | `docs/entregas/<data>-044-projeto-nativo-mobile-android-ios.md` | MINOR |
+| 45 | WLT-021 | `docs/entregas/<data>-045-analise-estatica-avancada-backend.md` | MINOR |
+| 46 | WLT-022 | `docs/entregas/<data>-046-integracao-http-mobile-backend.md` | MINOR |
+| 47 | WLT-023 | `docs/entregas/<data>-047-emulador-remoto-ambiente-teste-online.md` | MINOR |
+| 48 | WLT-024 | `docs/entregas/<data>-048-confiabilidade-ci-mobile-android.md` | MINOR |
+| 49 | WLT-025 | `docs/entregas/<data>-049-build-android-release-candidato.md` | MINOR |
+| 50 | WLT-026 | `docs/entregas/<data>-050-preparacao-ios-ci-testflight.md` | MINOR |
+| 51 | WLT-027 | `docs/entregas/<data>-051-governanca-secrets-assinatura-mobile.md` | MINOR |
+| 52 | WLT-028 | `docs/entregas/<data>-052-promocao-release-rollback-mobile.md` | MINOR |
 
 O tipo semântico final deve ser confirmado no fechamento real da história. Use `PATCH` para correções sem nova capacidade e `MAJOR` apenas quando houver quebra incompatível de contrato.
 

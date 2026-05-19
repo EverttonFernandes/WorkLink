@@ -24,5 +24,15 @@
 | WLT-016 | `docs/entregas/<data>-t016-disponibilidade-escalabilidade-stateless.md` | MINOR | adiciona prontidão operacional |
 | WLT-017 | `docs/entregas/<data>-t017-cicd-builds-scans.md` | MINOR | adiciona pipeline automatizada com bloqueio de cobertura unitária abaixo de 95% |
 | WLT-018 | `docs/entregas/<data>-t018-documentacao-adrs-release-mobile.md` | MINOR | adiciona documentação e release readiness |
+| WLT-019 | `docs/entregas/<data>-t019-specs-funcionais-e2e-reais.md` | MINOR | adiciona specs funcionais E2E reais |
+| WLT-020 | `docs/entregas/<data>-t020-projeto-nativo-mobile-android-ios.md` | MINOR | adiciona projetos nativos mobile Android/iOS |
+| WLT-021 | `docs/entregas/<data>-t021-analise-estatica-avancada-backend.md` | MINOR | adiciona análise estática avançada backend |
+| WLT-022 | `docs/entregas/<data>-t022-integracao-http-mobile-backend.md` | MINOR | adiciona integração HTTP mobile com backend real |
+| WLT-023 | `docs/entregas/<data>-t023-emulador-remoto-ambiente-teste-online.md` | MINOR | adiciona validação mobile com Android Emulator na pipeline |
+| WLT-024 | `docs/entregas/<data>-t024-confiabilidade-ci-mobile-android.md` | MINOR | endurece o gate mobile Android na CI |
+| WLT-025 | `docs/entregas/<data>-t025-build-android-release-candidato.md` | MINOR | adiciona artifact Android instalável para teste pré-loja |
+| WLT-026 | `docs/entregas/<data>-t026-preparacao-ios-ci-testflight.md` | MINOR | prepara CI iOS e distribuição futura via TestFlight |
+| WLT-027 | `docs/entregas/<data>-t027-governanca-secrets-assinatura-mobile.md` | MINOR | adiciona governança de secrets e assinatura mobile |
+| WLT-028 | `docs/entregas/<data>-t028-promocao-release-rollback-mobile.md` | MINOR | formaliza promoção e rollback de releases mobile |
 
 O tipo semântico final deve refletir o que foi realmente entregue. Correções em infraestrutura existente podem virar `PATCH`; mudanças incompatíveis em contrato técnico podem exigir `MAJOR`.

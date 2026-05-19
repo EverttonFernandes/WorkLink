@@ -85,6 +85,14 @@ jobs:
       - name: Android build strategy
         run: make mobile-android-build
 
+      - name: Upload Android debug APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: worklink-android-debug-${{ github.sha }}
+          path: worklink-mobile/build/app/outputs/flutter-apk/app-debug.apk
+          if-no-files-found: error
+          retention-days: 14
+
       - name: Cleanup
         if: always()
         run: make clean
@@ -93,6 +101,8 @@ jobs:
     name: Mobile integration on Android emulator
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      WORKLINK_MOBILE_DIAGNOSTICS_DIR: artifacts/mobile-emulator-diagnostics
 
     steps:
       - name: Checkout
@@ -119,6 +129,9 @@ jobs:
       - name: Prepare environment
         run: cp .env.example .env
 
+      - name: Prepare diagnostics directory
+        run: mkdir -p "$WORKLINK_MOBILE_DIAGNOSTICS_DIR"
+
       - name: Start backend dependencies
         run: |
           docker compose --env-file .env up -d postgres redis minio
@@ -130,11 +143,25 @@ jobs:
 
       - name: Run mobile integration tests on Android emulator
         run: |
+          set -o pipefail
           cd worklink-mobile
           DEVICE_ID=emulator-5554 \
           CONTRACT_TEST_API_BASE_URL=http://localhost:8080 \
           DEVICE_API_BASE_URL=http://10.0.2.2:8080 \
-          ./tool/run_mobile_emulator_integration_tests.sh
+          ./tool/run_mobile_emulator_integration_tests.sh 2>&1 | tee ../"$WORKLINK_MOBILE_DIAGNOSTICS_DIR/flutter-emulator-test.log"
+
+      - name: Collect mobile emulator diagnostics
+        if: always()
+        run: ./scripts/collect_mobile_emulator_diagnostics.sh
+
+      - name: Upload mobile emulator diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mobile-emulator-diagnostics-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/mobile-emulator-diagnostics
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Stop Android emulator
         if: always()
@@ -170,6 +197,9 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Mobile signing secrets guard
+        run: ./scripts/check_no_mobile_signing_secrets.sh
 
       - name: Functional test dependencies audit
         run: |

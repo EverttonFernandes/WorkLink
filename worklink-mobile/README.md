@@ -39,6 +39,9 @@ Build Android real:
 make mobile-android-build
 ```
 
+Na CI, o job mobile publica o APK debug como artifact `worklink-android-debug-<commit>`. Esse artifact e o primeiro caminho
+para teste manual em aparelho Android antes de qualquer distribuicao em loja.
+
 A estrategia de build iOS continua documentada em `../docs/ci-cd/ESTRATEGIA-IOS.md`.
 
 ## Emulador Android em Docker

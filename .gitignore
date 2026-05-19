@@ -35,6 +35,14 @@ coverage/
 .env
 .env.*
 !.env.example
+*.jks
+*.keystore
+*.p12
+*.p8
+*.mobileprovision
+*.provisionprofile
+GoogleService-Info.plist
+google-services.json
 # Local tooling folders used in this repository
 .codex
 *.agents
