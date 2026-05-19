@@ -26,7 +26,7 @@ for required_command in "$SDKMANAGER" "$AVDMANAGER"; do
   fi
 done
 
-yes | "$SDKMANAGER" --licenses >/dev/null
+yes | "$SDKMANAGER" --licenses >/dev/null || true
 "$SDKMANAGER" \
   "platform-tools" \
   "platforms;android-${ANDROID_API_LEVEL}" \
