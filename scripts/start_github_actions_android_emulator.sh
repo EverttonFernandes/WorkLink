@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-/usr/local/lib/android/sdk}"
+ANDROID_AVD_HOME="${ANDROID_AVD_HOME:-${HOME}/.android/avd}"
 ANDROID_AVD_NAME="${ANDROID_AVD_NAME:-worklink-ci-api30}"
 ANDROID_API_LEVEL="${ANDROID_API_LEVEL:-30}"
 ANDROID_SYSTEM_IMAGE_TARGET="${ANDROID_SYSTEM_IMAGE_TARGET:-google_apis}"
@@ -19,6 +20,9 @@ AVDMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/avdmanager"
 ADB="${ANDROID_SDK_ROOT}/platform-tools/adb"
 EMULATOR="${ANDROID_SDK_ROOT}/emulator/emulator"
 SYSTEM_IMAGE="system-images;android-${ANDROID_API_LEVEL};${ANDROID_SYSTEM_IMAGE_TARGET};${ANDROID_SYSTEM_IMAGE_ARCH}"
+
+export ANDROID_AVD_HOME
+mkdir -p "$ANDROID_AVD_HOME"
 
 for required_command in "$SDKMANAGER" "$AVDMANAGER"; do
   if [ ! -x "$required_command" ]; then
@@ -49,7 +53,16 @@ echo "no" | "$AVDMANAGER" create avd \
   --force \
   --name "$ANDROID_AVD_NAME" \
   --device "$ANDROID_EMULATOR_DEVICE" \
-  --package "$SYSTEM_IMAGE" >/dev/null
+  --package "$SYSTEM_IMAGE"
+
+echo "AVDs disponiveis:"
+"$EMULATOR" -list-avds
+
+if ! "$EMULATOR" -list-avds | grep -Fxq "$ANDROID_AVD_NAME"; then
+  echo "❌ AVD ${ANDROID_AVD_NAME} nao foi criado em ${ANDROID_AVD_HOME}." >&2
+  find "$ANDROID_AVD_HOME" -maxdepth 2 -type f -print >&2 || true
+  exit 1
+fi
 
 "$ADB" start-server >/dev/null
 
