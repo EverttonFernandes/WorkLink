@@ -29,7 +29,6 @@ wait_for_android_runtime_services() {
     fi
 
     if [ "${boot_completed}" = "1" ] && [ "${package_manager_ready}" = "true" ] && [ "${activity_manager_ready}" = "true" ]; then
-      adb -s "${DEVICE_ID}" shell input keyevent 82 >/dev/null 2>&1 || true
       adb -s "${DEVICE_ID}" shell input keyevent 3 >/dev/null 2>&1 || true
       echo "Android emulator com runtime pronto."
       return 0

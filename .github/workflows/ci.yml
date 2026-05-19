@@ -125,19 +125,20 @@ jobs:
           docker compose --env-file .env run --rm database-migrations
           docker compose --env-file .env up -d --build --wait worklink-api
 
+      - name: Start Android emulator manually
+        run: ./scripts/start_github_actions_android_emulator.sh
+
       - name: Run mobile integration tests on Android emulator
-        uses: reactivecircus/android-emulator-runner@v2
-        with:
-          api-level: 30
-          target: google_apis
-          arch: x86_64
-          cores: 2
-          ram-size: 2048M
-          emulator-boot-timeout: 900
-          emulator-options: -no-window -gpu swiftshader_indirect -no-snapshot -noaudio -no-boot-anim -camera-back none
-          disable-linux-hw-accel: false
-          disable-animations: false
-          script: cd worklink-mobile && DEVICE_ID=emulator-5554 CONTRACT_TEST_API_BASE_URL=http://localhost:8080 DEVICE_API_BASE_URL=http://10.0.2.2:8080 ./tool/run_mobile_emulator_integration_tests.sh
+        run: |
+          cd worklink-mobile
+          DEVICE_ID=emulator-5554 \
+          CONTRACT_TEST_API_BASE_URL=http://localhost:8080 \
+          DEVICE_API_BASE_URL=http://10.0.2.2:8080 \
+          ./tool/run_mobile_emulator_integration_tests.sh
+
+      - name: Stop Android emulator
+        if: always()
+        run: ./scripts/stop_github_actions_android_emulator.sh
 
       - name: Cleanup
         if: always()

@@ -57,4 +57,8 @@
 - [x] Trocada a combinacao de system image para `google_apis` sem `profile` customizado.
 - [x] `disable-linux-hw-accel` forcado para `false`.
 - [x] `disable-animations` da action desabilitado para reduzir interacoes `adb` internas apos o boot.
-- [ ] Disparar novo run remoto com AVD mais estavel e validar convergencia.
+- [x] Analise SRE/DevOps aprofundada concluiu que a action terceirizada continuava sendo o ponto fragil.
+- [x] Workflow refatorado para boot manual do AVD no proprio job do GitHub Actions.
+- [x] Criados scripts dedicados para start e stop do emulador remoto.
+- [x] Removido `keyevent 82` do script mobile de espera do runtime.
+- [ ] Disparar novo run remoto com AVD gerenciado manualmente e validar convergencia.

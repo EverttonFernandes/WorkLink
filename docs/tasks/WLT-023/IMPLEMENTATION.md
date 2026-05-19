@@ -103,12 +103,20 @@ Fechar o gap entre o contrato HTTP mobile em Docker e a execução real do app F
 - O quinto run remoto revelou uma mudanca de classe de falha: o erro ocorreu antes do `script` do usuario.
 - A analise do codigo-fonte da propria action `reactivecircus/android-emulator-runner` mostrou que ela executa `adb shell input keyevent 82` logo apos considerar o boot concluido.
 - O log do run `26033225496` mostrou `android.os.DeadSystemException` exatamente nesse ponto, o que indica colapso do system server do AVD durante a etapa interna de desbloqueio da action.
-- Como resposta, o workflow foi ajustado para:
+- Como resposta inicial, o workflow foi ajustado para:
   - habilitar KVM explicitamente no runner Linux, conforme README oficial da action
   - trocar `target: google_atd` por `target: google_apis`
   - remover o `profile` customizado
   - forcar `disable-linux-hw-accel: false`
   - evitar a etapa de `disable-animations` da action
+- Como a falha persistiu, o job foi refatorado para remover a dependencia do `reactivecircus/android-emulator-runner`.
+- O AVD agora passa a ser gerenciado manualmente no workflow com:
+  - `sdkmanager`
+  - `avdmanager`
+  - `emulator`
+  - `adb wait-for-device`
+  - script proprio de boot e teardown
+- O script mobile de espera do runtime tambem deixou de enviar `keyevent 82`, preservando apenas a ida para a home do device.
 
 ## Limitações atuais
 
