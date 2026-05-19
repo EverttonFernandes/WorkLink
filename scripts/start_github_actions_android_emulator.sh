@@ -11,6 +11,7 @@ ANDROID_EMULATOR_MEMORY_MB="${ANDROID_EMULATOR_MEMORY_MB:-2048}"
 ANDROID_EMULATOR_CORES="${ANDROID_EMULATOR_CORES:-2}"
 ANDROID_EMULATOR_PORT="${ANDROID_EMULATOR_PORT:-5554}"
 ANDROID_EMULATOR_BOOT_TIMEOUT_SECONDS="${ANDROID_EMULATOR_BOOT_TIMEOUT_SECONDS:-900}"
+ANDROID_SDK_INSTALL_TIMEOUT_SECONDS="${ANDROID_SDK_INSTALL_TIMEOUT_SECONDS:-600}"
 ANDROID_EMULATOR_LOG_FILE="${ANDROID_EMULATOR_LOG_FILE:-/tmp/worklink-android-emulator.log}"
 
 SDKMANAGER="${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager"
@@ -26,12 +27,15 @@ for required_command in "$SDKMANAGER" "$AVDMANAGER"; do
   fi
 done
 
+echo "Aceitando licencas do Android SDK..."
 yes | "$SDKMANAGER" --licenses >/dev/null || true
-"$SDKMANAGER" \
+
+echo "Instalando pacotes Android SDK: ${SYSTEM_IMAGE}"
+timeout "${ANDROID_SDK_INSTALL_TIMEOUT_SECONDS}s" "$SDKMANAGER" \
   "platform-tools" \
   "platforms;android-${ANDROID_API_LEVEL}" \
   "emulator" \
-  "${SYSTEM_IMAGE}" >/dev/null
+  "${SYSTEM_IMAGE}"
 
 for required_command in "$ADB" "$EMULATOR"; do
   if [ ! -x "$required_command" ]; then
@@ -40,6 +44,7 @@ for required_command in "$ADB" "$EMULATOR"; do
   fi
 done
 
+echo "Criando AVD ${ANDROID_AVD_NAME}..."
 echo "no" | "$AVDMANAGER" create avd \
   --force \
   --name "$ANDROID_AVD_NAME" \
@@ -48,6 +53,7 @@ echo "no" | "$AVDMANAGER" create avd \
 
 "$ADB" start-server >/dev/null
 
+echo "Iniciando Android Emulator em emulator-${ANDROID_EMULATOR_PORT}..."
 nohup "$EMULATOR" \
   -avd "$ANDROID_AVD_NAME" \
   -port "$ANDROID_EMULATOR_PORT" \

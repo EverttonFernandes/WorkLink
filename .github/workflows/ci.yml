@@ -139,6 +139,7 @@ jobs:
           docker compose --env-file .env up -d --build --wait worklink-api
 
       - name: Start Android emulator manually
+        timeout-minutes: 20
         run: ./scripts/start_github_actions_android_emulator.sh
 
       - name: Run mobile integration tests on Android emulator
