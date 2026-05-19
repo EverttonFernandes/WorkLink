@@ -19,7 +19,7 @@ ADB="${ANDROID_SDK_ROOT}/platform-tools/adb"
 EMULATOR="${ANDROID_SDK_ROOT}/emulator/emulator"
 SYSTEM_IMAGE="system-images;android-${ANDROID_API_LEVEL};${ANDROID_SYSTEM_IMAGE_TARGET};${ANDROID_SYSTEM_IMAGE_ARCH}"
 
-for required_command in "$SDKMANAGER" "$AVDMANAGER" "$ADB" "$EMULATOR"; do
+for required_command in "$SDKMANAGER" "$AVDMANAGER"; do
   if [ ! -x "$required_command" ]; then
     echo "❌ Android SDK command not found or not executable: ${required_command}" >&2
     exit 1
@@ -32,6 +32,13 @@ yes | "$SDKMANAGER" --licenses >/dev/null
   "platforms;android-${ANDROID_API_LEVEL}" \
   "emulator" \
   "${SYSTEM_IMAGE}" >/dev/null
+
+for required_command in "$ADB" "$EMULATOR"; do
+  if [ ! -x "$required_command" ]; then
+    echo "❌ Android SDK command not found or not executable after install: ${required_command}" >&2
+    exit 1
+  fi
+done
 
 echo "no" | "$AVDMANAGER" create avd \
   --force \
