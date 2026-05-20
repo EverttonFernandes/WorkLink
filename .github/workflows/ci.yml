@@ -99,6 +99,21 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Prepare Android homologation candidate
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.WORKLINK_HOMOLOGATION_API_BASE_URL != ''
+        env:
+          MOBILE_HOMOLOGATION_API_BASE_URL: ${{ vars.WORKLINK_HOMOLOGATION_API_BASE_URL }}
+        run: make mobile-android-homologation-candidate
+
+      - name: Upload Android homologation candidate
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.WORKLINK_HOMOLOGATION_API_BASE_URL != ''
+        uses: actions/upload-artifact@v7
+        with:
+          name: worklink-android-homologation-${{ github.sha }}
+          path: artifacts/android-homologation-candidate
+          if-no-files-found: error
+          retention-days: 30
+
       - name: Cleanup
         if: always()
         run: make clean

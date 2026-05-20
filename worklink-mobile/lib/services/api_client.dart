@@ -55,9 +55,7 @@ class ApiClient implements WorkLinkHttpClient {
         _dio = dio ??
             Dio(
               BaseOptions(
-                baseUrl: baseUrl ??
-                    dotenv.env['API_BASE_URL'] ??
-                    'http://localhost:8080',
+                baseUrl: baseUrl ?? _loadConfiguredBaseUrl(),
                 connectTimeout: _timeout,
                 receiveTimeout: _timeout,
                 sendTimeout: _timeout,
@@ -70,9 +68,18 @@ class ApiClient implements WorkLinkHttpClient {
 
   static const Duration _timeout = Duration(seconds: 30);
   static const int _maxRetries = 3;
+  static const String _compileTimeApiBaseUrl =
+      String.fromEnvironment('API_BASE_URL');
 
   final Dio _dio;
   String? _bearerToken;
+
+  static String _loadConfiguredBaseUrl() {
+    if (_compileTimeApiBaseUrl.isNotEmpty) {
+      return _compileTimeApiBaseUrl;
+    }
+    return dotenv.env['API_BASE_URL'] ?? 'http://localhost:8080';
+  }
 
   @override
   Future<Map<String, dynamic>> getObject(

@@ -67,8 +67,28 @@ Para testar no aparelho:
 5. Valide abertura, descoberta de profissionais, perfil e fluxos principais.
 
 Esse APK usa assinatura debug, carrega dados preview para teste manual sem backend publicado e e somente para teste
-interno. A assinatura de loja e o apontamento para backend real entram nas historias de governanca de secrets e release
-mobile.
+interno. Ele nao deve ser tratado como homologacao full-stack.
+
+## Teste manual full-stack de homologacao
+
+Para validar o aplicativo contra backend, banco e massa fake, use o candidato de homologacao:
+
+```bash
+make homologation-local-up
+MOBILE_HOMOLOGATION_API_BASE_URL=http://<ip-do-notebook>:8080 make mobile-android-homologation-candidate
+```
+
+No Android fisico, `localhost` aponta para o proprio celular. Por isso use o IP do notebook na rede local, por exemplo
+`http://192.168.0.10:8080`, quando for instalar o APK manualmente.
+
+O artifact gerado fica em:
+
+```text
+artifacts/android-homologation-candidate/
+```
+
+Esse pacote usa o backend configurado em `MOBILE_HOMOLOGATION_API_BASE_URL` e deve ser o caminho para validacao real
+antes de promover uma versao para `artifacts/homologation/releases/<versao>/`.
 
 A estrategia de build iOS continua documentada em `../docs/ci-cd/ESTRATEGIA-IOS.md`.
 

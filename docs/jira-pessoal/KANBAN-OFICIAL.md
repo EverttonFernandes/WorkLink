@@ -23,13 +23,15 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História                                                                       | Tipo    | Título                                                      | Relação com outras histórias                                         | Execução                                 | Versão | Entrega                                                                                |
 | ----- | ------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------- | ------ | -------------------------------------------------------------------------------------- |
-| 50    | [WLT-026](historias-tecnicas/WLT-026-preparacao-ios-ci-testflight.md)          | Técnica | Preparação iOS para CI e TestFlight                         | Complementa a estratégia multiplataforma após Android                | Separada                                 | MINOR  | [Entrega WLT-026](../entregas/WLT-026-preparacao-ios-ci-testflight.md)                 |
-| 51    | [WLT-027](historias-tecnicas/WLT-027-governanca-secrets-assinatura-mobile.md)  | Técnica | Governança de secrets e assinatura mobile                   | Pré-requisito para CD seguro em lojas                                | Separada                                 | MINOR  | [Entrega WLT-027](../entregas/WLT-027-governanca-secrets-assinatura-mobile.md)         |
-| 52    | [WLT-028](historias-tecnicas/WLT-028-promocao-release-rollback-mobile.md)      | Técnica | Promoção de release e rollback mobile                       | Formaliza CD controlado após builds e signing                        | Separada                                 | MINOR  | [Entrega WLT-028](../entregas/WLT-028-promocao-release-rollback-mobile.md)             |
+| 51    | [WLT-026](historias-tecnicas/WLT-026-preparacao-ios-ci-testflight.md)          | Técnica | Preparação iOS para CI e TestFlight                         | Complementa a estratégia multiplataforma após Android                | Separada                                 | MINOR  | [Entrega WLT-026](../entregas/WLT-026-preparacao-ios-ci-testflight.md)                 |
+| 52    | [WLT-027](historias-tecnicas/WLT-027-governanca-secrets-assinatura-mobile.md)  | Técnica | Governança de secrets e assinatura mobile                   | Pré-requisito para CD seguro em lojas                                | Separada                                 | MINOR  | [Entrega WLT-027](../entregas/WLT-027-governanca-secrets-assinatura-mobile.md)         |
+| 53    | [WLT-028](historias-tecnicas/WLT-028-promocao-release-rollback-mobile.md)      | Técnica | Promoção de release e rollback mobile                       | Formaliza CD controlado após builds e signing                        | Separada                                 | MINOR  | [Entrega WLT-028](../entregas/WLT-028-promocao-release-rollback-mobile.md)             |
 
 ## Doing
 
-_Vazio._
+| Ordem | História                                                                          | Tipo    | Título                                                 | Relação com outras histórias                                      | Execução | Versão | Entrega                                                                            |
+| ----- | --------------------------------------------------------------------------------- | ------- | ------------------------------------------------------ | ----------------------------------------------------------------- | -------- | ------ | ---------------------------------------------------------------------------------- |
+| 50    | [WLT-029](historias-tecnicas/WLT-029-homologacao-mobile-fullstack-artifacts.md)   | Técnica | Homologação mobile full-stack e artifacts estáveis     | Endurece WLT-025 e antecede validação manual pré-loja Android/iOS | Separada | MINOR  | [Entrega WLT-029](../entregas/WLT-029-homologacao-mobile-fullstack-artifacts.md)   |
 
 ## Review
 
@@ -91,7 +93,7 @@ _Vazio._
 
 ## Histórias técnicas que podem ser executadas separadamente
 
-- WLT-001, WLT-002, WLT-003, WLT-004, WLT-005, WLT-006, WLT-007, WLT-008, WLT-013, WLT-014, WLT-015, WLT-016, WLT-017, WLT-018, WLT-024, WLT-025, WLT-026, WLT-027, WLT-028.
+- WLT-001, WLT-002, WLT-003, WLT-004, WLT-005, WLT-006, WLT-007, WLT-008, WLT-013, WLT-014, WLT-015, WLT-016, WLT-017, WLT-018, WLT-024, WLT-025, WLT-026, WLT-027, WLT-028, WLT-029.
 
 ## Histórias técnicas que devem estar prontas antes de histórias de negócio específicas
 

@@ -50,3 +50,8 @@ google-services.json
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+# Generated mobile candidates are transient. Stable homologation releases live
+# under artifacts/homologation/releases/ and are promoted intentionally.
+artifacts/android-test-candidate*/
+artifacts/android-homologation-candidate*/

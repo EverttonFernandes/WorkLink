@@ -5,10 +5,10 @@ DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) docker compose --env-file
 	backend-static-analysis mobile-static-analysis static-analysis \
 	backend-unit-test backend-integration-test backend-test backend-image-build \
 	mobile-unit-test mobile-screen-test mobile-integration-test mobile-android-build \
-	mobile-android-test-candidate mobile-emulator-prereqs \
+	mobile-android-test-candidate mobile-android-homologation-candidate mobile-emulator-prereqs \
 	mobile-test mobile-emulator-up mobile-emulator-wait mobile-emulator-install \
 	mobile-emulator-integration-test mobile-manual-test functional-test test-unit test-integration test-functional \
-	db-up db-down db-logs db-migrate test ci
+	homologation-local-up homologation-seed db-up db-down db-logs db-migrate test ci
 
 $(COMPOSE_ENV_FILE):
 	cp .env.example $(COMPOSE_ENV_FILE)
@@ -81,6 +81,15 @@ mobile-android-test-candidate: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && flutter build apk --debug --dart-define=WORKLINK_USE_PREVIEW_DATA=true"
 	./scripts/prepare_android_test_candidate.sh
 
+mobile-android-homologation-candidate: $(COMPOSE_ENV_FILE)
+	@test -n "$(MOBILE_HOMOLOGATION_API_BASE_URL)" || (echo "Defina MOBILE_HOMOLOGATION_API_BASE_URL com a URL do backend de homologacao." >&2; exit 1)
+	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && flutter build apk --debug --dart-define=API_BASE_URL=$(MOBILE_HOMOLOGATION_API_BASE_URL)"
+	OUTPUT_DIR=artifacts/android-homologation-candidate \
+		APK_NAME=worklink-android-homologation.apk \
+		APP_DATA_MODE=homologation-fullstack \
+		API_BASE_URL=$(MOBILE_HOMOLOGATION_API_BASE_URL) \
+		./scripts/prepare_android_test_candidate.sh
+
 mobile-test: mobile-unit-test mobile-screen-test mobile-integration-test
 
 mobile-emulator-prereqs:
@@ -121,6 +130,16 @@ functional-test: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm database-migrations
 	$(DOCKER_COMPOSE) up -d --wait worklink-api
 	$(DOCKER_COMPOSE) run --rm functional-tests
+
+homologation-local-up: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) up -d postgres redis minio
+	$(DOCKER_COMPOSE) run --rm database-migrations
+	$(DOCKER_COMPOSE) up -d --wait worklink-api
+	$(MAKE) homologation-seed
+
+homologation-seed: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) run --rm -e WORKLINK_HOMOLOGATION_RESET=true functional-tests \
+		sh -lc "npm ci && node src/scripts/seedHomologationScenario.js"
 
 test-unit: backend-unit-test mobile-unit-test
 
