@@ -78,7 +78,6 @@ mobile-android-build: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && if [ -d android ]; then flutter build apk --debug; else echo 'N/A: projeto Android ainda nao foi gerado.'; fi"
 
 mobile-android-test-candidate: $(COMPOSE_ENV_FILE)
-	rm -rf worklink-mobile/android/.gradle
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && flutter build apk --debug --dart-define=WORKLINK_USE_PREVIEW_DATA=true"
 	./scripts/prepare_android_test_candidate.sh
 
