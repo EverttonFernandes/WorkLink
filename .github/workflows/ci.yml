@@ -9,6 +9,9 @@ on:
 permissions:
   contents: read
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 concurrency:
   group: worklink-ci-${{ github.ref }}
   cancel-in-progress: true
@@ -212,7 +215,7 @@ jobs:
           docker run --rm \
             -v "$PWD/functional-tests:/workspace/functional-tests" \
             -w /workspace/functional-tests \
-            node:20-alpine npm audit --audit-level=moderate
+            node:24-alpine npm audit --audit-level=moderate
 
       - name: Backend dependency resolution
         run: |
