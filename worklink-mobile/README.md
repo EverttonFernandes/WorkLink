@@ -15,6 +15,7 @@ make mobile-unit-test
 make mobile-screen-test
 make mobile-integration-test
 make mobile-android-build
+make mobile-android-test-candidate
 make mobile-emulator-up
 make mobile-emulator-wait
 make mobile-emulator-install
@@ -39,8 +40,34 @@ Build Android real:
 make mobile-android-build
 ```
 
-Na CI, o job mobile publica o APK debug como artifact `worklink-android-debug-<commit>`. Esse artifact e o primeiro caminho
+Na CI, o job mobile publica o pacote `worklink-android-test-candidate-<commit>`. Esse artifact e o primeiro caminho
 para teste manual em aparelho Android antes de qualquer distribuicao em loja.
+
+## Teste manual em Android real
+
+Depois de um run verde do GitHub Actions em `main`, baixe o artifact:
+
+```text
+worklink-android-test-candidate-<commit>
+```
+
+Dentro dele ficam:
+
+- `worklink-android-test-candidate.apk`
+- `BUILD-METADATA.txt`
+- `SHA256SUMS`
+- `INSTALL-ANDROID.md`
+
+Para testar no aparelho:
+
+1. Baixe e extraia o artifact.
+2. Envie `worklink-android-test-candidate.apk` para o Android.
+3. Permita instalacao de apps desconhecidos para o app usado para abrir o APK.
+4. Instale o APK e abra o WorkLink.
+5. Valide abertura, descoberta de profissionais, perfil e fluxos principais.
+
+Esse APK usa assinatura debug e e somente para teste interno. A assinatura de loja entra nas historias de governanca de
+secrets e release mobile.
 
 A estrategia de build iOS continua documentada em `../docs/ci-cd/ESTRATEGIA-IOS.md`.
 

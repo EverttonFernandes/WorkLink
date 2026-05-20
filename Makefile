@@ -5,7 +5,7 @@ DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) docker compose --env-file
 	backend-static-analysis mobile-static-analysis static-analysis \
 	backend-unit-test backend-integration-test backend-test backend-image-build \
 	mobile-unit-test mobile-screen-test mobile-integration-test mobile-android-build \
-	mobile-emulator-prereqs \
+	mobile-android-test-candidate mobile-emulator-prereqs \
 	mobile-test mobile-emulator-up mobile-emulator-wait mobile-emulator-install \
 	mobile-emulator-integration-test mobile-manual-test functional-test test-unit test-integration test-functional \
 	db-up db-down db-logs db-migrate test ci
@@ -76,6 +76,9 @@ mobile-integration-test: $(COMPOSE_ENV_FILE)
 mobile-android-build: $(COMPOSE_ENV_FILE)
 	rm -rf worklink-mobile/android/.gradle
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && if [ -d android ]; then flutter build apk --debug; else echo 'N/A: projeto Android ainda nao foi gerado.'; fi"
+
+mobile-android-test-candidate: mobile-android-build
+	./scripts/prepare_android_test_candidate.sh
 
 mobile-test: mobile-unit-test mobile-screen-test mobile-integration-test
 

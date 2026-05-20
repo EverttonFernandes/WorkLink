@@ -88,11 +88,14 @@ jobs:
       - name: Android build strategy
         run: make mobile-android-build
 
-      - name: Upload Android debug APK
+      - name: Prepare Android test candidate
+        run: ./scripts/prepare_android_test_candidate.sh
+
+      - name: Upload Android test candidate
         uses: actions/upload-artifact@v7
         with:
-          name: worklink-android-debug-${{ github.sha }}
-          path: worklink-mobile/build/app/outputs/flutter-apk/app-debug.apk
+          name: worklink-android-test-candidate-${{ github.sha }}
+          path: artifacts/android-test-candidate
           if-no-files-found: error
           retention-days: 14
 
