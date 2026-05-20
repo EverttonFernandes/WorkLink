@@ -23,7 +23,6 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História                                                                       | Tipo    | Título                                                      | Relação com outras histórias                                         | Execução                                 | Versão | Entrega                                                                                |
 | ----- | ------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------- | ------ | -------------------------------------------------------------------------------------- |
-| 48    | [WLT-024](historias-tecnicas/WLT-024-confiabilidade-ci-mobile-android.md)      | Técnica | Confiabilidade da CI mobile Android                        | Endurece o job de emulador criado na WLT-023                         | Separada                                 | MINOR  | [Entrega WLT-024](../entregas/WLT-024-confiabilidade-ci-mobile-android.md)             |
 | 49    | [WLT-025](historias-tecnicas/WLT-025-build-android-release-candidato.md)       | Técnica | Build Android e release candidate instalável                | Depende da validação mobile Android na pipeline                      | Separada                                 | MINOR  | [Entrega WLT-025](../entregas/WLT-025-build-android-release-candidato.md)              |
 | 50    | [WLT-026](historias-tecnicas/WLT-026-preparacao-ios-ci-testflight.md)          | Técnica | Preparação iOS para CI e TestFlight                         | Complementa a estratégia multiplataforma após Android                | Separada                                 | MINOR  | [Entrega WLT-026](../entregas/WLT-026-preparacao-ios-ci-testflight.md)                 |
 | 51    | [WLT-027](historias-tecnicas/WLT-027-governanca-secrets-assinatura-mobile.md)  | Técnica | Governança de secrets e assinatura mobile                   | Pré-requisito para CD seguro em lojas                                | Separada                                 | MINOR  | [Entrega WLT-027](../entregas/WLT-027-governanca-secrets-assinatura-mobile.md)         |
@@ -31,9 +30,7 @@ Uma história só pode ir para `Done` quando:
 
 ## Doing
 
-| Ordem | História                                                                       | Tipo    | Título                                                 | Relação com outras histórias                  | Execução | Versão | Entrega                                                                              |
-| ----- | ------------------------------------------------------------------------------ | ------- | ------------------------------------------------------ | --------------------------------------------- | -------- | ------ | ------------------------------------------------------------------------------------ |
-| 47    | [WLT-023](historias-tecnicas/WLT-023-emulador-remoto-ambiente-teste-online.md) | Técnica | Emulador remoto e ambiente de teste online na pipeline | Habilita testes de integração mobile em CI/CD | Separada | MINOR  | [Entrega WLT-023](../entregas/WLT-023-emulador-remoto-ambiente-teste-online.md)     |
+_Vazio._
 
 ## Review
 
@@ -89,6 +86,8 @@ _Vazio._
 | 44    | [WLT-020](historias-tecnicas/WLT-020-projeto-nativo-mobile-android-ios.md)        | Técnica | Projeto nativo mobile Android/iOS                          | Pré-requisito para builds reais e publicação nas lojas                   | Separada                         | MINOR  | [Entrega WLT-020](../entregas/WLT-020-projeto-nativo-mobile-android-ios.md) |
 | 45    | [WLT-021](historias-tecnicas/WLT-021-analise-estatica-avancada-backend.md)     | Técnica | Análise estática avançada backend | Complementa gate de qualidade do backend (SpotBugs, PMD, SonarCloud) | Separada | MINOR  | [Entrega WLT-021](../entregas/WLT-021-analise-estatica-avancada-backend.md) |
 | 46    | [WLT-022](historias-tecnicas/WLT-022-integracao-http-mobile-backend.md)            | Técnica | Integração HTTP mobile com backend                      | Substitui mock data por chamadas reais à API                               | Separada                         | MINOR  | [Entrega WLT-022](../entregas/WLT-022-integracao-http-mobile-backend.md)            |
+| 47    | [WLT-023](historias-tecnicas/WLT-023-emulador-remoto-ambiente-teste-online.md)     | Técnica | Emulador remoto e ambiente de teste online na pipeline  | Habilita testes de integração mobile em CI/CD                              | Separada                         | MINOR  | [Entrega WLT-023](../entregas/WLT-023-emulador-remoto-ambiente-teste-online.md)    |
+| 48    | [WLT-024](historias-tecnicas/WLT-024-confiabilidade-ci-mobile-android.md)          | Técnica | Confiabilidade da CI mobile Android                     | Endurece o job de emulador criado na WLT-023                                | Separada                         | MINOR  | [Entrega WLT-024](../entregas/WLT-024-confiabilidade-ci-mobile-android.md)         |
 
 ## Histórias técnicas que podem ser executadas separadamente
 

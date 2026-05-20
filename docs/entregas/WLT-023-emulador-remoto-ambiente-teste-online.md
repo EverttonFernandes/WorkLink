@@ -13,7 +13,7 @@ Executar os testes mobile de integração em Android Emulator dentro da CI, cobr
 
 O projeto já valida contrato HTTP mobile x backend real em Docker, mas ainda deixa `integration_test/` como `N/A` fora de ambientes com device. Esta história move essa validação para o pipeline.
 
-## Implementação em progresso
+## Implementação concluída
 
 - job `mobile-emulator` em [.github/workflows/ci.yml](/home/umov/Documents/ProjetosPessoais/WorkLink/.github/workflows/ci.yml)
 - script [worklink-mobile/tool/run_mobile_emulator_integration_tests.sh](/home/umov/Documents/ProjetosPessoais/WorkLink/worklink-mobile/tool/run_mobile_emulator_integration_tests.sh)
@@ -36,19 +36,20 @@ O projeto já valida contrato HTTP mobile x backend real em Docker, mas ainda de
 - device farm terceirizada
 - ambiente remoto persistente para QA manual
 
-## Evidências esperadas para fechamento
+## Evidências de fechamento
 
-- workflow remoto executado com sucesso
-- suíte `integration_test/` rodando em Android Emulator
-- documentação atualizada sem prometer setup local fora do modelo em Docker
+- GitHub Actions run `26176837198` executado com sucesso em `main`.
+- Job `Mobile integration on Android emulator` concluído com sucesso em `13m20s`.
+- A suíte `integration_test/` rodou em Android Emulator no CI.
+- Backend e dependências subiram no runner e foram acessados pelo app no emulador via `10.0.2.2`.
+- A validação continua sem exigir Flutter SDK ou device físico na máquina local do usuário.
 
 ## Estado atual
 
-- o job remoto de CI para Android Emulator foi preparado em `.github/workflows/ci.yml`
-- o fluxo local containerizado foi estruturado com scripts, `Makefile` e imagem derivada do emulador
-- o host atual ainda bloqueia o boot completo da AVD por limitação de espaço livre em disco
-- por isso a história ainda depende da execução remota no GitHub Actions para ser fechada
+- história fechada com evidência remota verde no GitHub Actions
+- o host local continua não sendo requisito para validar emulador Android
+- próximos ajustes de DevOps mobile seguem nas histórias WLT-024 em diante
 
 ## Observação
 
-Enquanto a execução remota ainda não for observada no GitHub Actions, esta entrega deve permanecer em progresso e não pode ser considerada fechada.
+A execução remota verde substitui a limitação do host local como critério de fechamento desta entrega.
