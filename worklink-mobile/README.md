@@ -66,8 +66,9 @@ Para testar no aparelho:
 4. Instale o APK e abra o WorkLink.
 5. Valide abertura, descoberta de profissionais, perfil e fluxos principais.
 
-Esse APK usa assinatura debug e e somente para teste interno. A assinatura de loja entra nas historias de governanca de
-secrets e release mobile.
+Esse APK usa assinatura debug, carrega dados preview para teste manual sem backend publicado e e somente para teste
+interno. A assinatura de loja e o apontamento para backend real entram nas historias de governanca de secrets e release
+mobile.
 
 A estrategia de build iOS continua documentada em `../docs/ci-cd/ESTRATEGIA-IOS.md`.
 

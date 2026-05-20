@@ -5,6 +5,7 @@ APK_SOURCE="${APK_SOURCE:-worklink-mobile/build/app/outputs/flutter-apk/app-debu
 OUTPUT_DIR="${OUTPUT_DIR:-artifacts/android-test-candidate}"
 APK_NAME="${APK_NAME:-worklink-android-test-candidate.apk}"
 PUBSPEC_FILE="${PUBSPEC_FILE:-worklink-mobile/pubspec.yaml}"
+APP_DATA_MODE="${APP_DATA_MODE:-preview}"
 
 if [ ! -s "${APK_SOURCE}" ]; then
   echo "APK nao encontrado ou vazio em ${APK_SOURCE}." >&2
@@ -46,6 +47,7 @@ built_at_utc=${BUILD_TIMESTAMP}
 apk_size_bytes=${APK_SIZE_BYTES}
 build_type=debug
 signing=android_debug_key
+app_data_mode=${APP_DATA_MODE}
 distribution_scope=manual_internal_test_only
 EOF
 
@@ -72,6 +74,7 @@ Este pacote contem um APK debug instalavel para validacao manual interna antes d
 ## Observacoes
 
 - Este APK usa chave debug do Android e e somente para teste interno.
+- Este APK usa dados preview para permitir navegacao manual sem backend publicado.
 - Nao publique este APK na Google Play.
 - Builds assinados para loja entram na etapa de governanca de secrets e assinatura mobile.
 EOF

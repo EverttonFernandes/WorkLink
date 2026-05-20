@@ -89,7 +89,7 @@ jobs:
         run: make mobile-android-build
 
       - name: Prepare Android test candidate
-        run: ./scripts/prepare_android_test_candidate.sh
+        run: make mobile-android-test-candidate
 
       - name: Upload Android test candidate
         uses: actions/upload-artifact@v7

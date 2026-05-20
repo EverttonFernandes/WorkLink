@@ -33,6 +33,17 @@ import 'features/professional_review/professional_review_screen.dart';
 
 // coverage:ignore-start
 void main() {
+  if (_loadPreviewDataEnabled()) {
+    runApp(
+      WorkLinkApp.preview(
+        applicationConfiguration: WorkLinkAppConfiguration(
+          administrativeConsoleEnabled: _loadAdministrativeConsoleEnabled(),
+        ),
+      ),
+    );
+    return;
+  }
+
   runApp(
     WorkLinkApp(
       applicationConfiguration: WorkLinkAppConfiguration(
@@ -45,6 +56,10 @@ void main() {
   );
 }
 // coverage:ignore-end
+
+bool _loadPreviewDataEnabled() {
+  return const String.fromEnvironment('WORKLINK_USE_PREVIEW_DATA') == 'true';
+}
 
 bool _loadAdministrativeConsoleEnabled() {
   return const String.fromEnvironment('WORKLINK_ENABLE_ADMIN_CONSOLE') ==
