@@ -18,6 +18,7 @@ Construir a base para validar manualmente o WorkLink em Android e iOS contra um 
 - Criado seed funcional `functional-tests/src/scripts/seedHomologationScenario.js` com cidades, categorias e profissionais fictícios da região carbonífera.
 - Atualizada a pipeline para publicar `worklink-android-homologation-<commit>` quando a variável `WORKLINK_HOMOLOGATION_API_BASE_URL` existir no GitHub Actions.
 - Criado contrato inicial da pasta `artifacts/homologation`.
+- Criado script de promoção `scripts/promote_android_homologation_artifact.sh` para copiar APK full-stack validado para `artifacts/homologation/releases/<versao>/android`.
 
 ## Estado atual da homologação
 
@@ -32,3 +33,13 @@ Construir a base para validar manualmente o WorkLink em Android e iOS contra um 
 - Massa fake carregada e visível no app.
 - Registro de checksum e metadados em `artifacts/homologation/releases/<versao>/`.
 - Plano equivalente iOS validado antes de submissão para Apple Store.
+
+## Evidências já coletadas
+
+- GitHub Actions run `26196995023` executado com sucesso em `main`.
+- Jobs verdes:
+  - `Mobile quality gates`
+  - `Mobile integration on Android emulator`
+  - `Backend quality gates`
+  - `Dependency scan`
+  - `API Docker image`

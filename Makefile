@@ -8,7 +8,8 @@ DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) docker compose --env-file
 	mobile-android-test-candidate mobile-android-homologation-candidate mobile-emulator-prereqs \
 	mobile-test mobile-emulator-up mobile-emulator-wait mobile-emulator-install \
 	mobile-emulator-integration-test mobile-manual-test functional-test test-unit test-integration test-functional \
-	homologation-local-up homologation-seed db-up db-down db-logs db-migrate test ci
+	homologation-local-up homologation-seed promote-android-homologation-artifact \
+	db-up db-down db-logs db-migrate test ci
 
 $(COMPOSE_ENV_FILE):
 	cp .env.example $(COMPOSE_ENV_FILE)
@@ -140,6 +141,11 @@ homologation-local-up: $(COMPOSE_ENV_FILE)
 homologation-seed: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm -e WORKLINK_HOMOLOGATION_RESET=true functional-tests \
 		sh -lc "npm ci && node src/scripts/seedHomologationScenario.js"
+
+promote-android-homologation-artifact:
+	@test -n "$(VERSION)" || (echo "Defina VERSION=vX.Y.Z." >&2; exit 1)
+	@test -n "$(RUN_ID)" || (echo "Defina RUN_ID=<github-actions-run-id>." >&2; exit 1)
+	./scripts/promote_android_homologation_artifact.sh "$(VERSION)" "$(RUN_ID)" "$(ARTIFACT_NAME)"
 
 test-unit: backend-unit-test mobile-unit-test
 

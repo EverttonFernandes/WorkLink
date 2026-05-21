@@ -28,6 +28,16 @@ artifacts/homologation/releases/
 - O checksum precisa estar registrado e validado.
 - O iOS deve ter evidencia equivalente via TestFlight ou mecanismo interno aprovado antes de App Store.
 
+## Promocao Android
+
+Depois que o GitHub Actions gerar `worklink-android-homologation-<commit>` com backend real configurado:
+
+```bash
+VERSION=vX.Y.Z RUN_ID=<github-actions-run-id> make promote-android-homologation-artifact
+```
+
+O script rejeita artifacts `preview`, artifacts sem `api_base_url` e artifacts com checksum invalido.
+
 ## Estado atual
 
 A pasta ainda nao contem APK estavel de homologacao. O primeiro APK full-stack deve ser promovido somente depois que a pipeline gerar `worklink-android-homologation-<commit>` com `WORKLINK_HOMOLOGATION_API_BASE_URL` configurada.
