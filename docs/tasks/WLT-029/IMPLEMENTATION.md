@@ -24,8 +24,8 @@ exit_bar:
   final_review:  PENDING
 last_cycle:
   agent: "orquestrator"
-  action: "validacao de CI apos operacionalizacao de secrets de homologacao"
-  result: "run 26259403194 aprovado no commit 17d805d; fallback Docker/JDK validado pela pipeline"
+  action: "geracao local da keystore Android de homologacao"
+  result: "keystore e env de secrets gerados localmente via Docker/JDK; arquivos ignorados pelo git"
   timestamp: "2026-05-21T00:00:00-03:00"
 correction_queue:
   - id: "WLT-029-BLOCKER-001"
@@ -50,7 +50,7 @@ metrics:
   total_iterations: 1
   gates_failed_count: 0
   mode_collapse_events: 0
-  convergence_notes: "CI convergiu no commit 6b3c100; fechamento bloqueado apenas por ambiente/URL/secrets de homologacao para gerar APK full-stack versionado."
+  convergence_notes: "CI convergiu no commit 17d805d; keystore de homologacao foi gerada localmente; fechamento bloqueado apenas por URL HTTPS de homologacao para configurar GitHub Actions e gerar APK full-stack versionado."
 ---
 
 # WLT-029 — Homologação mobile full-stack e artifacts estáveis
@@ -165,6 +165,8 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
 
 O repositório ainda não possui `WORKLINK_HOMOLOGATION_API_BASE_URL` como variable nem secret, `WORKLINK_HOMOLOGATION_ALLOWED_HOSTS`, `WORKLINK_ANDROID_HOMOLOGATION_CERT_SHA256` e também não possui os secrets de assinatura Android de homologação.
 
+A keystore Android de homologação já foi gerada localmente em `artifacts/local-secrets/android-homologation/`, pasta ignorada pelo git.
+
 Para gerar o APK versionado full-stack há duas rotas válidas:
 
 1. Informar uma URL HTTPS pública/estável de backend de homologação, configurar allowlist, fingerprint, secrets de assinatura e executar o workflow manualmente com `homologation_api_base_url`.
@@ -271,6 +273,20 @@ Scripts de apoio criados:
   - `worklink-android-test-candidate-17d805d41f2ff52d3446dfcdba9f933eb511d6a6`
   - `mobile-emulator-diagnostics-26259403194-1`
 - Passos `Prepare Android homologation candidate` e `Upload Android homologation candidate` permaneceram pulados por falta de URL/secrets, comportamento esperado.
+
+### Iteração 7 — Keystore local gerada
+
+- Executado `DOCKER=docker.exe WORKLINK_ANDROID_HOMOLOGATION_KEYTOOL_MODE=docker make generate-android-homologation-keystore`.
+- Arquivos locais e não versionados gerados:
+  - `artifacts/local-secrets/android-homologation/homologation-upload.jks`
+  - `artifacts/local-secrets/android-homologation/github-secrets.env`
+- Fingerprint SHA-256 público da keystore gerada:
+  - `fff1b9ba121d85805d3a92ba11441a43e62be9a30531dd8c63166828878763ea`
+- Validações:
+  - `sh -n scripts/generate_android_homologation_keystore.sh`
+  - `scripts/check_no_mobile_signing_secrets.sh`
+  - `git diff --check`
+- Limite remanescente: informar uma URL HTTPS pública do backend de homologação para configurar GitHub Actions.
 
 ## Aprendizados do Loop
 

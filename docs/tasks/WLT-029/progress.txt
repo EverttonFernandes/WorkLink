@@ -124,4 +124,9 @@ Resultado:
   - [x] `worklink-android-test-candidate-17d805d41f2ff52d3446dfcdba9f933eb511d6a6`.
   - [x] `mobile-emulator-diagnostics-26259403194-1`.
   - [x] `worklink-android-homologation-*` ausente por falta de variables/secrets de homologação, como esperado.
+- [x] Corrigido suporte real a `docker.exe` no WSL para montagem do diretório de keystore.
+- [x] Executado `DOCKER=docker.exe WORKLINK_ANDROID_HOMOLOGATION_KEYTOOL_MODE=docker make generate-android-homologation-keystore`.
+- [x] Keystore e arquivo local de secrets gerados em `artifacts/local-secrets/android-homologation/`, pasta ignorada pelo git.
+- [x] Fingerprint público gerado: `fff1b9ba121d85805d3a92ba11441a43e62be9a30531dd8c63166828878763ea`.
+- [x] Confirmado que `artifacts/local-secrets/` está ignorado e não entra no versionamento.
 - [ ] Próximo bloqueio real: obter URL HTTPS pública de backend de homologação para configurar GitHub Actions e gerar o artifact homologation.

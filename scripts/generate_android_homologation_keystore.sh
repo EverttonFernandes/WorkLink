@@ -96,6 +96,19 @@ KEYTOOL_RUNNER="$(select_keytool_runner)"
 OUTPUT_DIR_ABSOLUTE="$(cd "${OUTPUT_DIR}" && pwd -P)"
 CONTAINER_KEYSTORE_FILE="/worklink-keystore/$(basename "${KEYSTORE_FILE}")"
 
+docker_volume_path() {
+  case "$1" in
+    *docker.exe)
+      if command -v wslpath >/dev/null 2>&1; then
+        wslpath -w "${OUTPUT_DIR_ABSOLUTE}"
+        return
+      fi
+      ;;
+  esac
+
+  printf '%s\n' "${OUTPUT_DIR_ABSOLUTE}"
+}
+
 run_keytool() {
   if [ "${KEYTOOL_RUNNER}" = "local" ]; then
     keytool "$@"
@@ -103,8 +116,10 @@ run_keytool() {
   fi
 
   RESOLVED_DOCKER_COMMAND="${KEYTOOL_RUNNER#docker:}"
+  DOCKER_OUTPUT_DIR="$(docker_volume_path "${RESOLVED_DOCKER_COMMAND}")"
   "${RESOLVED_DOCKER_COMMAND}" run --rm \
-    -v "${OUTPUT_DIR_ABSOLUTE}:/worklink-keystore" \
+    --user "$(id -u):$(id -g)" \
+    -v "${DOCKER_OUTPUT_DIR}:/worklink-keystore" \
     "${KEYTOOL_DOCKER_IMAGE}" \
     keytool "$@"
 }
@@ -131,7 +146,9 @@ run_keytool \
   -validity "${VALIDITY_DAYS}" \
   -dname "${DNAME}"
 
-chmod 600 "${KEYSTORE_FILE}"
+chmod 600 "${KEYSTORE_FILE}" 2>/dev/null || {
+  echo "Aviso: nao foi possivel ajustar permissao da keystore com chmod neste filesystem." >&2
+}
 
 CERT_SHA256="$(
   run_keytool \
@@ -155,7 +172,9 @@ export WORKLINK_ANDROID_HOMOLOGATION_KEY_PASSWORD=$(shell_quote "${KEY_PASSWORD}
 export WORKLINK_ANDROID_HOMOLOGATION_CERT_SHA256=$(shell_quote "${CERT_SHA256}")
 EOF
 
-chmod 600 "${ENV_FILE}"
+chmod 600 "${ENV_FILE}" 2>/dev/null || {
+  echo "Aviso: nao foi possivel ajustar permissao do arquivo de secrets com chmod neste filesystem." >&2
+}
 
 cat <<EOF
 Keystore Android de homologacao gerado.
