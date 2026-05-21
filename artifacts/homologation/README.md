@@ -36,6 +36,10 @@ A pasta `artifacts/homologation/releases/` guarda o contrato auditavel: metadado
 
 ## Promocao Android
 
+Runbook operacional:
+
+- [Homologacao Android no GitHub Actions](../../docs/operacao/homologacao-android-github-actions.md)
+
 Depois que o GitHub Actions gerar `worklink-android-homologation-<commit>` com backend real configurado:
 
 ```bash

@@ -56,3 +56,4 @@ replay_pid*
 artifacts/android-test-candidate*/
 artifacts/android-local-fullstack-candidate*/
 artifacts/android-homologation-candidate*/
+artifacts/local-secrets/

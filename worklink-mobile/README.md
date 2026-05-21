@@ -99,6 +99,8 @@ Para gerar uma versao estavel de homologacao, a CI precisa criar `worklink-andro
 - secrets de assinatura Android de homologacao configurados
 - fingerprint publico da chave em `WORKLINK_ANDROID_HOMOLOGATION_CERT_SHA256`
 
+O passo a passo operacional fica em `../docs/operacao/homologacao-android-github-actions.md`.
+
 No GitHub Actions, o mesmo build pode ser gerado de tres formas:
 
 - configurando a repository variable `WORKLINK_HOMOLOGATION_API_BASE_URL`

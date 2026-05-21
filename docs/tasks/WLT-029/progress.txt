@@ -53,6 +53,21 @@
 - [x] `make -n` validou URL com query string após quoting dos `dart-define` e metadados.
 - [ ] `make DOCKER=docker.exe mobile-static-analysis` foi tentado, mas interrompido porque o pull inicial da imagem Flutter ficou lento demais para a janela atual.
 
+### Fresh Context 3 — 2026-05-21
+
+- [x] Usuário autorizou criar história nova para variáveis/secrets se necessário.
+- [x] Decidido manter a execução dentro da WLT-029 porque ela ainda é a história em Doing e a fila cronológica impede iniciar próxima história.
+- [x] Criado `scripts/generate_android_homologation_keystore.sh`.
+- [x] Criado `scripts/configure_android_homologation_github_env.sh`.
+- [x] Criado `docs/operacao/homologacao-android-github-actions.md`.
+- [x] Atualizados `Makefile`, `worklink-mobile/README.md` e `artifacts/homologation/README.md`.
+- [x] `sh -n` passou para os scripts de homologacao.
+- [x] `make -n generate-android-homologation-keystore` e `make -n configure-android-homologation-github-env` passaram.
+- [x] Teste fake com `gh` simulado validou que o script configura 3 variables e 4 secrets sem imprimir secrets.
+- [x] Execucao real de `generate_android_homologation_keystore.sh` falhou cedo porque `keytool` nao esta instalado no WSL atual.
+- [ ] Gerar keystore real ainda depende de JDK/`keytool` disponível.
+- [ ] Configurar GitHub Actions ainda depende da URL HTTPS real de homologação.
+
 ## Bloqueio Atual
 
 Falha observada:

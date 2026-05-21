@@ -10,6 +10,7 @@ DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) $(DOCKER) compose --env-f
 	mobile-test mobile-emulator-up mobile-emulator-wait mobile-emulator-install \
 	mobile-emulator-integration-test mobile-manual-test functional-test test-unit test-integration test-functional \
 	homologation-local-up homologation-seed promote-android-homologation-artifact \
+	generate-android-homologation-keystore configure-android-homologation-github-env \
 	db-up db-down db-logs db-migrate test ci
 
 $(COMPOSE_ENV_FILE):
@@ -168,6 +169,13 @@ promote-android-homologation-artifact:
 	@test -n "$(VERSION)" || (echo "Defina VERSION=vX.Y.Z." >&2; exit 1)
 	@test -n "$(RUN_ID)" || (echo "Defina RUN_ID=<github-actions-run-id>." >&2; exit 1)
 	./scripts/promote_android_homologation_artifact.sh "$(VERSION)" "$(RUN_ID)" "$(ARTIFACT_NAME)"
+
+generate-android-homologation-keystore:
+	./scripts/generate_android_homologation_keystore.sh
+
+configure-android-homologation-github-env:
+	@test -n "$(WORKLINK_HOMOLOGATION_API_BASE_URL)" || (echo "Defina WORKLINK_HOMOLOGATION_API_BASE_URL=https://..." >&2; exit 1)
+	./scripts/configure_android_homologation_github_env.sh "$(WORKLINK_HOMOLOGATION_API_BASE_URL)"
 
 test-unit: backend-unit-test mobile-unit-test
 

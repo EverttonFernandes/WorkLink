@@ -83,6 +83,7 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
 - [ ] Gerar APK Android full-stack versionado a partir de backend de homologação acessível pelo celular.
 - [ ] Promover APK full-stack como asset de GitHub Release e registrar metadados em `artifacts/homologation/releases/<versao>/android`.
 - [ ] Fechar tag semântica sobre o commit final da história.
+- [x] Criar runbook e scripts para configurar variables/secrets de homologação Android no GitHub Actions.
 
 ## Fora do Escopo
 
@@ -113,6 +114,9 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
 
 - [x] Criar `artifacts/homologation/README.md`.
 - [x] Criar `scripts/promote_android_homologation_artifact.sh`.
+- [x] Criar `scripts/generate_android_homologation_keystore.sh`.
+- [x] Criar `scripts/configure_android_homologation_github_env.sh`.
+- [x] Criar `docs/operacao/homologacao-android-github-actions.md`.
 - [x] Bloquear promoção de artifact `preview`.
 - [x] Bloquear promoção de artifact sem `api_base_url`.
 - [x] Bloquear promoção de APK debug ou assinado com chave debug.
@@ -156,6 +160,11 @@ Para gerar o APK versionado full-stack há duas rotas válidas:
 1. Informar uma URL HTTPS pública/estável de backend de homologação, configurar allowlist, fingerprint, secrets de assinatura e executar o workflow manualmente com `homologation_api_base_url`.
 2. Para teste rápido no Android físico, subir `make homologation-local-up` e gerar `make mobile-android-local-fullstack-candidate`; esse APK local é debug e não pode ser promovido como versão estável.
 
+Scripts de apoio criados:
+
+- `make generate-android-homologation-keystore`
+- `WORKLINK_HOMOLOGATION_API_BASE_URL=https://... make configure-android-homologation-github-env`
+
 ## Critérios de Aceite
 
 - [x] Existe uma história oficial rastreável para homologação mobile full-stack.
@@ -167,6 +176,7 @@ Para gerar o APK versionado full-stack há duas rotas válidas:
 - [x] Nenhum APK debug ou assinado com chave debug pode ser promovido como homologação estável.
 - [x] O APK estável deve ser versionado como asset de GitHub Release, com checksum/metadados no git.
 - [x] A promoção deve verificar o certificado real do APK antes de publicar o asset.
+- [x] Existe runbook operacional para configurar variables/secrets no GitHub Actions.
 - [x] O plano deixa explícito que iOS precisa validar o mesmo backend e a mesma massa antes de App Store.
 - [ ] APK Android full-stack versionado foi gerado, publicado como asset de GitHub Release, promovido e registrado em `artifacts/homologation/releases/<versao>/android`.
 
@@ -199,6 +209,16 @@ Para gerar o APK versionado full-stack há duas rotas válidas:
   - promoção revalida `api_base_url` contra allowlist;
   - upload não falha quando o asset usa o nome padrão;
   - APK permanece fora do git, com metadados/checksum/ponteiro versionados.
+
+### Iteração 3 — Operacionalização das variáveis e secrets
+
+- Usuário autorizou criar história nova se necessário, mas a fila oficial ainda bloqueia nova história enquanto WLT-029 está em Doing.
+- Decisão: continuar dentro da WLT-029 e criar automação operacional para o bloqueio atual.
+- Criados scripts para:
+  - gerar keystore Android de homologação local e não versionada;
+  - configurar variables/secrets no GitHub via `gh`.
+- Criado runbook em `docs/operacao/homologacao-android-github-actions.md`.
+- Limite atual: ambiente WSL não possui `keytool`; a geração da keystore precisa de JDK instalado ou ser executada em máquina com Java.
 
 ## Aprendizados do Loop
 
