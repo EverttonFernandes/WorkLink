@@ -118,4 +118,10 @@ Resultado:
   - [x] fluxo fake com `keytool` local.
   - [x] fluxo fake com Docker/JDK.
   - [x] `scripts/check_no_mobile_signing_secrets.sh`.
+- [x] Commit `17d805d41f2ff52d3446dfcdba9f933eb511d6a6` enviado para `origin/main`.
+- [x] Run `26259403194`: `completed success`.
+- [x] Artifacts do run `26259403194` conferidos:
+  - [x] `worklink-android-test-candidate-17d805d41f2ff52d3446dfcdba9f933eb511d6a6`.
+  - [x] `mobile-emulator-diagnostics-26259403194-1`.
+  - [x] `worklink-android-homologation-*` ausente por falta de variables/secrets de homologação, como esperado.
 - [ ] Próximo bloqueio real: obter URL HTTPS pública de backend de homologação para configurar GitHub Actions e gerar o artifact homologation.

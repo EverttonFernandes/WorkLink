@@ -2,7 +2,7 @@
 task_key: "WLT-029"
 branch: "main"
 phase: EXECUTION
-loop_iteration: 4
+loop_iteration: 5
 max_iterations: 12
 fresh_context_after_iteration: 3
 progress_file: "docs/tasks/WLT-029/progress.txt"
@@ -25,7 +25,7 @@ exit_bar:
 last_cycle:
   agent: "orquestrator"
   action: "validacao de CI apos operacionalizacao de secrets de homologacao"
-  result: "run 26253710509 aprovado; script de keystore passou a suportar fallback Docker/JDK"
+  result: "run 26259403194 aprovado no commit 17d805d; fallback Docker/JDK validado pela pipeline"
   timestamp: "2026-05-21T00:00:00-03:00"
 correction_queue:
   - id: "WLT-029-BLOCKER-001"
@@ -145,6 +145,7 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
 - Run `26197769468`: `completed success`.
 - Run `26198971069`: `completed success`.
 - Run `26253710509`: `completed success` no commit `6b3c100e5490befd0b7df743bae7ed5f45f91d51`.
+- Run `26259403194`: `completed success` no commit `17d805d41f2ff52d3446dfcdba9f933eb511d6a6`.
 - Jobs verdes:
   - `Backend quality gates`
   - `Dependency scan`
@@ -154,6 +155,10 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
 - Artifacts do run `26253710509`:
   - `worklink-android-test-candidate-6b3c100e5490befd0b7df743bae7ed5f45f91d51`
   - `mobile-emulator-diagnostics-26253710509-1`
+  - `worklink-android-homologation-*` ausente, conforme esperado enquanto variables/secrets de homologação não existem.
+- Artifacts do run `26259403194`:
+  - `worklink-android-test-candidate-17d805d41f2ff52d3446dfcdba9f933eb511d6a6`
+  - `mobile-emulator-diagnostics-26259403194-1`
   - `worklink-android-homologation-*` ausente, conforme esperado enquanto variables/secrets de homologação não existem.
 
 ## Bloqueio Atual
@@ -251,6 +256,21 @@ Scripts de apoio criados:
   - fluxo fake com Docker/JDK.
   - `scripts/check_no_mobile_signing_secrets.sh`.
 - Limite remanescente: ainda é necessária uma URL HTTPS pública de backend de homologação antes de configurar as variables/secrets e gerar o APK `worklink-android-homologation-*`.
+
+### Iteração 6 — CI verde do fallback Docker/JDK
+
+- Commit `17d805d41f2ff52d3446dfcdba9f933eb511d6a6` enviado para `origin/main`.
+- Run GitHub Actions `26259403194` concluído com sucesso.
+- Jobs aprovados:
+  - `API Docker image`
+  - `Dependency scan`
+  - `Mobile integration on Android emulator`
+  - `Backend quality gates`
+  - `Mobile quality gates`
+- Artifacts gerados:
+  - `worklink-android-test-candidate-17d805d41f2ff52d3446dfcdba9f933eb511d6a6`
+  - `mobile-emulator-diagnostics-26259403194-1`
+- Passos `Prepare Android homologation candidate` e `Upload Android homologation candidate` permaneceram pulados por falta de URL/secrets, comportamento esperado.
 
 ## Aprendizados do Loop
 
