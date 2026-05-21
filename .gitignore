@@ -54,4 +54,5 @@ replay_pid*
 # Generated mobile candidates are transient. Stable homologation releases live
 # under artifacts/homologation/releases/ and are promoted intentionally.
 artifacts/android-test-candidate*/
+artifacts/android-local-fullstack-candidate*/
 artifacts/android-homologation-candidate*/

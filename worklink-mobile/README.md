@@ -16,6 +16,7 @@ make mobile-screen-test
 make mobile-integration-test
 make mobile-android-build
 make mobile-android-test-candidate
+make mobile-android-local-fullstack-candidate
 make mobile-emulator-up
 make mobile-emulator-wait
 make mobile-emulator-install
@@ -71,11 +72,12 @@ interno. Ele nao deve ser tratado como homologacao full-stack.
 
 ## Teste manual full-stack de homologacao
 
-Para validar o aplicativo contra backend, banco e massa fake, use o candidato de homologacao:
+Para validar rapidamente no seu Android fisico contra backend local, banco e massa fake do notebook, use o candidato local
+full-stack:
 
 ```bash
 make homologation-local-up
-MOBILE_HOMOLOGATION_API_BASE_URL=http://<ip-do-notebook>:8080 make mobile-android-homologation-candidate
+MOBILE_LOCAL_API_BASE_URL=http://<ip-do-notebook>:8080 make mobile-android-local-fullstack-candidate
 ```
 
 No Android fisico, `localhost` aponta para o proprio celular. Por isso use o IP do notebook na rede local, por exemplo
@@ -84,17 +86,28 @@ No Android fisico, `localhost` aponta para o proprio celular. Por isso use o IP 
 O artifact gerado fica em:
 
 ```text
-artifacts/android-homologation-candidate/
+artifacts/android-local-fullstack-candidate/
 ```
 
-Esse pacote usa o backend configurado em `MOBILE_HOMOLOGATION_API_BASE_URL` e deve ser o caminho para validacao real
-antes de promover uma versao para `artifacts/homologation/releases/<versao>/`.
+Esse pacote e debug, usa a chave debug do Android e serve somente para validacao manual local. Ele nao pode ser promovido
+como homologacao estavel.
+
+Para gerar uma versao estavel de homologacao, a CI precisa criar `worklink-android-homologation-<commit>` com:
+
+- backend HTTPS real em `WORKLINK_HOMOLOGATION_API_BASE_URL` ou no input manual `homologation_api_base_url`
+- allowlist obrigatoria `WORKLINK_HOMOLOGATION_ALLOWED_HOSTS`
+- secrets de assinatura Android de homologacao configurados
+- fingerprint publico da chave em `WORKLINK_ANDROID_HOMOLOGATION_CERT_SHA256`
 
 No GitHub Actions, o mesmo build pode ser gerado de tres formas:
 
 - configurando a repository variable `WORKLINK_HOMOLOGATION_API_BASE_URL`
 - configurando o repository secret `WORKLINK_HOMOLOGATION_API_BASE_URL`
 - executando manualmente o workflow `WorkLink CI` com o input `homologation_api_base_url`
+
+O APK estavel nao fica salvo como binario no git. Ele fica versionado como asset do GitHub Release da tag semantica, e a
+pasta `artifacts/homologation/releases/<versao>/android/` guarda metadados, checksum e o ponteiro para esse asset.
+A promocao valida o certificado real do APK com `apksigner` antes de anexar o asset ao Release.
 
 A estrategia de build iOS continua documentada em `../docs/ci-cd/ESTRATEGIA-IOS.md`.
 

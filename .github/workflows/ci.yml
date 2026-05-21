@@ -126,6 +126,12 @@ jobs:
         if: steps.android_homologation_backend.outputs.enabled == 'true'
         env:
           MOBILE_HOMOLOGATION_API_BASE_URL: ${{ steps.android_homologation_backend.outputs.api_base_url }}
+          WORKLINK_HOMOLOGATION_ALLOWED_HOSTS: ${{ vars.WORKLINK_HOMOLOGATION_ALLOWED_HOSTS }}
+          WORKLINK_ANDROID_HOMOLOGATION_KEYSTORE_BASE64: ${{ secrets.WORKLINK_ANDROID_HOMOLOGATION_KEYSTORE_BASE64 }}
+          WORKLINK_ANDROID_HOMOLOGATION_KEYSTORE_PASSWORD: ${{ secrets.WORKLINK_ANDROID_HOMOLOGATION_KEYSTORE_PASSWORD }}
+          WORKLINK_ANDROID_HOMOLOGATION_KEY_ALIAS: ${{ secrets.WORKLINK_ANDROID_HOMOLOGATION_KEY_ALIAS }}
+          WORKLINK_ANDROID_HOMOLOGATION_KEY_PASSWORD: ${{ secrets.WORKLINK_ANDROID_HOMOLOGATION_KEY_PASSWORD }}
+          WORKLINK_ANDROID_HOMOLOGATION_CERT_SHA256: ${{ vars.WORKLINK_ANDROID_HOMOLOGATION_CERT_SHA256 }}
         run: make mobile-android-homologation-candidate
 
       - name: Upload Android homologation candidate

@@ -1,11 +1,12 @@
 COMPOSE_ENV_FILE ?= .env
-DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) docker compose --env-file $(COMPOSE_ENV_FILE)
+DOCKER ?= docker
+DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) $(DOCKER) compose --env-file $(COMPOSE_ENV_FILE)
 
 .PHONY: up down restart logs api db redis storage migrate clean \
 	backend-static-analysis mobile-static-analysis static-analysis \
 	backend-unit-test backend-integration-test backend-test backend-image-build \
 	mobile-unit-test mobile-screen-test mobile-integration-test mobile-android-build \
-	mobile-android-test-candidate mobile-android-homologation-candidate mobile-emulator-prereqs \
+	mobile-android-test-candidate mobile-android-local-fullstack-candidate mobile-android-homologation-candidate mobile-emulator-prereqs \
 	mobile-test mobile-emulator-up mobile-emulator-wait mobile-emulator-install \
 	mobile-emulator-integration-test mobile-manual-test functional-test test-unit test-integration test-functional \
 	homologation-local-up homologation-seed promote-android-homologation-artifact \
@@ -61,7 +62,7 @@ backend-integration-test: $(COMPOSE_ENV_FILE)
 backend-test: backend-unit-test backend-integration-test
 
 backend-image-build:
-	docker build -f docker/worklink-api.Dockerfile -t worklink-api:local .
+	$(DOCKER) build -f docker/worklink-api.Dockerfile -t worklink-api:local .
 
 mobile-unit-test: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "rm -rf coverage && flutter pub get && flutter test test/unit --coverage && awk -F: '/^LF:/{lf+=\$$2}/^LH:/{lh+=\$$2} END { if (lf == 0) { print \"N/A: cobertura mobile sem linhas rastreaveis.\"; exit 0 } coverage=(lh/lf)*100; printf \"Cobertura mobile unitarios: %.2f%%\\n\", coverage; if (coverage < 95) exit 1 }' coverage/lcov.info"
@@ -82,13 +83,34 @@ mobile-android-test-candidate: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && flutter build apk --debug --dart-define=WORKLINK_USE_PREVIEW_DATA=true"
 	./scripts/prepare_android_test_candidate.sh
 
+mobile-android-local-fullstack-candidate: $(COMPOSE_ENV_FILE)
+	@test -n "$(MOBILE_LOCAL_API_BASE_URL)" || (echo "Defina MOBILE_LOCAL_API_BASE_URL com a URL local do backend acessivel pelo celular." >&2; exit 1)
+	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && flutter build apk --debug '--dart-define=API_BASE_URL=$(MOBILE_LOCAL_API_BASE_URL)'"
+	OUTPUT_DIR=artifacts/android-local-fullstack-candidate \
+		APK_NAME=worklink-android-local-fullstack.apk \
+		ARTIFACT_TYPE=android-local-fullstack-candidate \
+		APP_DATA_MODE=local-fullstack \
+		API_BASE_URL="$(MOBILE_LOCAL_API_BASE_URL)" \
+		./scripts/prepare_android_test_candidate.sh
+
 mobile-android-homologation-candidate: $(COMPOSE_ENV_FILE)
 	@test -n "$(MOBILE_HOMOLOGATION_API_BASE_URL)" || (echo "Defina MOBILE_HOMOLOGATION_API_BASE_URL com a URL do backend de homologacao." >&2; exit 1)
-	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && flutter build apk --debug --dart-define=API_BASE_URL=$(MOBILE_HOMOLOGATION_API_BASE_URL)"
+	./scripts/validate_homologation_api_base_url.sh "$(MOBILE_HOMOLOGATION_API_BASE_URL)"
+	$(DOCKER_COMPOSE) run --rm \
+		-e WORKLINK_ANDROID_HOMOLOGATION_KEYSTORE_BASE64 \
+		-e WORKLINK_ANDROID_HOMOLOGATION_KEYSTORE_PASSWORD \
+		-e WORKLINK_ANDROID_HOMOLOGATION_KEY_ALIAS \
+		-e WORKLINK_ANDROID_HOMOLOGATION_KEY_PASSWORD \
+		-e WORKLINK_ANDROID_HOMOLOGATION_KEYSTORE_PATH=android/app/homologation-upload.jks \
+		mobile-tests sh -lc "/workspace/scripts/prepare_android_homologation_signing.sh && flutter pub get && flutter build apk --release '--dart-define=API_BASE_URL=$(MOBILE_HOMOLOGATION_API_BASE_URL)'"
 	OUTPUT_DIR=artifacts/android-homologation-candidate \
 		APK_NAME=worklink-android-homologation.apk \
+		APK_SOURCE=worklink-mobile/build/app/outputs/flutter-apk/app-release.apk \
+		ARTIFACT_TYPE=android-homologation-candidate \
+		BUILD_TYPE=release \
+		SIGNING=android_homologation_key \
 		APP_DATA_MODE=homologation-fullstack \
-		API_BASE_URL=$(MOBILE_HOMOLOGATION_API_BASE_URL) \
+		API_BASE_URL="$(MOBILE_HOMOLOGATION_API_BASE_URL)" \
 		./scripts/prepare_android_test_candidate.sh
 
 mobile-test: mobile-unit-test mobile-screen-test mobile-integration-test

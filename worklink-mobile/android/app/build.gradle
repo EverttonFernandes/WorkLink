@@ -5,6 +5,17 @@ plugins {
     id "dev.flutter.flutter-gradle-plugin"
 }
 
+def homologationKeystorePath = System.getenv("WORKLINK_ANDROID_HOMOLOGATION_KEYSTORE_PATH")
+def homologationKeystorePassword = System.getenv("WORKLINK_ANDROID_HOMOLOGATION_KEYSTORE_PASSWORD")
+def homologationKeyAlias = System.getenv("WORKLINK_ANDROID_HOMOLOGATION_KEY_ALIAS")
+def homologationKeyPassword = System.getenv("WORKLINK_ANDROID_HOMOLOGATION_KEY_PASSWORD")
+def homologationSigningConfigured = [
+    homologationKeystorePath,
+    homologationKeystorePassword,
+    homologationKeyAlias,
+    homologationKeyPassword
+].every { value -> value != null && !value.trim().isEmpty() }
+
 android {
     namespace = "br.com.worklink.mobile"
     compileSdk = flutter.compileSdkVersion
@@ -27,9 +38,22 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        homologation {
+            if (homologationSigningConfigured) {
+                storeFile = file(homologationKeystorePath)
+                storePassword = homologationKeystorePassword
+                keyAlias = homologationKeyAlias
+                keyPassword = homologationKeyPassword
+            }
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig = signingConfigs.debug
+            if (homologationSigningConfigured) {
+                signingConfig = signingConfigs.homologation
+            }
         }
     }
 }

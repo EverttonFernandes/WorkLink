@@ -7,6 +7,9 @@ APK_NAME="${APK_NAME:-worklink-android-test-candidate.apk}"
 PUBSPEC_FILE="${PUBSPEC_FILE:-worklink-mobile/pubspec.yaml}"
 APP_DATA_MODE="${APP_DATA_MODE:-preview}"
 API_BASE_URL="${API_BASE_URL:-not_configured}"
+BUILD_TYPE="${BUILD_TYPE:-debug}"
+SIGNING="${SIGNING:-android_debug_key}"
+ARTIFACT_TYPE="${ARTIFACT_TYPE:-android-test-candidate}"
 
 if [ ! -s "${APK_SOURCE}" ]; then
   echo "APK nao encontrado ou vazio em ${APK_SOURCE}." >&2
@@ -35,8 +38,16 @@ APK_SIZE_BYTES="$(wc -c < "${OUTPUT_DIR}/${APK_NAME}" | tr -d ' ')"
   sha256sum "${APK_NAME}" > SHA256SUMS
 )
 
+if [ "${BUILD_TYPE}" = "release" ]; then
+  PACKAGE_DESCRIPTION="um APK release assinado para validacao manual interna antes da publicacao em loja"
+  SIGNING_DESCRIPTION="Este APK usa chave de homologacao Android e e somente para teste interno controlado."
+else
+  PACKAGE_DESCRIPTION="um APK debug instalavel para validacao manual interna antes da publicacao em loja"
+  SIGNING_DESCRIPTION="Este APK usa chave debug do Android e e somente para teste interno."
+fi
+
 cat > "${OUTPUT_DIR}/BUILD-METADATA.txt" <<EOF
-artifact=android-test-candidate
+artifact=${ARTIFACT_TYPE}
 apk=${APK_NAME}
 app_version=${APP_VERSION}
 git_commit=${GIT_COMMIT}
@@ -46,8 +57,8 @@ github_run_id=${RUN_ID}
 github_run_attempt=${RUN_ATTEMPT}
 built_at_utc=${BUILD_TIMESTAMP}
 apk_size_bytes=${APK_SIZE_BYTES}
-build_type=debug
-signing=android_debug_key
+build_type=${BUILD_TYPE}
+signing=${SIGNING}
 app_data_mode=${APP_DATA_MODE}
 api_base_url=${API_BASE_URL}
 distribution_scope=manual_internal_test_only
@@ -56,7 +67,7 @@ EOF
 cat > "${OUTPUT_DIR}/INSTALL-ANDROID.md" <<EOF
 # WorkLink Android Test Candidate
 
-Este pacote contem um APK debug instalavel para validacao manual interna antes da publicacao em loja.
+Este pacote contem ${PACKAGE_DESCRIPTION}.
 
 ## Arquivos
 
@@ -75,7 +86,9 @@ Este pacote contem um APK debug instalavel para validacao manual interna antes d
 
 ## Observacoes
 
-- Este APK usa chave debug do Android e e somente para teste interno.
+- ${SIGNING_DESCRIPTION}
+- Tipo de build: \`${BUILD_TYPE}\`.
+- Assinatura declarada: \`${SIGNING}\`.
 - Modo de dados deste APK: \`${APP_DATA_MODE}\`.
 - Backend configurado no build: \`${API_BASE_URL}\`.
 - Quando o modo for \`preview\`, o app navega sem backend publicado.
