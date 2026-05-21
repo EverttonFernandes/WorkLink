@@ -2,7 +2,7 @@
 task_key: "WLT-029"
 branch: "main"
 phase: EXECUTION
-loop_iteration: 1
+loop_iteration: 4
 max_iterations: 12
 fresh_context_after_iteration: 3
 progress_file: "docs/tasks/WLT-029/progress.txt"
@@ -24,8 +24,8 @@ exit_bar:
   final_review:  PENDING
 last_cycle:
   agent: "orquestrator"
-  action: "retomada da WLT-029 com Ralph Loop"
-  result: "historia parcialmente implementada; APK full-stack versionado ainda bloqueado por URL/ambiente de homologacao"
+  action: "validacao de CI apos operacionalizacao de secrets de homologacao"
+  result: "run 26253710509 aprovado; script de keystore passou a suportar fallback Docker/JDK"
   timestamp: "2026-05-21T00:00:00-03:00"
 correction_queue:
   - id: "WLT-029-BLOCKER-001"
@@ -50,7 +50,7 @@ metrics:
   total_iterations: 1
   gates_failed_count: 0
   mode_collapse_events: 0
-  convergence_notes: "CI convergiu; fechamento bloqueado apenas por ambiente/URL de homologacao para gerar APK full-stack versionado."
+  convergence_notes: "CI convergiu no commit 6b3c100; fechamento bloqueado apenas por ambiente/URL/secrets de homologacao para gerar APK full-stack versionado."
 ---
 
 # WLT-029 — Homologação mobile full-stack e artifacts estáveis
@@ -144,12 +144,17 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
 
 - Run `26197769468`: `completed success`.
 - Run `26198971069`: `completed success`.
+- Run `26253710509`: `completed success` no commit `6b3c100e5490befd0b7df743bae7ed5f45f91d51`.
 - Jobs verdes:
   - `Backend quality gates`
   - `Dependency scan`
   - `API Docker image`
   - `Mobile integration on Android emulator`
   - `Mobile quality gates`
+- Artifacts do run `26253710509`:
+  - `worklink-android-test-candidate-6b3c100e5490befd0b7df743bae7ed5f45f91d51`
+  - `mobile-emulator-diagnostics-26253710509-1`
+  - `worklink-android-homologation-*` ausente, conforme esperado enquanto variables/secrets de homologação não existem.
 
 ## Bloqueio Atual
 
@@ -218,7 +223,34 @@ Scripts de apoio criados:
   - gerar keystore Android de homologação local e não versionada;
   - configurar variables/secrets no GitHub via `gh`.
 - Criado runbook em `docs/operacao/homologacao-android-github-actions.md`.
-- Limite atual: ambiente WSL não possui `keytool`; a geração da keystore precisa de JDK instalado ou ser executada em máquina com Java.
+
+### Iteração 4 — CI verde após automação de secrets
+
+- Run GitHub Actions `26253710509` concluído com sucesso no commit `6b3c100e5490befd0b7df743bae7ed5f45f91d51`.
+- Jobs aprovados:
+  - `API Docker image`
+  - `Dependency scan`
+  - `Mobile integration on Android emulator`
+  - `Backend quality gates`
+  - `Mobile quality gates`
+- Artifacts gerados:
+  - `worklink-android-test-candidate-6b3c100e5490befd0b7df743bae7ed5f45f91d51`
+  - `mobile-emulator-diagnostics-26253710509-1`
+- Artifact `worklink-android-homologation-*` não foi gerado porque o repositório ainda não possui variables/secrets de homologação, comportamento esperado e seguro.
+
+### Iteração 5 — Redução do bloqueio de keytool local
+
+- `scripts/generate_android_homologation_keystore.sh` passou a operar em modo `auto`, `local` ou `docker`.
+- Quando `keytool` local não existe, o modo `auto` tenta usar Docker com a imagem `eclipse-temurin:21-jdk`.
+- Runbook atualizado para documentar o fallback Docker/JDK.
+- Validações:
+  - `sh -n` nos scripts de homologação.
+  - `make -n generate-android-homologation-keystore`.
+  - `make -n configure-android-homologation-github-env`.
+  - fluxo fake com `keytool` local.
+  - fluxo fake com Docker/JDK.
+  - `scripts/check_no_mobile_signing_secrets.sh`.
+- Limite remanescente: ainda é necessária uma URL HTTPS pública de backend de homologação antes de configurar as variables/secrets e gerar o APK `worklink-android-homologation-*`.
 
 ## Aprendizados do Loop
 

@@ -5,7 +5,7 @@ Este runbook prepara a esteira para gerar o APK Android full-stack de homologaca
 ## Pre-requisitos
 
 - GitHub CLI autenticado com acesso ao repositorio.
-- JDK instalado na maquina usada para gerar a keystore (`keytool` disponivel).
+- JDK instalado na maquina usada para gerar a keystore (`keytool` disponivel) ou Docker habilitado para executar um container JDK 21.
 - Backend de homologacao publicado em HTTPS.
 - Host do backend definido e aprovado para uso na allowlist.
 
@@ -13,6 +13,16 @@ Este runbook prepara a esteira para gerar o APK Android full-stack de homologaca
 
 ```bash
 make generate-android-homologation-keystore
+```
+
+Por padrao o script usa `keytool` local quando disponivel. Se o WSL/maquina nao tiver JDK, ele tenta usar Docker com a
+imagem `eclipse-temurin:21-jdk`.
+
+Modos suportados:
+
+```bash
+WORKLINK_ANDROID_HOMOLOGATION_KEYTOOL_MODE=local make generate-android-homologation-keystore
+WORKLINK_ANDROID_HOMOLOGATION_KEYTOOL_MODE=docker make generate-android-homologation-keystore
 ```
 
 O comando cria arquivos locais em:
