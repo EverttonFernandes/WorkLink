@@ -5,6 +5,12 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      homologation_api_base_url:
+        description: Backend URL used to build the Android homologation APK.
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -99,14 +105,31 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Prepare Android homologation candidate
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.WORKLINK_HOMOLOGATION_API_BASE_URL != ''
+      - name: Resolve Android homologation backend
+        id: android_homologation_backend
+        if: github.event_name != 'pull_request'
         env:
-          MOBILE_HOMOLOGATION_API_BASE_URL: ${{ vars.WORKLINK_HOMOLOGATION_API_BASE_URL }}
+          INPUT_API_BASE_URL: ${{ inputs.homologation_api_base_url }}
+          VARIABLE_API_BASE_URL: ${{ vars.WORKLINK_HOMOLOGATION_API_BASE_URL }}
+          SECRET_API_BASE_URL: ${{ secrets.WORKLINK_HOMOLOGATION_API_BASE_URL }}
+        run: |
+          API_BASE_URL="${INPUT_API_BASE_URL:-${VARIABLE_API_BASE_URL:-${SECRET_API_BASE_URL:-}}}"
+          if [ -z "$API_BASE_URL" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Android homologation candidate skipped because no homologation backend URL was configured."
+            exit 0
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+          echo "api_base_url=$API_BASE_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare Android homologation candidate
+        if: steps.android_homologation_backend.outputs.enabled == 'true'
+        env:
+          MOBILE_HOMOLOGATION_API_BASE_URL: ${{ steps.android_homologation_backend.outputs.api_base_url }}
         run: make mobile-android-homologation-candidate
 
       - name: Upload Android homologation candidate
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.WORKLINK_HOMOLOGATION_API_BASE_URL != ''
+        if: steps.android_homologation_backend.outputs.enabled == 'true'
         uses: actions/upload-artifact@v7
         with:
           name: worklink-android-homologation-${{ github.sha }}

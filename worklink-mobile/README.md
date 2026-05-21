@@ -90,6 +90,12 @@ artifacts/android-homologation-candidate/
 Esse pacote usa o backend configurado em `MOBILE_HOMOLOGATION_API_BASE_URL` e deve ser o caminho para validacao real
 antes de promover uma versao para `artifacts/homologation/releases/<versao>/`.
 
+No GitHub Actions, o mesmo build pode ser gerado de tres formas:
+
+- configurando a repository variable `WORKLINK_HOMOLOGATION_API_BASE_URL`
+- configurando o repository secret `WORKLINK_HOMOLOGATION_API_BASE_URL`
+- executando manualmente o workflow `WorkLink CI` com o input `homologation_api_base_url`
+
 A estrategia de build iOS continua documentada em `../docs/ci-cd/ESTRATEGIA-IOS.md`.
 
 ## Emulador Android em Docker

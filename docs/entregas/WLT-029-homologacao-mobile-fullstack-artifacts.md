@@ -16,7 +16,7 @@ Construir a base para validar manualmente o WorkLink em Android e iOS contra um 
 - O `ApiClient` mobile passa a respeitar `--dart-define=API_BASE_URL=...` em builds instaláveis.
 - Criado `make homologation-local-up` para subir dependências, aplicar migrations, iniciar API e popular massa local.
 - Criado seed funcional `functional-tests/src/scripts/seedHomologationScenario.js` com cidades, categorias e profissionais fictícios da região carbonífera.
-- Atualizada a pipeline para publicar `worklink-android-homologation-<commit>` quando a variável `WORKLINK_HOMOLOGATION_API_BASE_URL` existir no GitHub Actions.
+- Atualizada a pipeline para publicar `worklink-android-homologation-<commit>` quando `WORKLINK_HOMOLOGATION_API_BASE_URL` existir como variable, secret ou input manual do GitHub Actions.
 - Criado contrato inicial da pasta `artifacts/homologation`.
 - Criado script de promoção `scripts/promote_android_homologation_artifact.sh` para copiar APK full-stack validado para `artifacts/homologation/releases/<versao>/android`.
 
