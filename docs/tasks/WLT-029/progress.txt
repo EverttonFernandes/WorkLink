@@ -157,4 +157,38 @@ Resultado:
   - [x] `docs/jira-pessoal/historias-tecnicas/WLT-029-homologacao-mobile-fullstack-artifacts.md`.
   - [x] `docs/tasks/WLT-029/IMPLEMENTATION.md`.
 - [x] Decisao registrada: estrategia progressiva, priorizando Android em GitHub Actions Linux e teste manual quando automacao completa for cara demais para a fase atual.
-- [ ] Validar docs e commitar antes de retomar a geracao do APK homologation.
+- [x] Commit `0fac3a151cc0f3539785918a22d770625be406b7` enviado para `origin/main`.
+
+### Fresh Context 6 — 2026-05-22
+
+- [x] Ralph Loop retomado com o parceiro Mobile Infra Specialist apoiando o SRE.
+- [x] Docker Desktop iniciado e validado via `docker.exe`.
+- [x] Executado `DOCKER=docker.exe make homologation-local-up`.
+- [x] Backend local de homologacao ficou saudavel em `http://localhost:8080/actuator/health/readiness`.
+- [x] Massa de homologacao aplicada:
+  - [x] `homologationScenario`: `worklink-carbonifera-v1`.
+  - [x] `cities`: 4.
+  - [x] `categories`: 4.
+  - [x] `professionals`: 6.
+- [x] Criado Cloudflare quick tunnel temporario:
+  - [x] `https://baby-conferencing-reductions-cleared.trycloudflare.com`.
+  - [x] `/actuator/health/readiness` respondeu `{"status":"UP"}` pela URL HTTPS.
+- [x] Configuradas variables/secrets Android de homologacao no GitHub Actions:
+  - [x] `WORKLINK_HOMOLOGATION_API_BASE_URL`.
+  - [x] `WORKLINK_HOMOLOGATION_ALLOWED_HOSTS`.
+  - [x] `WORKLINK_ANDROID_HOMOLOGATION_CERT_SHA256`.
+  - [x] secrets de assinatura Android de homologacao.
+- [x] Workflow manual `WorkLink CI` disparado com `homologation_api_base_url`.
+- [x] Run `26293038049` finalizada com falha controlada:
+  - [x] `API Docker image`: success.
+  - [x] `Backend quality gates`: success.
+  - [x] `Mobile integration on Android emulator`: success.
+  - [x] `Dependency scan`: success.
+  - [x] `Mobile quality gates`: failure.
+  - [x] Falha localizada em `Prepare Android homologation candidate`: Gradle procurou a keystore em `android/app/android/app/homologation-upload.jks`.
+- [x] Corrigido `worklink-mobile/android/app/build.gradle` para resolver a keystore relativa a raiz do projeto Flutter quando o path nao for absoluto.
+- [x] Validacao local percorreu a rota real `make mobile-android-homologation-candidate` com a URL HTTPS e secrets locais.
+- [x] A validacao local passou da falha de path da keystore; depois o daemon Gradle morreu no ambiente WSL/Docker local durante `assembleRelease`, sem reproduzir a falha de assinatura.
+- [ ] Commitar correcao do path de assinatura e disparar nova CI.
+- [ ] Confirmar artifact `worklink-android-homologation-*`.
+- [ ] Decidir se a URL temporaria serve apenas para validacao manual imediata ou se sera substituida por backend HTTPS duravel antes da promocao/versionamento estavel.

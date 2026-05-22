@@ -15,6 +15,10 @@ def homologationSigningConfigured = [
     homologationKeyAlias,
     homologationKeyPassword
 ].every { value -> value != null && !value.trim().isEmpty() }
+def resolveHomologationKeystoreFile = {
+    def candidate = new File(homologationKeystorePath)
+    candidate.isAbsolute() ? candidate : new File(rootProject.projectDir.parentFile, homologationKeystorePath)
+}
 
 android {
     namespace = "br.com.worklink.mobile"
@@ -41,7 +45,7 @@ android {
     signingConfigs {
         homologation {
             if (homologationSigningConfigured) {
-                storeFile = file(homologationKeystorePath)
+                storeFile = resolveHomologationKeystoreFile()
                 storePassword = homologationKeystorePassword
                 keyAlias = homologationKeyAlias
                 keyPassword = homologationKeyPassword
