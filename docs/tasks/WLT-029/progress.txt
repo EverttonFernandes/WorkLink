@@ -189,6 +189,15 @@ Resultado:
 - [x] Corrigido `worklink-mobile/android/app/build.gradle` para resolver a keystore relativa a raiz do projeto Flutter quando o path nao for absoluto.
 - [x] Validacao local percorreu a rota real `make mobile-android-homologation-candidate` com a URL HTTPS e secrets locais.
 - [x] A validacao local passou da falha de path da keystore; depois o daemon Gradle morreu no ambiente WSL/Docker local durante `assembleRelease`, sem reproduzir a falha de assinatura.
-- [ ] Commitar correcao do path de assinatura e disparar nova CI.
-- [ ] Confirmar artifact `worklink-android-homologation-*`.
+- [x] Commit `d7dbcdcec6465cb90e350c42bce776aa4267afdf` enviado para `origin/main`.
+- [x] Run `26298691963` finalizada com sucesso:
+  - [x] `API Docker image`: success.
+  - [x] `Backend quality gates`: success.
+  - [x] `Mobile integration on Android emulator`: success.
+  - [x] `Dependency scan`: success.
+  - [x] `Mobile quality gates`: success.
+- [x] Confirmado artifact `worklink-android-homologation-d7dbcdcec6465cb90e350c42bce776aa4267afdf`.
+- [x] Baixada copia local ignorada pelo git em `artifacts/android-homologation-candidate-from-ci/`.
+- [x] APK local disponivel em `artifacts/android-homologation-candidate-from-ci/worklink-android-homologation.apk`.
+- [x] SHA-256 do APK: `ba0edf54e941e9b8a4fc2c011c8aefbf139045cc756f63209a07462587fb8395`.
 - [ ] Decidir se a URL temporaria serve apenas para validacao manual imediata ou se sera substituida por backend HTTPS duravel antes da promocao/versionamento estavel.

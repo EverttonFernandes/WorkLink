@@ -24,9 +24,9 @@ exit_bar:
   final_review:  PENDING
 last_cycle:
   agent: "executor+sre"
-  action: "correcao do caminho da keystore de homologacao Android apos falha da CI"
-  result: "run 26293038049 falhou em validateSigningRelease por path duplicado android/app; Gradle agora resolve keystore relativa a raiz Flutter worklink-mobile"
-  timestamp: "2026-05-22T12:05:00-03:00"
+  action: "geracao do APK Android full-stack de homologacao para teste manual"
+  result: "run 26298691963 passou todos os jobs e publicou artifact worklink-android-homologation-d7dbcdcec6465cb90e350c42bce776aa4267afdf"
+  timestamp: "2026-05-22T13:27:03-03:00"
 correction_queue:
   - id: "WLT-029-BLOCKER-001"
     origin: "sre"
@@ -50,7 +50,7 @@ metrics:
   total_iterations: 1
   gates_failed_count: 0
   mode_collapse_events: 0
-  convergence_notes: "CI convergiu no commit 5d2adb2; keystore de homologacao foi gerada localmente; SRE agora possui parceiro Mobile Infra Specialist documentado; URL HTTPS temporaria de homologacao foi criada via Cloudflare quick tunnel; run manual 26293038049 validou backend/emulador mas falhou no path da keystore; fix aplicado aguarda nova CI."
+  convergence_notes: "CI convergiu no commit d7dbcdc com backend, emulador e APK Android homologation full-stack verdes; artifact foi gerado para teste manual imediato usando URL HTTPS temporaria trycloudflare. Promocao/tag estavel seguem pendentes ate existir backend HTTPS duravel ou decisao explicita de tratar esta janela temporaria como validacao manual nao-promovida."
 ---
 
 # WLT-029 — Homologação mobile full-stack e artifacts estáveis
@@ -149,6 +149,7 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
 - Run `26259403194`: `completed success` no commit `17d805d41f2ff52d3446dfcdba9f933eb511d6a6`.
 - Run `26259983380`: `completed success` no commit `5d2adb216e7eb6145fb9391f4921385a1e2709e1`.
 - Run `26293038049`: `completed failure` no commit `0fac3a151cc0f3539785918a22d770625be406b7`; backend, dependency scan e emulador passaram, mas `Prepare Android homologation candidate` falhou em `:app:validateSigningRelease` por path duplicado da keystore (`android/app/android/app/homologation-upload.jks`).
+- Run `26298691963`: `completed success` no commit `d7dbcdcec6465cb90e350c42bce776aa4267afdf`.
 - Jobs verdes:
   - `Backend quality gates`
   - `Dependency scan`
@@ -167,6 +168,10 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
   - `worklink-android-test-candidate-5d2adb216e7eb6145fb9391f4921385a1e2709e1`
   - `mobile-emulator-diagnostics-26259983380-1`
   - `worklink-android-homologation-*` ausente, conforme esperado enquanto variables/secrets de homologação não existem.
+- Artifacts do run `26298691963`:
+  - `worklink-android-homologation-d7dbcdcec6465cb90e350c42bce776aa4267afdf`
+  - `worklink-android-test-candidate-d7dbcdcec6465cb90e350c42bce776aa4267afdf`
+  - `mobile-emulator-diagnostics-26298691963-1`
 
 ## Bloqueio Atual
 
@@ -181,6 +186,14 @@ Foi criado um Cloudflare quick tunnel para destravar o primeiro teste manual:
 - `https://baby-conferencing-reductions-cleared.trycloudflare.com`
 
 Esta URL é temporária, sem garantia de uptime, e deve ser tratada apenas como ponte de validação manual. Para uma homologação estável de release, ainda será necessário substituir por um backend HTTPS durável.
+
+O primeiro APK Android full-stack de homologação foi gerado pela CI para teste manual:
+
+- Run: `26298691963`
+- Commit: `d7dbcdcec6465cb90e350c42bce776aa4267afdf`
+- Artifact: `worklink-android-homologation-d7dbcdcec6465cb90e350c42bce776aa4267afdf`
+- Cópia local ignorada pelo git: `artifacts/android-homologation-candidate-from-ci/worklink-android-homologation.apk`
+- SHA-256: `ba0edf54e941e9b8a4fc2c011c8aefbf139045cc756f63209a07462587fb8395`
 
 Para gerar o APK versionado full-stack há duas rotas válidas:
 
