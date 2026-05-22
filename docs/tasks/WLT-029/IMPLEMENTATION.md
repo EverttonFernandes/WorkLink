@@ -2,7 +2,7 @@
 task_key: "WLT-029"
 branch: "main"
 phase: EXECUTION
-loop_iteration: 5
+loop_iteration: 6
 max_iterations: 12
 fresh_context_after_iteration: 3
 progress_file: "docs/tasks/WLT-029/progress.txt"
@@ -24,8 +24,8 @@ exit_bar:
   final_review:  PENDING
 last_cycle:
   agent: "orquestrator"
-  action: "geracao local da keystore Android de homologacao"
-  result: "keystore e env de secrets gerados localmente via Docker/JDK; arquivos ignorados pelo git"
+  action: "validacao de CI apos correcao docker.exe para keystore"
+  result: "run 26259983380 aprovado no commit 5d2adb2; keystore local permanece fora do git"
   timestamp: "2026-05-21T00:00:00-03:00"
 correction_queue:
   - id: "WLT-029-BLOCKER-001"
@@ -146,6 +146,7 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
 - Run `26198971069`: `completed success`.
 - Run `26253710509`: `completed success` no commit `6b3c100e5490befd0b7df743bae7ed5f45f91d51`.
 - Run `26259403194`: `completed success` no commit `17d805d41f2ff52d3446dfcdba9f933eb511d6a6`.
+- Run `26259983380`: `completed success` no commit `5d2adb216e7eb6145fb9391f4921385a1e2709e1`.
 - Jobs verdes:
   - `Backend quality gates`
   - `Dependency scan`
@@ -159,6 +160,10 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
 - Artifacts do run `26259403194`:
   - `worklink-android-test-candidate-17d805d41f2ff52d3446dfcdba9f933eb511d6a6`
   - `mobile-emulator-diagnostics-26259403194-1`
+  - `worklink-android-homologation-*` ausente, conforme esperado enquanto variables/secrets de homologação não existem.
+- Artifacts do run `26259983380`:
+  - `worklink-android-test-candidate-5d2adb216e7eb6145fb9391f4921385a1e2709e1`
+  - `mobile-emulator-diagnostics-26259983380-1`
   - `worklink-android-homologation-*` ausente, conforme esperado enquanto variables/secrets de homologação não existem.
 
 ## Bloqueio Atual
@@ -287,6 +292,21 @@ Scripts de apoio criados:
   - `scripts/check_no_mobile_signing_secrets.sh`
   - `git diff --check`
 - Limite remanescente: informar uma URL HTTPS pública do backend de homologação para configurar GitHub Actions.
+
+### Iteração 8 — CI verde após correção WSL/docker.exe
+
+- Commit `5d2adb216e7eb6145fb9391f4921385a1e2709e1` enviado para `origin/main`.
+- Run GitHub Actions `26259983380` concluído com sucesso.
+- Jobs aprovados:
+  - `Dependency scan`
+  - `Mobile integration on Android emulator`
+  - `API Docker image`
+  - `Backend quality gates`
+  - `Mobile quality gates`
+- Artifacts gerados:
+  - `worklink-android-test-candidate-5d2adb216e7eb6145fb9391f4921385a1e2709e1`
+  - `mobile-emulator-diagnostics-26259983380-1`
+- Artifact `worklink-android-homologation-*` segue ausente por falta da URL/secrets no GitHub Actions, comportamento esperado.
 
 ## Aprendizados do Loop
 
