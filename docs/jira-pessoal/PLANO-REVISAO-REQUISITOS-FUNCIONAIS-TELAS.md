@@ -116,9 +116,13 @@ Para cada tela, validar:
 
 ## Plano de execução recomendado
 
-1. Criar uma história técnica de retomada: `WLT-030 — Revisão funcional e visual das telas mobile da V1`.
-2. Na WLT-030, executar uma auditoria sem correção de código para preencher a matriz RF/tela/protótipo/screenshot.
-3. Criar sub-histórias de correção agrupadas por jornada, não por arquivo:
+1. Executar `WLT-030 — Aderência visual aos protótipos mobile`.
+2. Executar `WLT-031 — Remoção de labels técnicas da UI mobile`.
+3. Executar `WLT-032 — Massa regional de homologação mobile`.
+4. Executar `WLT-033 — Canal de confirmação de código na autenticação mobile`.
+5. Executar `WLT-034 — Gate de QA visual para homologação mobile`.
+6. Executar `WLT-035 — Governança de homologação de produto mobile`.
+7. Se a auditoria revelar novos gaps, criar sub-histórias de correção agrupadas por jornada, não por arquivo:
    - Descoberta e listagem;
    - Perfil e confiança do profissional;
    - Cadastro profissional e disponibilidade;
@@ -126,9 +130,9 @@ Para cada tela, validar:
    - Contato, pós-contato e avaliação;
    - Denúncia;
    - Perfil do usuário.
-4. Gerar APK Android de homologação após cada grupo corrigido.
-5. Registrar evidências visuais no repositório apenas quando forem screenshots oficiais de validação, não prints temporários de investigação.
-6. Antes de TestFlight, repetir a validação visual em iOS ou viewport iOS confiável.
+8. Gerar APK Android de homologação após cada grupo corrigido.
+9. Registrar evidências visuais no repositório apenas quando forem screenshots oficiais de validação, não prints temporários de investigação.
+10. Antes de TestFlight, repetir a validação visual em iOS ou viewport iOS confiável.
 
 ## Bloqueios conhecidos
 

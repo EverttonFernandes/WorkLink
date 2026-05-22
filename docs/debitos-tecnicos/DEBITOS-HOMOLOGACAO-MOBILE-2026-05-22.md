@@ -64,17 +64,15 @@ CI verde e APK instalável não são suficientes para considerar uma entrega mob
 - `ralph-loop/final-reviewer-agent`: reforçado com lente de produto/protótipo e bloqueio de artifact instalável que não representa o produto.
 - `ralph-loop/orquestrator`: reforçado para tratar APK manual como homologação de produto, não só infraestrutura.
 
-## Próxima ação recomendada
+## Próximas ações priorizadas
 
-Criar uma história específica antes de continuar novas etapas de infraestrutura:
+Antes de continuar novas etapas de infraestrutura, os débitos foram quebrados em histórias técnicas pequenas e priorizadas no topo do `KANBAN-OFICIAL.md`:
 
-`WLT-030 — Auditoria e correção de aderência funcional/visual do APK de homologação mobile`
+- `WLT-030 — Aderência visual aos protótipos mobile`
+- `WLT-031 — Remoção de labels técnicas da UI mobile`
+- `WLT-032 — Massa regional de homologação mobile`
+- `WLT-033 — Canal de confirmação de código na autenticação mobile`
+- `WLT-034 — Gate de QA visual para homologação mobile`
+- `WLT-035 — Governança de homologação de produto mobile`
 
-Objetivo sugerido:
-
-- mapear tela real versus protótipo;
-- corrigir identidade visual base;
-- remover labels técnicas;
-- completar massa de homologação regional;
-- decidir canal de OTP/verificação;
-- gerar novo APK de homologação para validação manual no Android físico.
+As histórias de infraestrutura de publicação, assinatura, TestFlight, promoção e rollback devem permanecer em `Backlog` até que esses débitos estejam concluídos ou formalmente replanejados.

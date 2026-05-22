@@ -23,9 +23,12 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História                                                                       | Tipo    | Título                                                      | Relação com outras histórias                                         | Execução                                 | Versão | Entrega                                                                                |
 | ----- | ------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------- | ------ | -------------------------------------------------------------------------------------- |
-| 51    | [WLT-026](historias-tecnicas/WLT-026-preparacao-ios-ci-testflight.md)          | Técnica | Preparação iOS para CI e TestFlight                         | Complementa a estratégia multiplataforma após Android                | Separada                                 | MINOR  | [Entrega WLT-026](../entregas/WLT-026-preparacao-ios-ci-testflight.md)                 |
-| 52    | [WLT-027](historias-tecnicas/WLT-027-governanca-secrets-assinatura-mobile.md)  | Técnica | Governança de secrets e assinatura mobile                   | Pré-requisito para CD seguro em lojas                                | Separada                                 | MINOR  | [Entrega WLT-027](../entregas/WLT-027-governanca-secrets-assinatura-mobile.md)         |
-| 53    | [WLT-028](historias-tecnicas/WLT-028-promocao-release-rollback-mobile.md)      | Técnica | Promoção de release e rollback mobile                       | Formaliza CD controlado após builds e signing                        | Separada                                 | MINOR  | [Entrega WLT-028](../entregas/WLT-028-promocao-release-rollback-mobile.md)             |
+| 51    | [WLT-030](historias-tecnicas/WLT-030-aderencia-visual-prototipos-mobile.md)    | Técnica | Aderência visual aos protótipos mobile                      | Ataca DTM-001 antes de novas etapas de publicação mobile             | Separada                                 | PATCH  | [Entrega WLT-030](../entregas/WLT-030-aderencia-visual-prototipos-mobile.md)           |
+| 52    | [WLT-031](historias-tecnicas/WLT-031-remocao-labels-tecnicas-ui-mobile.md)     | Técnica | Remoção de labels técnicas da UI mobile                     | Ataca DTM-002 e bloqueia vazamento de enums na interface             | Separada                                 | PATCH  | [Entrega WLT-031](../entregas/WLT-031-remocao-labels-tecnicas-ui-mobile.md)            |
+| 53    | [WLT-032](historias-tecnicas/WLT-032-massa-regional-homologacao-mobile.md)     | Técnica | Massa regional de homologação mobile                        | Ataca DTM-003 e completa cidades da região carbonífera               | Separada                                 | PATCH  | [Entrega WLT-032](../entregas/WLT-032-massa-regional-homologacao-mobile.md)            |
+| 54    | [WLT-033](historias-tecnicas/WLT-033-canal-confirmacao-codigo-auth-mobile.md)  | Técnica | Canal de confirmação de código na autenticação mobile       | Ataca DTM-004 e remove ambiguidade de OTP/verificação                | Junto dos gates de segurança             | PATCH  | [Entrega WLT-033](../entregas/WLT-033-canal-confirmacao-codigo-auth-mobile.md)         |
+| 55    | [WLT-034](historias-tecnicas/WLT-034-gate-qa-visual-mobile.md)                 | Técnica | Gate de QA visual para homologação mobile                   | Ataca DTM-005 e exige evidência visual antes de aprovar APK/IPA      | Separada                                 | PATCH  | [Entrega WLT-034](../entregas/WLT-034-gate-qa-visual-mobile.md)                        |
+| 56    | [WLT-035](historias-tecnicas/WLT-035-governanca-homologacao-produto-mobile.md) | Técnica | Governança de homologação de produto mobile                 | Ataca DTM-006 e separa artifact técnico de homologação de produto    | Separada                                 | PATCH  | [Entrega WLT-035](../entregas/WLT-035-governanca-homologacao-produto-mobile.md)        |
 
 ## Doing
 
@@ -36,6 +39,17 @@ Uma história só pode ir para `Done` quando:
 ## Review
 
 _Vazio._
+
+## Backlog
+
+Histórias abaixo foram movidas para a base da fila porque dependem da correção dos débitos de homologação mobile.
+Elas devem voltar para `To Do` apenas depois que WLT-030 a WLT-035 estiverem concluídas ou formalmente replanejadas.
+
+| Ordem | História                                                                       | Tipo    | Título                                                      | Relação com outras histórias                                         | Execução                                 | Versão | Entrega                                                                                |
+| ----- | ------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------- | ------ | -------------------------------------------------------------------------------------- |
+| 57    | [WLT-026](historias-tecnicas/WLT-026-preparacao-ios-ci-testflight.md)          | Técnica | Preparação iOS para CI e TestFlight                         | Complementa a estratégia multiplataforma após Android funcionalmente homologável | Separada                         | MINOR  | [Entrega WLT-026](../entregas/WLT-026-preparacao-ios-ci-testflight.md)                 |
+| 58    | [WLT-027](historias-tecnicas/WLT-027-governanca-secrets-assinatura-mobile.md)  | Técnica | Governança de secrets e assinatura mobile                   | Pré-requisito para CD seguro em lojas após correção de produto mobile | Separada                                 | MINOR  | [Entrega WLT-027](../entregas/WLT-027-governanca-secrets-assinatura-mobile.md)         |
+| 59    | [WLT-028](historias-tecnicas/WLT-028-promocao-release-rollback-mobile.md)      | Técnica | Promoção de release e rollback mobile                       | Formaliza CD controlado depois de APK/IPA homologáveis como produto  | Separada                                 | MINOR  | [Entrega WLT-028](../entregas/WLT-028-promocao-release-rollback-mobile.md)             |
 
 ## Done
 
@@ -93,7 +107,7 @@ _Vazio._
 
 ## Histórias técnicas que podem ser executadas separadamente
 
-- WLT-001, WLT-002, WLT-003, WLT-004, WLT-005, WLT-006, WLT-007, WLT-008, WLT-013, WLT-014, WLT-015, WLT-016, WLT-017, WLT-018, WLT-024, WLT-025, WLT-026, WLT-027, WLT-028, WLT-029.
+- WLT-001, WLT-002, WLT-003, WLT-004, WLT-005, WLT-006, WLT-007, WLT-008, WLT-013, WLT-014, WLT-015, WLT-016, WLT-017, WLT-018, WLT-024, WLT-025, WLT-026, WLT-027, WLT-028, WLT-029, WLT-030, WLT-031, WLT-032, WLT-033, WLT-034, WLT-035.
 
 ## Histórias técnicas que devem estar prontas antes de histórias de negócio específicas
 
@@ -117,3 +131,4 @@ _Vazio._
 - Uma história de negócio pode carregar ajustes técnicos pequenos se eles forem estritamente necessários para a entrega, mas não deve absorver uma história técnica inteira sem rastreabilidade.
 - Se uma história funcional tocar segurança, SRE ou privacidade, os gates especializados devem ser executados mesmo que a história técnica correspondente já esteja `Done`.
 - Se uma história funcional construir ou alterar tela, os protótipos vinculados em `MAPA-PROTOTIPOS-TELAS.md` devem ser considerados insumo obrigatório junto dos critérios de aceite, RNFs e padrões de código/teste.
+- Débitos de homologação mobile registrados em `docs/debitos-tecnicos/DEBITOS-HOMOLOGACAO-MOBILE-2026-05-22.md` têm prioridade sobre novas etapas de publicação, loja, assinatura e promoção de release.
