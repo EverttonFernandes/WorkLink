@@ -46,6 +46,7 @@ O APK de preview ajuda a abrir o aplicativo, mas não prova que a jornada real f
 - Nenhum APK debug ou assinado com chave debug pode ser promovido como versão estável de homologação full-stack.
 - O APK Android estável fica anexado ao GitHub Release da versão semântica, e o git guarda apenas checksum/metadados.
 - A promoção valida o certificado do APK com `apksigner` contra `WORKLINK_ANDROID_HOMOLOGATION_CERT_SHA256`.
+- O SRE possui apoio documentado de um especialista em infraestrutura mobile para avaliar Android, iOS, emuladores, lojas, assinatura, custos e trade-offs.
 - O plano deixa explícito que iOS precisa validar o mesmo backend e a mesma massa antes de App Store.
 
 ## Entrega versionável

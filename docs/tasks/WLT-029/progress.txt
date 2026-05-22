@@ -136,3 +136,25 @@ Resultado:
   - [x] `mobile-emulator-diagnostics-26259983380-1`.
   - [x] `worklink-android-homologation-*` ausente por falta de variables/secrets de homologação, como esperado.
 - [ ] Próximo bloqueio real: obter URL HTTPS pública de backend de homologação para configurar GitHub Actions e gerar o artifact homologation.
+
+### Fresh Context 5 — 2026-05-22
+
+- [x] Usuario interrompeu a retomada da execucao para exigir governanca explicita de infraestrutura mobile.
+- [x] Criado parceiro documental do SRE:
+  - [x] `.agents/skills/skills/ralph-loop/mobile-infra-specialist-agent/SKILL.md`.
+  - [x] `.agents/skills/skills/ralph-loop/sre-agent/SKILL.md` agora exige consulta ao parceiro para Android/iOS, emuladores, assinatura, lojas, homologacao mobile, artifacts e custos.
+  - [x] `.agents/skills/skills/ralph-loop/SKILL.md` registra o parceiro no mapa do Ralph Loop.
+- [x] Criada decisao arquitetural:
+  - [x] `docs/adrs/ADR-0005-estrategia-infra-mobile-homologacao-release.md`.
+- [x] Criado guia operacional:
+  - [x] `docs/operacao/guia-infra-mobile-homologacao-release.md`.
+- [x] Referencias oficiais de custo/limites consultadas em 2026-05-22 e registradas no ADR/guia:
+  - [x] GitHub Actions Linux/macOS.
+  - [x] Google Play Console e Internal Testing.
+  - [x] Apple Developer Program e TestFlight.
+- [x] Atualizados:
+  - [x] `docs/release/release-mobile.md`.
+  - [x] `docs/jira-pessoal/historias-tecnicas/WLT-029-homologacao-mobile-fullstack-artifacts.md`.
+  - [x] `docs/tasks/WLT-029/IMPLEMENTATION.md`.
+- [x] Decisao registrada: estrategia progressiva, priorizando Android em GitHub Actions Linux e teste manual quando automacao completa for cara demais para a fase atual.
+- [ ] Validar docs e commitar antes de retomar a geracao do APK homologation.

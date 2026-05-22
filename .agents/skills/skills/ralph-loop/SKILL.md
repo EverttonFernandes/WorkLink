@@ -134,6 +134,7 @@ Neste projeto, os subagentes do `ralph-loop` devem invocar skills auxiliares de 
 
 - `sre-agent`
     - valida ambiente reproduzível, Docker Compose, Makefile, env vars, CI/CD, health/readiness, observabilidade e disponibilidade
+    - invoca `ralph-loop/mobile-infra-specialist-agent` quando houver Android, iOS, emuladores, assinatura, lojas, homologação mobile, artifact governance mobile ou custo de CI/CD mobile
 
 - `security-specialist-agent`
     - coordena revisão de segurança, autenticação, autorização, LGPD, autenticidade e rastreabilidade

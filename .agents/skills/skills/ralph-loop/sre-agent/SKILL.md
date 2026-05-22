@@ -28,6 +28,15 @@ Foque nos RNFs:
 - `RNF14 — CI/CD`
 - partes operacionais de `RNF12 — Armazenamento seguro de arquivos`
 
+## Parceiro Especializado Obrigatorio Para Mobile
+
+Quando a historia tocar Android, iOS, emuladores, assinatura mobile, distribuicao em lojas, TestFlight, Play Console,
+homologacao mobile, artifact governance mobile ou custo de CI/CD mobile, o SRE deve consultar explicitamente:
+
+- `.agents/skills/skills/ralph-loop/mobile-infra-specialist-agent/SKILL.md`
+
+O resultado do parceiro deve ser registrado no `progress.txt` e, quando mudar a decisao tecnica, em ADR ou runbook.
+
 ## Responsabilidades
 
 Valide quando aplicável:
@@ -53,6 +62,7 @@ Valide quando aplicável:
 - bloqueio de cobertura unitária abaixo de 95% no GitHub Actions
 - scan de dependências quando configurado
 - build de artefatos backend/mobile quando aplicável
+- parecer do Mobile Infra Specialist Agent quando houver Android, iOS, emuladores, assinatura ou distribuicao mobile
 - API stateless e pronta para múltiplas instâncias
 - imagem final da aplicação enxuta, sem ferramentas de build, caches, código-fonte desnecessário ou dependências de desenvolvimento
 - uso de `.dockerignore` para impedir envio de arquivos desnecessários e secrets para o contexto de build

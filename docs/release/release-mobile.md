@@ -1,5 +1,13 @@
 # Estratégia de release mobile
 
+Decisao operacional base:
+
+- `docs/adrs/ADR-0005-estrategia-infra-mobile-homologacao-release.md`
+- `docs/operacao/guia-infra-mobile-homologacao-release.md`
+
+Toda mudanca que envolva Android, iOS, emuladores, assinatura, TestFlight, Play Console ou custo de CI/CD mobile deve
+ser revisada pelo `sre-agent` com apoio do `mobile-infra-specialist-agent`.
+
 ## Android
 
 1. Gerar build validado pelos gates mobile.
@@ -8,6 +16,12 @@
 4. Validar smoke test: abertura do app, seleção de cidade, descoberta, perfil, contato e fluxos autenticados.
 5. Publicar primeiro em Internal Testing no Google Play quando a assinatura de loja estiver configurada.
 6. Promover gradualmente para closed/open testing antes de produção.
+
+### Estrategia progressiva Android
+
+- Validacao economica: artifact APK do GitHub Actions e teste manual.
+- Homologacao controlada: APK release assinado, backend HTTPS allowlisted e GitHub Release.
+- Loja: AAB, Play App Signing e Play Console Internal/Closed/Open testing.
 
 ### Artifact Android de teste interno
 
@@ -26,6 +40,12 @@ Esse pacote usa assinatura debug e serve apenas para validacao interna antes de 
 2. Publicar via TestFlight.
 3. Validar smoke test equivalente ao Android.
 4. Submeter para App Review apenas após estabilidade mínima.
+
+### Estrategia progressiva iOS
+
+- Antes de loja: documentar requisitos e evitar macOS runner continuo sem necessidade real.
+- Homologacao iOS: Apple Developer Program, signing/provisioning e TestFlight interno.
+- Loja: App Store Connect, App Review e plano de hotfix.
 
 ## Rollout gradual
 

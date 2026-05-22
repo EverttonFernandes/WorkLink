@@ -2,7 +2,7 @@
 task_key: "WLT-029"
 branch: "main"
 phase: EXECUTION
-loop_iteration: 6
+loop_iteration: 7
 max_iterations: 12
 fresh_context_after_iteration: 3
 progress_file: "docs/tasks/WLT-029/progress.txt"
@@ -24,9 +24,9 @@ exit_bar:
   final_review:  PENDING
 last_cycle:
   agent: "orquestrator"
-  action: "validacao de CI apos correcao docker.exe para keystore"
-  result: "run 26259983380 aprovado no commit 5d2adb2; keystore local permanece fora do git"
-  timestamp: "2026-05-21T00:00:00-03:00"
+  action: "formalizacao do parceiro Mobile Infra Specialist para o SRE"
+  result: "subagente documental criado; ADR e guia operacional registram estrategia mobile Android/iOS, custos e trade-offs"
+  timestamp: "2026-05-22T00:00:00-03:00"
 correction_queue:
   - id: "WLT-029-BLOCKER-001"
     origin: "sre"
@@ -50,7 +50,7 @@ metrics:
   total_iterations: 1
   gates_failed_count: 0
   mode_collapse_events: 0
-  convergence_notes: "CI convergiu no commit 17d805d; keystore de homologacao foi gerada localmente; fechamento bloqueado apenas por URL HTTPS de homologacao para configurar GitHub Actions e gerar APK full-stack versionado."
+  convergence_notes: "CI convergiu no commit 5d2adb2; keystore de homologacao foi gerada localmente; SRE agora possui parceiro Mobile Infra Specialist documentado; fechamento segue bloqueado por URL HTTPS de homologacao para configurar GitHub Actions e gerar APK full-stack versionado."
 ---
 
 # WLT-029 — Homologação mobile full-stack e artifacts estáveis
@@ -84,6 +84,7 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
 - [ ] Promover APK full-stack como asset de GitHub Release e registrar metadados em `artifacts/homologation/releases/<versao>/android`.
 - [ ] Fechar tag semântica sobre o commit final da história.
 - [x] Criar runbook e scripts para configurar variables/secrets de homologação Android no GitHub Actions.
+- [x] Documentar parceiro especializado do SRE para infraestrutura mobile Android/iOS, custos e trade-offs.
 
 ## Fora do Escopo
 
@@ -194,6 +195,7 @@ Scripts de apoio criados:
 - [x] O APK estável deve ser versionado como asset de GitHub Release, com checksum/metadados no git.
 - [x] A promoção deve verificar o certificado real do APK antes de publicar o asset.
 - [x] Existe runbook operacional para configurar variables/secrets no GitHub Actions.
+- [x] Existe ADR e guia operacional para o Mobile Infra Specialist Agent apoiar o SRE em Android, iOS, emuladores, lojas, assinatura e custos.
 - [x] O plano deixa explícito que iOS precisa validar o mesmo backend e a mesma massa antes de App Store.
 - [ ] APK Android full-stack versionado foi gerado, publicado como asset de GitHub Release, promovido e registrado em `artifacts/homologation/releases/<versao>/android`.
 
@@ -307,6 +309,17 @@ Scripts de apoio criados:
   - `worklink-android-test-candidate-5d2adb216e7eb6145fb9391f4921385a1e2709e1`
   - `mobile-emulator-diagnostics-26259983380-1`
 - Artifact `worklink-android-homologation-*` segue ausente por falta da URL/secrets no GitHub Actions, comportamento esperado.
+
+### Iteração 9 — Parceiro Mobile Infra Specialist do SRE
+
+- Criado `.agents/skills/skills/ralph-loop/mobile-infra-specialist-agent/SKILL.md`.
+- Atualizado `.agents/skills/skills/ralph-loop/sre-agent/SKILL.md` para exigir consulta ao parceiro quando houver Android, iOS, emuladores, assinatura, lojas, homologacao mobile, artifact governance mobile ou custo de CI/CD mobile.
+- Atualizado `.agents/skills/skills/ralph-loop/SKILL.md` para registrar o parceiro no mapa de skills auxiliares.
+- Criado `docs/adrs/ADR-0005-estrategia-infra-mobile-homologacao-release.md`.
+- Criado `docs/operacao/guia-infra-mobile-homologacao-release.md`.
+- Atualizado `docs/release/release-mobile.md`.
+- Atualizada a historia `docs/jira-pessoal/historias-tecnicas/WLT-029-homologacao-mobile-fullstack-artifacts.md`.
+- Decisao: manter abordagem progressiva. Automatizar Android no GitHub Actions Linux agora; adiar macOS/TestFlight/device farm ate haver necessidade real ou proximidade de loja.
 
 ## Aprendizados do Loop
 
