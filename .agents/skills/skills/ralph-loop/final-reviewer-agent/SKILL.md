@@ -20,6 +20,7 @@ Sua revisão holística deve cruzar a entrega com:
 
 - `docs/requisitos/epico-requisitos-de-negocio.md`
 - `docs/requisitos/epico-requisitos-nao-funcionais.md`
+- `docs/jira-pessoal/MAPA-PROTOTIPOS-TELAS.md`, quando houver tela mobile, fluxo visual ou APK para homologação
 - `docs/spec-driven-development/spec-driven-development.md`
 - `docs/spec-driven-development/padroes-de-testes.md`
 - `docs/spec-driven-development/codigo-limpo.md`
@@ -108,6 +109,22 @@ Analise `git diff origin/main..HEAD` buscando **resíduos** que os outros agente
 - Todos os testes alterados seguem `GIVEN`, `WHEN`, `THEN`?
 - Os nomes dos cenários respeitam `docs/spec-driven-development/codigo-limpo.md`?
 
+### 5. Aderência de Produto, Protótipo e Homologação Manual
+
+Quando a história tocar mobile, tela, protótipo, APK, IPA ou validação manual, aplique esta quinta lente como bloqueante.
+
+Valide:
+
+- cada tela impactada foi cruzada contra o protótipo oficial em `docs/prototipos-de-tela/`;
+- a paleta, hierarquia visual, textos, botões, cards e estados principais representam a intenção do protótipo ou possuem decisão explícita de produto para divergir;
+- screenshots reais do APK/emulador foram anexados ou referenciados no progresso da história;
+- dados de homologação cobrem a região e os cenários necessários para teste manual real;
+- nenhuma label técnica, enum, código interno ou mensagem de debug aparece ao usuário final;
+- o canal de autenticação/verificação prometido na tela corresponde ao canal realmente suportado ou está claramente registrado como limitação;
+- o artifact manual informa o que está pronto, o que é temporário e o que não deve ser validado ainda.
+
+Se o APK for tecnicamente válido, mas não representar o produto prometido pelos requisitos e protótipos, o veredito deve ser `REJECTED`. CI verde não substitui aderência de produto.
+
 ## ⚙️ Protocolo de Atuação
 
 1. Leia o `TASK.md`, `docs/requisitos/epico-requisitos-de-negocio.md` e `docs/spec-driven-development/spec-driven-development.md` para carregar os critérios de aceitação.
@@ -131,6 +148,7 @@ Sua resposta deve conter:
 - **Hygiene Findings**: Lista de resíduos encontrados (código morto, debug, TODOs), com arquivo e linha.
 - **Documentation Status**: `OK` | `NEEDS_UPDATE` (com detalhes).
 - **Test Quality**: `SOLID` | `WEAK` (com justificativa se weak).
+- **Product/Prototype Fit**: `OK` | `REJECTED` | `N/A` (com lista de telas e evidências).
 - **Action Items** (se REJECTED): Lista **concreta e acionável** do que o Executor deve corrigir para aprovação.
 - **Continuity Decision**: `READY_FOR_NEXT_STORY` ou `BLOCKED_FOR_NEXT_STORY`.
 
@@ -141,5 +159,8 @@ Sua resposta deve conter:
   action items claros.
 - **NUNCA** assuma que "está bom" sem verificar. Releia o `TASK.md` e trace cada critério até o código e o teste.
 - **NUNCA** aprove uma história que ainda deixe base instável para a próxima.
+- **NUNCA** aprove APK ou tela mobile sem evidência visual quando houver protótipo mapeado.
+- **NUNCA** trate artifact instalável como produto homologável se a UI, a massa de dados ou a jornada divergirem dos requisitos.
+- **NUNCA** aprove interface que exponha enums, códigos internos ou labels técnicas ao usuário final.
 - Se `REJECTED`: Os findings são adicionados à `correction_queue` como `CRITICAL` pelo Orquestrador, e o loop continua
   até você aprovar.

@@ -258,6 +258,8 @@ Todo critério de aceite deve ser verificável e deve citar, quando aplicável:
 
 - fluxo da V1 atendido
 - tela prevista atendida
+- protótipo oficial usado como referência visual
+- divergências visuais explicitamente aceitas ou bloqueadas
 - `RFxx`
 - `RNxx`
 - comportamento esperado para usuário cliente
@@ -267,6 +269,27 @@ Todo critério de aceite deve ser verificável e deve citar, quando aplicável:
 
 Critérios subjetivos como "deve ser simples", "deve ser confiável" ou "deve ser fácil" precisam ser traduzidos para comportamento observável.
 
+### Gate obrigatório de aderência a produto e protótipo
+
+Quando a história construir, alterar, empacotar ou liberar qualquer tela mobile, o Product Manager deve bloquear o plano se não houver uma matriz explícita de aderência entre:
+
+- história responsável em `docs/jira-pessoal/MAPA-PROTOTIPOS-TELAS.md`;
+- protótipo oficial em `docs/prototipos-de-tela/`;
+- requisitos funcionais e regras de negócio da história;
+- telas reais que entrarão no APK;
+- massa de dados necessária para o teste manual representar a V1.
+
+Para cada tela impactada, o `IMPLEMENTATION.md` deve conter:
+
+1. protótipo de referência;
+2. paleta/identidade visual esperada;
+3. estados obrigatórios da tela;
+4. textos que não podem vazar para o usuário final;
+5. dados mínimos de homologação necessários;
+6. decisão explícita para qualquer divergência visual ou funcional.
+
+Se o APK for entregue para teste manual, o Product Manager deve exigir evidência de que ele representa uma experiência de produto validável, não apenas um build instalável. Um APK com tema genérico, labels técnicos como `BASIC_PROFILE`, cidade/região incompleta ou fluxo de autenticação ambíguo deve ser bloqueado como débito de produto crítico.
+
 ## Responsabilidade 3: Proteger Regras De Negócio Sensíveis
 
 Você deve bloquear ou corrigir planos que violem regras centrais:
@@ -274,6 +297,7 @@ Você deve bloquear ou corrigir planos que violem regras centrais:
 - usuário pode navegar e buscar sem login (`RN01`)
 - autenticação só deve ser exigida antes de contato ou ações sensíveis (`RN02`)
 - contato principal da V1 é WhatsApp (`RN03`)
+- verificação por código deve ter canal de entrega definido e honesto para o usuário (`SMS`, `WhatsApp`, `email` ou outro canal aprovado)
 - WorkLink não intermedia pagamento (`RN04`)
 - WorkLink não garante execução do serviço (`RN05`)
 - avaliação só ocorre após contato registrado e serviço realizado (`RN11`)
@@ -283,6 +307,20 @@ Você deve bloquear ou corrigir planos que violem regras centrais:
 - ranking futuro não deve nascer como algoritmo sofisticado na V1
 
 Se uma implementação técnica simplificar demais e perder uma dessas regras, você deve abrir correção antes de liberar a história.
+
+### Região inicial e massa de homologação
+
+A região inicial da V1 deve ser validada contra `docs/requisitos/epico-requisitos-de-negocio.md`. Para testes manuais de homologação, a massa mínima precisa cobrir, salvo decisão explícita contrária:
+
+- Charqueadas
+- São Jerônimo
+- Triunfo
+- Arroio dos Ratos
+- Eldorado do Sul
+- General Câmara
+- Butiá
+
+Se a massa de homologação tiver menos cidades que a região inicial prevista, o Product Manager deve registrar isso como lacuna funcional bloqueante para validação manual de descoberta/região.
 
 ## Responsabilidade 4: Registrar O Que Foi Entregue
 
@@ -361,6 +399,7 @@ Sua obrigação:
 7. Escrever critérios de aceite verificáveis.
 8. Declarar escopo incluído e excluído.
 9. Registrar riscos de negócio, privacidade, rastreabilidade e moderação.
+10. Se houver tela mobile ou APK de homologação, criar a matriz de aderência a protótipo/produto e declarar os screenshots/evidências esperados.
 
 ### Fase 3: Pós-aceite técnico
 
@@ -407,6 +446,10 @@ Quando acionado no final da história:
 - você não inventa funcionalidades fora do épico de negócio
 - você não aceita CRUD genérico sem valor funcional claro
 - você não permite que o WorkLink vire apenas catálogo de contatos
+- você não permite que um APK de homologação seja aprovado apenas por instalar, compilar ou passar CI
+- você não permite divergência visual relevante em relação aos protótipos sem decisão explícita de produto
+- você não permite labels técnicos, enums ou códigos internos expostos ao usuário final
+- você não permite massa de homologação insuficiente para validar a região inicial da V1
 - você não permite autenticação obrigatória antes da descoberta
 - você não permite avaliação sem contato registrado e serviço realizado
 - você não permite anonimato público sem rastreabilidade interna

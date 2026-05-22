@@ -14,6 +14,8 @@ Seu foco é:
 - testes de integração
 - testes funcionais/E2E de API
 - testes mobile, quando houver Flutter
+- aderência de telas mobile aos protótipos oficiais quando a história tocar UI ou APK
+- evidência visual de homologação manual quando um artifact mobile for entregue
 - coverage
 - lint/build/análise estática básica
 - anti-reward hacking
@@ -35,6 +37,7 @@ Leia antes de validar:
 - `docs/spec-driven-development/padroes-de-testes.md`
 - `docs/spec-driven-development/codigo-limpo.md`
 - `docs/spec-driven-development/padrões-de-projeto-e-design-de-codigo.md`
+- `docs/jira-pessoal/MAPA-PROTOTIPOS-TELAS.md`, quando houver tela mobile ou APK de homologação
 - `docs/tasks/<KEY>/IMPLEMENTATION.md`
 - `docs/tasks/<KEY>/progress.txt`
 
@@ -173,11 +176,37 @@ Quando houver app Flutter:
 - testes de integração mobile quando configurados
 - cobertura dos fluxos de tela da história
 - nomes explícitos para widgets, componentes, estados, controllers/providers e cenários
+- validação de que cada tela alterada possui teste ou golden/screenshot que cubra estado principal e estados relevantes
+- comparação manual documentada entre tela real e protótipo oficial quando golden test ainda não existir
+- verificação de que textos técnicos, enums e códigos internos não aparecem na UI final
+- verificação de que a massa de homologação permite exercitar os cenários visuais e funcionais da história
 
 Resultado esperado:
 
 - `mobile_tests = PASS | FAIL | N/A`, se o gate existir
 - se não existir, registre no relatório sem assumir gate de SRE ou segurança
+
+### 5.1 Gate de aderência visual/produto para APK manual
+
+Quando a entrega gerar APK, IPA, artifact mobile ou qualquer build para teste manual humano, o QA deve executar um gate adicional dentro de `mobile_tests`.
+
+Reprove como `FAIL` se qualquer condição ocorrer:
+
+- APK instala e passa CI, mas as telas principais divergem materialmente dos protótipos oficiais sem decisão de produto registrada;
+- paleta, hierarquia visual, botões, cards, espaçamentos ou microcopy não representam a identidade prevista;
+- textos técnicos aparecem para usuário final, por exemplo `BASIC_PROFILE`, nomes de enums, chaves internas ou mensagens de debug;
+- região/cidades da massa de homologação não permitem validar o recorte inicial documentado;
+- fluxo de autenticação informa canal de código de forma ambígua, falsa ou incompatível com o requisito;
+- artifact entregue para homologação manual não possui instrução clara do que está pronto, do que é limitação conhecida e do que ainda é mock.
+
+O QA deve exigir evidências antes de aprovar:
+
+- screenshots reais do APK ou captura do emulador para cada tela de protótipo afetada;
+- lista de protótipos comparados;
+- checklist visual com status `PASS` ou `FAIL` por tela;
+- resultado de instalação/abertura quando o objetivo for validação manual em device real.
+
+Se ainda não houver automação visual, isso não autoriza aprovação silenciosa. A comparação manual documentada é obrigatória até existir golden test ou screenshot diff automatizado.
 
 ### 6. Coverage
 
@@ -230,6 +259,7 @@ Retorne:
 - **Total de testes**
 - **Falhas encontradas**
 - **Critérios sem teste correspondente**
+- **Critérios sem evidência visual correspondente**, quando houver UI ou APK
 - **Coverage observado**
 - **Reward Hacking Report**: `CLEAN` ou `DETECTED`
 - **Boas práticas**: violações de `docs/spec-driven-development/padroes-de-testes.md`, `docs/spec-driven-development/codigo-limpo.md` ou design simples
@@ -248,4 +278,7 @@ Retorne:
 - você reprova código, teste, script ou workflow que viole `docs/spec-driven-development/codigo-limpo.md`
 - você reprova reward hacking
 - você nunca aprova história "quase funcionando"
+- você não aprova APK manual apenas porque instalou, compilou ou passou CI
+- você não aprova tela mobile sem evidência contra protótipo quando houver protótipo mapeado
+- você não aprova UI que exponha enums, códigos internos ou labels técnicos ao usuário
 - você nunca usa `SKIP`
