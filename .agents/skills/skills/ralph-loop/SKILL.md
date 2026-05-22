@@ -131,6 +131,7 @@ Neste projeto, os subagentes do `ralph-loop` devem invocar skills auxiliares de 
     - `java/code-style` para validar lint, compilação e build
     - `java/test-runner` para validar testes unitários, integração, funcionais e coverage
     - `sonar-runner` quando houver configuração real de Sonar no projeto
+    - invoca `ralph-loop/mobile-frontend-specialist-agent` quando houver tela Flutter, protótipo mapeado, APK/IPA ou homologação manual mobile
 
 - `sre-agent`
     - valida ambiente reproduzível, Docker Compose, Makefile, env vars, CI/CD, health/readiness, observabilidade e disponibilidade
@@ -295,6 +296,7 @@ Leia a skill do subagente escolhido ANTES de executar seu papel:
 | Subagente                 | Skill                                 | Papel                                                                                                                                                       | Regra de Ouro                                                            |
 |---------------------------|---------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------|
 | 🔧 **Executor**           | `ralph-loop/executor-agent`           | Implementa código e resolve a fila de erros. Roda testes unitários locais antes de retornar.                                                                | Usa **TDD**: teste primeiro, implementação depois.                       |
+| 🎨 **Mobile Front-end**   | `ralph-loop/mobile-frontend-specialist-agent` | Especialista Flutter/UX que valida aderência estrita aos protótipos, identidade visual, microcopy, responsividade e evidências visuais para APK/IPA.       | Se `REJECTED` → UI mobile não pode seguir para homologação.              |
 | 🔍 **QA**                 | `ralph-loop/qa-agent`                 | Roda suítes completas, valida coverage, testes unitários, integração, funcionais/mobile e boas práticas de testes/código.                                   | **NUNCA** corrige código.                                                |
 | 🧭 **SRE**                | `ralph-loop/sre-agent`                | Valida ambiente reproduzível, configuração, CI/CD, health/readiness, observabilidade, disponibilidade e prontidão operacional.                              | **NUNCA** corrige código ou infraestrutura.                              |
 | 🛡️ **Segurança**         | `ralph-loop/security-specialist-agent`| Valida autenticação, autorização, autenticidade, LGPD, proteção de dados e coordena o Security Guardian.                                                     | **NUNCA** corrige código.                                                |
@@ -382,6 +384,7 @@ não é status válido** — se encontrado, tratar como FAIL.
 | Product Manager     | `ralph-loop/product-manager`          | Antes do loop — criar `IMPLEMENTATION.md`; após aprovação — documentar entrega e preparar fechamento semântico |
 | Orquestrador        | `ralph-loop/orquestrator`             | Detalhes do protocolo de 5 passos                                                                              |
 | Executor            | `ralph-loop/executor-agent`           | Quando o loop decide codar/corrigir                                                                            |
+| Mobile Front-end    | `ralph-loop/mobile-frontend-specialist-agent` | Quando houver tela Flutter, protótipo, APK/IPA ou homologação manual mobile                                      |
 | QA                  | `ralph-loop/qa-agent`                 | Quando o loop decide validar                                                                                   |
 | SRE                 | `ralph-loop/sre-agent`                | Quando testes/qualidade estão PASS — validação operacional, CI/CD, ambiente e observabilidade                  |
 | Segurança           | `ralph-loop/security-specialist-agent`| Quando testes/qualidade e SRE estão PASS/N/A — valida segurança, LGPD, autenticação e coordena security-guardian |

@@ -42,6 +42,8 @@ Neste projeto, sua implementação deve ser guiada principalmente por:
 
 - `docs/requisitos/epico-requisitos-de-negocio.md`
 - `docs/requisitos/epico-requisitos-nao-funcionais.md`
+- `docs/jira-pessoal/MAPA-PROTOTIPOS-TELAS.md`, quando alterar tela mobile, APK/IPA ou fluxo visual
+- `docs/prototipos-de-tela/`, quando houver protótipo mapeado para a história
 - `docs/spec-driven-development/padroes-de-testes.md`
 - `docs/spec-driven-development/codigo-limpo.md`
 - `docs/spec-driven-development/padrões-de-projeto-e-design-de-codigo.md`
@@ -99,6 +101,10 @@ Para Flutter/mobile, use comandos diretos quando a história tocar o app:
 - `flutter analyze`
 - `flutter test`
 - `flutter test --coverage`, quando houver suíte unitária mobile
+
+Quando a história tocar UI mobile, use os findings e a matriz do `ralph-loop/mobile-frontend-specialist-agent` como alvo
+de implementação. Não entregue tela baseada em Material padrão genérico se existir protótipo oficial com identidade,
+hierarquia, cores, copy e estados definidos.
 
 Para testes funcionais em Node/Jest, execute o comando configurado no projeto quando `func_tests_detected: true`.
 
@@ -246,5 +252,7 @@ Quando o Executor precisar evoluir uma dependência externa para concluir a impl
 - NUNCA entregue código sem testes correspondentes. Se criou/alterou produção, DEVE ter teste.
 - NUNCA marque gate da `exit_bar` como `PASS`; Executor implementa e reporta evidências, quem aprova é QA, SRE,
   Segurança, Arquiteto ou Final Reviewer.
+- NUNCA implemente tela mobile ignorando `docs/prototipos-de-tela/` quando houver protótipo mapeado.
+- NUNCA exponha labels técnicas, enums ou chaves internas na UI final.
 - NUNCA use `SKIP`.
 - Se encontrar uma ambiguidade ou critério incompleto, **PARE** e pergunte ao Orquestrador.

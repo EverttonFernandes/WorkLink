@@ -59,6 +59,8 @@ CI verde e APK instalável não são suficientes para considerar uma entrega mob
 
 - `ralph-loop/product-manager`: reforçado para bloquear APK manual sem aderência a protótipos, região e massa de dados.
 - `ralph-loop/qa-agent`: reforçado com gate de aderência visual/produto para APK manual.
+- `ralph-loop/mobile-frontend-specialist-agent`: criado como especialista dedicado em Flutter/UX mobile para validar
+  protótipos, screenshots reais, identidade visual, microcopy, massa visual e evidências antes de QA e revisão final.
 - `ralph-loop/final-reviewer-agent`: reforçado com lente de produto/protótipo e bloqueio de artifact instalável que não representa o produto.
 - `ralph-loop/orquestrator`: reforçado para tratar APK manual como homologação de produto, não só infraestrutura.
 

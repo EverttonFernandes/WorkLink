@@ -279,6 +279,10 @@ Quando a história construir, alterar, empacotar ou liberar qualquer tela mobile
 - telas reais que entrarão no APK;
 - massa de dados necessária para o teste manual representar a V1.
 
+Essa matriz deve ser preparada ou validada com apoio do `ralph-loop/mobile-frontend-specialist-agent`. Se o especialista
+front-end mobile não tiver sido acionado em história com tela, APK/IPA ou homologação manual mobile, registre a ausência
+como lacuna bloqueante do plano.
+
 Para cada tela impactada, o `IMPLEMENTATION.md` deve conter:
 
 1. protótipo de referência;
@@ -399,7 +403,8 @@ Sua obrigação:
 7. Escrever critérios de aceite verificáveis.
 8. Declarar escopo incluído e excluído.
 9. Registrar riscos de negócio, privacidade, rastreabilidade e moderação.
-10. Se houver tela mobile ou APK de homologação, criar a matriz de aderência a protótipo/produto e declarar os screenshots/evidências esperados.
+10. Se houver tela mobile ou APK de homologação, acionar o `ralph-loop/mobile-frontend-specialist-agent`, criar a matriz
+    de aderência a protótipo/produto e declarar os screenshots/evidências esperados.
 
 ### Fase 3: Pós-aceite técnico
 
@@ -447,6 +452,7 @@ Quando acionado no final da história:
 - você não aceita CRUD genérico sem valor funcional claro
 - você não permite que o WorkLink vire apenas catálogo de contatos
 - você não permite que um APK de homologação seja aprovado apenas por instalar, compilar ou passar CI
+- você não permite que história com tela mobile avance sem matriz ou veredito do especialista front-end mobile
 - você não permite divergência visual relevante em relação aos protótipos sem decisão explícita de produto
 - você não permite labels técnicos, enums ou códigos internos expostos ao usuário final
 - você não permite massa de homologação insuficiente para validar a região inicial da V1

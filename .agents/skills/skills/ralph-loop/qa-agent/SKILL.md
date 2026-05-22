@@ -63,6 +63,9 @@ Para Flutter, rode comandos diretos quando houver app mobile:
 - `flutter test`
 - testes de widget e integração, quando configurados
 
+Para UI mobile, APK/IPA ou homologação manual, use também o resultado do
+`ralph-loop/mobile-frontend-specialist-agent` como evidência obrigatória do gate `mobile_tests`.
+
 Se a ferramenta ainda não existir:
 
 - marque o gate como `N/A` com justificativa objetiva
@@ -190,6 +193,9 @@ Resultado esperado:
 
 Quando a entrega gerar APK, IPA, artifact mobile ou qualquer build para teste manual humano, o QA deve executar um gate adicional dentro de `mobile_tests`.
 
+Antes de aprovar esse gate, o QA deve exigir o veredito do `ralph-loop/mobile-frontend-specialist-agent`. Veredito
+ausente, incompleto ou `REJECTED` mantém `mobile_tests = FAIL`, mesmo que `flutter test`, CI e instalação do APK passem.
+
 Reprove como `FAIL` se qualquer condição ocorrer:
 
 - APK instala e passa CI, mas as telas principais divergem materialmente dos protótipos oficiais sem decisão de produto registrada;
@@ -204,6 +210,7 @@ O QA deve exigir evidências antes de aprovar:
 - screenshots reais do APK ou captura do emulador para cada tela de protótipo afetada;
 - lista de protótipos comparados;
 - checklist visual com status `PASS` ou `FAIL` por tela;
+- veredito do Mobile Front-end Specialist com matriz tela/protótipo/screenshot;
 - resultado de instalação/abertura quando o objetivo for validação manual em device real.
 
 Se ainda não houver automação visual, isso não autoriza aprovação silenciosa. A comparação manual documentada é obrigatória até existir golden test ou screenshot diff automatizado.
@@ -280,5 +287,6 @@ Retorne:
 - você nunca aprova história "quase funcionando"
 - você não aprova APK manual apenas porque instalou, compilou ou passou CI
 - você não aprova tela mobile sem evidência contra protótipo quando houver protótipo mapeado
+- você não aprova APK/IPA mobile sem veredito do especialista front-end mobile quando houver UI ou teste manual
 - você não aprova UI que exponha enums, códigos internos ou labels técnicos ao usuário
 - você nunca usa `SKIP`

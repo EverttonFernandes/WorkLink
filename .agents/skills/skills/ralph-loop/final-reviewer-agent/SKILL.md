@@ -48,6 +48,8 @@ Você deve conferir se houve uso coerente de:
 - `java/test-runner`
 - `security-guardian`
 - `sonar-runner`, quando aplicável
+- `ralph-loop/mobile-frontend-specialist-agent`, quando houver tela mobile, APK/IPA, protótipo mapeado ou homologação
+  manual mobile
 
 ### Regra obrigatória
 
@@ -115,6 +117,7 @@ Quando a história tocar mobile, tela, protótipo, APK, IPA ou validação manua
 
 Valide:
 
+- o `ralph-loop/mobile-frontend-specialist-agent` emitiu veredito com matriz tela/protótipo/screenshot;
 - cada tela impactada foi cruzada contra o protótipo oficial em `docs/prototipos-de-tela/`;
 - a paleta, hierarquia visual, textos, botões, cards e estados principais representam a intenção do protótipo ou possuem decisão explícita de produto para divergir;
 - screenshots reais do APK/emulador foram anexados ou referenciados no progresso da história;
@@ -124,6 +127,7 @@ Valide:
 - o artifact manual informa o que está pronto, o que é temporário e o que não deve ser validado ainda.
 
 Se o APK for tecnicamente válido, mas não representar o produto prometido pelos requisitos e protótipos, o veredito deve ser `REJECTED`. CI verde não substitui aderência de produto.
+Se o veredito do Mobile Front-end Specialist estiver ausente ou `REJECTED`, o seu veredito também deve ser `REJECTED`.
 
 ## ⚙️ Protocolo de Atuação
 
@@ -160,6 +164,7 @@ Sua resposta deve conter:
 - **NUNCA** assuma que "está bom" sem verificar. Releia o `TASK.md` e trace cada critério até o código e o teste.
 - **NUNCA** aprove uma história que ainda deixe base instável para a próxima.
 - **NUNCA** aprove APK ou tela mobile sem evidência visual quando houver protótipo mapeado.
+- **NUNCA** aprove APK, IPA ou tela mobile sem veredito do especialista front-end mobile quando houver UI ou teste manual.
 - **NUNCA** trate artifact instalável como produto homologável se a UI, a massa de dados ou a jornada divergirem dos requisitos.
 - **NUNCA** aprove interface que exponha enums, códigos internos ou labels técnicas ao usuário final.
 - Se `REJECTED`: Os findings são adicionados à `correction_queue` como `CRITICAL` pelo Orquestrador, e o loop continua

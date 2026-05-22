@@ -24,7 +24,7 @@ Neste projeto, você deve orquestrar o loop com base nos documentos locais:
 
 Seu papel é garantir que cada subagente use o documento correto como referência principal.
 
-Quando a história construir, alterar, empacotar ou liberar tela mobile, você deve exigir que Product Manager, Executor, QA, Segurança, SRE e Final Reviewer consultem `docs/jira-pessoal/MAPA-PROTOTIPOS-TELAS.md` junto da história. Protótipo é insumo obrigatório de UX e escopo visual, mas não substitui critérios de aceite, RNFs, acessibilidade, segurança, testes ou padrões de código.
+Quando a história construir, alterar, empacotar ou liberar tela mobile, você deve exigir que Product Manager, Executor, QA, Segurança, SRE, Mobile Front-end Specialist e Final Reviewer consultem `docs/jira-pessoal/MAPA-PROTOTIPOS-TELAS.md` junto da história. Protótipo é insumo obrigatório de UX e escopo visual, mas não substitui critérios de aceite, RNFs, acessibilidade, segurança, testes ou padrões de código.
 
 Se a entrega gerar APK/IPA/artifact para teste manual, o loop deve tratar isso como homologação de produto, não apenas como homologação de infraestrutura. CI verde, APK instalável e backend saudável são necessários, mas insuficientes.
 
@@ -61,6 +61,8 @@ Você não executa essas skills como regra geral em lugar dos subagentes especia
 - exigir que o `executor-agent` use `java/code-style` e `java/test-runner` na auto-validação local
 - exigir que o `qa-agent` use `java/code-style`, `java/test-runner` e `sonar-runner` quando aplicável, apenas para testes/qualidade
 - exigir que o `sre-agent` valide ambiente, configuração, CI/CD, observabilidade, disponibilidade e prontidão operacional
+- exigir que o `ralph-loop/mobile-frontend-specialist-agent` valide aderência estrita a protótipos, UI Flutter, microcopy,
+  screenshots e massa visual sempre que houver tela mobile, APK/IPA ou homologação manual mobile
 - exigir que o `security-specialist-agent` valide autenticação, autorização, autenticidade, LGPD e proteção de dados
 - exigir que o `security-specialist-agent` coordene o `security-guardian` no gate de segurança
 - acionar `git-operator` quando o loop precisar persistir estado em checkpoints, refresh de contexto ou fechamento
@@ -119,6 +121,10 @@ A cada iteração, você deve obrigatoriamente seguir este ciclo:
    **3.3.** Se a `exit_bar` tem gates de testes/qualidade (`lint`, `unit_tests`, `integration_tests`, `func_tests`,
    `mobile_tests`, `coverage`, `sonar`) em `PENDING` ou `FAIL`:
     - Invoque o **Agente_QA** (`ralph-loop/qa-agent`) para validação.
+    - Se a história tocar UI mobile ou gerar APK/IPA, invoque também o **Mobile Front-end Specialist**
+      (`ralph-loop/mobile-frontend-specialist-agent`) antes da aprovação de `mobile_tests`.
+    - Se o Mobile Front-end Specialist retornar `REJECTED`, adicione os findings ao `correction_queue` com
+      `origin: mobile_frontend`, `severity: CRITICAL`, mantenha `mobile_tests = FAIL` e volte ao passo 3.2.
     - Se a história tocar UI mobile ou gerar APK/IPA, exija que o QA execute também o gate de aderência visual/produto
       contra protótipos e screenshots reais. Ausência de evidência visual deve manter `mobile_tests = FAIL`.
 
@@ -305,6 +311,8 @@ Ao encerrar o loop (`phase: DONE`), o Orquestrador **DEVE**:
     - o `architect-reviewer-agent` revise contra `docs/requisitos/epico-requisitos-nao-funcionais.md`, Monólito Modular, DDD tático,
       Ports and Adapters, KISS/YAGNI e os padrões de design
     - o `qa-agent` revise contra `docs/spec-driven-development/padroes-de-testes.md`
+    - o `mobile-frontend-specialist-agent` revise telas mobile contra `docs/prototipos-de-tela/`,
+      `docs/jira-pessoal/MAPA-PROTOTIPOS-TELAS.md`, screenshots reais, identidade visual e microcopy
     - o `sre-agent` revise contra os RNFs operacionais em `docs/requisitos/epico-requisitos-nao-funcionais.md`
     - o `security-specialist-agent` revise contra os RNFs de segurança em `docs/requisitos/epico-requisitos-nao-funcionais.md`
     - o `pattern-enforcer` revise contra `docs/spec-driven-development/padrões-de-projeto-e-design-de-codigo.md`
@@ -322,6 +330,9 @@ Ao encerrar o loop (`phase: DONE`), o Orquestrador **DEVE**:
   continuidade se o APK não representar os requisitos e protótipos oficiais. O gate deve falhar mesmo com CI verde.
 - **PROTÓTIPO MAPEADO É CONTRATO VISUAL**: Se `MAPA-PROTOTIPOS-TELAS.md` vincula uma tela à história, a entrega deve
   apresentar evidência visual real ou decisão explícita de produto para qualquer divergência.
+- **ESPECIALISTA FRONT-END MOBILE É GATE OBRIGATÓRIO**: Para tela Flutter, APK/IPA ou homologação manual mobile, o loop
+  deve obter veredito do `ralph-loop/mobile-frontend-specialist-agent`. Veredito ausente ou `REJECTED` bloqueia QA,
+  revisão final e continuidade.
 - **SEM LABEL TÉCNICA EM UI**: Enums, chaves internas, nomes de classificação ou mensagens técnicas expostas ao usuário
   final são falha crítica de produto.
 - **RESILIÊNCIA EM OPERAÇÕES EXTERNAS**: Para operações que dependem de rede (Jenkins trigger/watch, npm publish, git
