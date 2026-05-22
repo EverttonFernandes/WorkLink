@@ -200,4 +200,13 @@ Resultado:
 - [x] Baixada copia local ignorada pelo git em `artifacts/android-homologation-candidate-from-ci/`.
 - [x] APK local disponivel em `artifacts/android-homologation-candidate-from-ci/worklink-android-homologation.apk`.
 - [x] SHA-256 do APK: `ba0edf54e941e9b8a4fc2c011c8aefbf139045cc756f63209a07462587fb8395`.
+- [x] O primeiro tunnel `trycloudflare` entrou em reconexao; decisao SRE: nao orientar teste manual nesse backend instavel.
+- [x] Criado novo Cloudflare quick tunnel em modo `http2`:
+  - [x] `https://particular-deborah-vhs-emission.trycloudflare.com`.
+  - [x] `/actuator/health/readiness` respondeu `{"status":"UP"}` via WSL e Windows.
+- [x] GitHub Actions reconfigurado para a nova URL temporaria.
+- [x] Run manual `26299736125` finalizada com sucesso no commit `4c81256f5d50c9ee098b543660534605c4725364`.
+- [x] Confirmado artifact `worklink-android-homologation-4c81256f5d50c9ee098b543660534605c4725364`.
+- [x] Cópia local atualizada em `artifacts/android-homologation-candidate-from-ci/worklink-android-homologation.apk`.
+- [x] SHA-256 do APK atual: `c9be202f528291f3f2e778eabe6bad7da5ffa3dcdc846902922734a0a3e15ca6`.
 - [ ] Decidir se a URL temporaria serve apenas para validacao manual imediata ou se sera substituida por backend HTTPS duravel antes da promocao/versionamento estavel.

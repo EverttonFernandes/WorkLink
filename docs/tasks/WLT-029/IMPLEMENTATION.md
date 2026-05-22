@@ -25,8 +25,8 @@ exit_bar:
 last_cycle:
   agent: "executor+sre"
   action: "geracao do APK Android full-stack de homologacao para teste manual"
-  result: "run 26298691963 passou todos os jobs e publicou artifact worklink-android-homologation-d7dbcdcec6465cb90e350c42bce776aa4267afdf"
-  timestamp: "2026-05-22T13:27:03-03:00"
+  result: "run 26299736125 passou todos os jobs e publicou artifact worklink-android-homologation-4c81256f5d50c9ee098b543660534605c4725364 apontando para tunnel http2 validado"
+  timestamp: "2026-05-22T13:52:27-03:00"
 correction_queue:
   - id: "WLT-029-BLOCKER-001"
     origin: "sre"
@@ -50,7 +50,7 @@ metrics:
   total_iterations: 1
   gates_failed_count: 0
   mode_collapse_events: 0
-  convergence_notes: "CI convergiu no commit d7dbcdc com backend, emulador e APK Android homologation full-stack verdes; artifact foi gerado para teste manual imediato usando URL HTTPS temporaria trycloudflare. Promocao/tag estavel seguem pendentes ate existir backend HTTPS duravel ou decisao explicita de tratar esta janela temporaria como validacao manual nao-promovida."
+  convergence_notes: "CI convergiu no commit 4c81256 com backend, emulador e APK Android homologation full-stack verdes; artifact foi gerado para teste manual imediato usando URL HTTPS temporaria trycloudflare em protocolo http2. Promocao/tag estavel seguem pendentes ate existir backend HTTPS duravel ou decisao explicita de tratar esta janela temporaria como validacao manual nao-promovida."
 ---
 
 # WLT-029 — Homologação mobile full-stack e artifacts estáveis
@@ -150,6 +150,7 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
 - Run `26259983380`: `completed success` no commit `5d2adb216e7eb6145fb9391f4921385a1e2709e1`.
 - Run `26293038049`: `completed failure` no commit `0fac3a151cc0f3539785918a22d770625be406b7`; backend, dependency scan e emulador passaram, mas `Prepare Android homologation candidate` falhou em `:app:validateSigningRelease` por path duplicado da keystore (`android/app/android/app/homologation-upload.jks`).
 - Run `26298691963`: `completed success` no commit `d7dbcdcec6465cb90e350c42bce776aa4267afdf`.
+- Run `26299736125`: `completed success` no commit `4c81256f5d50c9ee098b543660534605c4725364`.
 - Jobs verdes:
   - `Backend quality gates`
   - `Dependency scan`
@@ -172,6 +173,10 @@ A entrega protege a proposta central do WorkLink V1: descoberta local de profiss
   - `worklink-android-homologation-d7dbcdcec6465cb90e350c42bce776aa4267afdf`
   - `worklink-android-test-candidate-d7dbcdcec6465cb90e350c42bce776aa4267afdf`
   - `mobile-emulator-diagnostics-26298691963-1`
+- Artifacts do run `26299736125`:
+  - `worklink-android-homologation-4c81256f5d50c9ee098b543660534605c4725364`
+  - `worklink-android-test-candidate-4c81256f5d50c9ee098b543660534605c4725364`
+  - `mobile-emulator-diagnostics-26299736125-1`
 
 ## Bloqueio Atual
 
@@ -183,17 +188,17 @@ O backend local de homologação foi iniciado com `DOCKER=docker.exe make homolo
 
 Foi criado um Cloudflare quick tunnel para destravar o primeiro teste manual:
 
-- `https://baby-conferencing-reductions-cleared.trycloudflare.com`
+- `https://particular-deborah-vhs-emission.trycloudflare.com`
 
 Esta URL é temporária, sem garantia de uptime, e deve ser tratada apenas como ponte de validação manual. Para uma homologação estável de release, ainda será necessário substituir por um backend HTTPS durável.
 
 O primeiro APK Android full-stack de homologação foi gerado pela CI para teste manual:
 
-- Run: `26298691963`
-- Commit: `d7dbcdcec6465cb90e350c42bce776aa4267afdf`
-- Artifact: `worklink-android-homologation-d7dbcdcec6465cb90e350c42bce776aa4267afdf`
+- Run: `26299736125`
+- Commit: `4c81256f5d50c9ee098b543660534605c4725364`
+- Artifact: `worklink-android-homologation-4c81256f5d50c9ee098b543660534605c4725364`
 - Cópia local ignorada pelo git: `artifacts/android-homologation-candidate-from-ci/worklink-android-homologation.apk`
-- SHA-256: `ba0edf54e941e9b8a4fc2c011c8aefbf139045cc756f63209a07462587fb8395`
+- SHA-256: `c9be202f528291f3f2e778eabe6bad7da5ffa3dcdc846902922734a0a3e15ca6`
 
 Para gerar o APK versionado full-stack há duas rotas válidas:
 
