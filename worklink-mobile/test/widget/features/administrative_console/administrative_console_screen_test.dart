@@ -9,6 +9,8 @@ void main() {
       'GIVEN console administrativo carregado WHEN renderizar THEN deve exibir operacoes principais',
       (widgetTester) async {
     // GIVEN
+    await widgetTester.binding.setSurfaceSize(const Size(800, 1600));
+    addTearDown(() => widgetTester.binding.setSurfaceSize(null));
     final controller = AdministrativeConsoleController(
       loadAdministrativeConsole: () async => administrativeConsoleStateFixture,
       blockProfessional: (_) async => administrativeConsoleStateFixture,
@@ -35,12 +37,17 @@ void main() {
     expect(find.text('Console administrativo'), findsOneWidget);
     expect(find.text('Resumo operacional'), findsOneWidget);
     expect(find.text('Gestao minima de categorias'), findsOneWidget);
-    expect(find.text('Maria Eletricista'), findsWidgets);
-    await widgetTester.drag(
-      find.byType(Scrollable).first,
-      const Offset(0, -600),
+    await widgetTester.scrollUntilVisible(
+      find.byKey(const ValueKey('administrative-professional-professional-1')),
+      200,
+      scrollable: find.byType(Scrollable).first,
     );
-    await widgetTester.pumpAndSettle();
+    expect(find.text('Maria Eletricista'), findsWidgets);
+    await widgetTester.scrollUntilVisible(
+      find.byKey(const ValueKey('administrative-report-report-1')),
+      200,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Maria Eletricista - Perfil falso'), findsOneWidget);
     expect(find.text('Ocultar'), findsOneWidget);
   });

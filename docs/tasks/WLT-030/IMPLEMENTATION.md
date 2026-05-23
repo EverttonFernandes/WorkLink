@@ -4,18 +4,18 @@ title: "Aderência visual aos protótipos mobile"
 story_path: "docs/jira-pessoal/historias-tecnicas/WLT-030-aderencia-visual-prototipos-mobile.md"
 official_order: 51
 phase: EXECUTION
-loop_iteration: 1
+loop_iteration: 2
 version_suggestion: PATCH
 func_tests_detected: true
 func_tests_path: "functional-tests/src/specs"
 func_tests_framework: "jest"
 exit_bar:
-  lint: PENDING
-  unit_tests: PENDING
+  lint: PASS
+  unit_tests: PASS
   integration_tests: PENDING
   func_tests: PENDING
-  mobile_tests: FAIL
-  coverage: PENDING
+  mobile_tests: PASS
+  coverage: PASS
   sonar: PENDING
   sre: PENDING
   security: PENDING
@@ -23,7 +23,7 @@ exit_bar:
   final_review: PENDING
 metrics:
   unit_coverage_minimum: 95
-  changed_files: 7
+  changed_files: 9
   risk_level: HIGH
 release:
   commit_hash: ""
@@ -32,18 +32,23 @@ correction_queue:
   - id: "WLT-030-MOBILE-001"
     origin: "mobile_frontend"
     severity: "CRITICAL"
-    status: "OPEN"
+    status: "DONE"
     description: "O app atual usa MaterialApp sem tema de produto consolidado, o que favorece aparência visual genérica e divergente dos protótipos oficiais."
   - id: "WLT-030-MOBILE-002"
     origin: "mobile_frontend"
     severity: "CRITICAL"
-    status: "OPEN"
+    status: "DONE"
     description: "As telas de descoberta, seleção de cidades e autenticação foram implementadas com estrutura utilitária básica e ainda não possuem matriz formal tela/protótipo/screenshot."
   - id: "WLT-030-PROCESS-001"
     origin: "product_manager"
     severity: "HIGH"
-    status: "OPEN"
+    status: "DONE"
     description: "A WLT-029 permanecia em Doing mesmo após a repriorização dos débitos; o Kanban foi ajustado para permitir a execução cronológica honesta da WLT-030."
+  - id: "WLT-030-EVIDENCE-001"
+    origin: "qa"
+    severity: "HIGH"
+    status: "OPEN"
+    description: "Ainda faltam screenshots reais e veredito formal do mobile front-end specialist para fechar aderencia visual e homologacao manual."
 cycle_history:
   - iteration: 0
     phase: EXECUTION
@@ -64,6 +69,22 @@ cycle_history:
       - "worklink-mobile/test/widget/features/customer_authentication/customer_authentication_screen_test.dart"
       - "worklink-mobile/test/widget/features/city_selection/city_selection_screen_test.dart"
       - "worklink-mobile/test/widget/features/discovery/discovery_screen_test.dart"
+  - iteration: 2
+    phase: EXECUTION
+    summary: "Segunda rodada de aderencia visual aplicada ao perfil profissional e cadastro; toolchain Flutter validada via Docker Desktop com analyze, unit tests, coverage e widget tests."
+    evidence:
+      - "worklink-mobile/lib/features/professional_profile/professional_profile_screen.dart"
+      - "worklink-mobile/lib/features/professional_registration/professional_registration_screen.dart"
+      - "worklink-mobile/lib/features/administrative_console/administrative_console_screen.dart"
+      - "worklink-mobile/test/widget/features/professional_profile/professional_profile_screen_test.dart"
+      - "worklink-mobile/test/widget/features/professional_registration/professional_registration_screen_test.dart"
+      - "worklink-mobile/test/widget/features/administrative_console/administrative_console_screen_test.dart"
+      - "worklink-mobile/test/widget/features/customer_authentication/customer_authentication_screen_test.dart"
+      - "worklink-mobile/test/widget/features/discovery/discovery_screen_test.dart"
+      - "worklink-mobile/test/widget/worklink_app_widget_test.dart"
+      - "DOCKER=docker.exe make mobile-static-analysis"
+      - "DOCKER=docker.exe make mobile-unit-test"
+      - "DOCKER=docker.exe make mobile-screen-test"
 ---
 
 # WLT-030 — Aderência visual aos protótipos mobile
@@ -199,11 +220,16 @@ produto que o dono da ideia pretende validar.
 - Iteração 1: foundation visual do `MaterialApp` recebeu paleta verde, superfícies mais próximas do protótipo e
   componentes mais arredondados; autenticação, seleção de cidades e descoberta/estado vazio saíram do layout puramente
   utilitário para um primeiro desenho aderente ao produto.
+- Iteração 2: perfil profissional e cadastro profissional receberam composição visual próxima aos protótipos oficiais;
+  os widget tests quebrados foram saneados para o novo layout; `flutter analyze`, `mobile-unit-test` com cobertura
+  `95.64%` e `mobile-screen-test` passaram via Docker.
 
 ## Aprendizados do loop
 
 - O maior problema agora não é mais geração de artifact; é fidelidade de produto.
 - O app já tem telas suficientes para uma auditoria útil, mesmo antes de refinar toda a fundação visual.
 - O Kanban precisava refletir a realidade para o Ralph Loop não violar a própria regra cronológica.
-- Mesmo sem Flutter instalado no ambiente atual, dá para avançar com forte correlação entre protótipos, widget tests e
-  leitura de código, deixando a validação final de execução para a próxima janela com toolchain disponível.
+- O projeto já consegue validar Flutter de forma isolada usando `docker.exe` + `docker compose`, sem instalar Flutter na
+  máquina Windows hospedeira.
+- Ajustes visuais profundos em telas mobile costumam exigir revisão paralela dos widget tests, especialmente quando a UI
+  passa a ter mais de um `Scrollable` na mesma tela.

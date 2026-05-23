@@ -102,7 +102,7 @@ void main() {
 
     // THEN
     expect(find.text('Nenhum profissional encontrado'), findsOneWidget);
-    expect(find.byIcon(Icons.search_off), findsOneWidget);
+    expect(find.byIcon(Icons.search_off_rounded), findsOneWidget);
   });
 
   testWidgets(

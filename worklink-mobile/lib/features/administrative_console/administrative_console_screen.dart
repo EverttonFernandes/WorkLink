@@ -277,26 +277,23 @@ class _AdministrativeCategorySection extends StatelessWidget {
           style: Theme.of(context).textTheme.titleMedium,
         ),
         const SizedBox(height: 8),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                key: const ValueKey('administrative-category-name-field'),
-                controller: categoryNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nova categoria',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            FilledButton.icon(
-              key: const ValueKey('administrative-register-category-button'),
-              onPressed: onRegisterCategory,
-              icon: const Icon(Icons.add),
-              label: const Text('Adicionar'),
-            ),
-          ],
+        TextField(
+          key: const ValueKey('administrative-category-name-field'),
+          controller: categoryNameController,
+          decoration: const InputDecoration(
+            labelText: 'Nova categoria',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerLeft,
+          child: FilledButton.icon(
+            key: const ValueKey('administrative-register-category-button'),
+            onPressed: onRegisterCategory,
+            icon: const Icon(Icons.add),
+            label: const Text('Adicionar'),
+          ),
         ),
         const SizedBox(height: 12),
         Wrap(
@@ -331,29 +328,29 @@ class _AdministrativeProfessionalsSection extends StatelessWidget {
       emptyMessage: 'Nenhum profissional administrativo encontrado.',
       children: professionals
           .map(
-            (professional) => ListTile(
+            (professional) => _AdministrativeActionItem(
               key: ValueKey(
                 'administrative-professional-${professional.professionalIdentifier}',
               ),
-              contentPadding: EdgeInsets.zero,
-              title: Text(professional.professionalName),
-              subtitle: Text(
-                '${professional.categoryName} - ${professional.cityDisplayName}\n'
-                '${professional.profileClassification} - ${professional.availabilityLabel}',
-              ),
-              trailing: professional.blocked
-                  ? OutlinedButton(
-                      onPressed: () => onUnblockProfessional(
-                        professional.professionalIdentifier,
+              title: professional.professionalName,
+              subtitle:
+                  '${professional.categoryName} - ${professional.cityDisplayName}\n'
+                  '${professional.profileClassification} - ${professional.availabilityLabel}',
+              actions: [
+                professional.blocked
+                    ? OutlinedButton(
+                        onPressed: () => onUnblockProfessional(
+                          professional.professionalIdentifier,
+                        ),
+                        child: const Text('Desbloquear'),
+                      )
+                    : FilledButton(
+                        onPressed: () => onBlockProfessional(
+                          professional.professionalIdentifier,
+                        ),
+                        child: const Text('Bloquear'),
                       ),
-                      child: const Text('Desbloquear'),
-                    )
-                  : FilledButton(
-                      onPressed: () => onBlockProfessional(
-                        professional.professionalIdentifier,
-                      ),
-                      child: const Text('Bloquear'),
-                    ),
+              ],
             ),
           )
           .toList(),
@@ -381,34 +378,27 @@ class _AdministrativeReportsSection extends StatelessWidget {
       emptyMessage: 'Nenhuma denuncia pendente ou historica.',
       children: reports
           .map(
-            (report) => ListTile(
+            (report) => _AdministrativeActionItem(
               key: ValueKey(
                 'administrative-report-${report.professionalReportIdentifier}',
               ),
-              contentPadding: EdgeInsets.zero,
-              title: Text(
-                '${report.professionalName} - ${report.reportReasonLabel}',
-              ),
-              subtitle: Text(
-                '${report.moderationStatusLabel}'
-                '${report.moderationDecisionLabel == null ? '' : ' - ${report.moderationDecisionLabel}'}\n'
-                '${report.createdAtLabel}${report.seriousCase ? ' - Caso grave' : ''}',
-              ),
-              trailing: Wrap(
-                spacing: 8,
-                children: [
-                  OutlinedButton(
-                    onPressed: () =>
-                        onApproveReport(report.professionalReportIdentifier),
-                    child: const Text('Manter'),
-                  ),
-                  FilledButton(
-                    onPressed: () =>
-                        onEscalateReport(report.professionalReportIdentifier),
-                    child: const Text('Exigir acao'),
-                  ),
-                ],
-              ),
+              title: '${report.professionalName} - ${report.reportReasonLabel}',
+              subtitle:
+                  '${report.moderationStatusLabel}'
+                  '${report.moderationDecisionLabel == null ? '' : ' - ${report.moderationDecisionLabel}'}\n'
+                  '${report.createdAtLabel}${report.seriousCase ? ' - Caso grave' : ''}',
+              actions: [
+                OutlinedButton(
+                  onPressed: () =>
+                      onApproveReport(report.professionalReportIdentifier),
+                  child: const Text('Manter'),
+                ),
+                FilledButton(
+                  onPressed: () =>
+                      onEscalateReport(report.professionalReportIdentifier),
+                  child: const Text('Exigir acao'),
+                ),
+              ],
             ),
           )
           .toList(),
@@ -436,37 +426,71 @@ class _AdministrativeReviewAnalysisSection extends StatelessWidget {
       emptyMessage: 'Nenhuma contestacao registrada.',
       children: reviewAnalysisRequests
           .map(
-            (request) => ListTile(
+            (request) => _AdministrativeActionItem(
               key: ValueKey(
                 'administrative-review-analysis-${request.reviewAnalysisRequestIdentifier}',
               ),
-              contentPadding: EdgeInsets.zero,
-              title: Text(request.professionalName),
-              subtitle: Text(
-                '${request.moderationStatusLabel}'
-                '${request.moderationDecisionLabel == null ? '' : ' - ${request.moderationDecisionLabel}'}\n'
-                '${request.createdAtLabel}',
-              ),
-              trailing: Wrap(
-                spacing: 8,
-                children: [
-                  OutlinedButton(
-                    onPressed: () => onKeepReviewPublic(
-                      request.reviewAnalysisRequestIdentifier,
-                    ),
-                    child: const Text('Manter'),
+              title: request.professionalName,
+              subtitle:
+                  '${request.moderationStatusLabel}'
+                  '${request.moderationDecisionLabel == null ? '' : ' - ${request.moderationDecisionLabel}'}\n'
+                  '${request.createdAtLabel}',
+              actions: [
+                OutlinedButton(
+                  onPressed: () => onKeepReviewPublic(
+                    request.reviewAnalysisRequestIdentifier,
                   ),
-                  FilledButton(
-                    onPressed: () => onHideReviewFromPublic(
-                      request.reviewAnalysisRequestIdentifier,
-                    ),
-                    child: const Text('Ocultar'),
+                  child: const Text('Manter'),
+                ),
+                FilledButton(
+                  onPressed: () => onHideReviewFromPublic(
+                    request.reviewAnalysisRequestIdentifier,
                   ),
-                ],
-              ),
+                  child: const Text('Ocultar'),
+                ),
+              ],
             ),
           )
           .toList(),
+    );
+  }
+}
+
+class _AdministrativeActionItem extends StatelessWidget {
+  const _AdministrativeActionItem({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.actions,
+  });
+
+  final String title;
+  final String subtitle;
+  final List<Widget> actions;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 8),
+              Text(subtitle),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: actions,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

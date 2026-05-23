@@ -45,6 +45,8 @@ void main() {
     bool savedByCustomer = false,
     Future<bool> Function(bool currentlySaved)? onToggleSavedProfessional,
   }) async {
+    await widgetTester.binding.setSurfaceSize(const Size(800, 1600));
+    addTearDown(() => widgetTester.binding.setSurfaceSize(null));
     await widgetTester.pumpWidget(
       MaterialApp(
         home: ProfessionalProfileScreen(
@@ -72,16 +74,22 @@ void main() {
     expect(find.text('Perfil do profissional'), findsOneWidget);
     expect(find.text('Roberto Silva'), findsOneWidget);
     expect(find.text('Eletricista Residencial'), findsOneWidget);
-    expect(find.text('Charqueadas - RS'), findsOneWidget);
+    expect(find.text('Charqueadas, RS'), findsOneWidget);
     expect(find.text('Atendimento em: São Jerônimo, Triunfo'), findsOneWidget);
     expect(find.text('Perfil completo'), findsOneWidget);
     expect(find.text('Telefone verificado'), findsOneWidget);
     expect(find.text('Documento informado'), findsOneWidget);
     expect(find.text('Disponível esta semana'), findsOneWidget);
+    await widgetTester.scrollUntilVisible(
+      find.text('Instalações'),
+      120,
+      scrollable: find.byType(Scrollable).first,
+    );
     expect(find.text('Instalações'), findsOneWidget);
     await widgetTester.scrollUntilVisible(
       find.text('Quadro elétrico residencial'),
       120,
+      scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('Quadro elétrico residencial'), findsOneWidget);
     expect(
@@ -90,8 +98,9 @@ void main() {
     );
     expect(find.text('Garantia de qualidade'), findsNothing);
     await widgetTester.scrollUntilVisible(
-      find.text('Avaliações'),
+      find.text('Atendimento rapido.'),
       120,
+      scrollable: find.byType(Scrollable).first,
     );
     expect(find.text('4.5 de 5'), findsOneWidget);
     expect(find.text('2 avaliações'), findsOneWidget);
@@ -162,6 +171,9 @@ void main() {
     );
 
     // WHEN
+    await widgetTester.ensureVisible(
+      find.byKey(const ValueKey('report-professional-roberto-eletricista')),
+    );
     await widgetTester.tap(
       find.byKey(const ValueKey('report-professional-roberto-eletricista')),
     );
@@ -186,6 +198,7 @@ void main() {
     await widgetTester.scrollUntilVisible(
       requestReviewAnalysisButton,
       300,
+      scrollable: find.byType(Scrollable).first,
       maxScrolls: 20,
     );
     await widgetTester.ensureVisible(requestReviewAnalysisButton);
@@ -215,7 +228,7 @@ void main() {
 
     // THEN
     expect(
-      find.byIcon(Icons.bookmark),
+      find.byTooltip('Remover dos profissionais salvos'),
       findsOneWidget,
     );
   });

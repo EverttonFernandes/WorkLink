@@ -7,6 +7,29 @@ import 'package:worklink_mobile/main.dart';
 import 'package:worklink_mobile/services/exceptions.dart';
 
 void main() {
+  Future<void> pumpWorkLinkApp(WidgetTester tester, Widget application) async {
+    await tester.binding.setSurfaceSize(const Size(800, 1400));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await tester.pumpWidget(application);
+  }
+
+  Future<void> authenticateCustomerFromCurrentScreen(WidgetTester tester) async {
+    await tester.enterText(
+      find.byKey(const ValueKey('customer-phone-field')),
+      '(51) 9 9999-1234',
+    );
+    await tester.ensureVisible(find.byKey(const ValueKey('request-code-button')));
+    await tester.tap(find.byKey(const ValueKey('request-code-button')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('verification-code-field')),
+      '1234',
+    );
+    await tester.ensureVisible(find.byKey(const ValueKey('confirm-code-button')));
+    await tester.tap(find.byKey(const ValueKey('confirm-code-button')));
+    await tester.pumpAndSettle();
+  }
+
   testWidgets(
       'GIVEN app inicial WHEN renderizar THEN deve exibir tela de descoberta',
       (tester) async {
@@ -14,10 +37,10 @@ void main() {
     const application = WorkLinkApp.preview();
 
     // WHEN
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
 
     // THEN
-    expect(find.text('Descobrir profissionais'), findsOneWidget);
+    expect(find.text('Buscar profissionais'), findsOneWidget);
     expect(find.text('Maria Eletricista'), findsOneWidget);
   });
 
@@ -31,10 +54,10 @@ void main() {
         WorkLinkApp.preview(applicationConfiguration: applicationConfiguration);
 
     // WHEN
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
 
     // THEN
-    expect(find.text('Descobrir profissionais'), findsOneWidget);
+    expect(find.text('Buscar profissionais'), findsOneWidget);
     expect(find.text('Ana Pintora'), findsOneWidget);
   });
 
@@ -43,7 +66,7 @@ void main() {
       (tester) async {
     // GIVEN
     const application = WorkLinkApp.preview();
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
 
     // WHEN
     await tester.tap(
@@ -65,7 +88,7 @@ void main() {
       (tester) async {
     // GIVEN
     const application = WorkLinkApp.preview();
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
     await tester.tap(
       find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
     );
@@ -87,7 +110,7 @@ void main() {
       (tester) async {
     // GIVEN
     const application = WorkLinkApp.preview();
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
     await tester.tap(
       find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
     );
@@ -96,18 +119,7 @@ void main() {
       find.byKey(const ValueKey('contact-professional-maria-eletricista')),
     );
     await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const ValueKey('customer-phone-field')),
-      '(51) 9 9999-1234',
-    );
-    await tester.tap(find.byKey(const ValueKey('request-code-button')));
-    await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const ValueKey('verification-code-field')),
-      '1234',
-    );
-    await tester.tap(find.byKey(const ValueKey('confirm-code-button')));
-    await tester.pumpAndSettle();
+    await authenticateCustomerFromCurrentScreen(tester);
 
     // WHEN
     await tester.tap(
@@ -132,7 +144,7 @@ void main() {
       (tester) async {
     // GIVEN
     const application = WorkLinkApp.preview();
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
     await tester.tap(
       find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
     );
@@ -141,18 +153,7 @@ void main() {
       find.byKey(const ValueKey('contact-professional-maria-eletricista')),
     );
     await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const ValueKey('customer-phone-field')),
-      '(51) 9 9999-1234',
-    );
-    await tester.tap(find.byKey(const ValueKey('request-code-button')));
-    await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const ValueKey('verification-code-field')),
-      '1234',
-    );
-    await tester.tap(find.byKey(const ValueKey('confirm-code-button')));
-    await tester.pumpAndSettle();
+    await authenticateCustomerFromCurrentScreen(tester);
     await tester.tap(
       find.byKey(const ValueKey('contact-professional-maria-eletricista')),
     );
@@ -180,7 +181,7 @@ void main() {
       (tester) async {
     // GIVEN
     const application = WorkLinkApp.preview();
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
     await tester.tap(
       find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
     );
@@ -189,18 +190,7 @@ void main() {
       find.byKey(const ValueKey('contact-professional-maria-eletricista')),
     );
     await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const ValueKey('customer-phone-field')),
-      '(51) 9 9999-1234',
-    );
-    await tester.tap(find.byKey(const ValueKey('request-code-button')));
-    await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const ValueKey('verification-code-field')),
-      '1234',
-    );
-    await tester.tap(find.byKey(const ValueKey('confirm-code-button')));
-    await tester.pumpAndSettle();
+    await authenticateCustomerFromCurrentScreen(tester);
     await tester.tap(
       find.byKey(const ValueKey('contact-professional-maria-eletricista')),
     );
@@ -237,7 +227,7 @@ void main() {
       (tester) async {
     // GIVEN
     const application = WorkLinkApp.preview();
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
 
     // WHEN
     await tester.tap(
@@ -259,7 +249,7 @@ void main() {
         administrativeConsoleEnabled: true,
       ),
     );
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
 
     // WHEN
     await tester
@@ -282,7 +272,7 @@ void main() {
       ),
       applicationGateway: _BlockedAdministrativeGateway(),
     );
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
 
     // WHEN
     await tester
@@ -302,7 +292,7 @@ void main() {
       (tester) async {
     // GIVEN
     const application = WorkLinkApp.preview();
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
 
     // WHEN
     await tester
@@ -319,22 +309,11 @@ void main() {
       (tester) async {
     // GIVEN
     const application = WorkLinkApp.preview();
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
     await tester
         .tap(find.byKey(const ValueKey('open-customer-profile-button')));
     await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const ValueKey('customer-phone-field')),
-      '(51) 9 9999-1234',
-    );
-    await tester.tap(find.byKey(const ValueKey('request-code-button')));
-    await tester.pumpAndSettle();
-    await tester.enterText(
-      find.byKey(const ValueKey('verification-code-field')),
-      '1234',
-    );
-    await tester.tap(find.byKey(const ValueKey('confirm-code-button')));
-    await tester.pumpAndSettle();
+    await authenticateCustomerFromCurrentScreen(tester);
 
     // THEN
     expect(find.text('Meu perfil'), findsOneWidget);
@@ -349,7 +328,7 @@ void main() {
       (tester) async {
     // GIVEN
     const application = WorkLinkApp.preview();
-    await tester.pumpWidget(application);
+    await pumpWorkLinkApp(tester, application);
     await tester.tap(
       find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
     );

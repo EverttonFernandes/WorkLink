@@ -6,6 +6,10 @@ import '../professional_availability/professional_availability_status.dart';
 import 'professional_registration_controller.dart';
 import 'professional_registration_draft.dart';
 
+const Color _workLinkGreen = Color(0xFF16C35B);
+const Color _workLinkDark = Color(0xFF10233F);
+const Color _workLinkMuted = Color(0xFF6E7D95);
+
 class ProfessionalRegistrationScreen extends StatefulWidget {
   const ProfessionalRegistrationScreen({
     super.key,
@@ -54,16 +58,16 @@ class _ProfessionalRegistrationScreenState
         title: const Text('Cadastro do profissional'),
       ),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(18, 8, 18, 28),
         children: [
           _ProgressHeader(draft: draft),
-          const SizedBox(height: 16),
+          const SizedBox(height: 22),
           _ProfilePhotoSection(
             hasProfilePhoto: draft.hasProfilePhoto,
             onToggleProfilePhoto:
                 widget.professionalRegistrationController.toggleProfilePhoto,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 22),
           _RegistrationTextField(
             key: const ValueKey('professional-registration-name-field'),
             labelText: 'Nome completo',
@@ -83,7 +87,7 @@ class _ProfessionalRegistrationScreenState
             onChanged:
                 widget.professionalRegistrationController.changeDocumentNumber,
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 8),
           const _PrivacyHint(),
           const SizedBox(height: 12),
           _RegistrationDropdown(
@@ -197,25 +201,57 @@ class _ProgressHeader extends StatelessWidget {
       children: [
         Text(
           'Cadastro do Profissional',
-          style: Theme.of(context).textTheme.headlineSmall,
+          style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                color: _workLinkDark,
+                fontWeight: FontWeight.w800,
+              ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 14),
         Row(
           children: [
-            Chip(label: Text(draft.stepLabel)),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEAF8EF),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Text(
+                draft.stepLabel,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: _workLinkGreen,
+                      fontWeight: FontWeight.w700,
+                    ),
+              ),
+            ),
             const SizedBox(width: 12),
             Expanded(
-              child: LinearProgressIndicator(
-                value: draft.profileCompletenessPercentage / 100,
-                minHeight: 6,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(999),
+                child: LinearProgressIndicator(
+                  value: draft.profileCompletenessPercentage / 100,
+                  minHeight: 8,
+                  backgroundColor: const Color(0xFFE4EBF2),
+                  color: _workLinkGreen,
+                ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
-        Text(draft.completenessLabel),
-        const SizedBox(height: 8),
-        const Text('Preencha seus dados para criar seu perfil profissional.'),
+        const SizedBox(height: 12),
+        Text(
+          draft.completenessLabel,
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                color: _workLinkMuted,
+              ),
+        ),
+        const SizedBox(height: 10),
+        Text(
+          'Preencha seus dados para criar seu perfil profissional.',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: _workLinkMuted,
+                fontWeight: FontWeight.w500,
+              ),
+        ),
       ],
     );
   }
@@ -234,18 +270,62 @@ class _ProfilePhotoSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        OutlinedButton.icon(
+        GestureDetector(
           key: const ValueKey('professional-registration-photo-button'),
-          onPressed: onToggleProfilePhoto,
-          icon: Icon(
-            hasProfilePhoto ? Icons.check_circle_outline : Icons.camera_alt,
+          onTap: onToggleProfilePhoto,
+          child: Container(
+            width: 152,
+            height: 152,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: const Color(0xFFBFEBCF),
+                width: 2,
+              ),
+              color: const Color(0xFFF8FCF9),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  hasProfilePhoto ? Icons.check_circle_outline : Icons.camera_alt_outlined,
+                  size: 36,
+                  color: _workLinkGreen,
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  hasProfilePhoto ? 'Foto adicionada' : 'Adicionar foto',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: _workLinkGreen,
+                        fontWeight: FontWeight.w700,
+                      ),
+                ),
+              ],
+            ),
           ),
-          label: Text(hasProfilePhoto ? 'Foto adicionada' : 'Adicionar foto'),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: 18),
         const Expanded(
-          child: Text(
-            'Sua foto ajuda clientes a conhecerem você.',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Sua foto ajuda clientes a conhecerem você.',
+                style: TextStyle(
+                  color: _workLinkDark,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              SizedBox(height: 8),
+              Text(
+                'Use uma foto nítida e profissional.',
+                style: TextStyle(
+                  color: _workLinkMuted,
+                  fontSize: 16,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -282,8 +362,7 @@ class _RegistrationTextField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: labelText,
         hintText: hintText,
-        prefixIcon: Icon(icon),
-        border: const OutlineInputBorder(),
+        prefixIcon: Icon(icon, color: icon == Icons.chat_outlined ? _workLinkGreen : _workLinkMuted),
       ),
       onChanged: onChanged,
     );
@@ -312,8 +391,7 @@ class _RegistrationDropdown extends StatelessWidget {
       value: value,
       decoration: InputDecoration(
         labelText: labelText,
-        prefixIcon: Icon(icon),
-        border: const OutlineInputBorder(),
+        prefixIcon: Icon(icon, color: _workLinkMuted),
       ),
       items: [
         for (final dropdownValue in values)
@@ -332,12 +410,17 @@ class _PrivacyHint extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
-        Icon(Icons.shield_outlined, size: 16),
-        SizedBox(width: 6),
+        const Icon(Icons.shield_outlined, size: 16, color: _workLinkMuted),
+        const SizedBox(width: 6),
         Expanded(
-          child: Text('Usado para aumentar a confiança do seu perfil.'),
+          child: Text(
+            'Usado para aumentar a confiança do seu perfil.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: _workLinkMuted,
+                ),
+          ),
         ),
       ],
     );
@@ -349,30 +432,117 @@ class _TrustExplanation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Card(
+    return Card(
       child: Padding(
-        padding: EdgeInsets.all(12),
+        padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(Icons.verified_user_outlined),
-                SizedBox(width: 8),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFEAF8EF),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.verified_user_outlined,
+                    color: _workLinkGreen,
+                  ),
+                ),
+                const SizedBox(width: 12),
                 Expanded(
                   child: Text(
                     'Perfil completo gera mais confiança',
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: _workLinkDark,
+                          fontWeight: FontWeight.w800,
+                        ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
-              'Completude ajuda seu perfil a se destacar, mas não garante qualidade do serviço.',
+              'Profissionais com perfil completo se destacam e recebem mais contatos.',
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    color: _workLinkMuted,
+                    height: 1.4,
+                  ),
+            ),
+            const SizedBox(height: 16),
+            const Row(
+              children: [
+                Expanded(
+                  child: _TrustBenefitCard(
+                    icon: Icons.call,
+                    title: 'Telefone verificado',
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: _TrustBenefitCard(
+                    icon: Icons.shield_outlined,
+                    title: 'Perfil mais confiável',
+                  ),
+                ),
+                SizedBox(width: 10),
+                Expanded(
+                  child: _TrustBenefitCard(
+                    icon: Icons.trending_up,
+                    title: 'Mais chances de receber contatos',
+                  ),
+                ),
+              ],
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _TrustBenefitCard extends StatelessWidget {
+  const _TrustBenefitCard({
+    required this.icon,
+    required this.title,
+  });
+
+  final IconData icon;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: const Color(0xFFE4EBF2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: const BoxDecoration(
+              color: Color(0xFFEAF8EF),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: _workLinkGreen),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: _workLinkDark,
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+        ],
       ),
     );
   }

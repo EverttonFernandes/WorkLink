@@ -9,6 +9,8 @@ void main() {
     CustomerAuthenticationController customerAuthenticationController, {
     ValueChanged<String>? onAuthenticationCompleted,
   }) async {
+    await widgetTester.binding.setSurfaceSize(const Size(800, 1400));
+    addTearDown(() => widgetTester.binding.setSurfaceSize(null));
     await widgetTester.pumpWidget(
       MaterialApp(
         home: CustomerAuthenticationScreen(
@@ -52,6 +54,9 @@ void main() {
       find.byKey(const ValueKey('customer-phone-field')),
       '(51) 9 9999-1234',
     );
+    await widgetTester.ensureVisible(
+      find.byKey(const ValueKey('request-code-button')),
+    );
     await widgetTester.tap(find.byKey(const ValueKey('request-code-button')));
     await widgetTester.pumpAndSettle();
 
@@ -78,6 +83,9 @@ void main() {
     await widgetTester.enterText(
       find.byKey(const ValueKey('customer-phone-field')),
       '(51) 9 9999-1234',
+    );
+    await widgetTester.ensureVisible(
+      find.byKey(const ValueKey('request-code-button')),
     );
     await widgetTester.tap(find.byKey(const ValueKey('request-code-button')));
     await widgetTester.pumpAndSettle();
@@ -107,6 +115,9 @@ void main() {
     await widgetTester.enterText(
       find.byKey(const ValueKey('customer-phone-field')),
       '(51) 9 9999-1234',
+    );
+    await widgetTester.ensureVisible(
+      find.byKey(const ValueKey('request-code-button')),
     );
     await widgetTester.tap(find.byKey(const ValueKey('request-code-button')));
     await widgetTester.pumpAndSettle();
@@ -138,6 +149,9 @@ void main() {
     await widgetTester.enterText(
       find.byKey(const ValueKey('customer-phone-field')),
       '(51) 9 9999-1234',
+    );
+    await widgetTester.ensureVisible(
+      find.byKey(const ValueKey('request-code-button')),
     );
     await widgetTester.tap(find.byKey(const ValueKey('request-code-button')));
     await widgetTester.pumpAndSettle();

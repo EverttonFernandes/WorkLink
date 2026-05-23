@@ -156,7 +156,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
             borderSide: const BorderSide(color: _workLinkGreen, width: 1.4),
           ),
         ),
-        cardTheme: CardThemeData(
+        cardTheme: CardTheme(
           color: Colors.white,
           elevation: 0,
           shape: RoundedRectangleBorder(

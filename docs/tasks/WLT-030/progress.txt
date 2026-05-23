@@ -5,9 +5,14 @@ ULTIMA_HIPOTESE:
 - O principal bloqueio para homologação manual confiável está na aderência visual e não mais na capacidade de gerar APK.
 
 ULTIMO_RESULTADO:
-- WLT-030 materializada com TASK, IMPLEMENTATION, matriz inicial de auditoria e primeira rodada de correção visual em tema, autenticacao, selecao de cidades e descoberta.
+- Docker Desktop foi validado como runtime isolado para Flutter; `mobile-static-analysis`, `mobile-unit-test` e `mobile-screen-test` passaram.
+- Perfil profissional e cadastro profissional receberam segunda rodada de aderencia visual com testes atualizados.
 
 GATES_OBSERVADOS:
+- LINT: PASS
+- UNIT_TESTS: PASS
+- MOBILE_TESTS: PASS
+- COVERAGE: PASS
 - QA: PENDING
 - SRE: PENDING
 - SECURITY: PENDING
@@ -15,10 +20,9 @@ GATES_OBSERVADOS:
 - FINAL_REVIEW: PENDING
 
 PROXIMA_ACAO_RECOMENDADA:
-- Validar essas telas com toolchain Flutter real e seguir para perfil profissional e cadastro profissional.
+- Coletar screenshots reais do app/emulador e emitir veredito formal do mobile front-end specialist para fechar a WLT-030.
 
 RISCOS_ABERTOS:
 - WLT-032 e WLT-033 podem bloquear fechamento completo de algumas telas.
 - Faltam screenshots oficiais da nova rodada de homologação.
-- O app ainda está com foundation visual muito próximo do Material padrão, o que tende a espalhar a divergência por várias telas.
-- Sem `flutter` no ambiente atual, ainda nao foi possivel executar `flutter analyze` e `flutter test`.
+- Ainda falta aprovação formal de QA visual/produto para dizer que a aderência está 100% fechada.
