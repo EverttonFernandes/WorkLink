@@ -62,7 +62,7 @@ void main() {
     await pumpDiscoveryScreen(widgetTester, discoveryController);
 
     // THEN
-    expect(find.text('Descobrir profissionais'), findsOneWidget);
+    expect(find.text('Buscar profissionais'), findsOneWidget);
     expect(find.text('Maria Eletricista'), findsOneWidget);
     expect(find.text('Ana Pintora'), findsOneWidget);
   });

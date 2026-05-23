@@ -47,6 +47,7 @@ void main() {
 
     // THEN
     expect(find.text('Selecionar cidades'), findsOneWidget);
+    expect(find.text('Usando minha localizacao atual'), findsOneWidget);
     expect(find.text('Canoas - RS'), findsOneWidget);
     expect(find.text('Porto Alegre - RS'), findsOneWidget);
   });
@@ -94,12 +95,12 @@ void main() {
     await pumpCitySelectionScreen(widgetTester, citySelectionController);
 
     // WHEN
-    await widgetTester.tap(find.text('Usar localização atual'));
+    await widgetTester.tap(find.byType(Switch));
     await widgetTester.pump();
 
     // THEN
     expect(citySelectionController.state.currentLocationEnabled, isTrue);
-    expect(find.text('Cidades próximas'), findsOneWidget);
+    expect(find.text('Cidades proximas a sua localizacao atual'), findsOneWidget);
     expect(find.byIcon(Icons.place_outlined), findsOneWidget);
   });
 }

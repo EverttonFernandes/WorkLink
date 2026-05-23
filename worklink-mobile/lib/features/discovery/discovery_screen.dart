@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 import 'discovery_controller.dart';
+import 'discovery_filter_state.dart';
 import 'discovery_professional.dart';
 
 class DiscoveryScreen extends StatefulWidget {
@@ -51,7 +52,7 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Descobrir profissionais'),
+        title: const Text('Buscar profissionais'),
         actions: [
           IconButton(
             tooltip: 'Limpar filtros',
@@ -89,9 +90,8 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
           TextField(
             key: const ValueKey('keyword-search-field'),
             decoration: const InputDecoration(
-              labelText: 'Buscar por palavra-chave',
+              hintText: 'Buscar por categoria ou palavra-chave',
               prefixIcon: Icon(Icons.search),
-              border: OutlineInputBorder(),
             ),
             onChanged: widget.discoveryController.searchByKeyword,
           ),
@@ -110,6 +110,9 @@ class _DiscoveryScreenState extends State<DiscoveryScreen> {
             onChanged: widget.discoveryController.selectCity,
           ),
           const SizedBox(height: 16),
+          if (discoveryState.hasActiveFilters)
+            _ActiveFilterSummary(discoveryState: discoveryState),
+          if (discoveryState.hasActiveFilters) const SizedBox(height: 16),
           if (filteredProfessionals.isEmpty)
             const _EmptyDiscoveryState()
           else
@@ -143,7 +146,6 @@ class _FilterDropdown extends StatelessWidget {
       value: value,
       decoration: InputDecoration(
         labelText: label,
-        border: const OutlineInputBorder(),
       ),
       items: [
         const DropdownMenuItem<String>(
@@ -156,6 +158,33 @@ class _FilterDropdown extends StatelessWidget {
           ),
       ],
       onChanged: onChanged,
+    );
+  }
+}
+
+class _ActiveFilterSummary extends StatelessWidget {
+  const _ActiveFilterSummary({
+    required this.discoveryState,
+  });
+
+  final DiscoveryFilterState discoveryState;
+
+  @override
+  Widget build(BuildContext context) {
+    final activeLabels = <String>[
+      if (discoveryState.selectedCityDisplayName != null)
+        discoveryState.selectedCityDisplayName!,
+      if (discoveryState.selectedCategoryName != null)
+        discoveryState.selectedCategoryName!,
+      if (discoveryState.keyword.trim().isNotEmpty) discoveryState.keyword.trim(),
+    ];
+
+    return Wrap(
+      spacing: 10,
+      runSpacing: 10,
+      children: [
+        for (final activeLabel in activeLabels) Chip(label: Text(activeLabel)),
+      ],
     );
   }
 }
@@ -178,8 +207,9 @@ class _ProfessionalListItem extends StatelessWidget {
         ),
         onTap: () => onOpenProfessionalProfile
             ?.call(professional.professionalIdentifier),
+        borderRadius: BorderRadius.circular(28),
         child: Padding(
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(16),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -193,16 +223,20 @@ class _ProfessionalListItem extends StatelessWidget {
                   children: [
                     Text(
                       professional.professionalName,
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF13243C),
+                          ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${professional.categoryName} - ${professional.cityDisplayName}',
+                      style: const TextStyle(color: Color(0xFF6A7D96)),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     Text(professional.shortDescription),
                     if (professional.comparisonSignalLabels.isNotEmpty) ...[
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 10),
                       Wrap(
                         spacing: 8,
                         runSpacing: 8,
@@ -242,11 +276,17 @@ class _ProfessionalAvatar extends StatelessWidget {
     if (availableProfilePhotoUrl == null ||
         availableProfilePhotoUrl.trim().isEmpty) {
       return const CircleAvatar(
-        child: Icon(Icons.handyman_outlined),
+        radius: 26,
+        backgroundColor: Color(0xFFEAF8EF),
+        child: Icon(
+          Icons.handyman_outlined,
+          color: Color(0xFF16C35B),
+        ),
       );
     }
 
     return CircleAvatar(
+      radius: 26,
       backgroundImage: NetworkImage(availableProfilePhotoUrl),
     );
   }
@@ -261,11 +301,21 @@ class _EmptyDiscoveryState extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 32),
       child: Column(
         children: [
-          Icon(Icons.search_off, size: 48),
-          SizedBox(height: 12),
-          Text('Nenhum profissional encontrado'),
+          Icon(
+            Icons.search_off_rounded,
+            size: 56,
+            color: Color(0xFF7D8FA8),
+          ),
+          SizedBox(height: 20),
+          Text(
+            'Nenhum profissional encontrado',
+            textAlign: TextAlign.center,
+          ),
           SizedBox(height: 8),
-          Text('Ajuste os filtros ou tente outra palavra-chave.'),
+          Text(
+            'Nao encontramos profissionais para esta busca. Ajuste os filtros ou tente outra palavra-chave.',
+            textAlign: TextAlign.center,
+          ),
         ],
       ),
     );
