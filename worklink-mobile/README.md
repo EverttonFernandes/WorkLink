@@ -132,6 +132,7 @@ http://localhost:18080
 
 Observacoes:
 
+- o comando agora espera a preview responder antes de anunciar a URL; no primeiro boot pode levar alguns segundos enquanto o Flutter prepara o runtime web
 - a preview web usa `WORKLINK_USE_PREVIEW_DATA=true` por padrao, entao ela e voltada para revisao visual e navegacao
   rapida da `WLT-030`
 - esse preview nao substitui a homologacao principal em APK Android ou emulador
