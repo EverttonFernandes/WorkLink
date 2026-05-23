@@ -7,6 +7,7 @@ DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) $(DOCKER) compose --env-f
 	backend-unit-test backend-integration-test backend-test backend-image-build \
 	mobile-unit-test mobile-screen-test mobile-integration-test mobile-android-build \
 	mobile-android-test-candidate mobile-android-local-fullstack-candidate mobile-android-homologation-candidate mobile-emulator-prereqs \
+	mobile-web-preview mobile-web-preview-stop mobile-web-preview-logs \
 	mobile-test mobile-emulator-up mobile-emulator-wait mobile-emulator-install \
 	mobile-emulator-integration-test mobile-manual-test functional-test test-unit test-integration test-functional \
 	homologation-local-up homologation-seed promote-android-homologation-artifact \
@@ -113,6 +114,16 @@ mobile-android-homologation-candidate: $(COMPOSE_ENV_FILE)
 		APP_DATA_MODE=homologation-fullstack \
 		API_BASE_URL="$(MOBILE_HOMOLOGATION_API_BASE_URL)" \
 		./scripts/prepare_android_test_candidate.sh
+
+mobile-web-preview: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) up -d mobile-web-preview
+	@echo "Preview web do WorkLink disponivel em http://localhost:$${WORKLINK_MOBILE_WEB_PREVIEW_PORT:-18080}"
+
+mobile-web-preview-stop: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) stop mobile-web-preview
+
+mobile-web-preview-logs: $(COMPOSE_ENV_FILE)
+	$(DOCKER_COMPOSE) logs -f mobile-web-preview
 
 mobile-test: mobile-unit-test mobile-screen-test mobile-integration-test
 

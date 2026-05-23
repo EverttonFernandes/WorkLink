@@ -4,7 +4,7 @@ title: "Aderência visual aos protótipos mobile"
 story_path: "docs/jira-pessoal/historias-tecnicas/WLT-030-aderencia-visual-prototipos-mobile.md"
 official_order: 51
 phase: EXECUTION
-loop_iteration: 2
+loop_iteration: 3
 version_suggestion: PATCH
 func_tests_detected: true
 func_tests_path: "functional-tests/src/specs"
@@ -23,7 +23,7 @@ exit_bar:
   final_review: PENDING
 metrics:
   unit_coverage_minimum: 95
-  changed_files: 9
+  changed_files: 15
   risk_level: HIGH
 release:
   commit_hash: ""
@@ -49,6 +49,11 @@ correction_queue:
     severity: "HIGH"
     status: "OPEN"
     description: "Ainda faltam screenshots reais e veredito formal do mobile front-end specialist para fechar aderencia visual e homologacao manual."
+  - id: "WLT-030-SRE-001"
+    origin: "sre"
+    severity: "MEDIUM"
+    status: "OPEN"
+    description: "O preview web dockerizado foi preparado para apoiar a auditoria visual, mas a validacao ponta a ponta depende do Docker Desktop voltar a responder no ambiente local."
 cycle_history:
   - iteration: 0
     phase: EXECUTION
@@ -85,6 +90,16 @@ cycle_history:
       - "DOCKER=docker.exe make mobile-static-analysis"
       - "DOCKER=docker.exe make mobile-unit-test"
       - "DOCKER=docker.exe make mobile-screen-test"
+  - iteration: 3
+    phase: EXECUTION
+    summary: "Preview web no navegador foi habilitado como apoio oficial da WLT-030 para inspecao visual continua das telas, mantendo o fluxo isolado em Docker."
+    evidence:
+      - "worklink-mobile/web/index.html"
+      - "worklink-mobile/web/manifest.json"
+      - "scripts/run_mobile_web_preview.sh"
+      - "compose.yml"
+      - "Makefile"
+      - "worklink-mobile/README.md"
 ---
 
 # WLT-030 — Aderência visual aos protótipos mobile
@@ -233,3 +248,5 @@ produto que o dono da ideia pretende validar.
   máquina Windows hospedeira.
 - Ajustes visuais profundos em telas mobile costumam exigir revisão paralela dos widget tests, especialmente quando a UI
   passa a ter mais de um `Scrollable` na mesma tela.
+- A auditoria visual fica mais leve quando existe uma preview web dedicada para revisão rápida no navegador, mas a
+  homologação principal continua precisando de APK Android e evidência real de tela.

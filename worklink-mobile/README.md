@@ -17,6 +17,9 @@ make mobile-integration-test
 make mobile-android-build
 make mobile-android-test-candidate
 make mobile-android-local-fullstack-candidate
+make mobile-web-preview
+make mobile-web-preview-stop
+make mobile-web-preview-logs
 make mobile-emulator-up
 make mobile-emulator-wait
 make mobile-emulator-install
@@ -112,6 +115,28 @@ pasta `artifacts/homologation/releases/<versao>/android/` guarda metadados, chec
 A promocao valida o certificado real do APK com `apksigner` antes de anexar o asset ao Release.
 
 A estrategia de build iOS continua documentada em `../docs/ci-cd/ESTRATEGIA-IOS.md`.
+
+## Preview web no navegador
+
+Para acompanhar a evolucao visual das telas sem depender do Android, o projeto agora pode expor uma preview web em Docker:
+
+```bash
+make mobile-web-preview
+```
+
+Depois disso, abra:
+
+```text
+http://localhost:18080
+```
+
+Observacoes:
+
+- a preview web usa `WORKLINK_USE_PREVIEW_DATA=true` por padrao, entao ela e voltada para revisao visual e navegacao
+  rapida da `WLT-030`
+- esse preview nao substitui a homologacao principal em APK Android ou emulador
+- para acompanhar o bootstrap em tempo real, use `make mobile-web-preview-logs`
+- para derrubar o preview, use `make mobile-web-preview-stop`
 
 ## Emulador Android em Docker
 
