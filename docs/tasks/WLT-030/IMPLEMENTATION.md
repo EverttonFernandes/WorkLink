@@ -4,7 +4,7 @@ title: "Aderência visual aos protótipos mobile"
 story_path: "docs/jira-pessoal/historias-tecnicas/WLT-030-aderencia-visual-prototipos-mobile.md"
 official_order: 51
 phase: EXECUTION
-loop_iteration: 4
+loop_iteration: 5
 version_suggestion: PATCH
 func_tests_detected: true
 func_tests_path: "functional-tests/src/specs"
@@ -23,7 +23,7 @@ exit_bar:
   final_review: PENDING
 metrics:
   unit_coverage_minimum: 95
-  changed_files: 22
+  changed_files: 24
   risk_level: HIGH
 release:
   commit_hash: ""
@@ -116,6 +116,14 @@ cycle_history:
       - "worklink-mobile/test/widget/features/professional_report/professional_report_screen_test.dart"
       - "/home/everton/flutter/bin/flutter analyze ... (executado em /tmp/worklink-mobile-validate)"
       - "/home/everton/flutter/bin/flutter test ... (executado em /tmp/worklink-mobile-validate-tests)"
+  - iteration: 5
+    phase: EXECUTION
+    summary: "Quarta rodada de aderencia visual aplicada a descoberta de profissionais, com layout mais fiel ao prototipo de estado vazio e cards de listagem mais alinhados ao produto; analyze e widget tests passaram em copia temporaria."
+    evidence:
+      - "worklink-mobile/lib/features/discovery/discovery_screen.dart"
+      - "worklink-mobile/test/widget/features/discovery/discovery_screen_test.dart"
+      - "/home/everton/flutter/bin/flutter analyze lib/features/discovery/discovery_screen.dart test/widget/features/discovery/discovery_screen_test.dart (executado em /tmp/worklink-mobile-discovery-validate)"
+      - "/home/everton/flutter/bin/flutter test test/widget/features/discovery/discovery_screen_test.dart (executado em /tmp/worklink-mobile-discovery-tests)"
 ---
 
 # WLT-030 — Aderência visual aos protótipos mobile
@@ -183,9 +191,9 @@ produto que o dono da ideia pretende validar.
 
 | História | Protótipo oficial | Tela Flutter atual | Estado auditado | Status inicial | Divergência principal |
 | --- | --- | --- | --- | --- | --- |
-| WL-002 | `docs/prototipos-de-tela/tela-selecionar-cidades.png` | `worklink-mobile/lib/features/city_selection/city_selection_screen.dart` | seleção manual de cidades | FAIL | composição simples de lista e checkbox, sem hierarquia visual nem clima do protótipo |
-| WL-003/WL-004 | `docs/prototipos-de-tela/tela-nenhum-profissional-encontrado.png` | `worklink-mobile/lib/features/discovery/discovery_screen.dart` | descoberta e estado vazio | FAIL | filtros e listagem utilitários, sem estrutura visual do produto e sem estado vazio aderente |
-| WL-009 | `docs/prototipos-de-tela/tela-login-autenticacao.png` | `worklink-mobile/lib/features/customer_authentication/customer_authentication_screen.dart` | entrada de telefone e verificação de código | FAIL | tela utilitária, copy ainda genérica e sem construção visual compatível com o protótipo |
+| WL-002 | `docs/prototipos-de-tela/tela-selecionar-cidades.png` | `worklink-mobile/lib/features/city_selection/city_selection_screen.dart` | seleção manual de cidades | PASS PARCIAL | primeira rodada visual aplicada; ainda falta screenshot oficial e veredito formal |
+| WL-003/WL-004 | `docs/prototipos-de-tela/tela-nenhum-profissional-encontrado.png` | `worklink-mobile/lib/features/discovery/discovery_screen.dart` | descoberta e estado vazio | PASS PARCIAL | busca, filtros, cards e empty state foram refeitos; ainda falta evidência visual real |
+| WL-009 | `docs/prototipos-de-tela/tela-login-autenticacao.png` | `worklink-mobile/lib/features/customer_authentication/customer_authentication_screen.dart` | entrada de telefone e verificação de código | PASS PARCIAL | primeira rodada visual aplicada; detalhes de canal de OTP seguem dependentes da WLT-033 |
 | WL-005 | `docs/prototipos-de-tela/tela-perfil-do-profissional.png` | `worklink-mobile/lib/features/professional_profile/professional_profile_screen.dart` | perfil público do profissional | PASS PARCIAL | segunda rodada visual aplicada; ainda falta evidência formal de screenshot/homologação |
 | WL-006 | `docs/prototipos-de-tela/tela-cadastro-do-profissional.png` | `worklink-mobile/lib/features/professional_registration/professional_registration_screen.dart` | cadastro progressivo | PASS PARCIAL | segunda rodada visual aplicada; ainda falta evidência formal de screenshot/homologação |
 | WL-010 | `docs/prototipos-de-tela/tela-perfil-do-cliente-usuario.png` | `worklink-mobile/lib/features/customer_profile/customer_profile_screen.dart` | meu perfil do cliente | PASS PARCIAL | composição refeita com cards, privacidade e navegação; ainda falta screenshot oficial |

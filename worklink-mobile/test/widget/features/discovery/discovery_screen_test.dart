@@ -41,6 +41,10 @@ void main() {
     ValueChanged<String>? onOpenProfessionalProfile,
     VoidCallback? onOpenAdministrativeConsole,
   }) async {
+    widgetTester.view.physicalSize = const Size(900, 1800);
+    widgetTester.view.devicePixelRatio = 1;
+    addTearDown(widgetTester.view.resetPhysicalSize);
+    addTearDown(widgetTester.view.resetDevicePixelRatio);
     await widgetTester.pumpWidget(
       MaterialApp(
         home: DiscoveryScreen(
@@ -60,6 +64,7 @@ void main() {
 
     // WHEN
     await pumpDiscoveryScreen(widgetTester, discoveryController);
+    await widgetTester.pumpAndSettle();
 
     // THEN
     expect(find.text('Buscar profissionais'), findsOneWidget);
@@ -75,6 +80,7 @@ void main() {
 
     // WHEN
     await pumpDiscoveryScreen(widgetTester, discoveryController);
+    await widgetTester.pumpAndSettle();
 
     // THEN
     expect(find.text('Eletricista - Canoas - RS'), findsOneWidget);
@@ -102,7 +108,7 @@ void main() {
 
     // THEN
     expect(find.text('Nenhum profissional encontrado'), findsOneWidget);
-    expect(find.byIcon(Icons.search_off_rounded), findsOneWidget);
+    expect(find.text('Buscar em cidades proximas'), findsOneWidget);
   });
 
   testWidgets(
@@ -140,6 +146,9 @@ void main() {
     );
 
     // WHEN
+    await widgetTester.ensureVisible(
+      find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
+    );
     await widgetTester.tap(
       find.byKey(const ValueKey('open-professional-profile-maria-eletricista')),
     );

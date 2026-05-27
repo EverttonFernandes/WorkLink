@@ -10,6 +10,8 @@ ULTIMO_RESULTADO:
 - Preview web dockerizado foi preparado para expor o WorkLink no navegador em `http://localhost:18080` usando dados de preview para auditoria visual rapida.
 - Perfil do cliente, contato com profissional, pos-contato, avaliacao e denuncia receberam nova rodada de aderencia visual.
 - `flutter analyze` e os widget tests dessa nova rodada passaram em copias temporarias sob `/tmp`, usando `/home/everton/flutter/bin/flutter`, porque o Docker Desktop segue instavel e o workspace original ainda tem artefatos root-owned de execucoes antigas.
+- A tela de descoberta foi reconstruida com search surface, chips de filtro, cards de profissionais, empty state aderente ao prototipo e navegacao inferior.
+- `flutter analyze` e `flutter test test/widget/features/discovery/discovery_screen_test.dart` passaram em copia temporaria para essa iteracao.
 
 GATES_OBSERVADOS:
 - LINT: PASS
@@ -24,6 +26,7 @@ GATES_OBSERVADOS:
 
 PROXIMA_ACAO_RECOMENDADA:
 - Coletar screenshots reais das telas revisadas via preview web/APK/emulador e emitir veredito formal do mobile front-end specialist para fechar a WLT-030 com evidencia visual.
+- Se ainda houver energia nesta janela, revisar se a etapa de autenticacao precisa apenas evidencia ou mais uma rodada visual antes do gate final.
 
 RISCOS_ABERTOS:
 - WLT-032 e WLT-033 podem bloquear fechamento completo de algumas telas.
