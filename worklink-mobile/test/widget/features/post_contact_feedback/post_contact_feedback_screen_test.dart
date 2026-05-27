@@ -10,6 +10,10 @@ void main() {
     PostContactFeedbackController controller, {
     ValueChanged<String>? onOpenProfessionalReview,
   }) async {
+    widgetTester.view.physicalSize = const Size(800, 1600);
+    widgetTester.view.devicePixelRatio = 1;
+    addTearDown(widgetTester.view.resetPhysicalSize);
+    addTearDown(widgetTester.view.resetDevicePixelRatio);
     await widgetTester.pumpWidget(
       MaterialApp(
         home: PostContactFeedbackScreen(
@@ -33,9 +37,9 @@ void main() {
     await pumpPostContactFeedbackScreen(widgetTester, controller);
 
     // THEN
-    expect(find.text('Pós-contato'), findsOneWidget);
-    expect(find.text('Como foi o contato?'), findsOneWidget);
-    expect(find.text('Conseguiu falar?'), findsOneWidget);
+    expect(find.text('Como foi seu contato?'), findsOneWidget);
+    expect(find.text('Sua opinião faz a diferença!'), findsOneWidget);
+    expect(find.text('Você conseguiu falar com o profissional?'), findsOneWidget);
     expect(find.text('Como foi a resposta?'), findsOneWidget);
     expect(find.text('O serviço foi realizado?'), findsOneWidget);
   });
@@ -57,9 +61,27 @@ void main() {
     await pumpPostContactFeedbackScreen(widgetTester, controller);
 
     // WHEN
-    await widgetTester.tap(find.text('Consegui falar'));
-    await widgetTester.tap(find.text('Respondeu rápido'));
-    await widgetTester.tap(find.text('Serviço realizado'));
+    await widgetTester.tap(
+      find.byKey(
+        const ValueKey(
+          'conversation-outcome-PostContactConversationOutcome.customerReachedProfessional',
+        ),
+      ),
+    );
+    await widgetTester.tap(
+      find.byKey(
+        const ValueKey(
+          'contact-responsiveness-PostContactResponsiveness.fastResponse',
+        ),
+      ),
+    );
+    await widgetTester.tap(
+      find.byKey(
+        const ValueKey(
+          'service-execution-PostContactServiceExecutionOutcome.servicePerformed',
+        ),
+      ),
+    );
     await widgetTester.tap(
       find.byKey(const ValueKey('submit-post-contact-feedback-button')),
     );
@@ -123,9 +145,27 @@ void main() {
     );
 
     // WHEN
-    await widgetTester.tap(find.text('Consegui falar'));
-    await widgetTester.tap(find.text('Respondeu rápido'));
-    await widgetTester.tap(find.text('Serviço realizado'));
+    await widgetTester.tap(
+      find.byKey(
+        const ValueKey(
+          'conversation-outcome-PostContactConversationOutcome.customerReachedProfessional',
+        ),
+      ),
+    );
+    await widgetTester.tap(
+      find.byKey(
+        const ValueKey(
+          'contact-responsiveness-PostContactResponsiveness.fastResponse',
+        ),
+      ),
+    );
+    await widgetTester.tap(
+      find.byKey(
+        const ValueKey(
+          'service-execution-PostContactServiceExecutionOutcome.servicePerformed',
+        ),
+      ),
+    );
     await widgetTester.tap(
       find.byKey(const ValueKey('submit-post-contact-feedback-button')),
     );
@@ -150,9 +190,27 @@ void main() {
     await pumpPostContactFeedbackScreen(widgetTester, controller);
 
     // WHEN
-    await widgetTester.tap(find.text('Não consegui falar'));
-    await widgetTester.tap(find.text('Não respondeu'));
-    await widgetTester.tap(find.text('Serviço não realizado'));
+    await widgetTester.tap(
+      find.byKey(
+        const ValueKey(
+          'conversation-outcome-PostContactConversationOutcome.customerDidNotReachProfessional',
+        ),
+      ),
+    );
+    await widgetTester.tap(
+      find.byKey(
+        const ValueKey(
+          'contact-responsiveness-PostContactResponsiveness.noResponse',
+        ),
+      ),
+    );
+    await widgetTester.tap(
+      find.byKey(
+        const ValueKey(
+          'service-execution-PostContactServiceExecutionOutcome.serviceNotPerformed',
+        ),
+      ),
+    );
     await widgetTester.tap(
       find.byKey(const ValueKey('submit-post-contact-feedback-button')),
     );

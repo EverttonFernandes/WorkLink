@@ -17,6 +17,10 @@ void main() {
     ProfessionalContactController controller, {
     ValueChanged<String>? onOpenPostContactFeedback,
   }) async {
+    widgetTester.view.physicalSize = const Size(800, 1600);
+    widgetTester.view.devicePixelRatio = 1;
+    addTearDown(widgetTester.view.resetPhysicalSize);
+    addTearDown(widgetTester.view.resetDevicePixelRatio);
     await widgetTester.pumpWidget(
       MaterialApp(
         home: ProfessionalContactScreen(
@@ -45,13 +49,14 @@ void main() {
     expect(find.text('Falar com o profissional'), findsOneWidget);
     expect(find.text('Maria Eletricista'), findsOneWidget);
     expect(
-      find.text('A negociação acontece fora do WorkLink pelo WhatsApp.'),
+      find.textContaining('Você será redirecionado para o WhatsApp'),
       findsOneWidget,
     );
     expect(
-      find.text('O WorkLink não garante a execução do serviço contratado.'),
+      find.text('Sua segurança importa'),
       findsOneWidget,
     );
+    expect(find.text('Abrir no WhatsApp'), findsOneWidget);
   });
 
   testWidgets(

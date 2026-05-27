@@ -9,6 +9,10 @@ void main() {
     WidgetTester widgetTester,
     ProfessionalReviewController controller,
   ) async {
+    widgetTester.view.physicalSize = const Size(800, 1600);
+    widgetTester.view.devicePixelRatio = 1;
+    addTearDown(widgetTester.view.resetPhysicalSize);
+    addTearDown(widgetTester.view.resetDevicePixelRatio);
     await widgetTester.pumpWidget(
       MaterialApp(
         home: ProfessionalReviewScreen(
@@ -33,7 +37,7 @@ void main() {
     // THEN
     expect(find.text('Avaliar profissional'), findsOneWidget);
     expect(find.text('Como foi o serviço?'), findsOneWidget);
-    expect(find.text('Nota obrigatória'), findsOneWidget);
+    expect(find.text('Avalie sua experiência'), findsOneWidget);
     expect(
       find.byKey(const ValueKey('professional-review-comment-field')),
       findsOneWidget,
@@ -98,6 +102,6 @@ void main() {
     expect(submittedContactIntentionIdentifier, 'contact-intention-1');
     expect(submittedReviewState?.starRating, 5);
     expect(submittedReviewState?.normalizedComment, 'Servico excelente.');
-    expect(find.text('Avaliação registrada.'), findsOneWidget);
+    expect(find.text('Obrigado pela sua avaliação!'), findsOneWidget);
   });
 }

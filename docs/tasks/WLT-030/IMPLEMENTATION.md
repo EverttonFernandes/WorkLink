@@ -4,7 +4,7 @@ title: "Aderência visual aos protótipos mobile"
 story_path: "docs/jira-pessoal/historias-tecnicas/WLT-030-aderencia-visual-prototipos-mobile.md"
 official_order: 51
 phase: EXECUTION
-loop_iteration: 3
+loop_iteration: 4
 version_suggestion: PATCH
 func_tests_detected: true
 func_tests_path: "functional-tests/src/specs"
@@ -23,7 +23,7 @@ exit_bar:
   final_review: PENDING
 metrics:
   unit_coverage_minimum: 95
-  changed_files: 15
+  changed_files: 22
   risk_level: HIGH
 release:
   commit_hash: ""
@@ -100,6 +100,22 @@ cycle_history:
       - "compose.yml"
       - "Makefile"
       - "worklink-mobile/README.md"
+  - iteration: 4
+    phase: EXECUTION
+    summary: "Terceira rodada de aderencia visual aplicada ao perfil do cliente, contato com profissional, pos-contato, avaliacao e denuncia; analyze e widget tests passaram em copia temporaria com Flutter local por causa da indisponibilidade atual do Docker Desktop."
+    evidence:
+      - "worklink-mobile/lib/features/customer_profile/customer_profile_screen.dart"
+      - "worklink-mobile/lib/features/professional_contact/professional_contact_screen.dart"
+      - "worklink-mobile/lib/features/post_contact_feedback/post_contact_feedback_screen.dart"
+      - "worklink-mobile/lib/features/professional_review/professional_review_screen.dart"
+      - "worklink-mobile/lib/features/professional_report/professional_report_screen.dart"
+      - "worklink-mobile/test/widget/features/customer_profile/customer_profile_screen_test.dart"
+      - "worklink-mobile/test/widget/features/professional_contact/professional_contact_screen_test.dart"
+      - "worklink-mobile/test/widget/features/post_contact_feedback/post_contact_feedback_screen_test.dart"
+      - "worklink-mobile/test/widget/features/professional_review/professional_review_screen_test.dart"
+      - "worklink-mobile/test/widget/features/professional_report/professional_report_screen_test.dart"
+      - "/home/everton/flutter/bin/flutter analyze ... (executado em /tmp/worklink-mobile-validate)"
+      - "/home/everton/flutter/bin/flutter test ... (executado em /tmp/worklink-mobile-validate-tests)"
 ---
 
 # WLT-030 — Aderência visual aos protótipos mobile
@@ -170,8 +186,14 @@ produto que o dono da ideia pretende validar.
 | WL-002 | `docs/prototipos-de-tela/tela-selecionar-cidades.png` | `worklink-mobile/lib/features/city_selection/city_selection_screen.dart` | seleção manual de cidades | FAIL | composição simples de lista e checkbox, sem hierarquia visual nem clima do protótipo |
 | WL-003/WL-004 | `docs/prototipos-de-tela/tela-nenhum-profissional-encontrado.png` | `worklink-mobile/lib/features/discovery/discovery_screen.dart` | descoberta e estado vazio | FAIL | filtros e listagem utilitários, sem estrutura visual do produto e sem estado vazio aderente |
 | WL-009 | `docs/prototipos-de-tela/tela-login-autenticacao.png` | `worklink-mobile/lib/features/customer_authentication/customer_authentication_screen.dart` | entrada de telefone e verificação de código | FAIL | tela utilitária, copy ainda genérica e sem construção visual compatível com o protótipo |
-| WL-005 | `docs/prototipos-de-tela/tela-perfil-do-profissional.png` | `worklink-mobile/lib/features/professional_profile/professional_profile_screen.dart` | perfil público do profissional | PENDING | leitura inicial concluída, auditoria detalhada ainda pendente |
-| WL-006 | `docs/prototipos-de-tela/tela-cadastro-do-profissional.png` | `worklink-mobile/lib/features/professional_registration/professional_registration_screen.dart` | cadastro progressivo | PENDING | leitura inicial concluída, auditoria detalhada ainda pendente |
+| WL-005 | `docs/prototipos-de-tela/tela-perfil-do-profissional.png` | `worklink-mobile/lib/features/professional_profile/professional_profile_screen.dart` | perfil público do profissional | PASS PARCIAL | segunda rodada visual aplicada; ainda falta evidência formal de screenshot/homologação |
+| WL-006 | `docs/prototipos-de-tela/tela-cadastro-do-profissional.png` | `worklink-mobile/lib/features/professional_registration/professional_registration_screen.dart` | cadastro progressivo | PASS PARCIAL | segunda rodada visual aplicada; ainda falta evidência formal de screenshot/homologação |
+| WL-010 | `docs/prototipos-de-tela/tela-perfil-do-cliente-usuario.png` | `worklink-mobile/lib/features/customer_profile/customer_profile_screen.dart` | meu perfil do cliente | PASS PARCIAL | composição refeita com cards, privacidade e navegação; ainda falta screenshot oficial |
+| WL-011 | `docs/prototipos-de-tela/tela-falar-com-o-profissional.png` | `worklink-mobile/lib/features/professional_contact/professional_contact_screen.dart` | abertura de contato via WhatsApp | PASS PARCIAL | estrutura visual alinhada ao protótipo e fluxo validado por widget test; falta evidência visual real |
+| WL-012 | `docs/prototipos-de-tela/tela-como-foi-seu-contato.png` | `worklink-mobile/lib/features/post_contact_feedback/post_contact_feedback_screen.dart` | pós-contato | PASS PARCIAL | perguntas e CTA revisados; falta screenshot oficial |
+| WL-013 | `docs/prototipos-de-tela/tela-avaliacao-profissional.png` | `worklink-mobile/lib/features/professional_review/professional_review_screen.dart` | avaliação do profissional | PASS PARCIAL | seções, sucesso e anonimato alinhados; falta veredito final visual |
+| WL-014 | `docs/prototipos-de-tela/tela-avaliacao-concluida.png` | `worklink-mobile/lib/features/professional_review/professional_review_screen.dart` | avaliação concluída | PASS PARCIAL | estado de sucesso foi reconstruído; falta evidência real |
+| WL-015 | `docs/prototipos-de-tela/tela-denunciar-profissional.png` | `worklink-mobile/lib/features/professional_report/professional_report_screen.dart` | denúncia de profissional | PASS PARCIAL | formulário e orientação refeitos; falta screenshot/homologação manual |
 
 ## Camadas afetadas
 
@@ -189,6 +211,7 @@ produto que o dono da ideia pretende validar.
 - Widget tests das telas alteradas
 - Revalidação do gate `mobile_tests`
 - Evidência visual real por screenshot do APK/emulador
+- Enquanto o Docker Desktop permanecer indisponível, validar localmente em cópias temporárias fora do workspace para não colidir com artefatos root-owned gerados por execuções antigas em container
 
 ## Dados, privacidade e rastreabilidade
 

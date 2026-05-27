@@ -8,6 +8,8 @@ ULTIMO_RESULTADO:
 - Docker Desktop foi validado como runtime isolado para Flutter; `mobile-static-analysis`, `mobile-unit-test` e `mobile-screen-test` passaram.
 - Perfil profissional e cadastro profissional receberam segunda rodada de aderencia visual com testes atualizados.
 - Preview web dockerizado foi preparado para expor o WorkLink no navegador em `http://localhost:18080` usando dados de preview para auditoria visual rapida.
+- Perfil do cliente, contato com profissional, pos-contato, avaliacao e denuncia receberam nova rodada de aderencia visual.
+- `flutter analyze` e os widget tests dessa nova rodada passaram em copias temporarias sob `/tmp`, usando `/home/everton/flutter/bin/flutter`, porque o Docker Desktop segue instavel e o workspace original ainda tem artefatos root-owned de execucoes antigas.
 
 GATES_OBSERVADOS:
 - LINT: PASS
@@ -21,10 +23,10 @@ GATES_OBSERVADOS:
 - FINAL_REVIEW: PENDING
 
 PROXIMA_ACAO_RECOMENDADA:
-- Validar o novo `make mobile-web-preview` com Docker Desktop ativo, coletar screenshots reais do navegador/emulador e emitir veredito formal do mobile front-end specialist para fechar a WLT-030.
+- Coletar screenshots reais das telas revisadas via preview web/APK/emulador e emitir veredito formal do mobile front-end specialist para fechar a WLT-030 com evidencia visual.
 
 RISCOS_ABERTOS:
 - WLT-032 e WLT-033 podem bloquear fechamento completo de algumas telas.
 - Faltam screenshots oficiais da nova rodada de homologação.
 - Ainda falta aprovação formal de QA visual/produto para dizer que a aderência está 100% fechada.
-- O Docker Desktop nao respondeu nesta janela, entao a nova preview web ainda nao foi validada ponta a ponta.
+- O Docker Desktop segue intermitente nesta janela, entao a preview web e a coleta oficial de evidencia ainda dependem de uma revalidacao ponta a ponta em container.

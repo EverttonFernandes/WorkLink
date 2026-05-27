@@ -15,11 +15,15 @@ void main() {
     expect(find.text('Meu perfil'), findsOneWidget);
     expect(find.text('Cliente WorkLink'), findsOneWidget);
     expect(find.text('(51) 9 9999-1234'), findsOneWidget);
+    expect(find.text('Conta verificada'), findsOneWidget);
     expect(find.text('Canoas - RS'), findsWidgets);
+    expect(find.text('Gerenciar'), findsOneWidget);
     expect(find.text('Profissionais salvos'), findsOneWidget);
     expect(find.text('Maria Eletricista'), findsWidgets);
     expect(find.text('Avaliações enviadas'), findsOneWidget);
     expect(find.text('5 de 5 - Anonima publicamente'), findsOneWidget);
+    expect(find.text('Configurações'), findsOneWidget);
+    expect(find.text('Sair da conta'), findsOneWidget);
   });
 
   testWidgets(
