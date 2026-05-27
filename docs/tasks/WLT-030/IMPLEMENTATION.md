@@ -4,7 +4,7 @@ title: "Aderência visual aos protótipos mobile"
 story_path: "docs/jira-pessoal/historias-tecnicas/WLT-030-aderencia-visual-prototipos-mobile.md"
 official_order: 51
 phase: EXECUTION
-loop_iteration: 8
+loop_iteration: 9
 version_suggestion: PATCH
 func_tests_detected: true
 func_tests_path: "functional-tests/src/specs"
@@ -54,6 +54,11 @@ correction_queue:
     severity: "MEDIUM"
     status: "OPEN"
     description: "O preview web dockerizado foi preparado para apoiar a auditoria visual, mas a validacao ponta a ponta depende do Docker Desktop voltar a responder no ambiente local."
+  - id: "WLT-030-MOBILE-003"
+    origin: "mobile_frontend"
+    severity: "CRITICAL"
+    status: "OPEN"
+    description: "Os goldens versionados provaram regressao visual automatizada, mas nao servem como homologacao visual final porque a renderizacao de tipografia no ambiente atual sai em glifos/quadrados, impedindo aprovacao do especialista mobile."
 cycle_history:
   - iteration: 0
     phase: EXECUTION
@@ -174,6 +179,15 @@ cycle_history:
       - "worklink-mobile/test/widget/visual/goldens/13-professional-report.png"
       - "/home/everton/flutter/bin/flutter analyze test/widget/visual/wlt_030_visual_evidence_test.dart ... (executado em /tmp/worklink-mobile-wlt030-validate)"
       - "/home/everton/flutter/bin/flutter test test/widget/visual/wlt_030_visual_evidence_test.dart test/widget/features/customer_authentication/customer_authentication_screen_test.dart test/widget/features/city_selection/city_selection_screen_test.dart test/widget/features/discovery/discovery_screen_test.dart test/widget/features/professional_profile/professional_profile_screen_test.dart test/widget/features/professional_registration/professional_registration_screen_test.dart test/widget/features/customer_profile/customer_profile_screen_test.dart test/widget/features/professional_contact/professional_contact_screen_test.dart test/widget/features/post_contact_feedback/post_contact_feedback_screen_test.dart test/widget/features/professional_review/professional_review_screen_test.dart test/widget/features/professional_report/professional_report_screen_test.dart (executado em /tmp/worklink-mobile-wlt030-tests)"
+  - iteration: 9
+    phase: EXECUTION
+    summary: "O Mobile Front-end Specialist e a trilha SRE/Mobile Infra emitiram parecer formal: os goldens ficaram aprovados como regressao automatizada, mas a historia segue bloqueada para fechamento porque as evidencias atuais nao substituem screenshots oficiais de APK/emulador ou preview web com tipografia fiel."
+    evidence:
+      - "docs/tasks/WLT-030/MOBILE_FRONTEND_SPECIALIST_REVIEW.md"
+      - "docs/tasks/WLT-030/SRE_MOBILE_INFRA_REVIEW.md"
+      - "docs/prototipos-de-tela/tela-login-autenticacao.png"
+      - "worklink-mobile/test/widget/visual/goldens/01-auth-phone-entry.png"
+      - "docker.exe version"
 ---
 
 # WLT-030 — Aderência visual aos protótipos mobile

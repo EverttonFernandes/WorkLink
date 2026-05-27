@@ -36,6 +36,7 @@ RISCOS_ABERTOS:
 - As evidencias atuais sao reprodutiveis e fortes, mas ainda nao sao screenshots oficiais de APK/emulador.
 - Ainda falta aprovação formal de QA visual/produto para dizer que a aderência está 100% fechada.
 - O Docker Desktop segue intermitente nesta janela, entao a preview web e a coleta oficial de evidencia ainda dependem de uma revalidacao ponta a ponta em container.
+- Os goldens deste ambiente nao preservam tipografia legivel para homologacao de produto final; eles servem para regressao, nao para aprovacao visual final.
 
 ULTIMA_HIPOTESE:
 - Mesmo sem APK/emulador disponivel de forma estavel nesta janela, podemos manter a WLT-030 convergindo com evidencias visuais reprodutiveis via golden tests e usar isso como ponte ate a homologacao manual oficial.
@@ -45,3 +46,4 @@ ULTIMO_RESULTADO:
 - O script `scripts/capture_wlt_030_visual_evidence.sh` agora executa `flutter test --update-goldens`, copia as imagens para `docs/tasks/WLT-030/evidence/generated/` e produz evidencia rastreavel.
 - A coleta passou com sucesso usando `/home/everton/flutter/bin/flutter` em copia temporaria sob `/tmp/worklink-mobile-wlt030-evidence`.
 - Os 13 arquivos goldens tambem foram versionados em `worklink-mobile/test/widget/visual/goldens/`, e a suite consolidada de widget tests + evidencias visuais passou em `/tmp/worklink-mobile-wlt030-tests`.
+- O parecer formal do Mobile Front-end Specialist ficou `REJECTED` para fechamento da historia porque os goldens deste ambiente nao renderizam tipografia de forma fiel, e o parecer SRE/Mobile Infra manteve a historia em `PENDING` devido ao Docker Desktop indisponivel para revalidar o preview web.
