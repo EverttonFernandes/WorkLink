@@ -27,6 +27,8 @@ void main() {
     WidgetTester widgetTester,
     CitySelectionController citySelectionController,
   ) async {
+    await widgetTester.binding.setSurfaceSize(const Size(800, 1600));
+    addTearDown(() => widgetTester.binding.setSurfaceSize(null));
     await widgetTester.pumpWidget(
       MaterialApp(
         home: CitySelectionScreen(

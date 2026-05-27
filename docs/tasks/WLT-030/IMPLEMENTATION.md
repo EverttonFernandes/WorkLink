@@ -4,7 +4,7 @@ title: "Aderência visual aos protótipos mobile"
 story_path: "docs/jira-pessoal/historias-tecnicas/WLT-030-aderencia-visual-prototipos-mobile.md"
 official_order: 51
 phase: EXECUTION
-loop_iteration: 5
+loop_iteration: 6
 version_suggestion: PATCH
 func_tests_detected: true
 func_tests_path: "functional-tests/src/specs"
@@ -23,7 +23,7 @@ exit_bar:
   final_review: PENDING
 metrics:
   unit_coverage_minimum: 95
-  changed_files: 24
+  changed_files: 28
   risk_level: HIGH
 release:
   commit_hash: ""
@@ -124,6 +124,16 @@ cycle_history:
       - "worklink-mobile/test/widget/features/discovery/discovery_screen_test.dart"
       - "/home/everton/flutter/bin/flutter analyze lib/features/discovery/discovery_screen.dart test/widget/features/discovery/discovery_screen_test.dart (executado em /tmp/worklink-mobile-discovery-validate)"
       - "/home/everton/flutter/bin/flutter test test/widget/features/discovery/discovery_screen_test.dart (executado em /tmp/worklink-mobile-discovery-tests)"
+  - iteration: 6
+    phase: EXECUTION
+    summary: "Quinta rodada de aderencia visual aplicada a autenticacao e selecao de cidades, aproximando a hierarquia visual dos prototipos sem alterar os fluxos principais; analyze e widget tests passaram em copia temporaria."
+    evidence:
+      - "worklink-mobile/lib/features/customer_authentication/customer_authentication_screen.dart"
+      - "worklink-mobile/lib/features/city_selection/city_selection_screen.dart"
+      - "worklink-mobile/test/widget/features/customer_authentication/customer_authentication_screen_test.dart"
+      - "worklink-mobile/test/widget/features/city_selection/city_selection_screen_test.dart"
+      - "/home/everton/flutter/bin/flutter analyze lib/features/customer_authentication/customer_authentication_screen.dart lib/features/city_selection/city_selection_screen.dart test/widget/features/customer_authentication/customer_authentication_screen_test.dart test/widget/features/city_selection/city_selection_screen_test.dart (executado em /tmp/worklink-mobile-auth-city-validate)"
+      - "/home/everton/flutter/bin/flutter test test/widget/features/customer_authentication/customer_authentication_screen_test.dart test/widget/features/city_selection/city_selection_screen_test.dart (executado em /tmp/worklink-mobile-auth-city-tests)"
 ---
 
 # WLT-030 — Aderência visual aos protótipos mobile
