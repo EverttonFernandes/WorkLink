@@ -4,7 +4,7 @@ title: "Aderência visual aos protótipos mobile"
 story_path: "docs/jira-pessoal/historias-tecnicas/WLT-030-aderencia-visual-prototipos-mobile.md"
 official_order: 51
 phase: EXECUTION
-loop_iteration: 6
+loop_iteration: 8
 version_suggestion: PATCH
 func_tests_detected: true
 func_tests_path: "functional-tests/src/specs"
@@ -23,7 +23,7 @@ exit_bar:
   final_review: PENDING
 metrics:
   unit_coverage_minimum: 95
-  changed_files: 28
+  changed_files: 32
   risk_level: HIGH
 release:
   commit_hash: ""
@@ -48,7 +48,7 @@ correction_queue:
     origin: "qa"
     severity: "HIGH"
     status: "OPEN"
-    description: "Ainda faltam screenshots reais e veredito formal do mobile front-end specialist para fechar aderencia visual e homologacao manual."
+    description: "A historia ja possui evidencias visuais geradas por golden tests para 13 telas/estados principais, mas ainda faltam screenshots oficiais de APK/emulador e veredito formal do mobile front-end specialist para fechar aderencia visual e homologacao manual."
   - id: "WLT-030-SRE-001"
     origin: "sre"
     severity: "MEDIUM"
@@ -134,6 +134,46 @@ cycle_history:
       - "worklink-mobile/test/widget/features/city_selection/city_selection_screen_test.dart"
       - "/home/everton/flutter/bin/flutter analyze lib/features/customer_authentication/customer_authentication_screen.dart lib/features/city_selection/city_selection_screen.dart test/widget/features/customer_authentication/customer_authentication_screen_test.dart test/widget/features/city_selection/city_selection_screen_test.dart (executado em /tmp/worklink-mobile-auth-city-validate)"
       - "/home/everton/flutter/bin/flutter test test/widget/features/customer_authentication/customer_authentication_screen_test.dart test/widget/features/city_selection/city_selection_screen_test.dart (executado em /tmp/worklink-mobile-auth-city-tests)"
+  - iteration: 7
+    phase: EXECUTION
+    summary: "A historia ganhou coleta reprodutivel de evidencia visual por golden tests, cobrindo 13 telas/estados auditados da WLT-030 e destravando a memoria visual da homologacao mesmo com o Docker Desktop intermitente."
+    evidence:
+      - "worklink-mobile/test/widget/visual/wlt_030_visual_evidence_test.dart"
+      - "scripts/capture_wlt_030_visual_evidence.sh"
+      - "docs/tasks/WLT-030/evidence/README.md"
+      - "docs/tasks/WLT-030/evidence/generated/01-auth-phone-entry.png"
+      - "docs/tasks/WLT-030/evidence/generated/02-auth-verification.png"
+      - "docs/tasks/WLT-030/evidence/generated/03-city-selection.png"
+      - "docs/tasks/WLT-030/evidence/generated/04-discovery-results.png"
+      - "docs/tasks/WLT-030/evidence/generated/05-discovery-empty-state.png"
+      - "docs/tasks/WLT-030/evidence/generated/06-professional-profile.png"
+      - "docs/tasks/WLT-030/evidence/generated/07-professional-registration.png"
+      - "docs/tasks/WLT-030/evidence/generated/08-customer-profile.png"
+      - "docs/tasks/WLT-030/evidence/generated/09-professional-contact.png"
+      - "docs/tasks/WLT-030/evidence/generated/10-post-contact-feedback.png"
+      - "docs/tasks/WLT-030/evidence/generated/11-professional-review.png"
+      - "docs/tasks/WLT-030/evidence/generated/12-professional-review-success.png"
+      - "docs/tasks/WLT-030/evidence/generated/13-professional-report.png"
+      - "./scripts/capture_wlt_030_visual_evidence.sh"
+  - iteration: 8
+    phase: EXECUTION
+    summary: "Os 13 goldens foram versionados dentro do app mobile, permitindo que a nova evidencia visual seja validada em execucao normal de widget tests e deixando a regressao visual rastreavel."
+    evidence:
+      - "worklink-mobile/test/widget/visual/goldens/01-auth-phone-entry.png"
+      - "worklink-mobile/test/widget/visual/goldens/02-auth-verification.png"
+      - "worklink-mobile/test/widget/visual/goldens/03-city-selection.png"
+      - "worklink-mobile/test/widget/visual/goldens/04-discovery-results.png"
+      - "worklink-mobile/test/widget/visual/goldens/05-discovery-empty-state.png"
+      - "worklink-mobile/test/widget/visual/goldens/06-professional-profile.png"
+      - "worklink-mobile/test/widget/visual/goldens/07-professional-registration.png"
+      - "worklink-mobile/test/widget/visual/goldens/08-customer-profile.png"
+      - "worklink-mobile/test/widget/visual/goldens/09-professional-contact.png"
+      - "worklink-mobile/test/widget/visual/goldens/10-post-contact-feedback.png"
+      - "worklink-mobile/test/widget/visual/goldens/11-professional-review.png"
+      - "worklink-mobile/test/widget/visual/goldens/12-professional-review-success.png"
+      - "worklink-mobile/test/widget/visual/goldens/13-professional-report.png"
+      - "/home/everton/flutter/bin/flutter analyze test/widget/visual/wlt_030_visual_evidence_test.dart ... (executado em /tmp/worklink-mobile-wlt030-validate)"
+      - "/home/everton/flutter/bin/flutter test test/widget/visual/wlt_030_visual_evidence_test.dart test/widget/features/customer_authentication/customer_authentication_screen_test.dart test/widget/features/city_selection/city_selection_screen_test.dart test/widget/features/discovery/discovery_screen_test.dart test/widget/features/professional_profile/professional_profile_screen_test.dart test/widget/features/professional_registration/professional_registration_screen_test.dart test/widget/features/customer_profile/customer_profile_screen_test.dart test/widget/features/professional_contact/professional_contact_screen_test.dart test/widget/features/post_contact_feedback/post_contact_feedback_screen_test.dart test/widget/features/professional_review/professional_review_screen_test.dart test/widget/features/professional_report/professional_report_screen_test.dart (executado em /tmp/worklink-mobile-wlt030-tests)"
 ---
 
 # WLT-030 — Aderência visual aos protótipos mobile
