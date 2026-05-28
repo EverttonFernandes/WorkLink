@@ -4,7 +4,7 @@ title: "Aderência visual aos protótipos mobile"
 story_path: "docs/jira-pessoal/historias-tecnicas/WLT-030-aderencia-visual-prototipos-mobile.md"
 official_order: 51
 phase: EXECUTION
-loop_iteration: 9
+loop_iteration: 10
 version_suggestion: PATCH
 func_tests_detected: true
 func_tests_path: "functional-tests/src/specs"
@@ -52,8 +52,8 @@ correction_queue:
   - id: "WLT-030-SRE-001"
     origin: "sre"
     severity: "MEDIUM"
-    status: "OPEN"
-    description: "O preview web dockerizado foi preparado para apoiar a auditoria visual, mas a validacao ponta a ponta depende do Docker Desktop voltar a responder no ambiente local."
+    status: "DONE"
+    description: "O preview web dockerizado continua bloqueado pelo Docker Desktop indisponivel, mas a historia ganhou fallback funcional via `flutter run -d web-server`, destravando a validacao local do app no navegador."
   - id: "WLT-030-MOBILE-003"
     origin: "mobile_frontend"
     severity: "CRITICAL"
@@ -188,6 +188,13 @@ cycle_history:
       - "docs/prototipos-de-tela/tela-login-autenticacao.png"
       - "worklink-mobile/test/widget/visual/goldens/01-auth-phone-entry.png"
       - "docker.exe version"
+  - iteration: 10
+    phase: EXECUTION
+    summary: "O executor corrigiu compatibilidade do tema com a versao atual do Flutter Web (`CardThemeData`) e comprovou que o app volta a subir localmente em `flutter run -d web-server`, criando um fallback pratico ao preview dockerizado."
+    evidence:
+      - "worklink-mobile/lib/main.dart"
+      - "/home/everton/flutter/bin/flutter run -d web-server --web-hostname 127.0.0.1 --web-port 18080 (executado em /tmp/worklink-mobile-web-preview-local)"
+      - "curl -s http://127.0.0.1:18080 | head -n 5"
 ---
 
 # WLT-030 — Aderência visual aos protótipos mobile

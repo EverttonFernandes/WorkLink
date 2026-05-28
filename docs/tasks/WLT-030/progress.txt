@@ -27,7 +27,7 @@ GATES_OBSERVADOS:
 - FINAL_REVIEW: PENDING
 
 PROXIMA_ACAO_RECOMENDADA:
-- Revalidar o preview web dockerizado ou o APK/emulador para complementar com screenshots oficiais de homologacao manual.
+- Usar o fallback local `flutter run -d web-server` para abrir o app no navegador e coletar screenshots oficiais de homologacao visual.
 - Emitir veredito formal do mobile front-end specialist sobre as 13 evidencias geradas e sobre os prototipos ainda sem aprovacao explicita.
 - Se a janela permitir, fechar os gates de QA visual, SRE e revisao final em cima da nova pasta `docs/tasks/WLT-030/evidence/`.
 
@@ -35,7 +35,7 @@ RISCOS_ABERTOS:
 - WLT-032 e WLT-033 podem bloquear fechamento completo de algumas telas.
 - As evidencias atuais sao reprodutiveis e fortes, mas ainda nao sao screenshots oficiais de APK/emulador.
 - Ainda falta aprovação formal de QA visual/produto para dizer que a aderência está 100% fechada.
-- O Docker Desktop segue intermitente nesta janela, entao a preview web e a coleta oficial de evidencia ainda dependem de uma revalidacao ponta a ponta em container.
+- O Docker Desktop segue intermitente nesta janela, mas a app agora possui fallback local em `flutter run -d web-server`; o risco restante e a coleta efetiva das screenshots oficiais.
 - Os goldens deste ambiente nao preservam tipografia legivel para homologacao de produto final; eles servem para regressao, nao para aprovacao visual final.
 
 ULTIMA_HIPOTESE:
@@ -47,3 +47,4 @@ ULTIMO_RESULTADO:
 - A coleta passou com sucesso usando `/home/everton/flutter/bin/flutter` em copia temporaria sob `/tmp/worklink-mobile-wlt030-evidence`.
 - Os 13 arquivos goldens tambem foram versionados em `worklink-mobile/test/widget/visual/goldens/`, e a suite consolidada de widget tests + evidencias visuais passou em `/tmp/worklink-mobile-wlt030-tests`.
 - O parecer formal do Mobile Front-end Specialist ficou `REJECTED` para fechamento da historia porque os goldens deste ambiente nao renderizam tipografia de forma fiel, e o parecer SRE/Mobile Infra manteve a historia em `PENDING` devido ao Docker Desktop indisponivel para revalidar o preview web.
+- O `main.dart` foi ajustado para `CardThemeData`, e isso destravou o `flutter run -d web-server`, provando que a app consegue voltar a subir localmente no navegador mesmo sem Docker Desktop.

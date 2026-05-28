@@ -14,7 +14,7 @@
 
 | Gate | Resultado | Observação |
 | --- | --- | --- |
-| `sre` | `PENDING` | preview web preparado, mas sem validação ponta a ponta nesta janela |
+| `sre` | `PENDING` | preview dockerizado segue bloqueado, mas existe fallback local funcional via `flutter run -d web-server` |
 | `android_ci_readiness` | `PASS PARCIAL` | suíte local e evidência automatizada existem, mas não substituem APK/emulador oficial |
 | `manual_testing_readiness` | `PENDING` | falta captura oficial com renderização fiel |
 | `artifact_governance` | `PASS PARCIAL` | artefatos/versionamento visual adicionados no repositório, mas ainda não fecham homologação operacional |
@@ -47,6 +47,16 @@ failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine
 
 Isso bloqueia a revalidação do preview web dockerizado, que era a principal trilha operacional para capturar evidência
 visual oficial sem depender do Windows hospedeiro.
+
+### Mitigação já validada
+
+Mesmo com o Docker Desktop indisponível, a história não ficou cega operacionalmente:
+
+- `flutter run -d web-server --web-hostname 127.0.0.1 --web-port 18080` subiu a aplicação com sucesso;
+- `curl` contra `http://127.0.0.1:18080` confirmou que o HTML da app está sendo servido.
+
+Isso reduz o bloqueio de SRE para **coleta efetiva de screenshot oficial**, e não mais para indisponibilidade total da
+preview web.
 
 ### 2. Evidência visual oficial ainda não coletada
 
@@ -83,4 +93,5 @@ Continuar com a estratégia econômica da Fase 1:
 
 `BLOCKED_FOR_NEXT_STORY`
 
-Motivo: a `WLT-030` ainda não tem evidência oficial suficiente para ser considerada concluída com segurança de produto.
+Motivo: a `WLT-030` ainda não tem evidência oficial suficiente para ser considerada concluída com segurança de produto,
+embora o fallback local de preview no navegador já esteja funcional.
