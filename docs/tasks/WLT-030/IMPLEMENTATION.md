@@ -63,7 +63,7 @@ correction_queue:
     origin: "sre"
     severity: "HIGH"
     status: "DONE"
-    description: "O Android build da CI foi realinhado ao Flutter 3.44.0 com Gradle 9.0.0, Android Gradle Plugin 9.0.1, Kotlin Gradle Plugin 2.3.20 e Java 17."
+    description: "O Android build da CI foi realinhado ao Flutter 3.44.0 com Gradle 9.1.0, Android Gradle Plugin 9.0.1, Kotlin Gradle Plugin 2.3.20 e Java 17."
 cycle_history:
   - iteration: 0
     phase: EXECUTION

@@ -85,7 +85,7 @@ ULTIMA_HIPOTESE:
 - A quebra restante da pipeline apos o fechamento visual da WLT-030 estava concentrada no Android build strategy: Flutter 3.44.0 exige Gradle mais novo que o 8.3.0 ainda presente no projeto Android.
 
 ULTIMO_RESULTADO:
-- `worklink-mobile/android/gradle/wrapper/gradle-wrapper.properties` foi atualizado para Gradle 9.0.0.
+- `worklink-mobile/android/gradle/wrapper/gradle-wrapper.properties` foi atualizado para Gradle 9.1.0, pois o AGP 9.0.1 rejeitou Gradle 9.0.0 na CI.
 - `worklink-mobile/android/settings.gradle` foi atualizado para Android Gradle Plugin 9.0.1 e Kotlin Gradle Plugin 2.3.20.
 - `worklink-mobile/android/app/build.gradle` passou a compilar Java/Kotlin com target 17.
 - `worklink-mobile/android/gradle.properties` recebeu os flags de compatibilidade do template Flutter atual para AGP 9.

@@ -36,13 +36,14 @@
 1. A versão do Flutter usada no GitHub Actions e nos serviços Docker mobile foi alinhada para `3.44.0`.
 2. A imagem `ghcr.io/cirruslabs/flutter:3.44.0` foi verificada no registry com HTTP `200`.
 3. O bootstrap do job `Mobile integration on Android emulator` ganhou retry para `docker compose pull` e `docker compose up` das dependências `postgres`, `redis` e `minio`.
-4. O build Android foi atualizado para a cadeia exigida pelo Flutter `3.44.0`: Gradle `9.0.0`, Android Gradle Plugin `9.0.1`, Kotlin Gradle Plugin `2.3.20` e bytecode Java/Kotlin `17`.
+4. O build Android foi atualizado para a cadeia exigida pelo Flutter `3.44.0` e pelo AGP atual: Gradle `9.1.0`, Android Gradle Plugin `9.0.1`, Kotlin Gradle Plugin `2.3.20` e bytecode Java/Kotlin `17`.
 
 Essas mudanças atacam as falhas reais observadas no run `26580031333`:
 
 - `Mobile quality gates`: APIs Flutter atuais falhavam porque a CI ainda usava Flutter `3.24.5`.
 - `Mobile integration on Android emulator`: o backend não subiu por falha transitória no pull de `redis:7-alpine`.
 - Run `26688503774`: o build do APK falhava porque o projeto Android ainda usava Gradle `8.3.0`, abaixo do mínimo aceito pelo Flutter `3.44.0`.
+- Run `26689783432`: o AGP `9.0.1` rejeitou Gradle `9.0.0` e exigiu Gradle `9.1.0`.
 
 ## Continuidade
 
