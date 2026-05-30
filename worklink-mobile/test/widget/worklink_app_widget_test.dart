@@ -130,11 +130,11 @@ void main() {
     // THEN
     expect(find.text('Falar com o profissional'), findsOneWidget);
     expect(
-      find.text('A negociação acontece fora do WorkLink pelo WhatsApp.'),
+      find.textContaining('Você será redirecionado para o WhatsApp'),
       findsOneWidget,
     );
     expect(
-      find.text('O WorkLink não garante a execução do serviço contratado.'),
+      find.text('Combine valores e prazos diretamente'),
       findsOneWidget,
     );
   });
@@ -164,14 +164,20 @@ void main() {
     await tester.pumpAndSettle();
 
     // WHEN
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('open-post-contact-feedback-button')),
+    );
     await tester.tap(
       find.byKey(const ValueKey('open-post-contact-feedback-button')),
     );
     await tester.pumpAndSettle();
 
     // THEN
-    expect(find.text('Pós-contato'), findsOneWidget);
-    expect(find.text('Conseguiu falar?'), findsOneWidget);
+    expect(find.text('Como foi seu contato?'), findsOneWidget);
+    expect(
+      find.text('Você conseguiu falar com o profissional?'),
+      findsOneWidget,
+    );
     expect(find.text('Como foi a resposta?'), findsOneWidget);
     expect(find.text('O serviço foi realizado?'), findsOneWidget);
   });
@@ -203,15 +209,39 @@ void main() {
       find.byKey(const ValueKey('open-post-contact-feedback-button')),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Consegui falar'));
-    await tester.tap(find.text('Respondeu rápido'));
-    await tester.tap(find.text('Serviço realizado'));
+    await tester.tap(
+      find.byKey(
+        const ValueKey(
+          'conversation-outcome-PostContactConversationOutcome.customerReachedProfessional',
+        ),
+      ),
+    );
+    await tester.tap(
+      find.byKey(
+        const ValueKey(
+          'service-execution-PostContactServiceExecutionOutcome.servicePerformed',
+        ),
+      ),
+    );
+    await tester.tap(
+      find.byKey(
+        const ValueKey(
+          'contact-responsiveness-PostContactResponsiveness.fastResponse',
+        ),
+      ),
+    );
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('submit-post-contact-feedback-button')),
+    );
     await tester.tap(
       find.byKey(const ValueKey('submit-post-contact-feedback-button')),
     );
     await tester.pumpAndSettle();
 
     // WHEN
+    await tester.ensureVisible(
+      find.byKey(const ValueKey('open-professional-review-button')),
+    );
     await tester.tap(
       find.byKey(const ValueKey('open-professional-review-button')),
     );
@@ -219,7 +249,8 @@ void main() {
 
     // THEN
     expect(find.text('Avaliar profissional'), findsOneWidget);
-    expect(find.text('Nota obrigatória'), findsOneWidget);
+    expect(find.text('Avalie sua experiência'), findsOneWidget);
+    expect(find.text('Escolha uma nota'), findsOneWidget);
   });
 
   testWidgets(
@@ -343,7 +374,7 @@ void main() {
     // THEN
     expect(find.text('Denunciar profissional'), findsOneWidget);
     expect(find.text('Maria Eletricista'), findsOneWidget);
-    expect(find.text('Motivo'), findsOneWidget);
+    expect(find.text('1. Qual foi o problema?'), findsOneWidget);
   });
 }
 
