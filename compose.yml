@@ -95,7 +95,7 @@ services:
     command: mvn verify
 
   mobile-tests:
-    image: ghcr.io/cirruslabs/flutter:3.24.5
+    image: ghcr.io/cirruslabs/flutter:3.44.0
     working_dir: /workspace/worklink-mobile
     volumes:
       - .:/workspace
@@ -103,7 +103,7 @@ services:
     command: sh -lc "flutter pub get && flutter test --coverage"
 
   mobile-web-preview:
-    image: ghcr.io/cirruslabs/flutter:3.24.5
+    image: ghcr.io/cirruslabs/flutter:3.44.0
     working_dir: /workspace/worklink-mobile
     environment:
       WORKLINK_MOBILE_WEB_PREVIEW_HOST: 0.0.0.0

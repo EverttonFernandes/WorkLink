@@ -388,7 +388,7 @@ class _RegistrationDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      value: value,
+      initialValue: value,
       decoration: InputDecoration(
         labelText: labelText,
         prefixIcon: Icon(icon, color: _workLinkMuted),

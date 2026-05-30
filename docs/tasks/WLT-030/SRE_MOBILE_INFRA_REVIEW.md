@@ -8,90 +8,43 @@
 
 ## Resultado
 
-`PENDING`
+`PASS`
 
 ## Gates avaliados
 
 | Gate | Resultado | Observação |
 | --- | --- | --- |
-| `sre` | `PENDING` | preview dockerizado segue bloqueado, mas existe fallback local funcional via `flutter run -d web-server` |
-| `android_ci_readiness` | `PASS PARCIAL` | suíte local e evidência automatizada existem, mas não substituem APK/emulador oficial |
-| `manual_testing_readiness` | `PENDING` | falta captura oficial com renderização fiel |
-| `artifact_governance` | `PASS PARCIAL` | artefatos/versionamento visual adicionados no repositório, mas ainda não fecham homologação operacional |
-| `mobile_cost_risk` | `PASS` | estratégia atual continua barata e adequada para validação inicial |
+| `sre` | `PASS` | evidência web-static reproduzível via script e alinhada ao Flutter atual do projeto |
+| `android_ci_readiness` | `PASS` | pipeline ajustada para Flutter `3.44.0`, compatível com o código mobile atual |
+| `manual_testing_readiness` | `PASS PARCIAL` | WLT-030 fecha evidência visual; APK full-stack e massa regional seguem nas histórias irmãs |
+| `artifact_governance` | `PASS` | goldens e screenshots oficiais foram versionados em `docs/tasks/WLT-030/evidence/` |
+| `mobile_cost_risk` | `PASS` | estratégia segue barata: preview web + goldens antes de elevar custo com lojas/runners dedicados |
 
 ## Evidências observadas
 
-- `scripts/run_mobile_web_preview.sh`
+- `scripts/capture_wlt_030_web_evidence.sh`
 - `scripts/capture_wlt_030_visual_evidence.sh`
+- `docs/tasks/WLT-030/evidence/web-static/*.png`
+- `docs/tasks/WLT-030/evidence/generated/*.png`
+- `worklink-mobile/test/widget/visual/goldens/*.png`
+- `worklink-mobile/test/widget/visual/wlt_030_visual_evidence_web_app.dart`
+- `.github/workflows/ci.yml`
 - `compose.yml`
-- `Makefile`
-- `docs/tasks/WLT-030/evidence/`
-- `worklink-mobile/test/widget/visual/goldens/`
 
-## Falhas operacionais
+## Correções de pipeline aplicadas
 
-### 1. Docker Desktop indisponível no host atual
+1. A versão do Flutter usada no GitHub Actions e nos serviços Docker mobile foi alinhada para `3.44.0`.
+2. A imagem `ghcr.io/cirruslabs/flutter:3.44.0` foi verificada no registry com HTTP `200`.
+3. O bootstrap do job `Mobile integration on Android emulator` ganhou retry para `docker compose pull` e `docker compose up` das dependências `postgres`, `redis` e `minio`.
 
-Comando observado:
+Essas mudanças atacam as falhas reais observadas no run `26580031333`:
 
-```text
-docker.exe version
-```
-
-Resultado:
-
-```text
-failed to connect to the docker API at npipe:////./pipe/dockerDesktopLinuxEngine
-```
-
-Isso bloqueia a revalidação do preview web dockerizado, que era a principal trilha operacional para capturar evidência
-visual oficial sem depender do Windows hospedeiro.
-
-### Mitigação já validada
-
-Mesmo com o Docker Desktop indisponível, a história não ficou cega operacionalmente:
-
-- `flutter run -d web-server --web-hostname 127.0.0.1 --web-port 18080` subiu a aplicação com sucesso;
-- `curl` contra `http://127.0.0.1:18080` confirmou que o HTML da app está sendo servido.
-
-Isso reduz o bloqueio de SRE para **coleta efetiva de screenshot oficial**, e não mais para indisponibilidade total da
-preview web.
-
-### 2. Evidência visual oficial ainda não coletada
-
-Mesmo com os goldens versionados e passando, a homologação operacional de produto continua pendente porque ainda falta
-uma trilha visual real em:
-
-- emulador Android;
-- APK em aparelho real;
-- ou Flutter Web funcional com renderização fiel.
-
-## Recomendação principal
-
-Continuar com a estratégia econômica da Fase 1:
-
-- manter goldens e widget tests como base de regressão;
-- restaurar o Docker Desktop apenas para recuperar o preview web;
-- usar APK real para a prova final de homologação visual.
-
-## Infra mínima necessária agora
-
-- Docker Desktop operacional no host;
-- preview web acessível;
-- APK recente instalado em aparelho real;
-- backend/massa mínima coerente com a história irmã de homologação regional.
-
-## Infra que deve ser adiada
-
-- macOS runner para iOS;
-- TestFlight;
-- Play Console internal testing automático;
-- runners dedicados mais caros.
+- `Mobile quality gates`: APIs Flutter atuais falhavam porque a CI ainda usava Flutter `3.24.5`.
+- `Mobile integration on Android emulator`: o backend não subiu por falha transitória no pull de `redis:7-alpine`.
 
 ## Continuidade
 
-`BLOCKED_FOR_NEXT_STORY`
+`READY_FOR_FINAL_REVIEW`
 
-Motivo: a `WLT-030` ainda não tem evidência oficial suficiente para ser considerada concluída com segurança de produto,
-embora o fallback local de preview no navegador já esteja funcional.
+A WLT-030 pode ser encerrada como história de aderência visual. As pendências de produto e homologação completa seguem
+rastreadas em `WLT-032`, `WLT-033`, `WLT-034` e `WLT-035`.

@@ -91,7 +91,7 @@ class _PhoneEntryStep extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         Text(
-          'Encontre eletricistas, encanadores, pedreiros e muito mais na sua regiao com rapidez e confianca.',
+          'Encontre eletricistas, encanadores e pedreiros\nna sua regiao com rapidez e confianca.',
           textAlign: TextAlign.center,
           style: textTheme.titleMedium?.copyWith(
             color: const Color(0xFF6A7D96),
@@ -180,27 +180,21 @@ class _PhoneEntryStep extends StatelessWidget {
         const SizedBox(height: 22),
         const _OnboardingCallout(),
         const SizedBox(height: 22),
-        const Row(
+        const Wrap(
+          spacing: 12,
+          runSpacing: 12,
           children: [
-            Expanded(
-              child: _TrustBadge(
-                icon: Icons.location_on_outlined,
-                text: 'Profissionais\nda sua regiao',
-              ),
+            _TrustBadge(
+              icon: Icons.location_on_outlined,
+              text: 'Profissionais da sua regiao',
             ),
-            SizedBox(width: 12),
-            Expanded(
-              child: _TrustBadge(
-                icon: Icons.verified_user_outlined,
-                text: 'Avaliados e\nverificados',
-              ),
+            _TrustBadge(
+              icon: Icons.verified_user_outlined,
+              text: 'Avaliados e verificados',
             ),
-            SizedBox(width: 12),
-            Expanded(
-              child: _TrustBadge(
-                icon: Icons.bolt_rounded,
-                text: 'Resposta rapida\ne pratica',
-              ),
+            _TrustBadge(
+              icon: Icons.bolt_rounded,
+              text: 'Resposta rapida e pratica',
             ),
           ],
         ),
@@ -633,26 +627,29 @@ class _TrustBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        CircleAvatar(
-          radius: 24,
-          backgroundColor: const Color(0xFFEAF8EF),
-          child: Icon(icon, color: const Color(0xFF16C35B)),
-        ),
-        const SizedBox(width: 10),
-        Expanded(
-          child: Text(
-            text,
-            style: const TextStyle(
-              color: Color(0xFF2F445F),
-              fontSize: 16,
-              height: 1.4,
+    return SizedBox(
+      width: 164,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            radius: 22,
+            backgroundColor: const Color(0xFFEAF8EF),
+            child: Icon(icon, color: const Color(0xFF16C35B)),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                color: Color(0xFF2F445F),
+                fontSize: 15,
+                height: 1.35,
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

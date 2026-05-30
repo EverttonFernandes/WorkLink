@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:worklink_mobile/app/worklink_theme.dart';
 import 'package:worklink_mobile/features/city_selection/city_selection_city.dart';
 import 'package:worklink_mobile/features/city_selection/city_selection_controller.dart';
 import 'package:worklink_mobile/features/city_selection/city_selection_screen.dart';
@@ -42,6 +43,7 @@ void main() {
     addTearDown(widgetTester.view.resetDevicePixelRatio);
     await widgetTester.pumpWidget(
       MaterialApp(
+        theme: buildWorkLinkTheme(),
         home: RepaintBoundary(
           key: _rootKey,
           child: screen,

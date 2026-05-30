@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import 'app/worklink_app_configuration.dart';
 import 'app/worklink_application_gateway.dart';
+import 'app/worklink_theme.dart';
 import 'features/administrative_console/administrative_console_controller.dart';
 import 'features/administrative_console/administrative_console_screen.dart';
 import 'features/customer_authentication/customer_authentication_controller.dart';
@@ -93,10 +94,6 @@ class WorkLinkApp extends StatefulWidget {
 }
 
 class _WorkLinkAppState extends State<WorkLinkApp> {
-  static const Color _workLinkGreen = Color(0xFF16C35B);
-  static const Color _workLinkDark = Color(0xFF10233F);
-  static const Color _workLinkSurface = Color(0xFFF7FBF8);
-
   bool customerAuthenticated = false;
   String customerPhoneNumber = '(51) 9 9999-9999';
   CustomerProfileState? customerProfileState;
@@ -115,91 +112,7 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: widget.applicationConfiguration.applicationName,
-      theme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: Colors.white,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: _workLinkGreen,
-          primary: _workLinkGreen,
-          secondary: const Color(0xFF7D8FA8),
-          surface: _workLinkSurface,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.white,
-          foregroundColor: _workLinkDark,
-          elevation: 0,
-          centerTitle: false,
-          surfaceTintColor: Colors.white,
-          titleTextStyle: TextStyle(
-            color: _workLinkDark,
-            fontSize: 20,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: Colors.white,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 18,
-            vertical: 18,
-          ),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(22),
-            borderSide: const BorderSide(color: Color(0xFFD7E0EA)),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(22),
-            borderSide: const BorderSide(color: Color(0xFFD7E0EA)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(22),
-            borderSide: const BorderSide(color: _workLinkGreen, width: 1.4),
-          ),
-        ),
-        cardTheme: CardThemeData(
-          color: Colors.white,
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(28),
-            side: const BorderSide(color: Color(0xFFE4EBF2)),
-          ),
-        ),
-        chipTheme: ChipThemeData(
-          backgroundColor: const Color(0xFFEAF8EF),
-          selectedColor: const Color(0xFFEAF8EF),
-          side: const BorderSide(color: Color(0xFFBFEBCF)),
-          labelStyle: const TextStyle(
-            color: _workLinkDark,
-            fontWeight: FontWeight.w600,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(999),
-          ),
-        ),
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(
-            backgroundColor: _workLinkGreen,
-            foregroundColor: Colors.white,
-            minimumSize: const Size.fromHeight(58),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(22),
-            ),
-            textStyle: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-        textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
-            foregroundColor: _workLinkGreen,
-            textStyle: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
-      ),
+      theme: buildWorkLinkTheme(),
       home: Builder(
         builder: (context) => FutureBuilder<WorkLinkHomeData>(
           future: homeDataFuture,
