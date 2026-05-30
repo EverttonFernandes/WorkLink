@@ -58,6 +58,14 @@ void main() {
     expect(homeData.discoveryProfessionals.single.professionalName, 'Maria');
     expect(homeData.discoveryProfessionals.single.categoryName, 'Eletricista');
     expect(
+      homeData.discoveryProfessionals.single.comparisonSignalLabels,
+      contains('Perfil completo'),
+    );
+    expect(
+      homeData.discoveryProfessionals.single.comparisonSignalLabels,
+      isNot(contains('COMPLETE')),
+    );
+    expect(
       homeData.discoveryProfessionals.single.cityDisplayName,
       'Canoas - RS',
     );
@@ -139,9 +147,9 @@ void main() {
     );
     expect(
       homeData.discoveryProfessionals[2].categoryName,
-      'category-not-found',
+      'Categoria não informada',
     );
-    expect(homeData.discoveryProfessionals[2].cityName, 'city-not-found');
+    expect(homeData.discoveryProfessionals[2].cityName, 'Cidade não informada');
     expect(homeData.discoveryProfessionals[2].stateCode, '');
     expect(
       homeData.discoveryProfessionals[3].availabilityStatus,
@@ -181,6 +189,175 @@ void main() {
       'Telefone verificado',
     );
     expect(homeData.professionalProfiles.single.phoneNumberVerified, isTrue);
+  });
+
+  test(
+      'GIVEN backend retorna classificacao tecnica WHEN carregar home THEN deve expor label publica',
+      () async {
+    // GIVEN
+    httpClient.listResponses['/api/v1/categories'] = [
+      {
+        'categoryIdentifier': 'category-1',
+        'categoryName': 'Eletricista',
+        'categorySlug': 'eletricista',
+      },
+    ];
+    httpClient.listResponses['/api/v1/cities'] = [
+      {
+        'cityIdentifier': 'city-1',
+        'cityName': 'Canoas',
+        'stateCode': 'RS',
+        'citySlug': 'canoas-rs',
+      },
+    ];
+    httpClient.listResponses['/api/v1/professionals'] = [
+      professionalJson(profileClassification: 'BASIC_PROFILE'),
+    ];
+
+    // WHEN
+    final homeData = await gateway.loadHomeData();
+
+    // THEN
+    expect(
+      homeData.discoveryProfessionals.single.comparisonSignalLabels,
+      contains('Perfil básico'),
+    );
+    expect(
+      homeData.discoveryProfessionals.single.comparisonSignalLabels.join(' '),
+      isNot(contains('BASIC_PROFILE')),
+    );
+  });
+
+  test(
+      'GIVEN backend retorna codigos tecnicos WHEN mapear telas THEN nao deve vazar label tecnica',
+      () async {
+    // GIVEN
+    gateway = WorkLinkBackendGateway(
+      httpClient: httpClient,
+      administrativeHttpClient: administrativeHttpClient,
+    );
+    httpClient.listResponses['/api/v1/categories'] = [
+      {
+        'categoryIdentifier': 'category-1',
+        'categoryName': 'Eletricista',
+        'categorySlug': 'eletricista',
+      },
+    ];
+    httpClient.listResponses['/api/v1/cities'] = [
+      {
+        'cityIdentifier': 'city-1',
+        'cityName': 'Canoas',
+        'stateCode': 'RS',
+        'citySlug': 'canoas-rs',
+      },
+    ];
+    httpClient.listResponses['/api/v1/professionals'] = [
+      professionalJson(
+        profileClassification: 'BASIC_PROFILE',
+        categoryIdentifier: 'category-sem-mapa',
+        cityIdentifier: 'city-sem-mapa',
+      ),
+    ];
+    administrativeHttpClient.listResponses['/api/v1/admin/professionals'] = [
+      {
+        'professionalIdentifier': 'professional-1',
+        'professionalName': 'Maria Eletricista',
+        'cityIdentifier': 'city-sem-mapa',
+        'categoryIdentifier': 'category-sem-mapa',
+        'profileClassification': 'BASIC_PROFILE',
+        'availabilityStatus': 'UNKNOWN_STATUS',
+        'blocked': false,
+      },
+    ];
+    administrativeHttpClient.listResponses['/api/v1/admin/reports'] = [
+      {
+        'professionalReportIdentifier': 'report-1',
+        'professionalIdentifier': 'professional-sem-mapa',
+        'reportReason': 'UNKNOWN_REASON',
+        'seriousCase': false,
+        'moderationStatus': 'UNKNOWN_STATUS',
+        'moderationDecision': 'UNKNOWN_DECISION',
+        'createdAt': '2026-05-17T10:00:00Z',
+      },
+    ];
+    administrativeHttpClient
+        .listResponses['/api/v1/admin/review-analysis-requests'] = [
+      {
+        'reviewAnalysisRequestIdentifier': 'analysis-1',
+        'professionalReviewIdentifier': 'review-1',
+        'professionalIdentifier': 'professional-sem-mapa',
+        'requestedByProfessionalIdentifier': 'professional-sem-mapa',
+        'moderationStatus': 'UNKNOWN_STATUS',
+        'moderationDecision': 'UNKNOWN_DECISION',
+        'createdAt': '2026-05-17T11:00:00Z',
+      },
+    ];
+    administrativeHttpClient.objectResponses['/api/v1/admin/metrics'] = {
+      'professionalCount': 1,
+      'blockedProfessionalCount': 0,
+      'professionalReportCount': 1,
+      'reviewAnalysisRequestCount': 1,
+      'serviceCategoryCount': 1,
+    };
+    administrativeHttpClient
+        .objectResponses['/api/v1/admin/functional-metrics'] = {
+      ...minimalFunctionalMetricsJson(),
+      'searchesByCategory': [
+        {'metricIdentifier': 'category-sem-mapa', 'contactCount': 1},
+      ],
+      'searchesByCity': [
+        {'metricIdentifier': 'city-sem-mapa', 'contactCount': 1},
+      ],
+      'contactsByProfessional': [
+        {'metricIdentifier': 'professional-sem-mapa', 'contactCount': 1},
+      ],
+      'responsivenessSignals': [
+        {'contactResponsiveness': 'UNKNOWN_SIGNAL', 'feedbackCount': 1},
+      ],
+      'reputationSignals': [
+        {
+          'professionalIdentifier': 'professional-sem-mapa',
+          'averageRating': 3.5,
+          'reviewCount': 1,
+        },
+      ],
+    };
+
+    // WHEN
+    final homeData = await gateway.loadHomeData();
+    final administrativeConsoleState =
+        await gateway.loadAdministrativeConsole();
+
+    // THEN
+    expectNoTechnicalLabels([
+      ...homeData.discoveryProfessionals.single.comparisonSignalLabels,
+      homeData.discoveryProfessionals.single.categoryName,
+      homeData.discoveryProfessionals.single.cityDisplayName,
+      administrativeConsoleState.professionals.single.cityDisplayName,
+      administrativeConsoleState.professionals.single.categoryName,
+      administrativeConsoleState.professionals.single.profileClassification,
+      administrativeConsoleState.professionals.single.availabilityLabel,
+      administrativeConsoleState.professionalReports.single.professionalName,
+      administrativeConsoleState.professionalReports.single.reportReasonLabel,
+      administrativeConsoleState
+          .professionalReports.single.moderationStatusLabel,
+      administrativeConsoleState
+          .professionalReports.single.moderationDecisionLabel,
+      administrativeConsoleState.reviewAnalysisRequests.single.professionalName,
+      administrativeConsoleState
+          .reviewAnalysisRequests.single.moderationStatusLabel,
+      administrativeConsoleState
+          .reviewAnalysisRequests.single.moderationDecisionLabel,
+      administrativeConsoleState
+          .functionalMetrics.topSearchCategories.single.label,
+      administrativeConsoleState.functionalMetrics.topSearchCities.single.label,
+      administrativeConsoleState
+          .functionalMetrics.topContactProfessionals.single.label,
+      administrativeConsoleState
+          .functionalMetrics.responsivenessSignals.single.label,
+      administrativeConsoleState
+          .functionalMetrics.reputationSignals.single.label,
+    ]);
   });
 
   test(
@@ -352,11 +529,19 @@ void main() {
     );
     expect(
       administrativeConsoleState.professionals.last.cityDisplayName,
-      'city-sem-mapa',
+      'Cidade não mapeada',
     );
     expect(
       administrativeConsoleState.professionals.last.categoryName,
-      'category-sem-mapa',
+      'Categoria não mapeada',
+    );
+    expect(
+      administrativeConsoleState.professionals.first.profileClassification,
+      'Perfil completo',
+    );
+    expect(
+      administrativeConsoleState.professionals.last.profileClassification,
+      'Perfil básico',
     );
     expect(
       administrativeConsoleState.professionalReports.single.reportReasonLabel,
@@ -398,11 +583,11 @@ void main() {
     expect(
       administrativeConsoleState
           .functionalMetrics.responsivenessSignals.last.label,
-      'UNKNOWN_SIGNAL',
+      'Sinal não mapeado',
     );
     expect(
       administrativeConsoleState.functionalMetrics.reputationSignals.last.label,
-      'professional-sem-mapa',
+      'Profissional não mapeado',
     );
     expect(
       administrativeHttpClient.requests.map((request) => request.path),
@@ -1255,6 +1440,7 @@ Map<String, dynamic> professionalJson({
   String? usefulLink = 'https://portfolio.example/maria',
   String? portfolioDescription = 'Quadros eletricos.',
   String? serviceDescription = 'Instalacoes e manutencoes.',
+  String profileClassification = 'COMPLETE',
   bool phoneNumberVerified = false,
   bool qualityGuarantee = true,
 }) {
@@ -1271,13 +1457,39 @@ Map<String, dynamic> professionalJson({
     'portfolioDescription': portfolioDescription,
     'serviceDescription': serviceDescription,
     'profileCompletenessPercentage': 100,
-    'profileClassification': 'COMPLETE',
+    'profileClassification': profileClassification,
     'availabilityStatus': availabilityStatus,
     'availabilityBadgeLabel': 'Disponivel hoje',
     'availabilityReducesListingHighlight': false,
     'phoneNumberVerified': phoneNumberVerified,
     'qualityGuarantee': qualityGuarantee,
   };
+}
+
+void expectNoTechnicalLabels(Iterable<String?> labels) {
+  const forbiddenTechnicalLabels = {
+    'BASIC_PROFILE',
+    'COMPLETE_PROFILE',
+    'UNKNOWN_SIGNAL',
+    'UNKNOWN_STATUS',
+    'UNKNOWN_REASON',
+    'UNKNOWN_DECISION',
+    'category-sem-mapa',
+    'city-sem-mapa',
+    'professional-sem-mapa',
+  };
+  for (final label in labels.whereType<String>()) {
+    expect(
+      forbiddenTechnicalLabels,
+      isNot(contains(label)),
+      reason: 'Label tecnica vazou para UI: $label',
+    );
+    expect(
+      label,
+      isNot(contains('_')),
+      reason: 'Label publica nao deve conter underscore: $label',
+    );
+  }
 }
 
 Map<String, dynamic> administrativeProfessionalJson({

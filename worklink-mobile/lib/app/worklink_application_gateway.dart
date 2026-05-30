@@ -167,6 +167,12 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
         _administrativeHttpClient = administrativeHttpClient,
         _administrativeAccessToken = administrativeAccessToken;
 
+  static const _missingCategoryName = 'Categoria não informada';
+  static const _missingCityDisplayName = 'Cidade não informada';
+  static const _unmappedCategoryLabel = 'Categoria não mapeada';
+  static const _unmappedCityLabel = 'Cidade não mapeada';
+  static const _unmappedProfessionalLabel = 'Profissional não mapeado';
+
   final WorkLinkHttpClient _httpClient;
   final WorkLinkHttpClient? _administrativeHttpClient;
   final String? _administrativeAccessToken;
@@ -635,18 +641,20 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
   ) {
     final cityDisplayName =
         cityDisplayNamesByIdentifier[professional.cityIdentifier] ??
-            professional.cityIdentifier;
+            _missingCityDisplayName;
     final cityParts = cityDisplayName.split(' - ');
     return DiscoveryProfessional(
       professionalIdentifier: professional.professionalIdentifier,
       professionalName: professional.professionalName,
       categoryName:
           categoryNamesByIdentifier[professional.categoryIdentifier] ??
-              professional.categoryIdentifier,
+              _missingCategoryName,
       cityName: cityParts.first,
       stateCode: cityParts.length > 1 ? cityParts.last : '',
       shortDescription: professional.shortDescription,
-      profileBadgeLabel: professional.profileClassification,
+      profileBadgeLabel: _mapProfileClassificationLabel(
+        professional.profileClassification,
+      ),
       availabilityStatus:
           _mapAvailabilityStatus(professional.availabilityStatus),
       recentActivityLabel: professional.phoneNumberVerified
@@ -666,14 +674,14 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
   ) {
     final cityDisplayName =
         cityDisplayNamesByIdentifier[professional.cityIdentifier] ??
-            professional.cityIdentifier;
+            _missingCityDisplayName;
     final cityParts = cityDisplayName.split(' - ');
     return ProfessionalProfile(
       professionalIdentifier: professional.professionalIdentifier,
       professionalName: professional.professionalName,
       categoryName:
           categoryNamesByIdentifier[professional.categoryIdentifier] ??
-              professional.categoryIdentifier,
+              _missingCategoryName,
       baseCityName: cityParts.first,
       baseStateCode: cityParts.length > 1 ? cityParts.last : '',
       attendedCityNames: [cityParts.first],
@@ -938,11 +946,13 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
               professionalName: professional.professionalName,
               cityDisplayName:
                   cityDisplayNamesByIdentifier[professional.cityIdentifier] ??
-                      professional.cityIdentifier,
+                      _unmappedCityLabel,
               categoryName:
                   categoryNamesByIdentifier[professional.categoryIdentifier] ??
-                      professional.categoryIdentifier,
-              profileClassification: professional.profileClassification,
+                      _unmappedCategoryLabel,
+              profileClassification: _mapProfileClassificationLabel(
+                professional.profileClassification,
+              ),
               availabilityLabel:
                   _mapAvailabilityStatus(professional.availabilityStatus)
                       .badgeLabel,
@@ -957,7 +967,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
               professionalIdentifier: report.professionalIdentifier,
               professionalName: professionalNamesByIdentifier[
                       report.professionalIdentifier] ??
-                  report.professionalIdentifier,
+                  _unmappedProfessionalLabel,
               reportReasonLabel: _mapReportReasonLabel(report.reportReason),
               seriousCase: report.seriousCase,
               moderationStatusLabel:
@@ -980,7 +990,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
               professionalIdentifier: request.professionalIdentifier,
               professionalName: professionalNamesByIdentifier[
                       request.professionalIdentifier] ??
-                  request.professionalIdentifier,
+                  _unmappedProfessionalLabel,
               requestedByProfessionalIdentifier:
                   request.requestedByProfessionalIdentifier,
               moderationStatusLabel:
@@ -1016,7 +1026,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
             .map(
               (metric) => AdministrativeLabeledMetric(
                 label: categoryNamesByIdentifier[metric.metricIdentifier] ??
-                    metric.metricIdentifier,
+                    _unmappedCategoryLabel,
                 value: metric.contactCount.toString(),
               ),
             )
@@ -1025,7 +1035,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
             .map(
               (metric) => AdministrativeLabeledMetric(
                 label: cityDisplayNamesByIdentifier[metric.metricIdentifier] ??
-                    metric.metricIdentifier,
+                    _unmappedCityLabel,
                 value: metric.contactCount.toString(),
               ),
             )
@@ -1034,7 +1044,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
             .map(
               (metric) => AdministrativeLabeledMetric(
                 label: professionalNamesByIdentifier[metric.metricIdentifier] ??
-                    metric.metricIdentifier,
+                    _unmappedProfessionalLabel,
                 value: metric.contactCount.toString(),
               ),
             )
@@ -1052,7 +1062,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
               (metric) => AdministrativeLabeledMetric(
                 label: professionalNamesByIdentifier[
                         metric.professionalIdentifier] ??
-                    metric.professionalIdentifier,
+                    _unmappedProfessionalLabel,
                 value:
                     '${metric.averageRating.toStringAsFixed(1)} (${metric.reviewCount})',
               ),
@@ -1071,7 +1081,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       'IN_REVIEW' => 'Em revisao',
       'RESOLVED' => 'Resolvido',
       'ACTION_REQUIRED' => 'Acao necessaria',
-      _ => moderationStatus,
+      _ => 'Status não mapeado',
     };
   }
 
@@ -1081,7 +1091,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       'HIDE_FROM_PUBLIC' => 'Ocultar publicamente',
       'RESOLVE_CASE' => 'Resolver caso',
       'REQUIRE_ADDITIONAL_ACTION' => 'Exigir acao adicional',
-      _ => moderationDecision,
+      _ => 'Decisao não mapeada',
     };
   }
 
@@ -1093,7 +1103,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       'FAKE_PROFILE' => 'Perfil falso',
       'SERVICE_NOT_PERFORMED' => 'Servico nao realizado',
       'OTHER' => 'Outro',
-      _ => reportReason,
+      _ => 'Motivo não mapeado',
     };
   }
 
@@ -1102,8 +1112,38 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       'FAST_RESPONSE' => 'Resposta rapida',
       'SLOW_RESPONSE' => 'Resposta lenta',
       'NO_RESPONSE' => 'Sem resposta',
-      _ => contactResponsiveness,
+      _ => 'Sinal não mapeado',
     };
+  }
+
+  String _mapProfileClassificationLabel(String profileClassification) {
+    final trimmedClassification = profileClassification.trim();
+    final normalizedClassification =
+        trimmedClassification.toUpperCase().replaceAll(' ', '_');
+    return switch (normalizedClassification) {
+      'COMPLETE' ||
+      'COMPLETE_PROFILE' ||
+      'PERFIL_COMPLETO' =>
+        'Perfil completo',
+      'BASIC' ||
+      'BASIC_PROFILE' ||
+      'PERFIL_BASICO' ||
+      'PERFIL_BÁSICO' =>
+        'Perfil básico',
+      'INCOMPLETE' ||
+      'INCOMPLETE_PROFILE' ||
+      'PERFIL_INCOMPLETO' =>
+        'Perfil incompleto',
+      _ => trimmedClassification.isEmpty
+          ? 'Perfil não informado'
+          : _looksLikeTechnicalLabel(trimmedClassification)
+              ? 'Perfil não informado'
+              : trimmedClassification,
+    };
+  }
+
+  bool _looksLikeTechnicalLabel(String value) {
+    return value.contains('_') || RegExp(r'^[A-Z0-9]+$').hasMatch(value);
   }
 
   String _formatAdministrativeDate(DateTime dateTime) {

@@ -26,7 +26,12 @@ class DiscoveryProfessional {
   final ProfessionalAvailabilityStatus availabilityStatus;
   final String? recentActivityLabel;
 
-  String get cityDisplayName => '$cityName - $stateCode';
+  String get cityDisplayName {
+    if (stateCode.trim().isEmpty) {
+      return cityName;
+    }
+    return '$cityName - $stateCode';
+  }
 
   String get availabilityBadgeLabel => availabilityStatus.badgeLabel;
 
