@@ -4,7 +4,7 @@ title: "Aderência visual aos protótipos mobile"
 story_path: "docs/jira-pessoal/historias-tecnicas/WLT-030-aderencia-visual-prototipos-mobile.md"
 official_order: 51
 phase: DONE
-loop_iteration: 11
+loop_iteration: 12
 version_suggestion: PATCH
 func_tests_detected: true
 func_tests_path: "functional-tests/src/specs"
@@ -59,6 +59,11 @@ correction_queue:
     severity: "CRITICAL"
     status: "DONE"
     description: "A evidencia final passou a usar capturas web-static com tipografia legivel; os goldens continuam como regressao automatizada e foram atualizados para o tema compartilhado."
+  - id: "WLT-030-CI-002"
+    origin: "sre"
+    severity: "HIGH"
+    status: "DONE"
+    description: "O Android build da CI foi realinhado ao Flutter 3.44.0 com Gradle 9.0.0, Android Gradle Plugin 9.0.1, Kotlin Gradle Plugin 2.3.20 e Java 17."
 cycle_history:
   - iteration: 0
     phase: EXECUTION

@@ -80,3 +80,26 @@ RISCOS_ABERTOS:
 - WLT-032 segue responsavel pela massa regional completa.
 - WLT-033 segue responsavel pela decisao funcional dos canais SMS, WhatsApp e email.
 - WLT-034 deve transformar as evidencias visuais em gate recorrente antes de APK/IPA.
+
+ULTIMA_HIPOTESE:
+- A quebra restante da pipeline apos o fechamento visual da WLT-030 estava concentrada no Android build strategy: Flutter 3.44.0 exige Gradle mais novo que o 8.3.0 ainda presente no projeto Android.
+
+ULTIMO_RESULTADO:
+- `worklink-mobile/android/gradle/wrapper/gradle-wrapper.properties` foi atualizado para Gradle 9.0.0.
+- `worklink-mobile/android/settings.gradle` foi atualizado para Android Gradle Plugin 9.0.1 e Kotlin Gradle Plugin 2.3.20.
+- `worklink-mobile/android/app/build.gradle` passou a compilar Java/Kotlin com target 17.
+- `worklink-mobile/android/gradle.properties` recebeu os flags de compatibilidade do template Flutter atual para AGP 9.
+- `/home/everton/flutter/bin/flutter analyze` passou em copia temporaria sob `/tmp/worklink-mobile-wlt030-gradle-fix`.
+- `/home/everton/flutter/bin/flutter test test/widget` passou com 74 testes em copia temporaria sob `/tmp/worklink-mobile-wlt030-gradle-fix`.
+
+GATES_OBSERVADOS:
+- LINT: PASS
+- UNIT_TESTS: PASS
+- MOBILE_WIDGET_TESTS: PASS
+- ANDROID_BUILD_CI: PENDING_GITHUB_ACTIONS
+
+PROXIMA_ACAO_RECOMENDADA:
+- Commitar a correcao Gradle/AGP/Kotlin, taguear patch semantico e monitorar a proxima execucao do GitHub Actions ate estabilizar `Mobile quality gates` e `Mobile integration on Android emulator`.
+
+RISCOS_ABERTOS:
+- A WSL local nao possui Docker Desktop integrado nem Android SDK exposto, entao o build APK precisa ser comprovado no ambiente GitHub Actions.
