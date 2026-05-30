@@ -103,3 +103,18 @@ PROXIMA_ACAO_RECOMENDADA:
 
 RISCOS_ABERTOS:
 - A WSL local nao possui Docker Desktop integrado nem Android SDK exposto, entao o build APK precisa ser comprovado no ambiente GitHub Actions.
+
+ULTIMA_HIPOTESE:
+- A falha restante do job de emulador nao era mais infraestrutura Android, pois o APK foi construido, instalado e aberto; o bloqueio passou a ser aderencia do teste e responsividade do dropdown em viewport de emulador.
+
+ULTIMO_RESULTADO:
+- O teste de integracao `worklink_app_integration_test.dart` foi atualizado para o titulo vigente `Buscar profissionais`.
+- O dropdown de filtros da descoberta passou a usar `isExpanded: true` e `TextOverflow.ellipsis`, removendo overflow horizontal em larguras estreitas de emulador.
+
+GATES_OBSERVADOS:
+- ANDROID_BUILD_CI: PASS
+- ANDROID_EMULATOR_INSTALL: PASS
+- ANDROID_EMULATOR_TEST: PENDING_GITHUB_ACTIONS
+
+PROXIMA_ACAO_RECOMENDADA:
+- Commitar a correcao de teste/responsividade e monitorar nova execucao do GitHub Actions ate fechar o job `Mobile integration on Android emulator`.

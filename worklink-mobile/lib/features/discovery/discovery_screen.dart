@@ -260,6 +260,7 @@ class _FilterDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
+      isExpanded: true,
       initialValue: value,
       decoration: InputDecoration(labelText: label),
       items: [
@@ -269,7 +270,10 @@ class _FilterDropdown extends StatelessWidget {
         for (final dropdownValue in values)
           DropdownMenuItem<String>(
             value: dropdownValue,
-            child: Text(dropdownValue),
+            child: Text(
+              dropdownValue,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
       ],
       onChanged: onChanged,

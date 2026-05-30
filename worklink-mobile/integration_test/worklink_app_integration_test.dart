@@ -17,7 +17,7 @@ void main() {
     await tester.pumpAndSettle();
 
     // THEN
-    expect(find.text('Descobrir profissionais'), findsOneWidget);
+    expect(find.text('Buscar profissionais'), findsOneWidget);
     expect(find.byKey(const ValueKey('keyword-search-field')), findsOneWidget);
   });
 }
