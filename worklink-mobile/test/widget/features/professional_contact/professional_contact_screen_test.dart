@@ -23,6 +23,7 @@ void main() {
     addTearDown(widgetTester.view.resetDevicePixelRatio);
     await widgetTester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(splashFactory: InkRipple.splashFactory),
         home: ProfessionalContactScreen(
           professionalIdentifier: 'maria-eletricista',
           professionalName: 'Maria Eletricista',

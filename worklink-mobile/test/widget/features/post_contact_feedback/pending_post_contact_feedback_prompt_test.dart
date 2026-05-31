@@ -24,6 +24,7 @@ void main() {
     // WHEN
     await tester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(splashFactory: InkRipple.splashFactory),
         home: Scaffold(
           body: PendingPostContactFeedbackPrompt(
             request: request,
@@ -75,6 +76,7 @@ void main() {
     // WHEN
     await tester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(splashFactory: InkRipple.splashFactory),
         home: DiscoveryScreen(
           discoveryController: discoveryController,
           preFiltersContent: PendingPostContactFeedbackPrompt(

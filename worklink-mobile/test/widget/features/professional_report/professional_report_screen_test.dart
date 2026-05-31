@@ -82,6 +82,7 @@ Future<void> pumpProfessionalReportScreen(
   addTearDown(widgetTester.view.resetDevicePixelRatio);
   return widgetTester.pumpWidget(
     MaterialApp(
+      theme: ThemeData(splashFactory: InkRipple.splashFactory),
       home: ProfessionalReportScreen(
         professionalName: 'Maria Eletricista',
         professionalReportController: ProfessionalReportController(

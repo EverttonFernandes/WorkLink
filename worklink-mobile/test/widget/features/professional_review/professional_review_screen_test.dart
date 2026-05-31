@@ -15,6 +15,7 @@ void main() {
     addTearDown(widgetTester.view.resetDevicePixelRatio);
     await widgetTester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(splashFactory: InkRipple.splashFactory),
         home: ProfessionalReviewScreen(
           professionalReviewController: controller,
         ),

@@ -73,6 +73,19 @@ Para testar no aparelho:
 Esse APK usa assinatura debug, carrega dados preview para teste manual sem backend publicado e e somente para teste
 interno. Ele nao deve ser tratado como homologacao full-stack.
 
+Massa regional disponivel no preview/APK debug:
+
+- Charqueadas - RS
+- Sao Jeronimo - RS
+- Triunfo - RS
+- Arroio dos Ratos - RS
+- Eldorado do Sul - RS
+- General Camara - RS
+- Butia - RS
+
+Cada cidade possui ao menos um profissional ficticio em categoria de servicos gerais. Isso permite validar descoberta,
+listagem, perfil profissional e tambem busca sem resultado usando termos fora da massa, como `marceneiro`.
+
 ## Teste manual full-stack de homologacao
 
 Para validar rapidamente no seu Android fisico contra backend local, banco e massa fake do notebook, use o candidato local

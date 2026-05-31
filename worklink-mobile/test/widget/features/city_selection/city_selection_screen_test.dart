@@ -5,21 +5,54 @@ import 'package:worklink_mobile/features/city_selection/city_selection_controlle
 import 'package:worklink_mobile/features/city_selection/city_selection_screen.dart';
 
 void main() {
-  const canoasCity = CitySelectionCity(
-    cityIdentifier: 'canoas-rs',
-    cityName: 'Canoas',
+  const charqueadasCity = CitySelectionCity(
+    cityIdentifier: 'charqueadas-rs',
+    cityName: 'Charqueadas',
     stateCode: 'RS',
   );
-  const portoAlegreCity = CitySelectionCity(
-    cityIdentifier: 'porto-alegre-rs',
-    cityName: 'Porto Alegre',
+  const saoJeronimoCity = CitySelectionCity(
+    cityIdentifier: 'sao-jeronimo-rs',
+    cityName: 'São Jerônimo',
+    stateCode: 'RS',
+  );
+  const triunfoCity = CitySelectionCity(
+    cityIdentifier: 'triunfo-rs',
+    cityName: 'Triunfo',
+    stateCode: 'RS',
+  );
+  const arroioDosRatosCity = CitySelectionCity(
+    cityIdentifier: 'arroio-dos-ratos-rs',
+    cityName: 'Arroio dos Ratos',
+    stateCode: 'RS',
+  );
+  const eldoradoDoSulCity = CitySelectionCity(
+    cityIdentifier: 'eldorado-do-sul-rs',
+    cityName: 'Eldorado do Sul',
+    stateCode: 'RS',
+  );
+  const generalCamaraCity = CitySelectionCity(
+    cityIdentifier: 'general-camara-rs',
+    cityName: 'General Câmara',
+    stateCode: 'RS',
+  );
+  const butiaCity = CitySelectionCity(
+    cityIdentifier: 'butia-rs',
+    cityName: 'Butiá',
     stateCode: 'RS',
   );
 
   CitySelectionController createCitySelectionController() {
     return CitySelectionController(
-      availableCities: const [canoasCity, portoAlegreCity],
-      nearbySuggestedCities: const [portoAlegreCity],
+      availableCities: const [
+        charqueadasCity,
+        saoJeronimoCity,
+        triunfoCity,
+        arroioDosRatosCity,
+        eldoradoDoSulCity,
+        generalCamaraCity,
+        butiaCity,
+      ],
+      nearbySuggestedCities: const [saoJeronimoCity, triunfoCity],
     );
   }
 
@@ -31,6 +64,10 @@ void main() {
     addTearDown(() => widgetTester.binding.setSurfaceSize(null));
     await widgetTester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(
+          splashFactory: NoSplash.splashFactory,
+          highlightColor: Colors.transparent,
+        ),
         home: CitySelectionScreen(
           citySelectionController: citySelectionController,
         ),
@@ -50,8 +87,13 @@ void main() {
     // THEN
     expect(find.text('Selecionar cidades'), findsOneWidget);
     expect(find.text('Usando minha localizacao atual'), findsOneWidget);
-    expect(find.text('Canoas - RS'), findsOneWidget);
-    expect(find.text('Porto Alegre - RS'), findsOneWidget);
+    expect(find.text('Charqueadas - RS'), findsOneWidget);
+    expect(find.text('São Jerônimo - RS'), findsOneWidget);
+    expect(find.text('Triunfo - RS'), findsOneWidget);
+    expect(find.text('Arroio dos Ratos - RS'), findsOneWidget);
+    expect(find.text('Eldorado do Sul - RS'), findsOneWidget);
+    expect(find.text('General Câmara - RS'), findsOneWidget);
+    expect(find.text('Butiá - RS'), findsOneWidget);
   });
 
   testWidgets(
@@ -62,13 +104,13 @@ void main() {
     await pumpCitySelectionScreen(widgetTester, citySelectionController);
 
     // WHEN
-    await widgetTester.tap(find.text('Canoas - RS'));
+    await widgetTester.tap(find.text('Charqueadas - RS'));
     await widgetTester.pump();
 
     // THEN
     expect(
       citySelectionController.state.selectedCityIdentifiers,
-      contains(canoasCity.cityIdentifier),
+      contains(charqueadasCity.cityIdentifier),
     );
   });
 
@@ -78,7 +120,7 @@ void main() {
     // GIVEN
     final citySelectionController = createCitySelectionController();
     await pumpCitySelectionScreen(widgetTester, citySelectionController);
-    await widgetTester.tap(find.text('Canoas - RS'));
+    await widgetTester.tap(find.text('Charqueadas - RS'));
     await widgetTester.pump();
 
     // WHEN
@@ -102,7 +144,10 @@ void main() {
 
     // THEN
     expect(citySelectionController.state.currentLocationEnabled, isTrue);
-    expect(find.text('Cidades proximas a sua localizacao atual'), findsOneWidget);
-    expect(find.byIcon(Icons.place_outlined), findsOneWidget);
+    expect(
+      find.text('Cidades proximas a sua localizacao atual'),
+      findsOneWidget,
+    );
+    expect(find.byIcon(Icons.place_outlined), findsWidgets);
   });
 }

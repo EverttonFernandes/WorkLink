@@ -49,6 +49,7 @@ void main() {
     addTearDown(() => widgetTester.binding.setSurfaceSize(null));
     await widgetTester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(splashFactory: InkRipple.splashFactory),
         home: ProfessionalProfileScreen(
           professionalProfile: professionalProfile,
           onContactProfessional: onContactProfessional,

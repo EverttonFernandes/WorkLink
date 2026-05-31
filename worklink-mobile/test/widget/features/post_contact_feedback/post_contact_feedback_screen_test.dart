@@ -16,6 +16,7 @@ void main() {
     addTearDown(widgetTester.view.resetDevicePixelRatio);
     await widgetTester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(splashFactory: InkRipple.splashFactory),
         home: PostContactFeedbackScreen(
           postContactFeedbackController: controller,
           onOpenProfessionalReview: onOpenProfessionalReview,
@@ -39,7 +40,10 @@ void main() {
     // THEN
     expect(find.text('Como foi seu contato?'), findsOneWidget);
     expect(find.text('Sua opinião faz a diferença!'), findsOneWidget);
-    expect(find.text('Você conseguiu falar com o profissional?'), findsOneWidget);
+    expect(
+      find.text('Você conseguiu falar com o profissional?'),
+      findsOneWidget,
+    );
     expect(find.text('Como foi a resposta?'), findsOneWidget);
     expect(find.text('O serviço foi realizado?'), findsOneWidget);
   });

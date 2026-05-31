@@ -13,6 +13,7 @@ void main() {
     addTearDown(() => widgetTester.binding.setSurfaceSize(null));
     await widgetTester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(splashFactory: InkRipple.splashFactory),
         home: CustomerAuthenticationScreen(
           customerAuthenticationController: customerAuthenticationController,
           onAuthenticationCompleted: onAuthenticationCompleted,

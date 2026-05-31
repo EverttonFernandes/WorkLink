@@ -7,6 +7,7 @@ const workLinkSurface = Color(0xFFF7FBF8);
 ThemeData buildWorkLinkTheme() {
   return ThemeData(
     useMaterial3: true,
+    splashFactory: InkRipple.splashFactory,
     scaffoldBackgroundColor: Colors.white,
     colorScheme: ColorScheme.fromSeed(
       seedColor: workLinkGreen,

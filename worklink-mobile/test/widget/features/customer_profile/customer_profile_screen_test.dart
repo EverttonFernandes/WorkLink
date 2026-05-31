@@ -91,6 +91,7 @@ Future<void> pumpCustomerProfileScreen(
   addTearDown(widgetTester.view.resetDevicePixelRatio);
   return widgetTester.pumpWidget(
     MaterialApp(
+      theme: ThemeData(splashFactory: InkRipple.splashFactory),
       home: CustomerProfileScreen(
         customerProfileController: customerProfileController ??
             CustomerProfileController(

@@ -12,8 +12,8 @@ fi
 
 flutter pub get
 
-exec flutter run \
-  -d web-server \
-  --web-hostname "${preview_host}" \
-  --web-port "${preview_port}" \
+flutter build web \
   --dart-define="WORKLINK_USE_PREVIEW_DATA=${preview_data_enabled}"
+
+cd build/web
+exec python3 -m http.server "${preview_port}" --bind "${preview_host}"

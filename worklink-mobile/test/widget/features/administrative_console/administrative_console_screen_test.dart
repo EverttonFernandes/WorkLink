@@ -26,6 +26,7 @@ void main() {
     // WHEN
     await widgetTester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(splashFactory: InkRipple.splashFactory),
         home: AdministrativeConsoleScreen(
           administrativeConsoleController: controller,
         ),
@@ -65,8 +66,10 @@ void main() {
       ),
       blockProfessional: (_) async => const AdministrativeConsoleState(),
       unblockProfessional: (_) async => const AdministrativeConsoleState(),
-      approveProfessionalReport: (_) async => const AdministrativeConsoleState(),
-      escalateProfessionalReport: (_) async => const AdministrativeConsoleState(),
+      approveProfessionalReport: (_) async =>
+          const AdministrativeConsoleState(),
+      escalateProfessionalReport: (_) async =>
+          const AdministrativeConsoleState(),
       keepReviewPublic: (_) async => const AdministrativeConsoleState(),
       hideReviewFromPublic: (_) async => const AdministrativeConsoleState(),
       registerCategory: (_) async => const AdministrativeConsoleState(),
@@ -75,6 +78,7 @@ void main() {
     // WHEN
     await widgetTester.pumpWidget(
       MaterialApp(
+        theme: ThemeData(splashFactory: InkRipple.splashFactory),
         home: AdministrativeConsoleScreen(
           administrativeConsoleController: controller,
         ),

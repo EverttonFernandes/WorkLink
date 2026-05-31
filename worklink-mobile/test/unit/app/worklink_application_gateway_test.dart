@@ -1372,33 +1372,73 @@ void main() {
       () async {
     // GIVEN
     const previewGateway = WorkLinkPreviewGateway();
+    const previewProfessionalIdentifier = 'ana-costa-energia-residencial';
 
     // WHEN
     final homeData = await previewGateway.loadHomeData();
     final contact = await previewGateway.startProfessionalContact(
-      'maria-eletricista',
+      previewProfessionalIdentifier,
     );
     await previewGateway.submitPostContactFeedback(
-      'contact-intention-maria-eletricista',
+      'contact-intention-$previewProfessionalIdentifier',
       const PostContactFeedbackState(),
     );
     await previewGateway.submitProfessionalReview(
-      'contact-intention-maria-eletricista',
+      'contact-intention-$previewProfessionalIdentifier',
       const ProfessionalReviewState(starRating: 5, comment: 'Bom.'),
     );
     await previewGateway.submitProfessionalReport(
-      'maria-eletricista',
+      previewProfessionalIdentifier,
       const ProfessionalReportState(),
     );
-    await previewGateway.requestProfessionalReviewAnalysis('review-maria-1');
+    await previewGateway.requestProfessionalReviewAnalysis(
+      'review-ana-costa-1',
+    );
 
     // THEN
     expect(previewGateway.initialHomeData.discoveryProfessionals, isNotEmpty);
     expect(
       homeData.professionalProfiles.first.professionalName,
-      'Maria Eletricista',
+      'Ana Costa Energia Residencial',
     );
     expect(contact.whatsappContactLink, startsWith('https://wa.me/'));
+  });
+
+  test(
+      'GIVEN preview gateway WHEN carregar homologacao THEN deve cobrir regiao inicial',
+      () async {
+    // GIVEN
+    const previewGateway = WorkLinkPreviewGateway();
+    const expectedCityDisplayNames = [
+      'Charqueadas - RS',
+      'São Jerônimo - RS',
+      'Triunfo - RS',
+      'Arroio dos Ratos - RS',
+      'Eldorado do Sul - RS',
+      'General Câmara - RS',
+      'Butiá - RS',
+    ];
+
+    // WHEN
+    final homeData = await previewGateway.loadHomeData();
+    final discoveryCityDisplayNames = homeData.discoveryProfessionals
+        .map((professional) => professional.cityDisplayName)
+        .toSet();
+    final profileBaseCityDisplayNames = homeData.professionalProfiles
+        .map((profile) => profile.baseCityDisplayName)
+        .toSet();
+
+    // THEN
+    expect(
+      homeData.professionalRegistrationCityDisplayNames,
+      expectedCityDisplayNames,
+    );
+    expect(discoveryCityDisplayNames, containsAll(expectedCityDisplayNames));
+    expect(profileBaseCityDisplayNames, containsAll(expectedCityDisplayNames));
+    expect(
+      homeData.discoveryProfessionals.length,
+      greaterThanOrEqualTo(expectedCityDisplayNames.length),
+    );
   });
 
   test(

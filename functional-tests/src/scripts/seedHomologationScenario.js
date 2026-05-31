@@ -10,8 +10,11 @@ const resetBeforeSeed = process.env.WORKLINK_HOMOLOGATION_RESET === 'true';
 const cities = [
   { key: 'charqueadas', cityName: 'Charqueadas', stateCode: 'RS' },
   { key: 'sao-jeronimo', cityName: 'Sao Jeronimo', stateCode: 'RS' },
-  { key: 'butia', cityName: 'Butia', stateCode: 'RS' },
+  { key: 'triunfo', cityName: 'Triunfo', stateCode: 'RS' },
   { key: 'arroio-dos-ratos', cityName: 'Arroio dos Ratos', stateCode: 'RS' },
+  { key: 'eldorado-do-sul', cityName: 'Eldorado do Sul', stateCode: 'RS' },
+  { key: 'general-camara', cityName: 'General Camara', stateCode: 'RS' },
+  { key: 'butia', cityName: 'Butia', stateCode: 'RS' },
 ];
 
 const categories = [
@@ -19,6 +22,8 @@ const categories = [
   { key: 'encanador', categoryName: 'Encanador' },
   { key: 'diarista', categoryName: 'Diarista' },
   { key: 'pedreiro', categoryName: 'Pedreiro' },
+  { key: 'pintor', categoryName: 'Pintor' },
+  { key: 'jardineiro', categoryName: 'Jardineiro' },
 ];
 
 const professionals = [
@@ -46,9 +51,9 @@ const professionals = [
   {
     professionalName: 'Diego Almeida Reformas',
     whatsappNumber: '51990001004',
-    cityKey: 'butia',
+    cityKey: 'triunfo',
     categoryKey: 'pedreiro',
-    shortDescription: 'Reformas pequenas, alvenaria, reboco, pisos e reparos em geral.',
+    shortDescription: 'Reformas pequenas, alvenaria, reboco, pisos e reparos em Triunfo.',
   },
   {
     professionalName: 'Elaine Rocha Eletrica Rapida',
@@ -63,6 +68,27 @@ const professionals = [
     cityKey: 'sao-jeronimo',
     categoryKey: 'encanador',
     shortDescription: 'Manutencao preventiva e corretiva para casas e comercios locais.',
+  },
+  {
+    professionalName: 'Gisele Martins Pinturas',
+    whatsappNumber: '51990001007',
+    cityKey: 'eldorado-do-sul',
+    categoryKey: 'pintor',
+    shortDescription: 'Pintura interna, acabamento e pequenos reparos em Eldorado do Sul.',
+  },
+  {
+    professionalName: 'Henrique Vargas Jardins',
+    whatsappNumber: '51990001008',
+    cityKey: 'general-camara',
+    categoryKey: 'jardineiro',
+    shortDescription: 'Poda, limpeza de patios e manutencao de jardins em General Camara.',
+  },
+  {
+    professionalName: 'Isabela Torres Obras Leves',
+    whatsappNumber: '51990001009',
+    cityKey: 'butia',
+    categoryKey: 'pedreiro',
+    shortDescription: 'Reparos de alvenaria, pisos e pequenas reformas em Butia.',
   },
 ];
 
@@ -109,7 +135,15 @@ async function main() {
   );
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}
+
+module.exports = {
+  categories,
+  cities,
+  professionals,
+};
