@@ -1,0 +1,17 @@
+artifact=android-homologation-candidate
+artifact_class=functional-homologation
+apk=worklink-android-homologation.apk
+app_version=0.1.0+1
+git_commit=6883e468d74c989f37fe62b76e84d2a2fe843490
+git_branch=main
+git_tags=none
+github_run_id=26948049311
+github_run_attempt=1
+built_at_utc=2026-06-04T11:31:17Z
+apk_size_bytes=51425182
+build_type=release
+signing=android_homologation_key
+app_data_mode=homologation-fullstack
+api_base_url=https://particular-deborah-vhs-emission.trycloudflare.com
+known_limitations=depende do backend e da massa de homologacao informados; envios externos podem estar simulados
+distribution_scope=manual_internal_test_only

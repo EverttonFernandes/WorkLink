@@ -210,3 +210,7 @@ Resultado:
 - [x] Cópia local atualizada em `artifacts/android-homologation-candidate-from-ci/worklink-android-homologation.apk`.
 - [x] SHA-256 do APK atual: `c9be202f528291f3f2e778eabe6bad7da5ffa3dcdc846902922734a0a3e15ca6`.
 - [ ] Decidir se a URL temporaria serve apenas para validacao manual imediata ou se sera substituida por backend HTTPS duravel antes da promocao/versionamento estavel.
+2026-06-04 08:55 - WLT-029 retomada apos WLT-030 a WLT-035. Artifact Android homologation do run 26948049311 validado e metadados v0.49.0 gerados.
+2026-06-04 09:00 - Promocao validou URL HTTPS allowlisted, checksum e certificado real do APK via apksigner em container Flutter.
+2026-06-04 09:05 - Gates WLT-034/WLT-035 aprovados para WLT-029: mobile-visual-qa-gate e mobile-product-homologation-gate.
+2026-06-04 09:10 - Decisao: URL trycloudflare e aceita para homologacao manual controlada desta versao, com limitacao registrada; backend duravel fica para evolucao posterior de infraestrutura.

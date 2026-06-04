@@ -12,6 +12,7 @@ SIGNING="${SIGNING:-android_debug_key}"
 ARTIFACT_TYPE="${ARTIFACT_TYPE:-android-test-candidate}"
 MOBILE_ARTIFACT_CLASS="${MOBILE_ARTIFACT_CLASS:-}"
 KNOWN_LIMITATIONS="${KNOWN_LIMITATIONS:-}"
+DOWNLOAD_ARTIFACT_NAME="${DOWNLOAD_ARTIFACT_NAME:-}"
 
 if [ ! -s "${APK_SOURCE}" ]; then
   echo "APK nao encontrado ou vazio em ${APK_SOURCE}." >&2
@@ -79,6 +80,20 @@ if [ -z "${KNOWN_LIMITATIONS}" ]; then
   esac
 fi
 
+if [ -z "${DOWNLOAD_ARTIFACT_NAME}" ]; then
+  case "${ARTIFACT_TYPE}" in
+    android-homologation-candidate)
+      DOWNLOAD_ARTIFACT_NAME="worklink-android-homologation-<commit>"
+      ;;
+    android-test-candidate)
+      DOWNLOAD_ARTIFACT_NAME="worklink-android-test-candidate-<commit>"
+      ;;
+    *)
+      DOWNLOAD_ARTIFACT_NAME="${ARTIFACT_TYPE}-<commit>"
+      ;;
+  esac
+fi
+
 cat > "${OUTPUT_DIR}/BUILD-METADATA.txt" <<EOF
 artifact=${ARTIFACT_TYPE}
 artifact_class=${MOBILE_ARTIFACT_CLASS}
@@ -112,7 +127,7 @@ Este pacote contem ${PACKAGE_DESCRIPTION}.
 
 ## Como testar no Android
 
-1. Baixe o artifact \`worklink-android-test-candidate-<commit>\` no run verde do GitHub Actions.
+1. Baixe o artifact \`${DOWNLOAD_ARTIFACT_NAME}\` no run verde do GitHub Actions.
 2. Extraia o arquivo zip.
 3. Transfira \`${APK_NAME}\` para o aparelho Android.
 4. No Android, permita instalacao de apps desconhecidos para o app usado para abrir o APK.

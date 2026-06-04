@@ -4,7 +4,7 @@
 
 - História: `WLT-029`
 - Tipo semântico sugerido: `MINOR`
-- Estado: `Em andamento`
+- Estado: `Concluída`
 
 ## Objetivo técnico
 
@@ -42,9 +42,24 @@ Construir a base para validar manualmente o WorkLink em Android e iOS contra um 
 ## Evidências já coletadas
 
 - GitHub Actions run `26196995023` executado com sucesso em `main`.
+- GitHub Actions run `26948049311` executado com sucesso em `main`.
 - Jobs verdes:
   - `Mobile quality gates`
   - `Mobile integration on Android emulator`
   - `Backend quality gates`
   - `Dependency scan`
   - `API Docker image`
+
+## Promoção Android v0.49.0
+
+- Metadados versionados: `artifacts/homologation/releases/v0.49.0/android/`.
+- Source run: `26948049311`.
+- Source artifact: `worklink-android-homologation-6883e468d74c989f37fe62b76e84d2a2fe843490`.
+- Gate visual: `make mobile-visual-qa-gate TASK_KEY=WLT-029` aprovado.
+- Gate de governança: `make mobile-product-homologation-gate ARTIFACT_DIR=artifacts/homologation/releases/v0.49.0/android` aprovado.
+- Certificado do APK validado com `apksigner` contra a chave Android de homologação.
+
+## Limitação operacional
+
+O backend usado nesta promoção aponta para uma URL temporária `trycloudflare.com`. Esta versão é adequada para
+homologação manual controlada pelo dono do produto, mas não substitui um backend HTTPS durável de pré-produção.
