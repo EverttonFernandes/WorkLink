@@ -39,6 +39,8 @@ coverage/
 *.keystore
 *.p12
 *.p8
+*.cer
+*.key
 *.mobileprovision
 *.provisionprofile
 GoogleService-Info.plist

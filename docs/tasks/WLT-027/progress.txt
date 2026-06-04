@@ -1,0 +1,8 @@
+2026-06-04 - Iteracao 1
+- WLT-027 iniciada apos WLT-026 fechar com CI verde.
+- Gaps principais: inventario de secrets, gate de governanca e documentacao de rotacao/ownership.
+
+2026-06-04 - Iteracao 2
+- Criado `docs/operacao/mobile-secrets-assinatura.md` com inventario, obrigatoriedade, ownership, rotacao e recuperacao.
+- Criado `make mobile-signing-governance` e conectado ao job `Dependency scan`.
+- Teste sintetico confirmou bloqueio de certificado versionado e de `.gitignore` incompleto.

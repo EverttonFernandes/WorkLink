@@ -267,8 +267,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
 
-      - name: Mobile signing secrets guard
-        run: ./scripts/check_no_mobile_signing_secrets.sh
+      - name: Mobile signing governance gate
+        run: make mobile-signing-governance
 
       - name: Functional test dependencies audit
         run: |
