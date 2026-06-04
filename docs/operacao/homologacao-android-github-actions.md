@@ -81,6 +81,24 @@ A promocao valida:
 
 O APK fica como asset do GitHub Release. O git guarda apenas metadados, checksum e ponteiro para o asset.
 
+## 5. Validar homologacao visual/produto
+
+Antes de tratar o APK como homologavel pelo dono do produto, execute o gate visual da historia que gerou ou alterou a
+experiencia mobile:
+
+```bash
+make mobile-visual-qa-gate TASK_KEY=WLT-000
+```
+
+As evidencias oficiais ficam em:
+
+```text
+docs/tasks/<KEY>/visual-qa/
+```
+
+Esse gate exige matriz visual, screenshots reais e veredito aprovado do Mobile Front-end Specialist. Sem isso, o APK e
+apenas um artifact tecnico ou preview, mesmo quando a CI estiver verde.
+
 ## Observacoes
 
 - URL local, HTTP, IPv6, `localhost`, `.local` e IP privado nao geram artifact promovivel.

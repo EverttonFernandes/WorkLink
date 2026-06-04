@@ -151,7 +151,14 @@ Para considerar uma etapa mobile pronta, registre:
 - Backend usado identificado.
 - Massa de dados conhecida.
 - Caminho de instalacao manual documentado.
+- Gate visual/produto aprovado quando houver UI ou teste humano de APK/IPA.
 - Riscos e custos remanescentes registrados.
+
+O gate visual oficial esta em `docs/qa/mobile-visual-homologation-gate.md` e deve ser validado com:
+
+```bash
+make mobile-visual-qa-gate TASK_KEY=<KEY>
+```
 
 ## Aplicacao Na WLT-029
 

@@ -30,6 +30,16 @@ Toda funcionalidade deve ser desenvolvida com TDD sempre que houver comportament
 
 Todo teste criado ou alterado deve seguir `GIVEN`, `WHEN`, `THEN`.
 
+Quando uma entrega mobile gerar APK, IPA ou artifact para teste humano, a aprovacao de `mobile_tests` tambem exige o
+gate visual oficial em `docs/qa/mobile-visual-homologation-gate.md`. O comando padrao e:
+
+```bash
+make mobile-visual-qa-gate TASK_KEY=<KEY>
+```
+
+CI verde, emulador verde e APK instalavel validam a parte tecnica. Homologacao de produto exige matriz visual,
+screenshots reais e veredito aprovado do `mobile-frontend-specialist-agent`.
+
 Os exemplos deste documento são conceituais. Nas histórias reais do WorkLink, os cenários devem usar o domínio do produto: usuários, profissionais, cidades, categorias, contato, pós-contato, avaliações, denúncias, moderação, autenticação, autorização e auditoria.
 
 ## Testes Unitários

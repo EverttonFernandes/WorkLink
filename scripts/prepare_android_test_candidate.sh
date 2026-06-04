@@ -91,6 +91,8 @@ Este pacote contem ${PACKAGE_DESCRIPTION}.
 - Assinatura declarada: \`${SIGNING}\`.
 - Modo de dados deste APK: \`${APP_DATA_MODE}\`.
 - Backend configurado no build: \`${API_BASE_URL}\`.
+- Este artifact prova empacotamento e instalacao. Para ser homologavel como produto, precisa passar pelo gate visual em \`docs/qa/mobile-visual-homologation-gate.md\`.
+- Quando a historia possuir UI mobile, registre matriz, screenshots e veredito do especialista em \`docs/tasks/<KEY>/visual-qa/\` e valide com \`make mobile-visual-qa-gate TASK_KEY=<KEY>\`.
 - Quando o modo for \`preview\`, o app navega sem backend publicado.
 - Quando o modo for \`homologation-fullstack\`, backend, banco e massa de homologacao devem estar disponiveis no ambiente informado.
 - Nao publique este APK na Google Play.

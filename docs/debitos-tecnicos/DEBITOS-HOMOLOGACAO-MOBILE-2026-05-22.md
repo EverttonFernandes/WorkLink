@@ -50,6 +50,9 @@ CI verde e APK instalável não são suficientes para considerar uma entrega mob
 - Severidade: `CRITICAL`
 - Problema: a pipeline validou build, testes e artifact, mas não barrou divergência visual/funcional dos protótipos.
 - Resultado esperado: QA deve exigir screenshots reais, matriz de protótipos e checklist de aderência antes de aprovar APK manual.
+- Status: tratado pela `WLT-034`.
+- Resultado entregue: criado gate oficial em `docs/qa/mobile-visual-homologation-gate.md`, com matriz visual,
+  screenshots reais, veredito do Mobile Front-end Specialist e comando `make mobile-visual-qa-gate TASK_KEY=<KEY>`.
 
 ### DTM-006 — Guardião de produto aprovou homologação técnica como se fosse validação de produto
 

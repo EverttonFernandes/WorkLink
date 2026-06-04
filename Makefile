@@ -7,6 +7,7 @@ DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) $(DOCKER) compose --env-f
 	backend-unit-test backend-integration-test backend-test backend-image-build \
 	mobile-unit-test mobile-screen-test mobile-integration-test mobile-android-build \
 	mobile-android-test-candidate mobile-android-local-fullstack-candidate mobile-android-homologation-candidate mobile-emulator-prereqs \
+	mobile-visual-qa-gate \
 	mobile-web-preview mobile-web-preview-wait mobile-web-preview-stop mobile-web-preview-logs \
 	mobile-test mobile-emulator-up mobile-emulator-wait mobile-emulator-install \
 	mobile-emulator-integration-test mobile-manual-test functional-test test-unit test-integration test-functional \
@@ -114,6 +115,10 @@ mobile-android-homologation-candidate: $(COMPOSE_ENV_FILE)
 		APP_DATA_MODE=homologation-fullstack \
 		API_BASE_URL="$(MOBILE_HOMOLOGATION_API_BASE_URL)" \
 		./scripts/prepare_android_test_candidate.sh
+
+mobile-visual-qa-gate:
+	@test -n "$(TASK_KEY)" || (echo "Defina TASK_KEY=WLT-000 para validar as evidencias visuais da historia." >&2; exit 1)
+	./scripts/check_mobile_visual_evidence_gate.sh "$(TASK_KEY)"
 
 mobile-web-preview: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) up -d mobile-web-preview
