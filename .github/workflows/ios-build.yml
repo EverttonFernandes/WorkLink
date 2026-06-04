@@ -1,0 +1,85 @@
+name: WorkLink iOS Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_mode:
+        description: iOS build mode.
+        required: true
+        default: no-codesign
+        type: choice
+        options:
+          - no-codesign
+          - testflight
+
+permissions:
+  contents: read
+
+concurrency:
+  group: worklink-ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ios-build:
+    name: iOS build readiness
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.44.0'
+          cache: true
+
+      - name: Validate iOS project readiness
+        run: make ios-readiness-check
+
+      - name: Validate Apple secrets for TestFlight
+        if: inputs.build_mode == 'testflight'
+        env:
+          WORKLINK_APPLE_TEAM_ID: ${{ secrets.WORKLINK_APPLE_TEAM_ID }}
+          WORKLINK_IOS_BUNDLE_IDENTIFIER: ${{ secrets.WORKLINK_IOS_BUNDLE_IDENTIFIER }}
+          WORKLINK_APP_STORE_CONNECT_API_KEY_ID: ${{ secrets.WORKLINK_APP_STORE_CONNECT_API_KEY_ID }}
+          WORKLINK_APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.WORKLINK_APP_STORE_CONNECT_ISSUER_ID }}
+          WORKLINK_APP_STORE_CONNECT_API_PRIVATE_KEY: ${{ secrets.WORKLINK_APP_STORE_CONNECT_API_PRIVATE_KEY }}
+          WORKLINK_IOS_DISTRIBUTION_CERTIFICATE_BASE64: ${{ secrets.WORKLINK_IOS_DISTRIBUTION_CERTIFICATE_BASE64 }}
+          WORKLINK_IOS_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.WORKLINK_IOS_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          WORKLINK_IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.WORKLINK_IOS_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          required_secret_names="
+          WORKLINK_APPLE_TEAM_ID
+          WORKLINK_IOS_BUNDLE_IDENTIFIER
+          WORKLINK_APP_STORE_CONNECT_API_KEY_ID
+          WORKLINK_APP_STORE_CONNECT_ISSUER_ID
+          WORKLINK_APP_STORE_CONNECT_API_PRIVATE_KEY
+          WORKLINK_IOS_DISTRIBUTION_CERTIFICATE_BASE64
+          WORKLINK_IOS_DISTRIBUTION_CERTIFICATE_PASSWORD
+          WORKLINK_IOS_PROVISIONING_PROFILE_BASE64
+          "
+          for secret_name in $required_secret_names; do
+            eval "secret_value=\${$secret_name:-}"
+            if [ -z "$secret_value" ]; then
+              echo "Secret obrigatorio ausente para TestFlight: $secret_name" >&2
+              exit 1
+            fi
+          done
+
+      - name: Flutter pub get
+        working-directory: worklink-mobile
+        run: flutter pub get
+
+      - name: Build iOS without codesign
+        if: inputs.build_mode == 'no-codesign'
+        working-directory: worklink-mobile
+        run: flutter build ios --release --no-codesign
+
+      - name: Stop before TestFlight automation
+        if: inputs.build_mode == 'testflight'
+        run: |
+          echo "TestFlight upload is mapped but intentionally not implemented in WLT-026."
+          echo "Use WLT-027/WLT-028 to add signing import, archive export and App Store Connect upload."
+          exit 1

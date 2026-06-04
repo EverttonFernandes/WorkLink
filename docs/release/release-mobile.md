@@ -47,6 +47,14 @@ Esse pacote usa assinatura debug e serve apenas para validacao interna antes de 
 - Homologacao iOS: Apple Developer Program, signing/provisioning e TestFlight interno.
 - Loja: App Store Connect, App Review e plano de hotfix.
 
+### Preparacao CI/TestFlight
+
+- Guia operacional: `docs/operacao/ios-ci-testflight.md`.
+- Check local: `make ios-readiness-check`.
+- Workflow manual: `.github/workflows/ios-build.yml`.
+- Modo atual seguro: `no-codesign`.
+- Upload TestFlight real depende de Apple Developer Account, certificados, provisioning profile e App Store Connect API key.
+
 ## Rollout gradual
 
 - Começar com público interno.
