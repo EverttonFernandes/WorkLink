@@ -19,15 +19,20 @@ void main() {
     httpClient.objectResponses['/api/v1/authentication/otp/request'] = {
       'message': 'Codigo enviado.',
       'expiresAt': '2026-05-13T10:00:00Z',
+      'deliveryChannels': ['SMS', 'WHATSAPP', 'EMAIL'],
+      'simulatedDelivery': true,
     };
 
     // WHEN
     final result = await authenticationService.requestAuthenticationOtp(
       '+5551999999999',
+      deliveryChannel: 'WHATSAPP',
     );
 
     // THEN
     expect(result.message, 'Codigo enviado.');
+    expect(result.deliveryChannels, ['SMS', 'WHATSAPP', 'EMAIL']);
+    expect(result.simulatedDelivery, isTrue);
     expect(httpClient.requests.single.method, 'POST');
     expect(
       httpClient.requests.single.path,
@@ -35,7 +40,10 @@ void main() {
     );
     expect(
       httpClient.requests.single.data,
-      {'phoneNumber': '+5551999999999'},
+      {
+        'phoneNumber': '+5551999999999',
+        'deliveryChannel': 'WHATSAPP',
+      },
     );
   });
 

@@ -36,6 +36,13 @@ void main() {
 
     // THEN
     expect(find.text('Continuar com seu celular'), findsOneWidget);
+    expect(
+      find.text('Escolha onde receber o codigo: SMS, WhatsApp ou email.'),
+      findsOneWidget,
+    );
+    expect(find.text('SMS'), findsOneWidget);
+    expect(find.text('WhatsApp'), findsOneWidget);
+    expect(find.text('Email'), findsOneWidget);
     expect(find.byKey(const ValueKey('customer-phone-field')), findsOneWidget);
     expect(find.text('Continuar'), findsOneWidget);
   });
@@ -63,11 +70,50 @@ void main() {
 
     // THEN
     expect(find.text('Verifique seu numero'), findsOneWidget);
+    expect(
+      find.text('Enviamos um codigo de 4 digitos por SMS para'),
+      findsOneWidget,
+    );
     expect(find.text('(51) 9 9999-1234'), findsOneWidget);
     expect(
       find.byKey(const ValueKey('verification-code-field')),
       findsOneWidget,
     );
+  });
+
+  testWidgets(
+      'GIVEN email escolhido WHEN continuar THEN deve pedir email e abrir verificacao por email',
+      (widgetTester) async {
+    // GIVEN
+    final customerAuthenticationController = CustomerAuthenticationController();
+    await pumpCustomerAuthenticationScreen(
+      widgetTester,
+      customerAuthenticationController,
+    );
+
+    // WHEN
+    await widgetTester.tap(find.text('Email'));
+    await widgetTester.pumpAndSettle();
+    await widgetTester.enterText(
+      find.byKey(const ValueKey('customer-phone-field')),
+      '(51) 9 9999-1234',
+    );
+    await widgetTester.enterText(
+      find.byKey(const ValueKey('customer-email-field')),
+      'cliente@worklink.test',
+    );
+    await widgetTester.ensureVisible(
+      find.byKey(const ValueKey('request-code-button')),
+    );
+    await widgetTester.tap(find.byKey(const ValueKey('request-code-button')));
+    await widgetTester.pumpAndSettle();
+
+    // THEN
+    expect(
+      find.text('Enviamos um codigo de 4 digitos por email para'),
+      findsOneWidget,
+    );
+    expect(find.text('cliente@worklink.test'), findsOneWidget);
   });
 
   testWidgets(

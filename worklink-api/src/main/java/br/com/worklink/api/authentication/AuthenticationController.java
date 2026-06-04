@@ -44,7 +44,11 @@ public class AuthenticationController {
             @RequestBody RequestAuthenticationOtpHttpRequest request
     ) {
         AuthenticationOtpRequestResponse response = requestAuthenticationOtpUseCase.requestAuthenticationOtp(
-                new RequestAuthenticationOtpRequest(request.phoneNumber())
+                new RequestAuthenticationOtpRequest(
+                        request.phoneNumber(),
+                        request.deliveryChannel(),
+                        request.emailAddress()
+                )
         );
         return AuthenticationOtpRequestHttpResponse.fromResponse(response);
     }

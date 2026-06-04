@@ -9,10 +9,13 @@ import br.com.worklink.domain.authentication.AuthenticationOtpChallenge;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
 
 public class RequestAuthenticationOtpUseCase {
 
-    private static final String GENERIC_OTP_MESSAGE = "Se o telefone puder ser autenticado, um codigo sera enviado.";
+    private static final List<String> AVAILABLE_DELIVERY_CHANNELS = List.of("SMS", "WHATSAPP", "EMAIL");
+    private static final String GENERIC_OTP_MESSAGE =
+            "Se os dados puderem ser autenticados, um codigo sera enviado pelo canal escolhido.";
 
     private final GenerateOneTimePasswordPort generateOneTimePasswordPort;
     private final ProtectSensitiveValuePort protectSensitiveValuePort;
@@ -49,6 +52,6 @@ public class RequestAuthenticationOtpUseCase {
                 expiresAt,
                 currentInstant
         ));
-        return new AuthenticationOtpRequestResponse(GENERIC_OTP_MESSAGE, expiresAt);
+        return new AuthenticationOtpRequestResponse(GENERIC_OTP_MESSAGE, expiresAt, AVAILABLE_DELIVERY_CHANNELS, true);
     }
 }

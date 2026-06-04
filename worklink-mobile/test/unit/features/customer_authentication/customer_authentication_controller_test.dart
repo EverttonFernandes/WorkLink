@@ -25,6 +25,83 @@ void main() {
       '51999991234',
     );
     expect(customerAuthenticationController.state.authenticated, isFalse);
+    expect(
+      customerAuthenticationController.state.statusMessage,
+      'Enviamos um codigo por SMS.',
+    );
+  });
+
+  test(
+      'GIVEN WhatsApp selecionado WHEN solicitar codigo THEN deve manter canal escolhido na verificacao',
+      () {
+    // GIVEN
+    final customerAuthenticationController = CustomerAuthenticationController();
+
+    // WHEN
+    customerAuthenticationController.changePhoneNumber('(51) 9 9999-1234');
+    customerAuthenticationController.changeVerificationChannel(
+      CustomerAuthenticationVerificationChannel.whatsapp,
+    );
+    final requestAccepted =
+        customerAuthenticationController.requestVerificationCode();
+
+    // THEN
+    expect(requestAccepted, isTrue);
+    expect(
+      customerAuthenticationController.state.verificationChannel,
+      CustomerAuthenticationVerificationChannel.whatsapp,
+    );
+    expect(
+      customerAuthenticationController.state.statusMessage,
+      'Enviamos um codigo por WhatsApp.',
+    );
+  });
+
+  test(
+      'GIVEN email selecionado sem endereco valido WHEN solicitar codigo THEN deve bloquear verificacao',
+      () {
+    // GIVEN
+    final customerAuthenticationController = CustomerAuthenticationController();
+
+    // WHEN
+    customerAuthenticationController.changePhoneNumber('(51) 9 9999-1234');
+    customerAuthenticationController.changeVerificationChannel(
+      CustomerAuthenticationVerificationChannel.email,
+    );
+    customerAuthenticationController.changeEmailAddress('email-invalido');
+    final requestAccepted =
+        customerAuthenticationController.requestVerificationCode();
+
+    // THEN
+    expect(requestAccepted, isFalse);
+    expect(
+      customerAuthenticationController.state.errorMessage,
+      'Informe um email valido.',
+    );
+  });
+
+  test(
+      'GIVEN email selecionado com endereco valido WHEN solicitar codigo THEN deve mostrar destino email',
+      () {
+    // GIVEN
+    final customerAuthenticationController = CustomerAuthenticationController();
+
+    // WHEN
+    customerAuthenticationController.changePhoneNumber('(51) 9 9999-1234');
+    customerAuthenticationController.changeVerificationChannel(
+      CustomerAuthenticationVerificationChannel.email,
+    );
+    customerAuthenticationController
+        .changeEmailAddress('Cliente@WorkLink.Test');
+    final requestAccepted =
+        customerAuthenticationController.requestVerificationCode();
+
+    // THEN
+    expect(requestAccepted, isTrue);
+    expect(
+      customerAuthenticationController.state.verificationDestination,
+      'cliente@worklink.test',
+    );
   });
 
   test(
@@ -176,9 +253,17 @@ void main() {
       () async {
     // GIVEN
     final requestedPhoneNumbers = <String>[];
+    final requestedChannels = <CustomerAuthenticationVerificationChannel>[];
+    final requestedEmails = <String?>[];
     final customerAuthenticationController = CustomerAuthenticationController(
-      requestCustomerAuthenticationCode: (phoneNumber) async {
+      requestCustomerAuthenticationCode: ({
+        required phoneNumber,
+        required verificationChannel,
+        emailAddress,
+      }) async {
         requestedPhoneNumbers.add(phoneNumber);
+        requestedChannels.add(verificationChannel);
+        requestedEmails.add(emailAddress);
       },
     );
 
@@ -190,6 +275,8 @@ void main() {
     // THEN
     expect(requestAccepted, isTrue);
     expect(requestedPhoneNumbers, ['51999991234']);
+    expect(requestedChannels, [CustomerAuthenticationVerificationChannel.sms]);
+    expect(requestedEmails, [null]);
     expect(
       customerAuthenticationController.state.authenticationStep,
       CustomerAuthenticationStep.codeVerification,
@@ -201,7 +288,11 @@ void main() {
       () async {
     // GIVEN
     final customerAuthenticationController = CustomerAuthenticationController(
-      requestCustomerAuthenticationCode: (_) async {
+      requestCustomerAuthenticationCode: ({
+        required phoneNumber,
+        required verificationChannel,
+        emailAddress,
+      }) async {
         throw StateError('backend indisponivel');
       },
     );

@@ -8,11 +8,17 @@ class AuthenticationService {
   final WorkLinkHttpClient _httpClient;
 
   Future<AuthenticationOtpRequestResult> requestAuthenticationOtp(
-    String phoneNumber,
-  ) async {
+    String phoneNumber, {
+    required String deliveryChannel,
+    String? emailAddress,
+  }) async {
     final response = await _httpClient.postObject(
       '/api/v1/authentication/otp/request',
-      data: {'phoneNumber': phoneNumber},
+      data: {
+        'phoneNumber': phoneNumber,
+        'deliveryChannel': deliveryChannel,
+        if (emailAddress != null) 'emailAddress': emailAddress,
+      },
     );
     return AuthenticationOtpRequestResult.fromJson(response);
   }

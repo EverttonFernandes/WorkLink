@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/app/worklink_application_gateway.dart';
+import 'package:worklink_mobile/features/customer_authentication/customer_authentication_state.dart';
 import 'package:worklink_mobile/features/post_contact_feedback/post_contact_feedback_request.dart';
 import 'package:worklink_mobile/features/post_contact_feedback/post_contact_feedback_state.dart';
 import 'package:worklink_mobile/features/professional_availability/professional_availability_status.dart';
@@ -854,6 +855,8 @@ void main() {
     httpClient.objectResponses['/api/v1/authentication/otp/request'] = {
       'message': 'Codigo enviado.',
       'expiresAt': '2026-05-13T10:05:00Z',
+      'deliveryChannels': ['SMS', 'WHATSAPP', 'EMAIL'],
+      'simulatedDelivery': true,
     };
     httpClient.objectResponses['/api/v1/authentication/otp/verify'] = {
       'customerIdentifier': 'customer-1',
@@ -878,12 +881,41 @@ void main() {
         '/api/v1/authentication/otp/verify',
       ],
     );
-    expect(httpClient.requests.first.data, {'phoneNumber': '51999991234'});
+    expect(httpClient.requests.first.data, {
+      'phoneNumber': '51999991234',
+      'deliveryChannel': 'SMS',
+    });
     expect(httpClient.requests.last.data, {
       'phoneNumber': '51999991234',
       'oneTimePassword': '123456',
     });
     expect(httpClient.bearerTokens, ['access-token']);
+  });
+
+  test(
+      'GIVEN email escolhido WHEN solicitar codigo THEN deve enviar canal e email para API',
+      () async {
+    // GIVEN
+    httpClient.objectResponses['/api/v1/authentication/otp/request'] = {
+      'message': 'Codigo enviado.',
+      'expiresAt': '2026-05-13T10:05:00Z',
+      'deliveryChannels': ['SMS', 'WHATSAPP', 'EMAIL'],
+      'simulatedDelivery': true,
+    };
+
+    // WHEN
+    await gateway.requestCustomerAuthenticationCode(
+      '51999991234',
+      verificationChannel: CustomerAuthenticationVerificationChannel.email,
+      emailAddress: 'cliente@worklink.test',
+    );
+
+    // THEN
+    expect(httpClient.requests.single.data, {
+      'phoneNumber': '51999991234',
+      'deliveryChannel': 'EMAIL',
+      'emailAddress': 'cliente@worklink.test',
+    });
   });
 
   test(

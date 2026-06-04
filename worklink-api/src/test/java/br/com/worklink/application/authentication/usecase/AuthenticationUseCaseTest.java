@@ -55,12 +55,15 @@ class AuthenticationUseCaseTest {
 
         // WHEN
         AuthenticationOtpRequestResponse response = useCase.requestAuthenticationOtp(
-                new RequestAuthenticationOtpRequest("(51) 99999-9999")
+                new RequestAuthenticationOtpRequest("(51) 99999-9999", "WHATSAPP", null)
         );
 
         // THEN
-        assertThat(response.message()).isEqualTo("Se o telefone puder ser autenticado, um codigo sera enviado.");
+        assertThat(response.message())
+                .isEqualTo("Se os dados puderem ser autenticados, um codigo sera enviado pelo canal escolhido.");
         assertThat(response.expiresAt()).isEqualTo(CURRENT_INSTANT.plus(OTP_DURATION));
+        assertThat(response.deliveryChannels()).containsExactly("SMS", "WHATSAPP", "EMAIL");
+        assertThat(response.simulatedDelivery()).isTrue();
         assertThat(gateway.savedAuthenticationOtpChallenge.phoneNumber()).isEqualTo("51999999999");
         assertThat(gateway.savedAuthenticationOtpChallenge.otpHash()).isEqualTo("protected-ONE_TIME_PASSWORD-123456");
         assertThat(gateway.savedAuthenticationOtpChallenge.otpHash()).isNotEqualTo("123456");

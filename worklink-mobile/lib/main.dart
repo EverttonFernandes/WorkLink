@@ -369,8 +369,16 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
 
   CustomerAuthenticationController _buildCustomerAuthenticationController() {
     return CustomerAuthenticationController(
-      requestCustomerAuthenticationCode:
-          widget.applicationGateway.requestCustomerAuthenticationCode,
+      requestCustomerAuthenticationCode: ({
+        required phoneNumber,
+        required verificationChannel,
+        emailAddress,
+      }) =>
+          widget.applicationGateway.requestCustomerAuthenticationCode(
+        phoneNumber,
+        verificationChannel: verificationChannel,
+        emailAddress: emailAddress,
+      ),
       confirmCustomerAuthenticationCode:
           widget.applicationGateway.confirmCustomerAuthenticationCode,
     );

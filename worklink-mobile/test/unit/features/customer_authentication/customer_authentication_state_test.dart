@@ -54,6 +54,24 @@ void main() {
   });
 
   test(
+      'GIVEN canal email WHEN consultar destino de verificacao THEN deve usar email normalizado',
+      () {
+    // GIVEN
+    const customerAuthenticationState = CustomerAuthenticationState(
+      verificationChannel: CustomerAuthenticationVerificationChannel.email,
+      emailAddress: 'Cliente@WorkLink.Test ',
+      normalizedPhoneNumber: '51999991234',
+    );
+
+    // WHEN / THEN
+    expect(customerAuthenticationState.emailAddressRequired, isTrue);
+    expect(
+      customerAuthenticationState.verificationDestination,
+      'cliente@worklink.test',
+    );
+  });
+
+  test(
       'GIVEN estado com mensagens WHEN copiar limpando mensagens THEN deve remover feedback anterior',
       () {
     // GIVEN

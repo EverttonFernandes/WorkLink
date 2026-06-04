@@ -1,0 +1,7 @@
+2026-05-31 00:00 - WLT-033 iniciada como proxima historia oficial do Kanban.
+2026-05-31 00:05 - Decisao V1 registrada: telefone continua identificador primario; canais permitidos sao SMS, WhatsApp e email; email exige endereco informado; homologacao pode simular envio de forma transparente.
+2026-05-31 00:15 - Implementacao principal concluida: UI mobile permite SMS/WhatsApp/email, backend recebe deliveryChannel/emailAddress e resposta explicita simulatedDelivery sem vazar OTP.
+2026-05-31 00:25 - Testes focados passaram: flutter test de autenticacao/gateway/servico e mvn de AuthenticationControllerTest/AuthenticationUseCaseTest.
+2026-06-03 23:20 - Retomada do loop: Docker Desktop estava parado, foi iniciado pelo Windows e gates Docker voltaram a executar.
+2026-06-03 23:35 - Goldens de autenticacao atualizados para refletir seletor SMS/WhatsApp/email e aviso de homologacao simulada.
+2026-06-03 23:50 - Gates completos passaram: mobile/backend static analysis, mobile unit, mobile screen, backend unit e functional-test.

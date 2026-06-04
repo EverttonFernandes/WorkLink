@@ -129,12 +129,27 @@ class _PhoneEntryStep extends StatelessWidget {
                   ),
                 ),
                 title: Text('Continuar com seu celular'),
-                subtitle: Text('E rapido, seguro e sem complicacao.'),
+                subtitle: Text(
+                  'Escolha onde receber o codigo: SMS, WhatsApp ou email.',
+                ),
               ),
               const SizedBox(height: 18),
               _PhoneNumberInputField(
                 onChanged: customerAuthenticationController.changePhoneNumber,
               ),
+              const SizedBox(height: 16),
+              _VerificationChannelSelector(
+                selectedChannel: authenticationState.verificationChannel,
+                onChanged:
+                    customerAuthenticationController.changeVerificationChannel,
+              ),
+              if (authenticationState.emailAddressRequired) ...[
+                const SizedBox(height: 16),
+                _EmailAddressInputField(
+                  onChanged:
+                      customerAuthenticationController.changeEmailAddress,
+                ),
+              ],
               if (authenticationState.errorMessage != null) ...[
                 const SizedBox(height: 10),
                 Text(
@@ -254,7 +269,7 @@ class _CodeVerificationStep extends StatelessWidget {
         ),
         const SizedBox(height: 14),
         Text(
-          'Enviamos um codigo de 4 digitos para o numero',
+          'Enviamos um codigo de 4 digitos por ${authenticationState.verificationChannelDisplayName} para',
           textAlign: TextAlign.center,
           style: textTheme.titleLarge?.copyWith(
             color: const Color(0xFF6A7D96),
@@ -263,7 +278,7 @@ class _CodeVerificationStep extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         Text(
-          authenticationState.displayPhoneNumber,
+          authenticationState.verificationDestination,
           textAlign: TextAlign.center,
           style: textTheme.headlineSmall?.copyWith(
             fontWeight: FontWeight.w700,
@@ -319,7 +334,7 @@ class _CodeVerificationStep extends StatelessWidget {
               SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  'Usamos a verificacao para proteger sua conta antes de falar com um profissional.',
+                  'Em homologacao, o envio pode ser simulado. Em producao, use o canal escolhido para receber o codigo antes de falar com um profissional.',
                   style: TextStyle(
                     color: Color(0xFF51657F),
                     fontSize: 16,
@@ -491,6 +506,65 @@ class _PhoneNumberInputField extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _EmailAddressInputField extends StatelessWidget {
+  const _EmailAddressInputField({
+    required this.onChanged,
+  });
+
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      key: const ValueKey('customer-email-field'),
+      keyboardType: TextInputType.emailAddress,
+      decoration: InputDecoration(
+        prefixIcon: const Icon(Icons.alternate_email_rounded),
+        hintText: 'voce@email.com',
+        labelText: 'Email para receber o codigo',
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(22)),
+      ),
+      onChanged: onChanged,
+    );
+  }
+}
+
+class _VerificationChannelSelector extends StatelessWidget {
+  const _VerificationChannelSelector({
+    required this.selectedChannel,
+    required this.onChanged,
+  });
+
+  final CustomerAuthenticationVerificationChannel selectedChannel;
+  final ValueChanged<CustomerAuthenticationVerificationChannel> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<CustomerAuthenticationVerificationChannel>(
+      showSelectedIcon: false,
+      segments: const [
+        ButtonSegment(
+          value: CustomerAuthenticationVerificationChannel.sms,
+          icon: Icon(Icons.sms_outlined),
+          label: Text('SMS'),
+        ),
+        ButtonSegment(
+          value: CustomerAuthenticationVerificationChannel.whatsapp,
+          icon: Icon(Icons.chat_outlined),
+          label: Text('WhatsApp'),
+        ),
+        ButtonSegment(
+          value: CustomerAuthenticationVerificationChannel.email,
+          icon: Icon(Icons.alternate_email_rounded),
+          label: Text('Email'),
+        ),
+      ],
+      selected: {selectedChannel},
+      onSelectionChanged: (channels) => onChanged(channels.single),
     );
   }
 }

@@ -20,6 +20,15 @@ A tela de autenticação não pode prometer um código sem explicar de forma hon
 - Validar que navegação sem autenticação inicial continua preservada.
 - Acionar Segurança e Privacidade por envolver autenticação e dados pessoais.
 
+## Decisão oficial da V1
+
+- O telefone celular continua sendo o identificador primário da autenticação do cliente.
+- A V1 permite escolher o canal de recebimento do código entre `SMS`, `WhatsApp` e `email`.
+- Quando `email` for escolhido, a interface deve solicitar o endereço de email antes de pedir o código.
+- Homologação pode simular o envio, desde que a interface e a documentação sejam explícitas sobre essa condição.
+- Produção deve integrar um provedor real antes de declarar envio real por qualquer canal.
+- A resposta da API deve permanecer genérica e não deve vazar se o telefone/email existe, nem o código OTP.
+
 ## Fora do escopo
 
 - Contratar provedor externo definitivo se a decisão for manter mock honesto de homologação.
@@ -28,6 +37,7 @@ A tela de autenticação não pode prometer um código sem explicar de forma hon
 ## Critérios de aceite
 
 - O canal de verificação está decidido e documentado.
+- A decisão explicita se a V1 suportará apenas um canal ou combinação de `SMS`, `WhatsApp` e `email`.
 - A UI informa o canal correto, sem ambiguidade.
 - O fluxo de homologação deixa claro se o envio é real ou simulado.
 - QA, Segurança e Final Reviewer aprovam o fluxo.

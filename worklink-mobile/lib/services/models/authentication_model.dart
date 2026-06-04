@@ -4,15 +4,23 @@ class AuthenticationOtpRequestResult {
   const AuthenticationOtpRequestResult({
     required this.message,
     required this.expiresAt,
+    required this.deliveryChannels,
+    required this.simulatedDelivery,
   });
 
   final String message;
   final DateTime expiresAt;
+  final List<String> deliveryChannels;
+  final bool simulatedDelivery;
 
   factory AuthenticationOtpRequestResult.fromJson(Map<String, dynamic> json) {
     return AuthenticationOtpRequestResult(
       message: json['message']?.toString() ?? '',
       expiresAt: DateTime.parse(json['expiresAt'].toString()),
+      deliveryChannels: (json['deliveryChannels'] as List<dynamic>? ?? const [])
+          .map((channel) => channel.toString())
+          .toList(),
+      simulatedDelivery: json['simulatedDelivery'] == true,
     );
   }
 }

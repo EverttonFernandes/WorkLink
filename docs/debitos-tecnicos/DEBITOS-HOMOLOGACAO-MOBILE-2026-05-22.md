@@ -42,6 +42,8 @@ CI verde e APK instalável não são suficientes para considerar uma entrega mob
 - Evidência: tela informa que o código foi enviado para o telefone, sem deixar claro se é SMS, WhatsApp, email ou outro canal.
 - Problema: a experiência promete uma confirmação sem explicitar o canal real suportado.
 - Resultado esperado: decisão de produto e implementação coerente para o canal da V1: SMS, WhatsApp, email ou combinação aprovada.
+- Status: tratado pela `WLT-033`.
+- Resultado entregue: autenticação mobile permite escolher `SMS`, `WhatsApp` ou `email`, valida email quando necessário, informa o canal/destino na tela de verificação e documenta que homologação pode simular envio até existir provedor real.
 
 ### DTM-005 — Gate de QA visual inexistente ou insuficiente
 

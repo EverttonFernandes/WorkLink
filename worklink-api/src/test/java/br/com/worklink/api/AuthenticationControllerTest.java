@@ -22,6 +22,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -62,17 +63,31 @@ class AuthenticationControllerTest {
         // GIVEN
         when(requestAuthenticationOtpUseCase.requestAuthenticationOtp(any(RequestAuthenticationOtpRequest.class)))
                 .thenReturn(new AuthenticationOtpRequestResponse(
-                        "Se o telefone puder ser autenticado, um codigo sera enviado.",
-                        CURRENT_INSTANT.plusSeconds(300)
+                        "Se os dados puderem ser autenticados, um codigo sera enviado pelo canal escolhido.",
+                        CURRENT_INSTANT.plusSeconds(300),
+                        List.of("SMS", "WHATSAPP", "EMAIL"),
+                        true
                 ));
 
         // WHEN / THEN
         mockMvc.perform(post("/api/v1/authentication/otp/request")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(new PhoneBody("51999999999"))))
+                        .content(objectMapper.writeValueAsString(
+                                new PhoneBody("51999999999", "WHATSAPP", null)
+                        )))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.message").value("Se o telefone puder ser autenticado, um codigo sera enviado."))
-                .andExpect(jsonPath("$.expiresAt").exists());
+                .andExpect(jsonPath("$.message")
+                        .value("Se os dados puderem ser autenticados, um codigo sera enviado pelo canal escolhido."))
+                .andExpect(jsonPath("$.expiresAt").exists())
+                .andExpect(jsonPath("$.deliveryChannels[0]").value("SMS"))
+                .andExpect(jsonPath("$.deliveryChannels[1]").value("WHATSAPP"))
+                .andExpect(jsonPath("$.deliveryChannels[2]").value("EMAIL"))
+                .andExpect(jsonPath("$.simulatedDelivery").value(true));
+        verify(requestAuthenticationOtpUseCase).requestAuthenticationOtp(argThat(request ->
+                request.phoneNumber().equals("51999999999")
+                        && request.deliveryChannel().equals("WHATSAPP")
+                        && request.emailAddress() == null
+        ));
     }
 
     @Test
@@ -137,7 +152,7 @@ class AuthenticationControllerTest {
         );
     }
 
-    private record PhoneBody(String phoneNumber) {
+    private record PhoneBody(String phoneNumber, String deliveryChannel, String emailAddress) {
     }
 
     private record OtpBody(String phoneNumber, String oneTimePassword) {

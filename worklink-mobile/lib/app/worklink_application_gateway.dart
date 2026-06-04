@@ -1,4 +1,5 @@
 import '../features/administrative_console/administrative_console_state.dart';
+import '../features/customer_authentication/customer_authentication_state.dart';
 import '../features/customer_profile/customer_profile_state.dart';
 import '../features/discovery/discovery_professional.dart';
 import '../features/post_contact_feedback/post_contact_feedback_request.dart';
@@ -53,7 +54,11 @@ abstract interface class WorkLinkApplicationGateway {
 
   Future<WorkLinkHomeData> loadHomeData();
 
-  Future<void> requestCustomerAuthenticationCode(String phoneNumber);
+  Future<void> requestCustomerAuthenticationCode(
+    String phoneNumber, {
+    CustomerAuthenticationVerificationChannel verificationChannel,
+    String? emailAddress,
+  });
 
   Future<void> confirmCustomerAuthenticationCode({
     required String phoneNumber,
@@ -262,10 +267,19 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
   }
 
   @override
-  Future<void> requestCustomerAuthenticationCode(String phoneNumber) async {
+  Future<void> requestCustomerAuthenticationCode(
+    String phoneNumber, {
+    CustomerAuthenticationVerificationChannel verificationChannel =
+        CustomerAuthenticationVerificationChannel.sms,
+    String? emailAddress,
+  }) async {
     final authenticationService =
         AuthenticationService(httpClient: _httpClient);
-    await authenticationService.requestAuthenticationOtp(phoneNumber);
+    await authenticationService.requestAuthenticationOtp(
+      phoneNumber,
+      deliveryChannel: verificationChannel.apiValue,
+      emailAddress: emailAddress,
+    );
   }
 
   @override
@@ -1172,7 +1186,12 @@ class WorkLinkPreviewGateway implements WorkLinkApplicationGateway {
   }
 
   @override
-  Future<void> requestCustomerAuthenticationCode(String phoneNumber) async {}
+  Future<void> requestCustomerAuthenticationCode(
+    String phoneNumber, {
+    CustomerAuthenticationVerificationChannel verificationChannel =
+        CustomerAuthenticationVerificationChannel.sms,
+    String? emailAddress,
+  }) async {}
 
   @override
   Future<void> confirmCustomerAuthenticationCode({

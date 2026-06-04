@@ -2,9 +2,11 @@ import 'package:flutter/foundation.dart';
 
 import 'customer_authentication_state.dart';
 
-typedef RequestCustomerAuthenticationCode = Future<void> Function(
-  String phoneNumber,
-);
+typedef RequestCustomerAuthenticationCode = Future<void> Function({
+  required String phoneNumber,
+  required CustomerAuthenticationVerificationChannel verificationChannel,
+  String? emailAddress,
+});
 
 typedef ConfirmCustomerAuthenticationCode = Future<void> Function({
   required String phoneNumber,
@@ -36,6 +38,28 @@ class CustomerAuthenticationController extends ChangeNotifier {
     );
   }
 
+  void changeVerificationChannel(
+    CustomerAuthenticationVerificationChannel verificationChannel,
+  ) {
+    _updateState(
+      _state.copyWith(
+        verificationChannel: verificationChannel,
+        clearErrorMessage: true,
+        clearStatusMessage: true,
+      ),
+    );
+  }
+
+  void changeEmailAddress(String emailAddress) {
+    _updateState(
+      _state.copyWith(
+        emailAddress: emailAddress,
+        clearErrorMessage: true,
+        clearStatusMessage: true,
+      ),
+    );
+  }
+
   bool requestVerificationCode() {
     final normalizedPhoneNumber = _normalizePhoneNumber(_state.phoneNumber);
     if (!_isValidBrazilianPhoneNumber(normalizedPhoneNumber)) {
@@ -49,13 +73,25 @@ class CustomerAuthenticationController extends ChangeNotifier {
       );
       return false;
     }
+    if (_state.emailAddressRequired &&
+        !_isValidEmailAddress(_state.normalizedEmailAddress)) {
+      _updateState(
+        _state.copyWith(
+          authenticationStep: CustomerAuthenticationStep.phoneEntry,
+          normalizedPhoneNumber: normalizedPhoneNumber,
+          errorMessage: 'Informe um email valido.',
+          clearStatusMessage: true,
+        ),
+      );
+      return false;
+    }
 
     _updateState(
       _state.copyWith(
         authenticationStep: CustomerAuthenticationStep.codeVerification,
         normalizedPhoneNumber: normalizedPhoneNumber,
         verificationCode: '',
-        statusMessage: 'Enviamos um codigo para seu telefone.',
+        statusMessage: _state.verificationChannelStatusMessage,
         clearErrorMessage: true,
       ),
     );
@@ -67,6 +103,10 @@ class CustomerAuthenticationController extends ChangeNotifier {
     if (!_isValidBrazilianPhoneNumber(normalizedPhoneNumber)) {
       return requestVerificationCode();
     }
+    if (_state.emailAddressRequired &&
+        !_isValidEmailAddress(_state.normalizedEmailAddress)) {
+      return requestVerificationCode();
+    }
 
     final requestAuthenticationCode = requestCustomerAuthenticationCode;
     if (requestAuthenticationCode == null) {
@@ -74,13 +114,18 @@ class CustomerAuthenticationController extends ChangeNotifier {
     }
 
     try {
-      await requestAuthenticationCode(normalizedPhoneNumber);
+      await requestAuthenticationCode(
+        phoneNumber: normalizedPhoneNumber,
+        verificationChannel: _state.verificationChannel,
+        emailAddress:
+            _state.emailAddressRequired ? _state.normalizedEmailAddress : null,
+      );
       _updateState(
         _state.copyWith(
           authenticationStep: CustomerAuthenticationStep.codeVerification,
           normalizedPhoneNumber: normalizedPhoneNumber,
           verificationCode: '',
-          statusMessage: 'Enviamos um codigo para seu telefone.',
+          statusMessage: _state.verificationChannelStatusMessage,
           clearErrorMessage: true,
         ),
       );
@@ -177,7 +222,8 @@ class CustomerAuthenticationController extends ChangeNotifier {
       _state.copyWith(
         verificationCode: '',
         resendCount: _state.resendCount + 1,
-        statusMessage: 'Enviamos um novo codigo para seu telefone.',
+        statusMessage:
+            'Enviamos um novo codigo por ${_state.verificationChannel.displayName}.',
         clearErrorMessage: true,
       ),
     );
@@ -209,5 +255,9 @@ class CustomerAuthenticationController extends ChangeNotifier {
 
   bool _isValidBrazilianPhoneNumber(String phoneNumber) {
     return phoneNumber.length == 10 || phoneNumber.length == 11;
+  }
+
+  bool _isValidEmailAddress(String emailAddress) {
+    return RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(emailAddress);
   }
 }
