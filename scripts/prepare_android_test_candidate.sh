@@ -10,6 +10,8 @@ API_BASE_URL="${API_BASE_URL:-not_configured}"
 BUILD_TYPE="${BUILD_TYPE:-debug}"
 SIGNING="${SIGNING:-android_debug_key}"
 ARTIFACT_TYPE="${ARTIFACT_TYPE:-android-test-candidate}"
+MOBILE_ARTIFACT_CLASS="${MOBILE_ARTIFACT_CLASS:-}"
+KNOWN_LIMITATIONS="${KNOWN_LIMITATIONS:-}"
 
 if [ ! -s "${APK_SOURCE}" ]; then
   echo "APK nao encontrado ou vazio em ${APK_SOURCE}." >&2
@@ -46,8 +48,40 @@ else
   SIGNING_DESCRIPTION="Este APK usa chave debug do Android e e somente para teste interno."
 fi
 
+if [ -z "${MOBILE_ARTIFACT_CLASS}" ]; then
+  case "${APP_DATA_MODE}" in
+    preview)
+      MOBILE_ARTIFACT_CLASS="preview"
+      ;;
+    homologation-fullstack|local-fullstack)
+      MOBILE_ARTIFACT_CLASS="functional-homologation"
+      ;;
+    *)
+      MOBILE_ARTIFACT_CLASS="technical-build"
+      ;;
+  esac
+fi
+
+if [ -z "${KNOWN_LIMITATIONS}" ]; then
+  case "${MOBILE_ARTIFACT_CLASS}" in
+    preview)
+      KNOWN_LIMITATIONS="usa dados locais de preview e nao comprova backend real"
+      ;;
+    functional-homologation)
+      KNOWN_LIMITATIONS="depende do backend e da massa de homologacao informados; envios externos podem estar simulados"
+      ;;
+    release-candidate|stable-homologation)
+      KNOWN_LIMITATIONS="validar release notes, backend, massa, assinatura e gate visual antes de publicar"
+      ;;
+    *)
+      KNOWN_LIMITATIONS="artifact tecnico para empacotamento, instalacao ou CI; nao e homologacao de produto"
+      ;;
+  esac
+fi
+
 cat > "${OUTPUT_DIR}/BUILD-METADATA.txt" <<EOF
 artifact=${ARTIFACT_TYPE}
+artifact_class=${MOBILE_ARTIFACT_CLASS}
 apk=${APK_NAME}
 app_version=${APP_VERSION}
 git_commit=${GIT_COMMIT}
@@ -61,6 +95,7 @@ build_type=${BUILD_TYPE}
 signing=${SIGNING}
 app_data_mode=${APP_DATA_MODE}
 api_base_url=${API_BASE_URL}
+known_limitations=${KNOWN_LIMITATIONS}
 distribution_scope=manual_internal_test_only
 EOF
 
@@ -86,6 +121,8 @@ Este pacote contem ${PACKAGE_DESCRIPTION}.
 
 ## Observacoes
 
+- Classe do artifact: \`${MOBILE_ARTIFACT_CLASS}\`.
+- Limitacoes conhecidas: ${KNOWN_LIMITATIONS}.
 - ${SIGNING_DESCRIPTION}
 - Tipo de build: \`${BUILD_TYPE}\`.
 - Assinatura declarada: \`${SIGNING}\`.

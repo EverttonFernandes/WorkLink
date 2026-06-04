@@ -22,6 +22,7 @@ Execute este gate sempre que uma historia:
 | `preview` | explorar UI com dados locais/mockados | Nao, apenas revisao rapida |
 | `functional-homologation` | testar fluxo real com backend e massa de homologacao | Sim, se este gate passar |
 | `release-candidate` | candidato a loja/TestFlight/Play testing | Sim, se este gate, CI, SRE e seguranca passarem |
+| `stable-homologation` | versao semantica promovida para homologacao recorrente | Sim, se este gate, CI, SRE e seguranca passarem |
 
 ## Evidencias obrigatorias
 

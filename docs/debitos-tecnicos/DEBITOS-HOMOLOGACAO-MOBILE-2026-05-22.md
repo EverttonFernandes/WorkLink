@@ -59,6 +59,9 @@ CI verde e APK instalável não são suficientes para considerar uma entrega mob
 - Severidade: `CRITICAL`
 - Problema: o Product Manager deveria ter bloqueado a entrega como "tecnicamente instalável, mas não homologável como produto".
 - Resultado esperado: toda história mobile com APK deve declarar se o artifact é técnico, preview, homologação funcional ou release candidate.
+- Status: tratado pela `WLT-035`.
+- Resultado entregue: criado modelo de governança em `docs/operacao/governanca-homologacao-produto-mobile.md`, metadados
+  `artifact_class`/`known_limitations` no pacote Android e gate `make mobile-product-homologation-gate ARTIFACT_DIR=<dir>`.
 
 ## Ajustes de agentes realizados
 

@@ -1,0 +1,4 @@
+2026-06-04 00:45 - WLT-035 iniciada como proxima historia oficial do Kanban apos WLT-034 com CI verde.
+2026-06-04 00:50 - Decisao registrada: artifact tecnico/preview nao pode ser tratado como release candidate nem homologacao estavel.
+2026-06-04 01:05 - Empacotador Android atualizado para escrever artifact_class e known_limitations no BUILD-METADATA.txt e INSTALL-ANDROID.md.
+2026-06-04 01:15 - Gate mobile-product-homologation-gate criado e validado com fixture positiva/negativa, make -n, sh -n, pacote fake em /tmp e git diff --check.

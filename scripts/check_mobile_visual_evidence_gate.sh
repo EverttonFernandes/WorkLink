@@ -46,7 +46,7 @@ if ! find "${SCREENSHOTS_DIR}" -type f \( -name '*.png' -o -name '*.jpg' -o -nam
 fi
 
 require_pattern "${MATRIX_FILE}" 'Visual QA Verdict:[[:space:]]*PASS' 'inclua "Visual QA Verdict: PASS".'
-require_pattern "${MATRIX_FILE}" 'Artifact class:[[:space:]]*(technical-build|preview|functional-homologation|release-candidate)' 'declare uma classe oficial de artifact.'
+require_pattern "${MATRIX_FILE}" 'Artifact class:[[:space:]]*(technical-build|preview|functional-homologation|release-candidate|stable-homologation)' 'declare uma classe oficial de artifact.'
 require_pattern "${MATRIX_FILE}" 'docs/prototipos-de-tela/|MAPA-PROTOTIPOS-TELAS.md' 'cite o prototipo oficial ou mapa de prototipos comparado.'
 require_pattern "${MATRIX_FILE}" 'screenshots/' 'referencie pelo menos um screenshot usado na comparacao.'
 require_pattern "${SPECIALIST_REVIEW_FILE}" 'Verdict:[[:space:]]*APPROVED' 'inclua "Verdict: APPROVED".'
