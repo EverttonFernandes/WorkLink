@@ -1,14 +1,28 @@
 # Entrega WLT-028 — Promoção de release e rollback mobile
 
-## Identificador
+## Resumo
 
-- História: `WLT-028`
-- Tipo semântico sugerido: `MINOR`
+A WLT-028 formaliza o fluxo de promoção, bloqueio e rollback mobile, mantendo publicação em loja como CD manual e
+aprovado.
 
-## Objetivo técnico
+## Escopo entregue
 
-Formalizar o fluxo de promoção, aprovação e rollback de releases mobile.
+- Procedimento `docs/operacao/mobile-release-promocao-rollback.md`.
+- Guia `docs/release/release-mobile.md` atualizado.
+- Gate local `make mobile-release-promotion-governance`.
+- Script `scripts/check_mobile_release_promotion_governance.sh`.
+- Teste sintético `scripts/test_mobile_release_promotion_governance.sh`.
+- CI atualizada para validar governança de promoção/rollback no `Dependency scan`.
 
-## Estado planejado
+## Evidências
 
-Esta entrega deve registrar checklist pré-publicação, critérios de promoção, tags, artifacts e rollback.
+- `make mobile-release-promotion-governance`: PASS.
+- `sh -n scripts/check_mobile_release_promotion_governance.sh`: PASS.
+- `sh -n scripts/test_mobile_release_promotion_governance.sh`: PASS.
+- `./scripts/test_mobile_release_promotion_governance.sh`: PASS.
+- `git diff --check`: PASS.
+
+## Limitações assumidas
+
+- Publicação automática em produção permanece fora do escopo.
+- Play Console, App Store Connect e TestFlight real dependem de contas, secrets e aprovações futuras.

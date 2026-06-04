@@ -270,6 +270,9 @@ jobs:
       - name: Mobile signing governance gate
         run: make mobile-signing-governance
 
+      - name: Mobile release promotion governance gate
+        run: make mobile-release-promotion-governance
+
       - name: Functional test dependencies audit
         run: |
           docker run --rm \

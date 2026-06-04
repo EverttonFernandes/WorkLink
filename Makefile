@@ -7,7 +7,7 @@ DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) $(DOCKER) compose --env-f
 	backend-unit-test backend-integration-test backend-test backend-image-build \
 	mobile-unit-test mobile-screen-test mobile-integration-test mobile-android-build \
 	mobile-android-test-candidate mobile-android-local-fullstack-candidate mobile-android-homologation-candidate mobile-emulator-prereqs \
-	mobile-visual-qa-gate mobile-product-homologation-gate mobile-signing-governance ios-readiness-check \
+	mobile-visual-qa-gate mobile-product-homologation-gate mobile-signing-governance mobile-release-promotion-governance ios-readiness-check \
 	mobile-web-preview mobile-web-preview-wait mobile-web-preview-stop mobile-web-preview-logs \
 	mobile-test mobile-emulator-up mobile-emulator-wait mobile-emulator-install \
 	mobile-emulator-integration-test mobile-manual-test functional-test test-unit test-integration test-functional \
@@ -126,6 +126,9 @@ mobile-product-homologation-gate:
 
 mobile-signing-governance:
 	./scripts/check_mobile_signing_governance.sh
+
+mobile-release-promotion-governance:
+	./scripts/check_mobile_release_promotion_governance.sh
 
 ios-readiness-check:
 	./scripts/check_ios_project_readiness.sh

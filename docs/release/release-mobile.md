@@ -8,6 +8,9 @@ Decisao operacional base:
 Toda mudanca que envolva Android, iOS, emuladores, assinatura, TestFlight, Play Console ou custo de CI/CD mobile deve
 ser revisada pelo `sre-agent` com apoio do `mobile-infra-specialist-agent`.
 
+O procedimento oficial de promocao, bloqueio de rollout e rollback esta em
+`docs/operacao/mobile-release-promocao-rollback.md`.
+
 ## Android
 
 1. Gerar build validado pelos gates mobile.
@@ -66,11 +69,13 @@ Esse pacote usa assinatura debug e serve apenas para validacao interna antes de 
 - Android permite interromper rollout e promover versão anterior quando disponível.
 - iOS não garante rollback instantâneo após App Review; mitigação principal é pausar distribuição, acelerar hotfix e
   manter TestFlight validado.
+- Checklist detalhado: `docs/operacao/mobile-release-promocao-rollback.md`.
 
 ## Checklist pré-release
 
 - Gates de backend e mobile aprovados.
 - Versionamento semântico e tag criados.
+- Commit, tag, artifact, run id e checksum rastreados.
 - `.env.example` atualizado.
 - Política de privacidade e permissões revisadas.
 - Plano de incidente conhecido.
