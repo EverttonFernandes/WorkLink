@@ -1,0 +1,25 @@
+2026-06-04 - Iteracao 1
+
+- WLT-036 iniciada como proxima historia elegivel no Kanban loja-first.
+- Confirmado que os debitos mobile WLT-030 a WLT-035 ja estao em Done no Kanban.
+- Criado plano Ralph Loop em `docs/tasks/WLT-036/IMPLEMENTATION.md`.
+- Objetivo desta janela: preparar documentos operacionais e checklists para Everton finalizar Play Console sem bloquear
+  as proximas historias.
+- Criados runbooks:
+  - `docs/operacao/publicacao-lojas-mobile.md`
+  - `docs/operacao/checklist-google-play-console.md`
+  - `docs/operacao/checklist-app-store-connect.md`
+  - `docs/operacao/metadados-lojas-worklink.md`
+  - `docs/operacao/politica-privacidade-worklink-rascunho.md`
+- Registrado requisito oficial de conta pessoal nova na Google Play: Closed Testing com pelo menos 12 testers opt-in por
+  14 dias continuos antes de solicitar acesso a producao.
+- Kanban atualizado para WLT-036 em Doing.
+- Validacoes:
+  - `git diff --check`: PASS.
+  - `make mobile-signing-governance`: PASS.
+- Fechamento da WLT-036 liberado porque o criterio de aceite permite conta criada ou caminho manual documentado.
+- Bloqueio para publicacao real permanece fora da WLT-036:
+  - WLT-037: backend cloud minimo.
+  - WLT-038: autenticacao real com custo controlado.
+  - WLT-039: AAB e trilhas Play Store.
+  - WLT-041: go/no-go e monitoramento inicial.
