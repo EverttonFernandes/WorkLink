@@ -2,7 +2,7 @@ COMPOSE_ENV_FILE ?= .env
 DOCKER ?= docker
 DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) $(DOCKER) compose --env-file $(COMPOSE_ENV_FILE)
 
-.PHONY: up down restart logs api db redis storage migrate clean \
+.PHONY: up down restart logs api db redis storage migrate clean cloud-db-migrate cloud-api-readiness-check cloud-deployment-contract-test \
 	backend-static-analysis mobile-static-analysis static-analysis \
 	backend-unit-test backend-integration-test backend-test backend-image-build \
 	mobile-unit-test mobile-screen-test mobile-integration-test mobile-android-build \
@@ -13,7 +13,7 @@ DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) $(DOCKER) compose --env-f
 	mobile-emulator-integration-test mobile-manual-test functional-test test-unit test-integration test-functional \
 	homologation-local-up homologation-seed promote-android-homologation-artifact \
 	generate-android-homologation-keystore configure-android-homologation-github-env \
-	db-up db-down db-logs db-migrate test ci
+	db-up db-down db-logs db-migrate cloud-db-migrate cloud-api-readiness-check cloud-deployment-contract-test test ci
 
 $(COMPOSE_ENV_FILE):
 	cp .env.example $(COMPOSE_ENV_FILE)
@@ -227,6 +227,15 @@ db-logs: $(COMPOSE_ENV_FILE)
 
 db-migrate: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm database-migrations
+
+cloud-db-migrate:
+	./scripts/run_cloud_database_migrations.sh
+
+cloud-api-readiness-check:
+	./scripts/check_cloud_api_readiness.sh "$(WORKLINK_CLOUD_API_BASE_URL)"
+
+cloud-deployment-contract-test:
+	./scripts/test_cloud_deployment_contract.sh
 
 test: static-analysis backend-test mobile-test functional-test
 

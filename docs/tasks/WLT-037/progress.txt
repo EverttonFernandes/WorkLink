@@ -1,0 +1,44 @@
+2026-06-04 - Iteracao 1
+
+- WLT-037 iniciada como proxima historia elegivel no Kanban.
+- Confirmado que a API ja possui Dockerfile em `docker/worklink-api.Dockerfile`.
+- Confirmado que a API ja possui health/readiness via Spring Actuator.
+- Lacuna principal: nao existe backend cloud provisionado, URL HTTPS estavel ou PostgreSQL cloud conectado.
+- Criado `docs/operacao/backend-cloud-lojas.md`.
+- Criado `deploy/digitalocean/worklink-api-app-platform.yaml.example`.
+- Criado `scripts/run_cloud_database_migrations.sh`.
+- Criado `scripts/check_cloud_api_readiness.sh`.
+- Criado `scripts/test_cloud_deployment_contract.sh`.
+- Adicionado target `cloud-db-migrate` no Makefile.
+- Adicionados targets `cloud-api-readiness-check` e `cloud-deployment-contract-test`.
+- Adicionado job `Cloud deployment contract` na GitHub Actions.
+- Documentado custo tecnico minimo DigitalOcean:
+  - App Platform `apps-s-1vcpu-0.5gb`: US$ 5/mes.
+  - PostgreSQL development database 512 MB: US$ 7/mes.
+  - Total minimo: US$ 12/mes antes de impostos, cambio, trafego extra e adicionais.
+- Documentado procedimento de recuperacao basica para falha de deploy, migration, banco e app publicado.
+- Criado `docs/operacao/checklist-digitalocean-backend-cloud.md` com passos manuais de banco, app, secrets, migrations e
+  validacao.
+- Validacoes:
+  - `sh -n scripts/run_cloud_database_migrations.sh`: PASS.
+  - `sh -n scripts/check_cloud_api_readiness.sh scripts/test_cloud_deployment_contract.sh`: PASS.
+  - `make -n cloud-db-migrate`: PASS.
+  - `make -n cloud-api-readiness-check WORKLINK_CLOUD_API_BASE_URL=https://api.example.com`: PASS.
+  - `make cloud-deployment-contract-test`: PASS.
+  - `git diff --check`: PASS.
+  - `make mobile-signing-governance`: PASS.
+  - `DOCKER=docker.exe make backend-image-build`: PASS.
+  - `DOCKER=docker.exe make api`: PASS.
+  - `curl -fsS http://localhost:8080/actuator/health/readiness`: PASS.
+  - `rg --pcre2` para padroes de secrets no diff WLT-037: PASS, apenas referencias a variaveis sem valores reais.
+- Security Guardian local sobre diff WLT-037: PASS, score 20. Nao ha secrets reais no diff; placeholders aparecem apenas
+  em arquivo `.example` e a URL temporaria `trycloudflare.com` aparece apenas como caso rejeitado por teste.
+- Bloqueio atual: falta ambiente cloud real com billing, PostgreSQL, URL HTTPS e secrets.
+
+2026-06-08 - Iteracao 3
+
+- Decisao de produto alterada para estrategia free-first.
+- DigitalOcean deixou de ser caminho preferencial imediato e virou rota de upgrade.
+- Rota preferencial atual: Koyeb Free Instance para API Docker/Spring Boot e Supabase/Neon Free Postgres para banco.
+- Bloqueio atual: falta Everton criar contas/projetos gratuitos, conectar GitHub, configurar secrets e fornecer URL HTTPS
+  publica da API.

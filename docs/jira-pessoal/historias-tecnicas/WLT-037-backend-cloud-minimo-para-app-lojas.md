@@ -11,8 +11,9 @@ Mesmo publicado nas lojas, o app precisa carregar cidades, categorias, profissio
 ## Decisão fechada
 
 - O app das lojas deve apontar para uma API HTTPS estável.
-- A nuvem inicial deve ser de baixo custo, mas não pode ser temporária.
-- DigitalOcean permanece como opção preferencial para API e PostgreSQL, salvo decisão manual posterior.
+- A nuvem inicial deve priorizar custo zero enquanto o produto ainda está validando tração.
+- DigitalOcean deixa de ser opção preferencial imediata e passa a ser opção de upgrade quando houver uso real ou receita.
+- Rota preferencial atual: hospedagem gratuita para a API containerizada e PostgreSQL gratuito, aceitando limites de free tier.
 - Web/PWA não é objetivo desta história.
 
 ## Responsável principal
@@ -30,7 +31,7 @@ Mesmo publicado nas lojas, o app precisa carregar cidades, categorias, profissio
 - Configurar health/readiness.
 - Definir seed inicial sem misturar massa fake com dados reais.
 - Definir backup mínimo do banco.
-- Documentar custo mensal inicial e limites aceitos.
+- Documentar custo mensal inicial, limites aceitos e rota de upgrade.
 
 ## Fora do escopo
 

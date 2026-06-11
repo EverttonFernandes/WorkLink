@@ -258,6 +258,21 @@ jobs:
           docker run --rm --entrypoint sh worklink-api:${{ github.sha }} -lc \
             "test -f /app/worklink-api.jar && ! command -v mvn && ! command -v javac"
 
+  cloud-deployment-contract:
+    name: Cloud deployment contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Validate cloud deployment scripts
+        run: sh -n scripts/run_cloud_database_migrations.sh scripts/check_cloud_api_readiness.sh scripts/test_cloud_deployment_contract.sh
+
+      - name: Validate cloud deployment contract
+        run: make cloud-deployment-contract-test
+
   dependency-scan:
     name: Dependency scan
     runs-on: ubuntu-latest
