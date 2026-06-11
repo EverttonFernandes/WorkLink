@@ -1,0 +1,26 @@
+TASK_KEY=WL-025
+FASE=PLANEJAMENTO
+
+ULTIMA_HIPOTESE:
+- Login proprio por email e senha reduz custo inicial sem remover a possibilidade de canais externos futuros.
+
+ULTIMO_RESULTADO:
+- Historia, tarefas, criterios de aceite e plano de execucao documentados.
+- WL-025 posicionada antes da avaliacao de mensageria WLT-038.
+
+GATES_OBSERVADOS:
+- QA: PENDING
+- MOBILE_UX: PENDING
+- SRE: PENDING
+- SECURITY: PENDING
+- ARCH_REVIEW: PENDING
+- FINAL_REVIEW: PENDING
+
+PROXIMA_ACAO_RECOMENDADA:
+- Concluir WLT-037 e iniciar o mapeamento tecnico da WL-025.
+
+RISCOS_ABERTOS:
+- Migracao de contas existentes baseadas em telefone.
+- Recuperacao de senha exige canal transacional configurado.
+- Celular nao verificado nao pode gerar badge de confianca.
+- Canais externos devem permanecer ocultos enquanto desativados.

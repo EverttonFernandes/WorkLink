@@ -23,10 +23,11 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História                                                                       | Tipo    | Título                                                      | Relação com outras histórias                                         | Execução                                 | Versão | Entrega                                                                                |
 | ----- | ------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------- | ------ | -------------------------------------------------------------------------------------- |
-| 62    | [WLT-038](historias-tecnicas/WLT-038-mensageria-autenticacao-real-custos.md)    | Técnica | Mensageria de autenticação real e controle de custos        | Define SMS/WhatsApp/email antes de abrir uso real                     | Separada com decisão de produto          | MINOR  | [Entrega WLT-038](../entregas/WLT-038-mensageria-autenticacao-real-custos.md)          |
-| 63    | [WLT-039](historias-tecnicas/WLT-039-android-aab-play-store-internal-testing.md) | Técnica | Android AAB e Play Store Internal Testing                  | Prepara publicação Android em trilha interna                          | Separada                                 | MINOR  | [Entrega WLT-039](../entregas/WLT-039-android-aab-play-store-internal-testing.md)      |
-| 64    | [WLT-040](historias-tecnicas/WLT-040-ios-testflight-app-store-preparacao.md)    | Técnica | iOS TestFlight e preparação App Store                       | Prepara segunda loja após caminho Android                             | Separada com ações manuais               | MINOR  | [Entrega WLT-040](../entregas/WLT-040-ios-testflight-app-store-preparacao.md)          |
-| 65    | [WLT-041](historias-tecnicas/WLT-041-publicacao-controlada-lojas-monitoramento.md) | Técnica | Publicação controlada nas lojas e monitoramento inicial  | Fecha lançamento loja-first com go/no-go, suporte e rollback          | Separada                                 | MINOR  | [Entrega WLT-041](../entregas/WLT-041-publicacao-controlada-lojas-monitoramento.md)    |
+| 62    | [WL-025](historias/WL-025-autenticacao-propria-email-senha.md)                  | Negócio | Autenticação própria por email e senha                      | Evita custo inicial de login social/mensageria e preserva UX existente | Junto dos gates de segurança/mobile      | MINOR  | [Entrega WL-025](../entregas/WL-025-autenticacao-propria-email-senha.md)               |
+| 63    | [WLT-038](historias-tecnicas/WLT-038-mensageria-autenticacao-real-custos.md)    | Técnica | Mensageria de autenticação real e controle de custos        | Mantém canais externos em stand by após login próprio                 | Separada com decisão de produto          | MINOR  | [Entrega WLT-038](../entregas/WLT-038-mensageria-autenticacao-real-custos.md)          |
+| 64    | [WLT-039](historias-tecnicas/WLT-039-android-aab-play-store-internal-testing.md) | Técnica | Android AAB e Play Store Internal Testing                   | Prepara publicação Android em trilha interna                          | Separada                                 | MINOR  | [Entrega WLT-039](../entregas/WLT-039-android-aab-play-store-internal-testing.md)      |
+| 65    | [WLT-040](historias-tecnicas/WLT-040-ios-testflight-app-store-preparacao.md)    | Técnica | iOS TestFlight e preparação App Store                       | Prepara segunda loja após caminho Android                             | Separada com ações manuais               | MINOR  | [Entrega WLT-040](../entregas/WLT-040-ios-testflight-app-store-preparacao.md)          |
+| 66    | [WLT-041](historias-tecnicas/WLT-041-publicacao-controlada-lojas-monitoramento.md) | Técnica | Publicação controlada nas lojas e monitoramento inicial   | Fecha lançamento loja-first com go/no-go, suporte e rollback          | Separada                                 | MINOR  | [Entrega WLT-041](../entregas/WLT-041-publicacao-controlada-lojas-monitoramento.md)    |
 
 ### TODOs de produto já identificados na fila
 
@@ -127,12 +128,12 @@ Elas devem voltar para `To Do` apenas depois que WLT-030 a WLT-035 estiverem con
 | WLT-007 | WL-001 em diante                       | testes backend, funcionais e cobertura unitária mínima de 95% |
 | WLT-008 | histórias com tela mobile              | testes mobile e cobertura unitária mínima de 95%              |
 | WLT-014 | WL-006, WL-014                         | foto, portfólio, anexos e evidências                          |
-| WLT-013 | WL-009, WL-012, WL-014, WL-015         | proteção de dados sensíveis                                   |
-| WLT-009 | WL-009                                 | autenticação segura                                           |
-| WLT-010 | WL-010, WL-012, WL-014, WL-015, WL-016 | ownership e perfis                                            |
+| WLT-013 | WL-009, WL-012, WL-014, WL-015, WL-025 | proteção de dados sensíveis                                   |
+| WLT-009 | WL-009, WL-025                         | autenticação segura                                           |
+| WLT-010 | WL-010, WL-012, WL-014, WL-015, WL-016, WL-025 | ownership e perfis                                    |
 | WLT-011 | WL-010, WL-011, WL-012, WL-014, WL-016 | autoria rastreável                                            |
 | WLT-012 | WL-012, WL-014, WL-015                 | LGPD e anonimato                                              |
-| WLT-015 | WL-009 em diante                       | rastreabilidade operacional de fluxos críticos                |
+| WLT-015 | WL-009 em diante, incluindo WL-025     | rastreabilidade operacional de fluxos críticos                |
 | WLT-016 | WL-016, WL-017                         | prontidão operacional antes de admin/métricas                 |
 
 ## Observações de execução

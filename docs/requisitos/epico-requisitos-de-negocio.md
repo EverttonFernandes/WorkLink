@@ -137,11 +137,11 @@ A V1 não deverá assumir responsabilidade direta pela execução do serviço, p
 
 1. Usuário pode navegar sem login
 2. Ao tentar entrar em contato com um profissional, o sistema solicita autenticação
-3. Usuário informa número de telefone
-4. Sistema envia código de verificação
-5. Usuário confirma o código
-6. Se já existir conta, realiza login
-7. Se não existir conta, cria a conta automaticamente
+3. Usuário existente informa email e senha
+4. Usuário novo informa nome completo, celular, email e senha
+5. Sistema autentica a conta existente ou cria a nova conta
+6. Número de celular permanece não verificado até existir confirmação real
+7. Google, Facebook, SMS, WhatsApp Business e OTP por email permanecem desativados por padrão para ativação futura
 
 ## Fluxo 3 — Cadastro progressivo do profissional
 
@@ -242,12 +242,14 @@ Deve exibir:
 
 Deve permitir:
 
-- entrada por número de telefone
-- criação automática de conta
-- login simplificado
-- autenticação apenas quando necessária para contato
+- entrada por email e senha;
+- criação de conta com nome completo, celular, email e senha;
+- recuperação de senha;
+- login simplificado;
+- autenticação apenas quando necessária para contato;
+- canais externos ocultos enquanto estiverem desativados.
 
-## 5. Verificação por código
+## 5. Verificação por código — canal futuro
 
 Deve permitir:
 
@@ -255,6 +257,9 @@ Deve permitir:
 - reenviar código
 - alterar telefone informado
 - concluir autenticação
+
+Esta tela permanece como referência para verificação futura e não deve ser o caminho principal enquanto SMS, WhatsApp
+Business e OTP estiverem desativados.
 
 ## 6. Cadastro do profissional
 
@@ -423,10 +428,12 @@ O sistema deve permitir navegação sem autenticação inicial.
 O sistema deve exigir autenticação somente quando o usuário tentar entrar em contato com um profissional ou realizar ações sensíveis.
 
 ### RF16
-O sistema deve autenticar o usuário por telefone com verificação por código.
+O sistema deve autenticar o usuário inicialmente por email e senha, mantendo verificacao por codigo como canal futuro
+configuravel e desativado por padrao.
 
 ### RF17
-O sistema deve criar automaticamente uma conta caso o telefone verificado ainda não esteja cadastrado.
+O sistema deve permitir criar conta com nome completo, numero de celular, email e senha, sem apresentar o celular como
+verificado antes de uma confirmacao real.
 
 ---
 

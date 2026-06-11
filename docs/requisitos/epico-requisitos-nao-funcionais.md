@@ -1470,7 +1470,10 @@ A arquitetura deve permitir evolução futura para cache avançado, filas, worke
 
 ## RNF16 — Autenticação segura
 
-O sistema deve autenticar usuários de forma segura, com OTP de curta duração, limite de tentativas, proteção contra enumeração e geração segura de tokens.
+O sistema deve autenticar usuarios de forma segura com credenciais protegidas por hash adequado, limite de tentativas,
+protecao contra brute force e enumeracao, recuperacao de senha por token curto de uso unico e geracao segura de tokens.
+Quando OTP for ativado futuramente, deve possuir curta duracao, armazenamento protegido, limite de tentativas e
+invalidacao apos o uso.
 
 ## RNF17 — Autorização por perfil
 
