@@ -24,7 +24,7 @@ class CustomerAuthenticationScreen extends StatelessWidget {
         final authenticationState = customerAuthenticationController.state;
         return Scaffold(
           backgroundColor: const Color(0xFFF8FBFF),
-          appBar: AppBar(title: const Text('WorkLink')),
+          appBar: AppBar(title: const Text('Profissional Perto')),
           body: SafeArea(
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),

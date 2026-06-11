@@ -982,7 +982,7 @@ void main() {
     );
 
     // THEN
-    expect(customerProfile.customerName, 'Cliente WorkLink');
+    expect(customerProfile.customerName, 'Cliente Exemplo');
     expect(customerProfile.mainCityDisplayName, 'Canoas - RS');
     expect(customerProfile.savedProfessionals.single.professionalName, 'Maria');
     expect(updatedCustomerProfile.whatsappNotificationsEnabled, isFalse);
@@ -1496,7 +1496,7 @@ void main() {
     );
 
     // THEN
-    expect(loadedCustomerProfile.customerName, 'Cliente WorkLink');
+    expect(loadedCustomerProfile.customerName, 'Cliente Exemplo');
     expect(updatedCustomerProfile.whatsappNotificationsEnabled, isFalse);
     expect(updatedCustomerProfile.profilePersonalizationEnabled, isFalse);
     expect(savedCustomerProfile.savedProfessionals, isNotEmpty);
@@ -1698,7 +1698,7 @@ Map<String, dynamic> customerProfileJson({
 }) {
   return {
     'customerIdentifier': 'customer-1',
-    'customerName': 'Cliente WorkLink',
+    'customerName': 'Cliente Exemplo',
     'phoneNumber': '51999991234',
     'mainCity': {
       'cityIdentifier': 'city-1',
@@ -1742,7 +1742,7 @@ Map<String, dynamic> customerProfileJson({
 Map<String, dynamic> customerProfileJsonWithoutMainCity() {
   return {
     'customerIdentifier': 'customer-1',
-    'customerName': 'Cliente WorkLink',
+    'customerName': 'Cliente Exemplo',
     'phoneNumber': 'telefone-livre',
     'mainCity': null,
     'selectedCities': const <Map<String, dynamic>>[],

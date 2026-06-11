@@ -1,4 +1,4 @@
-# Checklist App Store Connect - WorkLink
+# Checklist App Store Connect - Profissional Perto
 
 ## Conta
 
@@ -19,7 +19,7 @@
 ## App Store Connect
 
 - [ ] App criado no App Store Connect.
-- [ ] Nome publico definido.
+- [ ] Nome publico definido: `Profissional Perto`.
 - [ ] Categoria definida.
 - [ ] Descricao e subtitulo revisados.
 - [ ] URL de suporte definida.

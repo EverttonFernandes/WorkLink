@@ -20,7 +20,7 @@ class ListProfessionalReviewProfileUseCaseTest {
     void shouldListReviewProfileWithAverageAndPublicComments() {
         // GIVEN
         ProfessionalReview firstReview = review(5, "Excelente", true, "Usuario anonimo", Instant.parse("2026-05-09T14:00:00Z"));
-        ProfessionalReview secondReview = review(4, null, false, "Cliente WorkLink", Instant.parse("2026-05-09T13:00:00Z"));
+        ProfessionalReview secondReview = review(4, null, false, "Cliente Exemplo", Instant.parse("2026-05-09T13:00:00Z"));
         ListProfessionalReviewProfileUseCase useCase = new ListProfessionalReviewProfileUseCase(
                 professionalIdentifier -> List.of(firstReview, secondReview)
         );

@@ -101,7 +101,7 @@ class CustomerProfileUseCaseTest {
         CustomerProfileResponse customerProfileResponse = useCase.loadCustomerProfile(customerIdentifier);
 
         // THEN
-        assertThat(customerProfileResponse.customerName()).isEqualTo("Cliente WorkLink");
+        assertThat(customerProfileResponse.customerName()).isEqualTo("Cliente Exemplo");
         assertThat(customerProfileResponse.phoneNumber()).isEqualTo("51999991234");
         assertThat(customerProfileResponse.mainCity().cityName()).isEqualTo("Canoas");
         assertThat(customerProfileResponse.selectedCities()).hasSize(1);

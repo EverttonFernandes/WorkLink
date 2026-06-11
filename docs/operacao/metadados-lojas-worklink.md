@@ -1,4 +1,4 @@
-# Metadados de loja - WorkLink
+# Metadados de loja - Profissional Perto
 
 ## Status
 
@@ -7,7 +7,7 @@ aprovacao final do dono do produto antes de ser usado publicamente.
 
 ## Nome publico
 
-WorkLink
+Profissional Perto
 
 ## Descricao curta sugerida
 
@@ -15,13 +15,13 @@ Encontre profissionais de servicos gerais na sua regiao.
 
 ## Descricao completa sugerida
 
-WorkLink aproxima moradores de Charqueadas e da regiao carbonifera de profissionais de servicos gerais.
+Profissional Perto aproxima moradores de Charqueadas e da regiao carbonifera de profissionais de diversas categorias.
 
 Com o aplicativo, voce pode selecionar sua cidade, buscar profissionais por categoria, conhecer o perfil publico de cada
 profissional e iniciar contato de forma simples quando encontrar alguem adequado para o servico.
 
-A proposta do WorkLink e facilitar a descoberta local de profissionais, com dados organizados, sinais de confianca e uma
-experiencia pensada para cidades da regiao.
+A proposta do Profissional Perto e facilitar a descoberta local de profissionais, com dados organizados, sinais de
+confianca e uma experiencia pensada para cidades da regiao.
 
 ## Categoria candidata
 
@@ -62,7 +62,7 @@ Pendente de decisao manual:
 
 ## Politica de privacidade - topicos obrigatorios
 
-- Quem e o responsavel pelo WorkLink.
+- Quem e o responsavel pelo Profissional Perto.
 - Quais dados sao coletados: telefone, email quando aplicavel, cidade, dados de perfil, avaliacoes, denuncias e eventos
   de auditoria.
 - Por que os dados sao usados: autenticacao, exibicao de perfis, contato, seguranca, moderacao e melhoria do servico.
@@ -92,7 +92,7 @@ Pendente de decisao manual:
 ## Itens que ainda nao podem ser prometidos publicamente
 
 - Atendimento garantido pelo profissional.
-- Precos fechados pelo WorkLink.
+- Precos fechados pelo Profissional Perto.
 - Verificacao completa de antecedentes.
 - Disponibilidade 24 horas.
 - Cobertura nacional.

@@ -55,7 +55,7 @@ class ProfessionalReviewTest {
                 null,
                 false,
                 UUID.randomUUID(),
-                "Cliente WorkLink",
+                "Cliente Exemplo",
                 Instant.parse("2026-05-09T13:00:00Z")
         ))
                 .isInstanceOf(BusinessRuleViolationException.class)

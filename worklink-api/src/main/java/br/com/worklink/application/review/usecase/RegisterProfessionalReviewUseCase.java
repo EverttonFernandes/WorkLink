@@ -17,7 +17,7 @@ import br.com.worklink.domain.review.ProfessionalReview;
 
 public class RegisterProfessionalReviewUseCase {
 
-    private static final String IDENTIFIED_REVIEW_AUTHOR_DISPLAY_NAME = "Cliente WorkLink";
+    private static final String IDENTIFIED_REVIEW_AUTHOR_DISPLAY_NAME = "Cliente Exemplo";
 
     private final LoadContactIntentByIdentifierPort loadContactIntentByIdentifierPort;
     private final LoadPostContactFeedbackByContactIntentIdentifierPort loadPostContactFeedbackByContactIntentIdentifierPort;

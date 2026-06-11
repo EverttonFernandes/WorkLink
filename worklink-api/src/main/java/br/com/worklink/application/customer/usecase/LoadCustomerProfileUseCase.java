@@ -27,7 +27,7 @@ import java.util.UUID;
 @Service
 public class LoadCustomerProfileUseCase {
 
-    private static final String DEFAULT_CUSTOMER_NAME = "Cliente WorkLink";
+    private static final String DEFAULT_CUSTOMER_NAME = "Cliente Exemplo";
 
     private final LoadCustomerAccountByIdentifierPort loadCustomerAccountByIdentifierPort;
     private final LoadCustomerProfilePreferencesPort loadCustomerProfilePreferencesPort;

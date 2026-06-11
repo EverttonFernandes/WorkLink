@@ -1,6 +1,6 @@
 class WorkLinkAppConfiguration {
   const WorkLinkAppConfiguration({
-    this.applicationName = 'WorkLink',
+    this.applicationName = 'Profissional Perto',
     this.administrativeConsoleEnabled = false,
   });
 

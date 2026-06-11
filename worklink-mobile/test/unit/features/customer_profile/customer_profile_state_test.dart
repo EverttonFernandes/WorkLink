@@ -7,7 +7,7 @@ void main() {
       () {
     // GIVEN
     const customerProfileState = CustomerProfileState(
-      customerName: 'Cliente WorkLink',
+      customerName: 'Cliente Exemplo',
       phoneNumber: '(51) 9 9999-1234',
     );
 
@@ -26,7 +26,7 @@ void main() {
       () {
     // GIVEN
     const originalState = CustomerProfileState(
-      customerName: 'Cliente WorkLink',
+      customerName: 'Cliente Exemplo',
       phoneNumber: '(51) 9 9999-1234',
       mainCity: CustomerProfileCity(cityName: 'Canoas', stateCode: 'RS'),
       selectedCities: [

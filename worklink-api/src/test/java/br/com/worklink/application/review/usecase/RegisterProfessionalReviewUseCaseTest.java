@@ -81,7 +81,7 @@ class RegisterProfessionalReviewUseCaseTest {
         // THEN
         assertThat(savedReview.get().internalAuthorIdentifier()).isEqualTo(customerIdentifier);
         assertThat(savedReview.get().publicAuthorIdentifier()).isEqualTo(customerIdentifier);
-        assertThat(savedReview.get().publicAuthorDisplayName()).isEqualTo("Cliente WorkLink");
+        assertThat(savedReview.get().publicAuthorDisplayName()).isEqualTo("Cliente Exemplo");
         assertThat(savedReview.get().comment()).isNull();
         assertThat(response.anonymousToPublic()).isFalse();
         assertThat(response.publicAuthorIdentifier()).isEqualTo(customerIdentifier);

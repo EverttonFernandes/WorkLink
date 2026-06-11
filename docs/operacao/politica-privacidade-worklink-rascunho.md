@@ -1,4 +1,4 @@
-# Politica de privacidade - rascunho operacional WorkLink
+# Politica de privacidade - rascunho operacional Profissional Perto
 
 ## Aviso
 
@@ -7,7 +7,8 @@ revisado pelo dono do produto e, idealmente, por apoio juridico.
 
 ## Identificacao
 
-WorkLink e um aplicativo que aproxima pessoas de profissionais de servicos gerais em Charqueadas e regiao carbonifera.
+Profissional Perto e um aplicativo que aproxima pessoas de profissionais de diversas categorias em Charqueadas e regiao
+carbonifera.
 
 Responsavel/publicador: pendente de definicao conforme conta de loja.
 
@@ -34,7 +35,7 @@ Contato de privacidade e suporte: pendente de definicao.
 
 ## Compartilhamento
 
-O WorkLink pode usar provedores externos para:
+O Profissional Perto pode usar provedores externos para:
 
 - hospedagem de API e banco de dados;
 - envio de SMS, WhatsApp ou email de autenticacao;

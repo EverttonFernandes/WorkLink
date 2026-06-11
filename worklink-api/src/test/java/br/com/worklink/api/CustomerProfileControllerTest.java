@@ -102,7 +102,7 @@ class CustomerProfileControllerTest {
         // WHEN / THEN
         mockMvc.perform(get("/api/v1/customers/me/profile").header("Authorization", AUTHORIZATION_HEADER))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.customerName").value("Cliente WorkLink"))
+                .andExpect(jsonPath("$.customerName").value("Cliente Exemplo"))
                 .andExpect(jsonPath("$.savedProfessionals[0].professionalName").value("Maria Eletricista"))
                 .andExpect(jsonPath("$.submittedReviews[0].professionalName").value("Maria Eletricista"))
                 .andExpect(jsonPath("$.whatsappNotificationsEnabled").value(true));
@@ -250,7 +250,7 @@ class CustomerProfileControllerTest {
         );
         return new CustomerProfileResponse(
                 customerIdentifier,
-                "Cliente WorkLink",
+                "Cliente Exemplo",
                 "51999991234",
                 cityResponse,
                 List.of(cityResponse),

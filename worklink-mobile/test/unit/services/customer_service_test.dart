@@ -23,7 +23,7 @@ void main() {
     final customerProfile = await customerService.loadCustomerProfile();
 
     // THEN
-    expect(customerProfile.customerName, 'Cliente WorkLink');
+    expect(customerProfile.customerName, 'Cliente Exemplo');
     expect(customerProfile.savedProfessionals.single.professionalName, 'Maria');
     expect(customerProfile.submittedReviews.single.publiclyAnonymous, isTrue);
   });
@@ -66,7 +66,7 @@ Map<String, dynamic> customerProfileJson({
 }) {
   return {
     'customerIdentifier': 'customer-1',
-    'customerName': 'Cliente WorkLink',
+    'customerName': 'Cliente Exemplo',
     'phoneNumber': '51999991234',
     'mainCity': {
       'cityIdentifier': 'city-1',

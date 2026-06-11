@@ -24,8 +24,8 @@ public record StartProfessionalContactHttpResponse(
                 startProfessionalContactResponse.professionalName(),
                 startProfessionalContactResponse.whatsappContactLink(),
                 startProfessionalContactResponse.createdAt(),
-                "A negociacao acontece fora do WorkLink pelo WhatsApp.",
-                "O WorkLink nao garante a execucao do servico contratado."
+                "A negociacao acontece fora do Profissional Perto pelo WhatsApp.",
+                "O Profissional Perto nao garante a execucao do servico contratado."
         );
     }
 }

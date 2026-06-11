@@ -2,7 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/app/worklink_app_configuration.dart';
 
 void main() {
-  test('GIVEN configuracao padrao WHEN ler nome THEN deve retornar WorkLink',
+  test(
+      'GIVEN configuracao padrao WHEN ler nome THEN deve retornar Profissional Perto',
       () {
     // GIVEN
     const applicationConfiguration = WorkLinkAppConfiguration();
@@ -11,7 +12,7 @@ void main() {
     final applicationName = applicationConfiguration.applicationName;
 
     // THEN
-    expect(applicationName, 'WorkLink');
+    expect(applicationName, 'Profissional Perto');
   });
 
   test(
@@ -19,12 +20,12 @@ void main() {
       () {
     // GIVEN
     const applicationConfiguration =
-        WorkLinkAppConfiguration(applicationName: 'WorkLink Local');
+        WorkLinkAppConfiguration(applicationName: 'Profissional Perto Local');
 
     // WHEN
     final applicationName = applicationConfiguration.applicationName;
 
     // THEN
-    expect(applicationName, 'WorkLink Local');
+    expect(applicationName, 'Profissional Perto Local');
   });
 }

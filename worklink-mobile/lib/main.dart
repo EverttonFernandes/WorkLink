@@ -588,7 +588,7 @@ class _WorkLinkUnavailableHome extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('WorkLink')),
+      appBar: AppBar(title: const Text('Profissional Perto')),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -598,7 +598,7 @@ class _WorkLinkUnavailableHome extends StatelessWidget {
               const Icon(Icons.cloud_off_outlined, size: 48),
               const SizedBox(height: 16),
               const Text(
-                'Nao foi possivel carregar os dados do WorkLink agora.',
+                'Nao foi possivel carregar os dados do Profissional Perto agora.',
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),

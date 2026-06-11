@@ -63,7 +63,7 @@ void main() {
       (tester) async {
     // GIVEN
     const applicationConfiguration =
-        WorkLinkAppConfiguration(applicationName: 'WorkLink Local');
+        WorkLinkAppConfiguration(applicationName: 'Profissional Perto Local');
     const application =
         WorkLinkApp.preview(applicationConfiguration: applicationConfiguration);
 
@@ -367,7 +367,7 @@ void main() {
 
     // THEN
     expect(find.text('Meu perfil'), findsOneWidget);
-    expect(find.text('Cliente WorkLink'), findsOneWidget);
+    expect(find.text('Cliente Exemplo'), findsOneWidget);
     expect(find.text('(51) 9 9999-1234'), findsOneWidget);
     expect(find.text('Profissionais salvos'), findsOneWidget);
     expect(find.text('Avaliações enviadas'), findsOneWidget);

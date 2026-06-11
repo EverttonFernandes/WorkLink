@@ -13,7 +13,7 @@ void main() {
 
     // WHEN / THEN
     expect(find.text('Meu perfil'), findsOneWidget);
-    expect(find.text('Cliente WorkLink'), findsOneWidget);
+    expect(find.text('Cliente Exemplo'), findsOneWidget);
     expect(find.text('(51) 9 9999-1234'), findsOneWidget);
     expect(find.text('Conta verificada'), findsOneWidget);
     expect(find.text('Canoas - RS'), findsWidgets);
@@ -105,7 +105,7 @@ Future<void> pumpCustomerProfileScreen(
 
 CustomerProfileState customerProfileStateFixture() {
   return const CustomerProfileState(
-    customerName: 'Cliente WorkLink',
+    customerName: 'Cliente Exemplo',
     phoneNumber: '(51) 9 9999-1234',
     mainCity: CustomerProfileCity(cityName: 'Canoas', stateCode: 'RS'),
     selectedCities: [

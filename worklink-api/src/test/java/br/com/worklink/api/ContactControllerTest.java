@@ -93,8 +93,9 @@ class ContactControllerTest {
                 .andExpect(jsonPath("$.professionalIdentifier").value(professionalIdentifier.toString()))
                 .andExpect(jsonPath("$.professionalName").value("Maria Eletricista"))
                 .andExpect(jsonPath("$.whatsappContactLink").value("https://wa.me/51999999999"))
-                .andExpect(jsonPath("$.externalNegotiationNotice").value("A negociacao acontece fora do WorkLink pelo WhatsApp."))
-                .andExpect(jsonPath("$.noServiceGuaranteeNotice").value("O WorkLink nao garante a execucao do servico contratado."));
+                .andExpect(jsonPath("$.externalNegotiationNotice").value("A negociacao acontece fora do Profissional Perto pelo WhatsApp."))
+                .andExpect(jsonPath("$.noServiceGuaranteeNotice")
+                        .value("O Profissional Perto nao garante a execucao do servico contratado."));
         verify(recordSensitiveAuditEventUseCase).recordSensitiveAuditEvent(argThat(auditRequest ->
                 auditRequest.authenticatedPrincipal().equals(customerPrincipal)
                         && auditRequest.sensitiveAuditAction() == SensitiveAuditAction.REGISTER_CONTACT_INTENTION

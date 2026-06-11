@@ -1,11 +1,11 @@
 {
-  "name": "WorkLink",
-  "short_name": "WorkLink",
+  "name": "Profissional Perto",
+  "short_name": "Profissional Perto",
   "start_url": ".",
   "display": "standalone",
   "background_color": "#F7FBF8",
   "theme_color": "#16C35B",
-  "description": "Preview web do WorkLink para revisao visual continua das telas mobile.",
+  "description": "Preview web do Profissional Perto para revisao visual continua das telas mobile.",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
   "icons": [

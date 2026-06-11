@@ -342,7 +342,7 @@ const _professionalProfile = ProfessionalProfile(
 );
 
 const _customerProfileState = CustomerProfileState(
-  customerName: 'Cliente WorkLink',
+  customerName: 'Cliente Exemplo',
   phoneNumber: '(51) 9 9999-1234',
   mainCity: CustomerProfileCity(cityName: 'Canoas', stateCode: 'RS'),
   selectedCities: [

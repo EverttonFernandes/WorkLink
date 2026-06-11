@@ -262,7 +262,7 @@ class ApiClient implements WorkLinkHttpClient {
       case DioExceptionType.receiveTimeout:
       case DioExceptionType.connectionError:
         return NetworkException(
-          message: 'Nao foi possivel conectar ao WorkLink agora.',
+          message: 'Nao foi possivel conectar ao Profissional Perto agora.',
           originalError: error,
         );
       case DioExceptionType.badResponse:

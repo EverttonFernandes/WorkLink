@@ -284,7 +284,7 @@ void main() {
     testWidgets('captures customer profile screen', (widgetTester) async {
       final controller = CustomerProfileController(
         initialState: const CustomerProfileState(
-          customerName: 'Cliente WorkLink',
+          customerName: 'Cliente Exemplo',
           phoneNumber: '(51) 9 9999-1234',
           mainCity: CustomerProfileCity(cityName: 'Canoas', stateCode: 'RS'),
           selectedCities: [

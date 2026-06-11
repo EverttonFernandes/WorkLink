@@ -1,9 +1,9 @@
-# Publicacao mobile em lojas - WorkLink
+# Publicacao mobile em lojas - Profissional Perto
 
 ## Objetivo
 
-Este runbook orienta a preparacao do WorkLink para publicacao loja-first: Google Play Store primeiro, Apple App Store em
-seguida.
+Este runbook orienta a preparacao do Profissional Perto para publicacao loja-first: Google Play Store primeiro, Apple App
+Store em seguida.
 
 ## Links oficiais
 
@@ -22,7 +22,7 @@ seguida.
 ## Ordem cronologica oficial
 
 1. Criar conta pessoal na Google Play Console.
-2. Criar app `WorkLink` em modo rascunho.
+2. Criar app `Profissional Perto` em modo rascunho.
 3. Preencher metadados publicos iniciais.
 4. Preencher declaracoes obrigatorias de conteudo e privacidade.
 5. Preparar politica de privacidade publica em URL ativa.

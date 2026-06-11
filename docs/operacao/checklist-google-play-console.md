@@ -1,4 +1,4 @@
-# Checklist Google Play Console - WorkLink
+# Checklist Google Play Console - Profissional Perto
 
 ## Conta
 
@@ -11,7 +11,7 @@
 
 ## Criacao do app
 
-- [ ] Nome do app: `WorkLink`.
+- [ ] Nome do app: `Profissional Perto`.
 - [ ] Idioma padrao: Portugues Brasil.
 - [ ] Tipo: aplicativo.
 - [ ] Preco: gratuito inicialmente.
@@ -42,7 +42,7 @@
 ## Conteudo e privacidade
 
 - [ ] Data Safety preenchido conforme dados realmente coletados.
-- [ ] Politica de privacidade menciona WorkLink e/ou o publicador.
+- [ ] Politica de privacidade menciona Profissional Perto e/ou o publicador.
 - [ ] Politica descreve contato de privacidade.
 - [ ] Politica descreve dados coletados, uso, compartilhamento, seguranca, retencao e exclusao.
 - [ ] Classificacao indicativa preenchida.

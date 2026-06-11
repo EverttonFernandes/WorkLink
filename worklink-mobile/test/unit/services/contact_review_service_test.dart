@@ -24,9 +24,9 @@ void main() {
       'whatsappContactLink': 'https://wa.me/5551999999999',
       'createdAt': '2026-05-13T10:00:00Z',
       'externalNegotiationNotice':
-          'A negociacao acontece fora do WorkLink pelo WhatsApp.',
+          'A negociacao acontece fora do Profissional Perto pelo WhatsApp.',
       'noServiceGuaranteeNotice':
-          'O WorkLink nao garante a execucao do servico contratado.',
+          'O Profissional Perto nao garante a execucao do servico contratado.',
     };
     final contactService = ContactService(httpClient: httpClient);
 
