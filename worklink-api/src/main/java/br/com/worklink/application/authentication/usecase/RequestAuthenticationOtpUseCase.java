@@ -1,5 +1,6 @@
 package br.com.worklink.application.authentication.usecase;
 
+import br.com.worklink.application.ApplicationRuleViolationException;
 import br.com.worklink.application.authentication.port.CurrentTimePort;
 import br.com.worklink.application.authentication.port.GenerateOneTimePasswordPort;
 import br.com.worklink.application.authentication.port.SaveAuthenticationOtpChallengePort;
@@ -22,6 +23,7 @@ public class RequestAuthenticationOtpUseCase {
     private final SaveAuthenticationOtpChallengePort saveAuthenticationOtpChallengePort;
     private final CurrentTimePort currentTimePort;
     private final Duration otpDuration;
+    private final boolean enabled;
 
     public RequestAuthenticationOtpUseCase(
             GenerateOneTimePasswordPort generateOneTimePasswordPort,
@@ -30,14 +32,30 @@ public class RequestAuthenticationOtpUseCase {
             CurrentTimePort currentTimePort,
             Duration otpDuration
     ) {
+        this(
+                generateOneTimePasswordPort, protectSensitiveValuePort, saveAuthenticationOtpChallengePort,
+                currentTimePort, otpDuration, true
+        );
+    }
+
+    public RequestAuthenticationOtpUseCase(
+            GenerateOneTimePasswordPort generateOneTimePasswordPort,
+            ProtectSensitiveValuePort protectSensitiveValuePort,
+            SaveAuthenticationOtpChallengePort saveAuthenticationOtpChallengePort,
+            CurrentTimePort currentTimePort,
+            Duration otpDuration,
+            boolean enabled
+    ) {
         this.generateOneTimePasswordPort = generateOneTimePasswordPort;
         this.protectSensitiveValuePort = protectSensitiveValuePort;
         this.saveAuthenticationOtpChallengePort = saveAuthenticationOtpChallengePort;
         this.currentTimePort = currentTimePort;
         this.otpDuration = otpDuration;
+        this.enabled = enabled;
     }
 
     public AuthenticationOtpRequestResponse requestAuthenticationOtp(RequestAuthenticationOtpRequest request) {
+        requireEnabled();
         String normalizedPhoneNumber = AuthenticationPhoneNumberNormalizer.normalizePhoneNumber(request.phoneNumber());
         Instant currentInstant = currentTimePort.currentInstant();
         String oneTimePassword = generateOneTimePasswordPort.generateOneTimePassword();
@@ -53,5 +71,11 @@ public class RequestAuthenticationOtpUseCase {
                 currentInstant
         ));
         return new AuthenticationOtpRequestResponse(GENERIC_OTP_MESSAGE, expiresAt, AVAILABLE_DELIVERY_CHANNELS, true);
+    }
+
+    private void requireEnabled() {
+        if (!enabled) {
+            throw new ApplicationRuleViolationException("A autenticacao por codigo esta indisponivel.");
+        }
     }
 }

@@ -1,9 +1,19 @@
-enum CustomerAuthenticationStep {
-  phoneEntry,
-  codeVerification,
+enum CustomerAuthenticationMode {
+  signIn,
+  signUp,
+  passwordRecoveryRequest,
+  passwordRecoveryReset,
   authenticated,
 }
 
+enum CustomerAuthenticationOperationStatus {
+  idle,
+  loading,
+  success,
+  error,
+}
+
+// Kept for source compatibility while the future OTP channels remain disabled.
 enum CustomerAuthenticationVerificationChannel {
   sms,
   whatsapp,
@@ -12,112 +22,105 @@ enum CustomerAuthenticationVerificationChannel {
 
 extension CustomerAuthenticationVerificationChannelText
     on CustomerAuthenticationVerificationChannel {
-  String get apiValue {
-    return switch (this) {
-      CustomerAuthenticationVerificationChannel.sms => 'SMS',
-      CustomerAuthenticationVerificationChannel.whatsapp => 'WHATSAPP',
-      CustomerAuthenticationVerificationChannel.email => 'EMAIL',
-    };
-  }
-
-  String get displayName {
-    return switch (this) {
-      CustomerAuthenticationVerificationChannel.sms => 'SMS',
-      CustomerAuthenticationVerificationChannel.whatsapp => 'WhatsApp',
-      CustomerAuthenticationVerificationChannel.email => 'email',
-    };
-  }
+  String get apiValue => switch (this) {
+        CustomerAuthenticationVerificationChannel.sms => 'SMS',
+        CustomerAuthenticationVerificationChannel.whatsapp => 'WHATSAPP',
+        CustomerAuthenticationVerificationChannel.email => 'EMAIL',
+      };
 }
 
 class CustomerAuthenticationState {
   const CustomerAuthenticationState({
-    this.authenticationStep = CustomerAuthenticationStep.phoneEntry,
+    this.mode = CustomerAuthenticationMode.signIn,
+    this.operationStatus = CustomerAuthenticationOperationStatus.idle,
+    this.fullName = '',
     this.phoneNumber = '',
-    this.normalizedPhoneNumber = '',
-    this.verificationChannel = CustomerAuthenticationVerificationChannel.sms,
     this.emailAddress = '',
-    this.verificationCode = '',
+    this.password = '',
+    this.passwordConfirmation = '',
+    this.recoveryToken = '',
+    this.legalTermsAccepted = false,
+    this.passwordObscured = true,
+    this.passwordConfirmationObscured = true,
+    this.phoneVerified = false,
+    this.authenticatedEmailAddress = '',
     this.errorMessage,
     this.statusMessage,
-    this.resendCount = 0,
   });
 
-  final CustomerAuthenticationStep authenticationStep;
+  final CustomerAuthenticationMode mode;
+  final CustomerAuthenticationOperationStatus operationStatus;
+  final String fullName;
   final String phoneNumber;
-  final String normalizedPhoneNumber;
-  final CustomerAuthenticationVerificationChannel verificationChannel;
   final String emailAddress;
-  final String verificationCode;
+  final String password;
+  final String passwordConfirmation;
+  final String recoveryToken;
+  final bool legalTermsAccepted;
+  final bool passwordObscured;
+  final bool passwordConfirmationObscured;
+  final bool phoneVerified;
+  final String authenticatedEmailAddress;
   final String? errorMessage;
   final String? statusMessage;
-  final int resendCount;
 
-  bool get authenticated =>
-      authenticationStep == CustomerAuthenticationStep.authenticated;
+  bool get authenticated => mode == CustomerAuthenticationMode.authenticated;
 
-  bool get canConfirmVerificationCode => verificationCode.length == 4;
-
-  bool get emailAddressRequired =>
-      verificationChannel == CustomerAuthenticationVerificationChannel.email;
+  bool get loading =>
+      operationStatus == CustomerAuthenticationOperationStatus.loading;
 
   String get normalizedEmailAddress => emailAddress.trim().toLowerCase();
 
-  String get verificationChannelDisplayName => verificationChannel.displayName;
-
-  String get verificationDestination {
-    if (emailAddressRequired) {
-      return normalizedEmailAddress;
+  String get normalizedPhoneNumber {
+    final digits = phoneNumber.replaceAll(RegExp('[^0-9]'), '');
+    if (digits.length > 11 && digits.startsWith('55')) {
+      return digits.substring(2);
     }
-    return displayPhoneNumber;
+    return digits;
   }
 
-  String get verificationChannelSummary => 'SMS, WhatsApp ou email';
-
-  String get verificationChannelStatusMessage {
-    return 'Enviamos um codigo por ${verificationChannel.displayName}.';
-  }
-
-  String get displayPhoneNumber {
-    if (normalizedPhoneNumber.length == 11) {
-      return '(${normalizedPhoneNumber.substring(0, 2)}) '
-          '${normalizedPhoneNumber.substring(2, 3)} '
-          '${normalizedPhoneNumber.substring(3, 7)}-'
-          '${normalizedPhoneNumber.substring(7)}';
-    }
-    if (normalizedPhoneNumber.length == 10) {
-      return '(${normalizedPhoneNumber.substring(0, 2)}) '
-          '${normalizedPhoneNumber.substring(2, 6)}-'
-          '${normalizedPhoneNumber.substring(6)}';
-    }
-    return phoneNumber;
-  }
+  String get phoneVerificationLabel =>
+      phoneVerified ? 'Celular verificado' : 'Celular não verificado';
 
   CustomerAuthenticationState copyWith({
-    CustomerAuthenticationStep? authenticationStep,
+    CustomerAuthenticationMode? mode,
+    CustomerAuthenticationOperationStatus? operationStatus,
+    String? fullName,
     String? phoneNumber,
-    String? normalizedPhoneNumber,
-    CustomerAuthenticationVerificationChannel? verificationChannel,
     String? emailAddress,
-    String? verificationCode,
+    String? password,
+    String? passwordConfirmation,
+    String? recoveryToken,
+    bool? legalTermsAccepted,
+    bool? passwordObscured,
+    bool? passwordConfirmationObscured,
+    bool? phoneVerified,
+    String? authenticatedEmailAddress,
     String? errorMessage,
     bool clearErrorMessage = false,
     String? statusMessage,
     bool clearStatusMessage = false,
-    int? resendCount,
   }) {
     return CustomerAuthenticationState(
-      authenticationStep: authenticationStep ?? this.authenticationStep,
+      mode: mode ?? this.mode,
+      operationStatus: operationStatus ?? this.operationStatus,
+      fullName: fullName ?? this.fullName,
       phoneNumber: phoneNumber ?? this.phoneNumber,
-      normalizedPhoneNumber:
-          normalizedPhoneNumber ?? this.normalizedPhoneNumber,
-      verificationChannel: verificationChannel ?? this.verificationChannel,
       emailAddress: emailAddress ?? this.emailAddress,
-      verificationCode: verificationCode ?? this.verificationCode,
+      password: password ?? this.password,
+      passwordConfirmation: passwordConfirmation ?? this.passwordConfirmation,
+      recoveryToken: recoveryToken ?? this.recoveryToken,
+      legalTermsAccepted: legalTermsAccepted ?? this.legalTermsAccepted,
+      passwordObscured: passwordObscured ?? this.passwordObscured,
+      passwordConfirmationObscured:
+          passwordConfirmationObscured ?? this.passwordConfirmationObscured,
+      phoneVerified: phoneVerified ?? this.phoneVerified,
+      authenticatedEmailAddress:
+          authenticatedEmailAddress ?? this.authenticatedEmailAddress,
       errorMessage:
           clearErrorMessage ? null : errorMessage ?? this.errorMessage,
       statusMessage:
           clearStatusMessage ? null : statusMessage ?? this.statusMessage,
-      resendCount: resendCount ?? this.resendCount,
     );
   }
 }

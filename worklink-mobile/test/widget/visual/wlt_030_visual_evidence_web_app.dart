@@ -5,6 +5,7 @@ import 'package:worklink_mobile/features/city_selection/city_selection_controlle
 import 'package:worklink_mobile/features/city_selection/city_selection_screen.dart';
 import 'package:worklink_mobile/features/customer_authentication/customer_authentication_controller.dart';
 import 'package:worklink_mobile/features/customer_authentication/customer_authentication_screen.dart';
+import 'package:worklink_mobile/features/customer_authentication/customer_authentication_state.dart';
 import 'package:worklink_mobile/features/customer_profile/customer_profile_controller.dart';
 import 'package:worklink_mobile/features/customer_profile/customer_profile_screen.dart';
 import 'package:worklink_mobile/features/customer_profile/customer_profile_state.dart';
@@ -50,11 +51,11 @@ class Wlt030VisualEvidenceWebApp extends StatelessWidget {
 
   Widget _buildScreen(String requestedScreen) {
     return switch (requestedScreen) {
-      'auth-phone-entry' => CustomerAuthenticationScreen(
+      'auth-sign-in' => CustomerAuthenticationScreen(
           customerAuthenticationController: CustomerAuthenticationController(),
         ),
-      'auth-verification' => CustomerAuthenticationScreen(
-          customerAuthenticationController: _authenticationVerification(),
+      'auth-sign-up' => CustomerAuthenticationScreen(
+          customerAuthenticationController: _authenticationSignUp(),
         ),
       'city-selection' => CitySelectionScreen(
           citySelectionController: _citySelectionController(),
@@ -182,8 +183,8 @@ class _VisualEvidenceIndex extends StatelessWidget {
   const _VisualEvidenceIndex();
 
   final List<String> screenNames = const [
-    'auth-phone-entry',
-    'auth-verification',
+    'auth-sign-in',
+    'auth-sign-up',
     'city-selection',
     'discovery-results',
     'discovery-empty-state',
@@ -215,12 +216,9 @@ class _VisualEvidenceIndex extends StatelessWidget {
   }
 }
 
-CustomerAuthenticationController _authenticationVerification() {
-  final controller = CustomerAuthenticationController()
-    ..changePhoneNumber('(51) 9 8446-3545');
-  controller.requestVerificationCode();
-  return controller;
-}
+CustomerAuthenticationController _authenticationSignUp() =>
+    CustomerAuthenticationController()
+      ..selectMode(CustomerAuthenticationMode.signUp);
 
 CitySelectionController _citySelectionController() {
   const charqueadasCity = CitySelectionCity(

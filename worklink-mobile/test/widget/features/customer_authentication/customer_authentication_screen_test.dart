@@ -1,214 +1,301 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/features/customer_authentication/customer_authentication_controller.dart';
 import 'package:worklink_mobile/features/customer_authentication/customer_authentication_screen.dart';
+import 'package:worklink_mobile/features/customer_authentication/customer_authentication_state.dart';
 
 void main() {
-  Future<void> pumpCustomerAuthenticationScreen(
-    WidgetTester widgetTester,
-    CustomerAuthenticationController customerAuthenticationController, {
+  Future<void> pumpScreen(
+    WidgetTester tester,
+    CustomerAuthenticationController controller, {
     ValueChanged<String>? onAuthenticationCompleted,
+    Size size = const Size(430, 932),
   }) async {
-    await widgetTester.binding.setSurfaceSize(const Size(800, 1400));
-    addTearDown(() => widgetTester.binding.setSurfaceSize(null));
-    await widgetTester.pumpWidget(
+    tester.view.physicalSize = size;
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
       MaterialApp(
-        theme: ThemeData(splashFactory: InkRipple.splashFactory),
         home: CustomerAuthenticationScreen(
-          customerAuthenticationController: customerAuthenticationController,
+          customerAuthenticationController: controller,
           onAuthenticationCompleted: onAuthenticationCompleted,
         ),
       ),
     );
   }
 
-  testWidgets(
-      'GIVEN tela de telefone WHEN renderizar THEN deve manter chamada para continuar com celular',
-      (widgetTester) async {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
+  testWidgets('GIVEN tela inicial THEN deve mostrar somente login local',
+      (tester) async {
+    await pumpScreen(tester, CustomerAuthenticationController());
 
-    // WHEN
-    await pumpCustomerAuthenticationScreen(
-      widgetTester,
-      customerAuthenticationController,
-    );
-
-    // THEN
-    expect(find.text('Continuar com seu celular'), findsOneWidget);
+    expect(find.text('Entrar'), findsWidgets);
+    expect(find.text('Criar conta'), findsOneWidget);
     expect(
-      find.text('Escolha onde receber o codigo: SMS, WhatsApp ou email.'),
+      find.byKey(const ValueKey('authentication-email-field')),
       findsOneWidget,
     );
-    expect(find.text('SMS'), findsOneWidget);
-    expect(find.text('WhatsApp'), findsOneWidget);
-    expect(find.text('Email'), findsOneWidget);
-    expect(find.byKey(const ValueKey('customer-phone-field')), findsOneWidget);
-    expect(find.text('Continuar'), findsOneWidget);
-  });
-
-  testWidgets(
-      'GIVEN telefone valido WHEN continuar THEN deve abrir tela de verificacao',
-      (widgetTester) async {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-    await pumpCustomerAuthenticationScreen(
-      widgetTester,
-      customerAuthenticationController,
-    );
-
-    // WHEN
-    await widgetTester.enterText(
-      find.byKey(const ValueKey('customer-phone-field')),
-      '(51) 9 9999-1234',
-    );
-    await widgetTester.ensureVisible(
-      find.byKey(const ValueKey('request-code-button')),
-    );
-    await widgetTester.tap(find.byKey(const ValueKey('request-code-button')));
-    await widgetTester.pumpAndSettle();
-
-    // THEN
-    expect(find.text('Verifique seu numero'), findsOneWidget);
     expect(
-      find.text('Enviamos um codigo de 4 digitos por SMS para'),
+      find.byKey(const ValueKey('authentication-password-field')),
       findsOneWidget,
     );
-    expect(find.text('(51) 9 9999-1234'), findsOneWidget);
-    expect(
-      find.byKey(const ValueKey('verification-code-field')),
-      findsOneWidget,
-    );
+    expect(find.text('Esqueci minha senha'), findsOneWidget);
+    expect(find.textContaining('Google'), findsNothing);
+    expect(find.textContaining('Apple'), findsNothing);
+    expect(find.textContaining('WhatsApp'), findsNothing);
+    expect(find.text('SMS'), findsNothing);
   });
 
-  testWidgets(
-      'GIVEN email escolhido WHEN continuar THEN deve pedir email e abrir verificacao por email',
-      (widgetTester) async {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-    await pumpCustomerAuthenticationScreen(
-      widgetTester,
-      customerAuthenticationController,
+  testWidgets('GIVEN credenciais validas WHEN entrar THEN deve concluir fluxo',
+      (tester) async {
+    final authenticated = <String>[];
+    final controller = CustomerAuthenticationController(
+      authenticateWithEmailAndPassword: ({
+        required emailAddress,
+        required password,
+      }) async {},
+    );
+    await pumpScreen(
+      tester,
+      controller,
+      onAuthenticationCompleted: authenticated.add,
     );
 
-    // WHEN
-    await widgetTester.tap(find.text('Email'));
-    await widgetTester.pumpAndSettle();
-    await widgetTester.enterText(
-      find.byKey(const ValueKey('customer-phone-field')),
-      '(51) 9 9999-1234',
+    await tester.enterText(
+      find.byKey(const ValueKey('authentication-email-field')),
+      'cliente@exemplo.com',
     );
-    await widgetTester.enterText(
-      find.byKey(const ValueKey('customer-email-field')),
-      'cliente@worklink.test',
+    await tester.enterText(
+      find.byKey(const ValueKey('authentication-password-field')),
+      'senha-segura-123',
     );
-    await widgetTester.ensureVisible(
-      find.byKey(const ValueKey('request-code-button')),
-    );
-    await widgetTester.tap(find.byKey(const ValueKey('request-code-button')));
-    await widgetTester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('sign-in-button')));
+    await tester.pumpAndSettle();
 
-    // THEN
-    expect(
-      find.text('Enviamos um codigo de 4 digitos por email para'),
-      findsOneWidget,
-    );
-    expect(find.text('cliente@worklink.test'), findsOneWidget);
+    expect(authenticated, ['cliente@exemplo.com']);
   });
 
-  testWidgets(
-      'GIVEN codigo correto WHEN confirmar THEN deve emitir telefone autenticado',
-      (widgetTester) async {
-    // GIVEN
-    final authenticatedPhoneNumbers = <String>[];
-    final customerAuthenticationController = CustomerAuthenticationController();
-    await pumpCustomerAuthenticationScreen(
-      widgetTester,
-      customerAuthenticationController,
-      onAuthenticationCompleted: authenticatedPhoneNumbers.add,
+  testWidgets('GIVEN login pendente WHEN aguardar THEN deve exibir carregamento',
+      (tester) async {
+    final authenticationCompleter = Completer<void>();
+    final controller = CustomerAuthenticationController(
+      authenticateWithEmailAndPassword: ({
+        required emailAddress,
+        required password,
+      }) =>
+          authenticationCompleter.future,
     );
-    await widgetTester.enterText(
-      find.byKey(const ValueKey('customer-phone-field')),
-      '(51) 9 9999-1234',
+    await pumpScreen(tester, controller);
+    await tester.enterText(
+      find.byKey(const ValueKey('authentication-email-field')),
+      'cliente@exemplo.com',
     );
-    await widgetTester.ensureVisible(
-      find.byKey(const ValueKey('request-code-button')),
+    await tester.enterText(
+      find.byKey(const ValueKey('authentication-password-field')),
+      'senha-segura-123',
     );
-    await widgetTester.tap(find.byKey(const ValueKey('request-code-button')));
-    await widgetTester.pumpAndSettle();
 
-    // WHEN
-    await widgetTester.enterText(
-      find.byKey(const ValueKey('verification-code-field')),
-      '1234',
-    );
-    await widgetTester.tap(find.byKey(const ValueKey('confirm-code-button')));
-    await widgetTester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('sign-in-button')));
+    await tester.pump();
 
-    // THEN
-    expect(authenticatedPhoneNumbers, ['51999991234']);
-    expect(find.text('Telefone verificado'), findsOneWidget);
+    expect(find.text('Aguarde...'), findsOneWidget);
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    authenticationCompleter.complete();
+    await tester.pumpAndSettle();
   });
 
-  testWidgets(
-      'GIVEN codigo incorreto WHEN confirmar THEN deve mostrar erro generico',
-      (widgetTester) async {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-    await pumpCustomerAuthenticationScreen(
-      widgetTester,
-      customerAuthenticationController,
+  testWidgets('GIVEN credenciais recusadas WHEN entrar THEN deve exibir erro',
+      (tester) async {
+    final controller = CustomerAuthenticationController(
+      authenticateWithEmailAndPassword: ({
+        required emailAddress,
+        required password,
+      }) async {
+        throw StateError('credencial recusada');
+      },
     );
-    await widgetTester.enterText(
-      find.byKey(const ValueKey('customer-phone-field')),
-      '(51) 9 9999-1234',
+    await pumpScreen(tester, controller);
+    await tester.enterText(
+      find.byKey(const ValueKey('authentication-email-field')),
+      'cliente@exemplo.com',
     );
-    await widgetTester.ensureVisible(
-      find.byKey(const ValueKey('request-code-button')),
+    await tester.enterText(
+      find.byKey(const ValueKey('authentication-password-field')),
+      'senha-segura-123',
     );
-    await widgetTester.tap(find.byKey(const ValueKey('request-code-button')));
-    await widgetTester.pumpAndSettle();
 
-    // WHEN
-    await widgetTester.enterText(
-      find.byKey(const ValueKey('verification-code-field')),
-      '0000',
-    );
-    await widgetTester.tap(find.byKey(const ValueKey('confirm-code-button')));
-    await widgetTester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('sign-in-button')));
+    await tester.pumpAndSettle();
 
-    // THEN
     expect(
-      find.text('Nao foi possivel concluir a autenticacao.'),
+      find.text('Não foi possível entrar. Confira seus dados e tente novamente.'),
       findsOneWidget,
     );
   });
 
+  testWidgets('GIVEN cadastro selecionado THEN deve exibir campos e aceite',
+      (tester) async {
+    await pumpScreen(tester, CustomerAuthenticationController());
+
+    await tester.tap(find.byKey(const ValueKey('sign-up-mode-button')));
+    await tester.pumpAndSettle();
+
+    expect(
+      find.byKey(const ValueKey('authentication-full-name-field')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('authentication-phone-field')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(const ValueKey('authentication-email-field')),
+      findsOneWidget,
+    );
+    expect(
+      find.byKey(
+        const ValueKey('authentication-password-confirmation-field'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Celular não verificado'), findsOneWidget);
+    expect(find.textContaining('Termos de Uso'), findsOneWidget);
+  });
+
+  testWidgets('GIVEN senha oculta WHEN tocar no olho THEN deve alternar',
+      (tester) async {
+    final controller = CustomerAuthenticationController();
+    await pumpScreen(tester, controller);
+
+    expect(controller.state.passwordObscured, isTrue);
+    await tester.tap(find.byKey(const ValueKey('toggle-password-visibility')));
+    await tester.pump();
+
+    expect(controller.state.passwordObscured, isFalse);
+  });
+
+  testWidgets('GIVEN esqueci senha THEN deve abrir solicitacao e redefinicao',
+      (tester) async {
+    final controller = CustomerAuthenticationController(
+      requestPasswordRecovery: ({required emailAddress}) async {},
+    );
+    await pumpScreen(tester, controller);
+
+    await tester.tap(find.text('Esqueci minha senha'));
+    await tester.pumpAndSettle();
+    expect(find.text('Recuperar acesso'), findsOneWidget);
+
+    await tester.enterText(
+      find.byKey(const ValueKey('authentication-email-field')),
+      'cliente@exemplo.com',
+    );
+    await tester.tap(find.byKey(const ValueKey('request-recovery-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Definir nova senha'), findsOneWidget);
+    expect(find.byKey(const ValueKey('recovery-token-field')), findsOneWidget);
+  });
+
   testWidgets(
-      'GIVEN verificacao aberta WHEN editar telefone THEN deve voltar para entrada de telefone',
-      (widgetTester) async {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-    await pumpCustomerAuthenticationScreen(
-      widgetTester,
-      customerAuthenticationController,
+      'GIVEN recuperacao preenchida WHEN redefinir THEN deve exibir sucesso',
+      (tester) async {
+    final controller = CustomerAuthenticationController(
+      requestPasswordRecovery: ({required emailAddress}) async {},
+      resetPassword: ({
+        required recoveryToken,
+        required newPassword,
+        required newPasswordConfirmation,
+      }) async {},
     );
-    await widgetTester.enterText(
-      find.byKey(const ValueKey('customer-phone-field')),
-      '(51) 9 9999-1234',
+    await pumpScreen(tester, controller);
+    await tester.tap(find.text('Esqueci minha senha'));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('authentication-email-field')),
+      'cliente@exemplo.com',
     );
-    await widgetTester.ensureVisible(
-      find.byKey(const ValueKey('request-code-button')),
+    await tester.tap(find.byKey(const ValueKey('request-recovery-button')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('recovery-token-field')),
+      'TOKEN-VALIDO',
     );
-    await widgetTester.tap(find.byKey(const ValueKey('request-code-button')));
-    await widgetTester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('authentication-password-field')),
+      'nova-senha-segura',
+    );
+    await tester.enterText(
+      find.byKey(
+        const ValueKey('authentication-password-confirmation-field'),
+      ),
+      'nova-senha-segura',
+    );
 
-    // WHEN
-    await widgetTester.tap(find.byKey(const ValueKey('edit-phone-button')));
-    await widgetTester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('reset-password-button')));
+    await tester.pumpAndSettle();
 
-    // THEN
-    expect(find.text('Continuar com seu celular'), findsOneWidget);
-    expect(find.byKey(const ValueKey('customer-phone-field')), findsOneWidget);
+    expect(find.text('Senha alterada. Entre novamente.'), findsOneWidget);
+    expect(find.byKey(const ValueKey('sign-in-button')), findsOneWidget);
+  });
+
+  testWidgets('GIVEN tela pequena e cadastro THEN deve permitir rolagem',
+      (tester) async {
+    await pumpScreen(
+      tester,
+      CustomerAuthenticationController(),
+      size: const Size(320, 560),
+    );
+    await tester.tap(find.byKey(const ValueKey('sign-up-mode-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Scrollable), findsWidgets);
+    await tester.drag(find.byType(ListView), const Offset(0, -400));
+    await tester.pump();
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+      'GIVEN escala de texto ampliada WHEN abrir cadastro THEN deve manter conteudo acessivel',
+      (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    addTearDown(
+      tester.platformDispatcher.clearTextScaleFactorTestValue,
+    );
+    await pumpScreen(
+      tester,
+      CustomerAuthenticationController(),
+      size: const Size(393, 852),
+    );
+    await tester.tap(find.byKey(const ValueKey('sign-up-mode-button')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(Scrollable), findsWidgets);
+    expect(
+      find.byKey(const ValueKey('authentication-full-name-field')),
+      findsOneWidget,
+    );
+    await tester.drag(find.byType(ListView), const Offset(0, -700));
+    await tester.pump();
+    expect(find.textContaining('Termos de Uso'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets(
+      'GIVEN autenticacao concluida WHEN renderizar THEN deve exibir sucesso',
+      (tester) async {
+    await pumpScreen(
+      tester,
+      CustomerAuthenticationController(
+        initialState: const CustomerAuthenticationState(
+          mode: CustomerAuthenticationMode.authenticated,
+          authenticatedEmailAddress: 'cliente@exemplo.com',
+        ),
+      ),
+    );
+
+    expect(find.text('Conta autenticada'), findsOneWidget);
+    expect(find.textContaining('cliente@exemplo.com'), findsOneWidget);
   });
 }

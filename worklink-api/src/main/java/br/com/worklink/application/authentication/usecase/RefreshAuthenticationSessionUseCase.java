@@ -1,7 +1,8 @@
 package br.com.worklink.application.authentication.usecase;
 
-import br.com.worklink.application.ApplicationRuleViolationException;
+import br.com.worklink.application.InvalidAuthenticationCredentialsException;
 import br.com.worklink.application.authentication.port.CurrentTimePort;
+import br.com.worklink.application.authentication.port.ExecuteInTransactionPort;
 import br.com.worklink.application.authentication.port.GenerateSecureTokenPort;
 import br.com.worklink.application.authentication.port.IssueAccessTokenPort;
 import br.com.worklink.application.authentication.port.LoadRefreshSessionByTokenHashPort;
@@ -22,6 +23,7 @@ public class RefreshAuthenticationSessionUseCase {
     private final UpdateRefreshSessionPort updateRefreshSessionPort;
     private final ProtectSensitiveValuePort protectSensitiveValuePort;
     private final CurrentTimePort currentTimePort;
+    private final ExecuteInTransactionPort executeInTransactionPort;
     private final AuthenticationSessionTokenFactory authenticationSessionTokenFactory;
 
     public RefreshAuthenticationSessionUseCase(
@@ -29,6 +31,7 @@ public class RefreshAuthenticationSessionUseCase {
             UpdateRefreshSessionPort updateRefreshSessionPort,
             ProtectSensitiveValuePort protectSensitiveValuePort,
             CurrentTimePort currentTimePort,
+            ExecuteInTransactionPort executeInTransactionPort,
             IssueAccessTokenPort issueAccessTokenPort,
             GenerateSecureTokenPort generateSecureTokenPort,
             SaveRefreshSessionPort saveRefreshSessionPort,
@@ -38,6 +41,7 @@ public class RefreshAuthenticationSessionUseCase {
         this.updateRefreshSessionPort = updateRefreshSessionPort;
         this.protectSensitiveValuePort = protectSensitiveValuePort;
         this.currentTimePort = currentTimePort;
+        this.executeInTransactionPort = executeInTransactionPort;
         this.authenticationSessionTokenFactory = new AuthenticationSessionTokenFactory(
                 issueAccessTokenPort,
                 generateSecureTokenPort,
@@ -48,20 +52,25 @@ public class RefreshAuthenticationSessionUseCase {
     }
 
     public AuthenticationTokenResponse refreshAuthenticationSession(RefreshAuthenticationSessionRequest request) {
-        Instant currentInstant = currentTimePort.currentInstant();
-        String refreshTokenHash = protectSensitiveValuePort.protectSensitiveValue(
-                request.refreshToken(),
-                ProtectedSensitiveValuePurpose.REFRESH_TOKEN
-        );
-        AuthenticationRefreshSession refreshSession = loadRefreshSessionByTokenHashPort
-                .loadRefreshSessionByTokenHash(refreshTokenHash)
-                .orElseThrow(() -> new ApplicationRuleViolationException(GENERIC_SESSION_FAILURE));
+        return executeInTransactionPort.execute(() -> {
+            Instant currentInstant = currentTimePort.currentInstant();
+            String refreshTokenHash = protectSensitiveValuePort.protectSensitiveValue(
+                    request.refreshToken(),
+                    ProtectedSensitiveValuePurpose.REFRESH_TOKEN
+            );
+            AuthenticationRefreshSession refreshSession = loadRefreshSessionByTokenHashPort
+                    .loadRefreshSessionByTokenHash(refreshTokenHash)
+                    .orElseThrow(() -> new InvalidAuthenticationCredentialsException(GENERIC_SESSION_FAILURE));
 
-        if (refreshSession.revoked() || refreshSession.isExpiredAt(currentInstant)) {
-            throw new ApplicationRuleViolationException(GENERIC_SESSION_FAILURE);
-        }
-
-        updateRefreshSessionPort.updateRefreshSession(refreshSession.revoke());
-        return authenticationSessionTokenFactory.createTokenResponse(refreshSession.customerIdentifier(), currentInstant);
+            if (refreshSession.revoked() || refreshSession.isExpiredAt(currentInstant)) {
+                throw new InvalidAuthenticationCredentialsException(GENERIC_SESSION_FAILURE);
+            }
+            if (!updateRefreshSessionPort.revokeRefreshSessionIfActive(refreshSession)) {
+                throw new InvalidAuthenticationCredentialsException(GENERIC_SESSION_FAILURE);
+            }
+            return authenticationSessionTokenFactory.createTokenResponse(
+                    refreshSession.customerIdentifier(), currentInstant
+            );
+        });
     }
 }

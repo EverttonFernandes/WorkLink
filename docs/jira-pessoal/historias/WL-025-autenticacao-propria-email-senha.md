@@ -28,7 +28,7 @@ baixo custo, preservando a experiencia visual e a navegacao ja definidas para o 
 - O caminho principal da V1 passa a ser cadastro com nome completo, celular, email e senha.
 - O login principal usa email e senha.
 - O celular e coletado como dado de perfil e contato, mas nao deve ser apresentado como verificado sem confirmacao real.
-- Google, Facebook, WhatsApp Business, SMS e OTP por email ficam em stand by.
+- Google/Gmail, Microsoft/Outlook, Facebook, WhatsApp Business, SMS e OTP por email ficam em stand by.
 - Os canais em stand by devem permanecer desacoplados e protegidos por feature flag, sem serem removidos de forma que
   dificulte uma ativacao futura.
 - A navegacao publica continua disponivel sem login.
@@ -78,7 +78,7 @@ baixo custo, preservando a experiencia visual e a navegacao ja definidas para o 
 
 ### Canais futuros em stand by
 
-- Manter Google, Facebook, WhatsApp Business, SMS e OTP desativados por padrao.
+- Manter Google/Gmail, Microsoft/Outlook, Facebook, WhatsApp Business, SMS e OTP desativados por padrao.
 - Controlar cada canal por configuracao/feature flag.
 - Nao exibir botoes de canal indisponivel na interface de producao.
 - Preservar portas/adapters necessarios para evolucao posterior sem obrigar SDKs sociais nesta entrega.
@@ -120,12 +120,14 @@ baixo custo, preservando a experiencia visual e a navegacao ja definidas para o 
 
 - [ ] Modelar credencial local vinculada a identidade do usuario.
 - [ ] Implementar cadastro com email normalizado, senha protegida, nome completo e celular.
+- [ ] Impedir que o cadastro publico anexe senha a contas legadas encontradas apenas por telefone.
 - [ ] Implementar login por email e senha.
 - [ ] Implementar limite de tentativas e respostas resistentes a enumeracao.
 - [ ] Implementar recuperacao e redefinicao segura de senha.
 - [ ] Integrar emissao, rotacao e revogacao de tokens existentes.
 - [ ] Registrar eventos de auditoria sem dados sensiveis.
 - [ ] Criar migrations e garantir compatibilidade com contas existentes.
+  Compatibilidade aqui significa preservar contas legadas sem takeover silencioso; a vinculacao segura fica para fluxo futuro.
 
 ### Mobile
 
@@ -157,6 +159,7 @@ baixo custo, preservando a experiencia visual e a navegacao ja definidas para o 
 - Usuario consegue navegar e buscar profissionais sem login.
 - Ao iniciar contato ou acao sensivel, usuario nao autenticado e direcionado ao login.
 - Usuario novo consegue cadastrar nome completo, celular, email e senha.
+- Usuario nao consegue transformar uma conta legada baseada apenas em telefone em login proprio sem prova de posse.
 - Usuario existente consegue entrar com email e senha validos.
 - Email e armazenado normalizado e nao pode identificar duas contas ativas.
 - Celular sem verificacao e exibido explicitamente como nao verificado.
@@ -165,7 +168,7 @@ baixo custo, preservando a experiencia visual e a navegacao ja definidas para o 
 - Tentativas repetidas sofrem rate limit ou bloqueio temporario auditavel.
 - Usuario consegue solicitar e concluir recuperacao de senha com token curto e de uso unico.
 - Logout revoga a sessao correspondente.
-- Google, Facebook, WhatsApp Business, SMS e OTP permanecem desativados e ocultos por padrao.
+- Google/Gmail, Microsoft/Outlook, Facebook, WhatsApp Business, SMS e OTP permanecem desativados e ocultos por padrao.
 - Feature flags permitem futura ativacao dos canais sem alterar o dominio central.
 - A tela mantem identidade visual, estrutura e navegacao do prototipo oficial.
 - Estados de login, cadastro, recuperacao, carregamento, erro e sucesso possuem testes de tela.
@@ -176,6 +179,7 @@ baixo custo, preservando a experiencia visual e a navegacao ja definidas para o 
 ## Fora do escopo
 
 - Login ativo por Google.
+- Login ativo por Microsoft/Outlook.
 - Login ativo por Facebook.
 - Autenticacao por WhatsApp Business.
 - Envio de OTP por SMS, WhatsApp ou email como caminho principal.

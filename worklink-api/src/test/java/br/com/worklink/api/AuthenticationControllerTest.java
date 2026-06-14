@@ -1,14 +1,21 @@
 package br.com.worklink.api;
 
+import br.com.worklink.application.ApplicationRuleViolationException;
+import br.com.worklink.application.InvalidAuthenticationCredentialsException;
 import br.com.worklink.api.authentication.AuthenticationController;
 import br.com.worklink.application.authentication.usecase.AuthenticationOtpRequestResponse;
 import br.com.worklink.application.authentication.usecase.AuthenticationTokenResponse;
+import br.com.worklink.application.authentication.usecase.LoginLocalAuthenticationUseCase;
+import br.com.worklink.application.authentication.usecase.PasswordRecoveryRequestResponse;
 import br.com.worklink.application.authentication.usecase.RefreshAuthenticationSessionRequest;
 import br.com.worklink.application.authentication.usecase.RefreshAuthenticationSessionUseCase;
 import br.com.worklink.application.authentication.usecase.RequestAuthenticationOtpRequest;
 import br.com.worklink.application.authentication.usecase.RequestAuthenticationOtpUseCase;
+import br.com.worklink.application.authentication.usecase.RequestPasswordRecoveryUseCase;
+import br.com.worklink.application.authentication.usecase.RegisterLocalAuthenticationUseCase;
 import br.com.worklink.application.authentication.usecase.RevokeAuthenticationSessionRequest;
 import br.com.worklink.application.authentication.usecase.RevokeAuthenticationSessionUseCase;
+import br.com.worklink.application.authentication.usecase.ResetPasswordUseCase;
 import br.com.worklink.application.authentication.usecase.VerifyAuthenticationOtpRequest;
 import br.com.worklink.application.authentication.usecase.VerifyAuthenticationOtpUseCase;
 
@@ -56,6 +63,123 @@ class AuthenticationControllerTest {
 
     @MockBean
     private RevokeAuthenticationSessionUseCase revokeAuthenticationSessionUseCase;
+
+    @MockBean
+    private RegisterLocalAuthenticationUseCase registerLocalAuthenticationUseCase;
+
+    @MockBean
+    private LoginLocalAuthenticationUseCase loginLocalAuthenticationUseCase;
+
+    @MockBean
+    private RequestPasswordRecoveryUseCase requestPasswordRecoveryUseCase;
+
+    @MockBean
+    private ResetPasswordUseCase resetPasswordUseCase;
+
+    @Test
+    @DisplayName("GIVEN cadastro local valido WHEN cadastrar THEN deve retornar tokens")
+    void shouldReturnTokensWhenRegisteringLocalAccount() throws Exception {
+        // GIVEN
+        when(registerLocalAuthenticationUseCase.register(any())).thenReturn(authenticationTokenResponse());
+
+        // WHEN / THEN
+        mockMvc.perform(post("/api/v1/authentication/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "fullName":"Cliente Exemplo",
+                                  "phoneNumber":"51999999999",
+                                  "emailAddress":"cliente@example.com",
+                                  "password":"senha-segura-123",
+                                  "passwordConfirmation":"senha-segura-123",
+                                  "legalAccepted":true
+                                }
+                                """))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.accessToken").value("access-token"));
+    }
+
+    @Test
+    @DisplayName("GIVEN credenciais locais WHEN autenticar THEN deve retornar tokens")
+    void shouldReturnTokensWhenLoggingIn() throws Exception {
+        // GIVEN
+        when(loginLocalAuthenticationUseCase.login(any())).thenReturn(authenticationTokenResponse());
+
+        // WHEN / THEN
+        mockMvc.perform(post("/api/v1/authentication/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"emailAddress":"cliente@example.com","password":"senha-segura-123"}
+                                """))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.refreshToken").value("refresh-token"));
+    }
+
+    @Test
+    @DisplayName("GIVEN credenciais invalidas WHEN autenticar THEN deve retornar unauthorized generico")
+    void shouldReturnUnauthorizedWhenLocalCredentialsAreInvalid() throws Exception {
+        // GIVEN
+        when(loginLocalAuthenticationUseCase.login(any()))
+                .thenThrow(new InvalidAuthenticationCredentialsException("E-mail ou senha invalidos."));
+
+        // WHEN / THEN
+        mockMvc.perform(post("/api/v1/authentication/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {"emailAddress":"cliente@example.com","password":"senha-incorreta"}
+                                """))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("E-mail ou senha invalidos."));
+    }
+
+    @Test
+    @DisplayName("GIVEN email WHEN solicitar recuperacao THEN deve retornar mensagem generica")
+    void shouldReturnGenericMessageWhenRequestingPasswordRecovery() throws Exception {
+        // GIVEN
+        when(requestPasswordRecoveryUseCase.requestRecovery(any())).thenReturn(
+                new PasswordRecoveryRequestResponse(
+                        "Se o e-mail estiver cadastrado, enviaremos instrucoes para redefinir a senha."
+                )
+        );
+
+        // WHEN / THEN
+        mockMvc.perform(post("/api/v1/authentication/password-recovery/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"emailAddress\":\"cliente@example.com\"}"))
+                .andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.message").exists());
+    }
+
+    @Test
+    @DisplayName("GIVEN provedor indisponivel WHEN solicitar recuperacao THEN deve retornar erro de regra")
+    void shouldReturnBadRequestWhenPasswordRecoveryIsUnavailable() throws Exception {
+        // GIVEN
+        when(requestPasswordRecoveryUseCase.requestRecovery(any()))
+                .thenThrow(new ApplicationRuleViolationException("A recuperacao de senha esta indisponivel."));
+
+        // WHEN / THEN
+        mockMvc.perform(post("/api/v1/authentication/password-recovery/request")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"emailAddress\":\"cliente@example.com\"}"))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("A recuperacao de senha esta indisponivel."));
+    }
+
+    @Test
+    @DisplayName("GIVEN token valido WHEN redefinir senha THEN deve retornar sem conteudo")
+    void shouldReturnNoContentWhenResettingPassword() throws Exception {
+        // GIVEN / WHEN / THEN
+        mockMvc.perform(post("/api/v1/authentication/password-recovery/reset")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("""
+                                {
+                                  "recoveryToken":"opaque-token",
+                                  "newPassword":"nova-senha-segura-123",
+                                  "newPasswordConfirmation":"nova-senha-segura-123"
+                                }
+                                """))
+                .andExpect(status().isNoContent());
+    }
 
     @Test
     @DisplayName("GIVEN telefone WHEN solicitar OTP THEN deve retornar mensagem generica")

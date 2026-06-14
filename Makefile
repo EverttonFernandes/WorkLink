@@ -75,7 +75,7 @@ mobile-screen-test: $(COMPOSE_ENV_FILE)
 
 mobile-integration-test: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm database-migrations
-	$(DOCKER_COMPOSE) up -d --wait worklink-api
+	$(DOCKER_COMPOSE) up -d --build --wait worklink-api
 	$(DOCKER_COMPOSE) run --rm -e API_BASE_URL=http://worklink-api:8080 mobile-tests sh -lc "./tool/run_mobile_integration_tests.sh"
 
 mobile-android-build: $(COMPOSE_ENV_FILE)
@@ -164,7 +164,7 @@ mobile-emulator-install: $(COMPOSE_ENV_FILE)
 mobile-emulator-integration-test: $(COMPOSE_ENV_FILE) mobile-emulator-prereqs
 	$(DOCKER_COMPOSE) up -d postgres redis minio
 	$(DOCKER_COMPOSE) run --rm database-migrations
-	$(DOCKER_COMPOSE) up -d --wait worklink-api android-emulator
+	$(DOCKER_COMPOSE) up -d --build --wait worklink-api android-emulator
 	$(MAKE) mobile-emulator-wait
 	$(DOCKER_COMPOSE) run --rm \
 		-e ADB_TARGET=android-emulator:5555 \
@@ -175,7 +175,7 @@ mobile-emulator-integration-test: $(COMPOSE_ENV_FILE) mobile-emulator-prereqs
 mobile-manual-test: $(COMPOSE_ENV_FILE) mobile-emulator-prereqs
 	$(DOCKER_COMPOSE) up -d postgres redis minio
 	$(DOCKER_COMPOSE) run --rm database-migrations
-	$(DOCKER_COMPOSE) up -d --wait worklink-api
+	$(DOCKER_COMPOSE) up -d --build --wait worklink-api
 	$(MAKE) mobile-android-build
 	$(MAKE) mobile-emulator-up
 	$(MAKE) mobile-emulator-wait
@@ -185,13 +185,13 @@ functional-test: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) down -v --remove-orphans
 	$(DOCKER_COMPOSE) up -d postgres redis minio
 	$(DOCKER_COMPOSE) run --rm database-migrations
-	$(DOCKER_COMPOSE) up -d --wait worklink-api
-	$(DOCKER_COMPOSE) run --rm functional-tests
+	WORKLINK_TEST_SUPPORT_PASSWORD_RECOVERY_TOKEN_EXPOSURE_ENABLED=true $(DOCKER_COMPOSE) up -d --build --wait worklink-api
+	WORKLINK_TEST_SUPPORT_PASSWORD_RECOVERY_TOKEN_EXPOSURE_ENABLED=true $(DOCKER_COMPOSE) run --rm functional-tests
 
 homologation-local-up: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) up -d postgres redis minio
 	$(DOCKER_COMPOSE) run --rm database-migrations
-	$(DOCKER_COMPOSE) up -d --wait worklink-api
+	$(DOCKER_COMPOSE) up -d --build --wait worklink-api
 	$(MAKE) homologation-seed
 
 homologation-seed: $(COMPOSE_ENV_FILE)

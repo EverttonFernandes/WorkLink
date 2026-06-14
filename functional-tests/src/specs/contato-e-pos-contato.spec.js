@@ -1,7 +1,7 @@
 const { cleanFunctionalScenario, prepareFunctionalScenario } = require('../support/functionalTestLifecycle');
 const {
   assertStatus,
-  authenticateCustomerByPhone,
+  authenticateCustomerWithLocalAccount,
   createCategoryWithAdministrator,
   createCityWithAdministrator,
   listPendingFeedbackRequests,
@@ -32,7 +32,7 @@ describe('Specs funcionais E2E reais - contato e pos-contato', () => {
       categoryIdentifier: category.categoryIdentifier,
       shortDescription: 'Profissional para fluxo de contato.',
     });
-    const customerAuthentication = await authenticateCustomerByPhone(uniquePhoneNumber());
+    const customerAuthentication = await authenticateCustomerWithLocalAccount(uniquePhoneNumber());
 
     const contactResponse = await startContactAsCustomer(
       customerAuthentication.accessToken,
@@ -54,7 +54,7 @@ describe('Specs funcionais E2E reais - contato e pos-contato', () => {
       categoryIdentifier: category.categoryIdentifier,
       shortDescription: 'Profissional para pos-contato.',
     });
-    const customerAuthentication = await authenticateCustomerByPhone(uniquePhoneNumber());
+    const customerAuthentication = await authenticateCustomerWithLocalAccount(uniquePhoneNumber());
     const contactResponse = await startContactAsCustomer(
       customerAuthentication.accessToken,
       professional.professionalIdentifier,

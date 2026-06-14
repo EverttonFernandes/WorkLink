@@ -27,20 +27,15 @@ void main() {
     WidgetTester tester,
   ) async {
     await tester.enterText(
-      find.byKey(const ValueKey('customer-phone-field')),
-      '(51) 9 9999-1234',
+      find.byKey(const ValueKey('authentication-email-field')),
+      'cliente@exemplo.com',
     );
-    await tester
-        .ensureVisible(find.byKey(const ValueKey('request-code-button')));
-    await tester.tap(find.byKey(const ValueKey('request-code-button')));
-    await tester.pumpAndSettle();
     await tester.enterText(
-      find.byKey(const ValueKey('verification-code-field')),
-      '1234',
+      find.byKey(const ValueKey('authentication-password-field')),
+      'senha-segura-123',
     );
-    await tester
-        .ensureVisible(find.byKey(const ValueKey('confirm-code-button')));
-    await tester.tap(find.byKey(const ValueKey('confirm-code-button')));
+    await tester.ensureVisible(find.byKey(const ValueKey('sign-in-button')));
+    await tester.tap(find.byKey(const ValueKey('sign-in-button')));
     await tester.pumpAndSettle();
   }
 
@@ -115,8 +110,11 @@ void main() {
     await tester.pumpAndSettle();
 
     // THEN
-    expect(find.text('Continuar com seu celular'), findsOneWidget);
-    expect(find.byKey(const ValueKey('customer-phone-field')), findsOneWidget);
+    expect(find.text('Acesse sua conta'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('authentication-email-field')),
+      findsOneWidget,
+    );
   });
 
   testWidgets(
@@ -350,8 +348,11 @@ void main() {
     await tester.pumpAndSettle();
 
     // THEN
-    expect(find.text('Continuar com seu celular'), findsOneWidget);
-    expect(find.byKey(const ValueKey('customer-phone-field')), findsOneWidget);
+    expect(find.text('Acesse sua conta'), findsOneWidget);
+    expect(
+      find.byKey(const ValueKey('authentication-email-field')),
+      findsOneWidget,
+    );
   });
 
   testWidgets(

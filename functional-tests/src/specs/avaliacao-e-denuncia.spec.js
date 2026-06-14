@@ -1,7 +1,7 @@
 const { cleanFunctionalScenario, prepareFunctionalScenario } = require('../support/functionalTestLifecycle');
 const {
   assertStatus,
-  authenticateCustomerByPhone,
+  authenticateCustomerWithLocalAccount,
   createCategoryWithAdministrator,
   createCityWithAdministrator,
   loadProfessionalReviewProfile,
@@ -33,7 +33,7 @@ describe('Specs funcionais E2E reais - avaliacao e denuncia', () => {
       categoryIdentifier: category.categoryIdentifier,
       shortDescription: 'Profissional para avaliacao.',
     });
-    const customerAuthentication = await authenticateCustomerByPhone(uniquePhoneNumber());
+    const customerAuthentication = await authenticateCustomerWithLocalAccount(uniquePhoneNumber());
     const contactResponse = await startContactAsCustomer(
       customerAuthentication.accessToken,
       professional.professionalIdentifier,
@@ -73,7 +73,7 @@ describe('Specs funcionais E2E reais - avaliacao e denuncia', () => {
       categoryIdentifier: category.categoryIdentifier,
       shortDescription: 'Profissional para denuncia.',
     });
-    const customerAuthentication = await authenticateCustomerByPhone(uniquePhoneNumber());
+    const customerAuthentication = await authenticateCustomerWithLocalAccount(uniquePhoneNumber());
 
     const reportResponse = await registerProfessionalReportAsCustomer(
       customerAuthentication.accessToken,

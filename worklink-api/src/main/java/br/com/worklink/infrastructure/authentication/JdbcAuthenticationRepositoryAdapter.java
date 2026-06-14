@@ -4,6 +4,9 @@ import br.com.worklink.application.authentication.port.LoadActiveAuthenticationO
 import br.com.worklink.application.authentication.port.LoadCustomerAccountByIdentifierPort;
 import br.com.worklink.application.authentication.port.LoadCustomerAccountByPhoneNumberPort;
 import br.com.worklink.application.authentication.port.LoadRefreshSessionByTokenHashPort;
+import br.com.worklink.application.authentication.port.LocalAuthenticationAccountRepositoryPort;
+import br.com.worklink.application.authentication.port.PasswordRecoveryChallengeRepositoryPort;
+import br.com.worklink.application.authentication.port.RevokeAllCustomerRefreshSessionsPort;
 import br.com.worklink.application.authentication.port.SaveAuthenticationOtpChallengePort;
 import br.com.worklink.application.authentication.port.SaveCustomerAccountPort;
 import br.com.worklink.application.authentication.port.SaveRefreshSessionPort;
@@ -12,6 +15,8 @@ import br.com.worklink.application.authentication.port.UpdateRefreshSessionPort;
 import br.com.worklink.domain.authentication.AuthenticationOtpChallenge;
 import br.com.worklink.domain.authentication.AuthenticationRefreshSession;
 import br.com.worklink.domain.authentication.CustomerAccount;
+import br.com.worklink.domain.authentication.LocalAuthenticationAccount;
+import br.com.worklink.domain.authentication.PasswordRecoveryChallenge;
 
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -32,7 +37,10 @@ public class JdbcAuthenticationRepositoryAdapter implements
         SaveCustomerAccountPort,
         SaveRefreshSessionPort,
         LoadRefreshSessionByTokenHashPort,
-        UpdateRefreshSessionPort {
+        UpdateRefreshSessionPort,
+        LocalAuthenticationAccountRepositoryPort,
+        PasswordRecoveryChallengeRepositoryPort,
+        RevokeAllCustomerRefreshSessionsPort {
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -207,6 +215,181 @@ public class JdbcAuthenticationRepositoryAdapter implements
                 authenticationRefreshSession.sessionIdentifier()
         );
         return authenticationRefreshSession;
+    }
+
+    @Override
+    public boolean revokeRefreshSessionIfActive(AuthenticationRefreshSession authenticationRefreshSession) {
+        int affectedRows = jdbcTemplate.update(
+                """
+                        UPDATE worklink.authentication_refresh_sessions
+                           SET revoked = true
+                         WHERE session_identifier = ?
+                           AND revoked = false
+                        """,
+                authenticationRefreshSession.sessionIdentifier()
+        );
+        return affectedRows == 1;
+    }
+
+    @Override
+    public Optional<LocalAuthenticationAccount> loadByNormalizedEmailAddress(String normalizedEmailAddress) {
+        return loadLocalAccounts("normalized_email_address", normalizedEmailAddress).stream().findFirst();
+    }
+
+    @Override
+    public Optional<LocalAuthenticationAccount> loadByCustomerIdentifier(UUID customerIdentifier) {
+        return loadLocalAccounts("customer_identifier", customerIdentifier).stream().findFirst();
+    }
+
+    @Override
+    public LocalAuthenticationAccount save(LocalAuthenticationAccount account) {
+        jdbcTemplate.update(
+                """
+                        INSERT INTO worklink.local_authentication_accounts (
+                            customer_identifier, full_name, phone_number, normalized_email_address,
+                            password_hash, legal_accepted, phone_verified, failed_login_attempts,
+                            blocked_until, created_at, updated_at
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        """,
+                account.customerIdentifier(), account.fullName(), account.phoneNumber(),
+                account.normalizedEmailAddress(), account.passwordHash(), account.legalAccepted(),
+                account.phoneVerified(), account.failedLoginAttempts(), timestampOrNull(account.blockedUntil()),
+                Timestamp.from(account.createdAt()), Timestamp.from(account.updatedAt())
+        );
+        return account;
+    }
+
+    @Override
+    public LocalAuthenticationAccount update(LocalAuthenticationAccount account) {
+        jdbcTemplate.update(
+                """
+                        UPDATE worklink.local_authentication_accounts
+                           SET password_hash = ?,
+                               failed_login_attempts = ?,
+                               blocked_until = ?,
+                               updated_at = ?
+                         WHERE customer_identifier = ?
+                        """,
+                account.passwordHash(), account.failedLoginAttempts(), timestampOrNull(account.blockedUntil()),
+                Timestamp.from(account.updatedAt()), account.customerIdentifier()
+        );
+        return account;
+    }
+
+    @Override
+    public PasswordRecoveryChallenge save(PasswordRecoveryChallenge challenge) {
+        jdbcTemplate.update(
+                """
+                        INSERT INTO worklink.password_recovery_challenges (
+                            challenge_identifier, customer_identifier, token_hash, expires_at, used, created_at
+                        ) VALUES (?, ?, ?, ?, ?, ?)
+                        """,
+                challenge.challengeIdentifier(), challenge.customerIdentifier(), challenge.tokenHash(),
+                Timestamp.from(challenge.expiresAt()), challenge.used(), Timestamp.from(challenge.createdAt())
+        );
+        return challenge;
+    }
+
+    @Override
+    public Optional<PasswordRecoveryChallenge> loadByTokenHash(String tokenHash) {
+        List<PasswordRecoveryChallenge> challenges = jdbcTemplate.query(
+                """
+                        SELECT challenge_identifier, customer_identifier, token_hash, expires_at, used, created_at
+                          FROM worklink.password_recovery_challenges
+                         WHERE token_hash = ?
+                        """,
+                (resultSet, rowNumber) -> mapPasswordRecoveryChallenge(resultSet),
+                tokenHash
+        );
+        return challenges.stream().findFirst();
+    }
+
+    @Override
+    public PasswordRecoveryChallenge update(PasswordRecoveryChallenge challenge) {
+        jdbcTemplate.update(
+                "UPDATE worklink.password_recovery_challenges SET used = ? WHERE challenge_identifier = ?",
+                challenge.used(), challenge.challengeIdentifier()
+        );
+        return challenge;
+    }
+
+    @Override
+    public boolean markAsUsedIfActive(UUID challengeIdentifier) {
+        int affectedRows = jdbcTemplate.update(
+                """
+                        UPDATE worklink.password_recovery_challenges
+                           SET used = true
+                         WHERE challenge_identifier = ?
+                           AND used = false
+                        """,
+                challengeIdentifier
+        );
+        return affectedRows == 1;
+    }
+
+    @Override
+    public void deleteExpiredOrUsedChallenges(java.time.Instant currentInstant) {
+        jdbcTemplate.update(
+                """
+                        DELETE FROM worklink.password_recovery_challenges
+                         WHERE used = true
+                            OR expires_at <= ?
+                        """,
+                Timestamp.from(currentInstant)
+        );
+    }
+
+    @Override
+    public void revokeAllCustomerRefreshSessions(UUID customerIdentifier) {
+        jdbcTemplate.update(
+                "UPDATE worklink.authentication_refresh_sessions SET revoked = true WHERE customer_identifier = ?",
+                customerIdentifier
+        );
+    }
+
+    private List<LocalAuthenticationAccount> loadLocalAccounts(String columnName, Object value) {
+        String query = """
+                SELECT customer_identifier, full_name, phone_number, normalized_email_address,
+                       password_hash, legal_accepted, phone_verified, failed_login_attempts,
+                       blocked_until, created_at, updated_at
+                  FROM worklink.local_authentication_accounts
+                 WHERE %s = ?
+                """.formatted(columnName);
+        return jdbcTemplate.query(query, (resultSet, rowNumber) -> mapLocalAuthenticationAccount(resultSet), value);
+    }
+
+    private static LocalAuthenticationAccount mapLocalAuthenticationAccount(ResultSet resultSet)
+            throws java.sql.SQLException {
+        Timestamp blockedUntil = resultSet.getTimestamp("blocked_until");
+        return LocalAuthenticationAccount.restore(
+                resultSet.getObject("customer_identifier", UUID.class),
+                resultSet.getString("full_name"),
+                resultSet.getString("phone_number"),
+                resultSet.getString("normalized_email_address"),
+                resultSet.getString("password_hash"),
+                resultSet.getBoolean("legal_accepted"),
+                resultSet.getBoolean("phone_verified"),
+                resultSet.getInt("failed_login_attempts"),
+                blockedUntil == null ? null : blockedUntil.toInstant(),
+                resultSet.getTimestamp("created_at").toInstant(),
+                resultSet.getTimestamp("updated_at").toInstant()
+        );
+    }
+
+    private static PasswordRecoveryChallenge mapPasswordRecoveryChallenge(ResultSet resultSet)
+            throws java.sql.SQLException {
+        return PasswordRecoveryChallenge.restore(
+                resultSet.getObject("challenge_identifier", UUID.class),
+                resultSet.getObject("customer_identifier", UUID.class),
+                resultSet.getString("token_hash"),
+                resultSet.getTimestamp("expires_at").toInstant(),
+                resultSet.getBoolean("used"),
+                resultSet.getTimestamp("created_at").toInstant()
+        );
+    }
+
+    private static Timestamp timestampOrNull(java.time.Instant instant) {
+        return instant == null ? null : Timestamp.from(instant);
     }
 
     private static AuthenticationOtpChallenge mapAuthenticationOtpChallenge(ResultSet resultSet) throws java.sql.SQLException {

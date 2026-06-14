@@ -3,6 +3,7 @@ package br.com.worklink.api;
 import br.com.worklink.application.ApplicationRuleViolationException;
 import br.com.worklink.application.AuthenticationRequiredException;
 import br.com.worklink.application.AuthorizationDeniedException;
+import br.com.worklink.application.InvalidAuthenticationCredentialsException;
 import br.com.worklink.application.ResourceNotFoundException;
 
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,13 @@ public class WorkLinkApiExceptionHandler {
 
     @ExceptionHandler(AuthenticationRequiredException.class)
     ResponseEntity<WorkLinkApiErrorResponse> handleAuthenticationRequiredException(AuthenticationRequiredException exception) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new WorkLinkApiErrorResponse(exception.getMessage()));
+    }
+
+    @ExceptionHandler(InvalidAuthenticationCredentialsException.class)
+    ResponseEntity<WorkLinkApiErrorResponse> handleInvalidAuthenticationCredentialsException(
+            InvalidAuthenticationCredentialsException exception
+    ) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new WorkLinkApiErrorResponse(exception.getMessage()));
     }
 

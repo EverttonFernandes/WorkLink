@@ -1,7 +1,7 @@
 const { cleanFunctionalScenario, prepareFunctionalScenario } = require('../support/functionalTestLifecycle');
 const {
   assertStatus,
-  authenticateCustomerByPhone,
+  authenticateCustomerWithLocalAccount,
   blockProfessionalAsAdministrator,
   createCategoryWithAdministrator,
   createCityWithAdministrator,
@@ -77,8 +77,8 @@ describe('Specs funcionais E2E reais - autorizacao e bloqueios', () => {
       categoryIdentifier: category.categoryIdentifier,
       shortDescription: 'Profissional salvo apenas por um cliente.',
     });
-    const firstCustomerAuthentication = await authenticateCustomerByPhone(uniquePhoneNumber());
-    const secondCustomerAuthentication = await authenticateCustomerByPhone(uniquePhoneNumber());
+    const firstCustomerAuthentication = await authenticateCustomerWithLocalAccount(uniquePhoneNumber());
+    const secondCustomerAuthentication = await authenticateCustomerWithLocalAccount(uniquePhoneNumber());
 
     const saveResponse = await saveProfessionalAsCustomer(
       firstCustomerAuthentication.accessToken,

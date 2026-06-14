@@ -5,112 +5,156 @@ import 'fake_worklink_http_client.dart';
 
 void main() {
   late FakeWorkLinkHttpClient httpClient;
-  late AuthenticationService authenticationService;
+  late AuthenticationService service;
 
   setUp(() {
     httpClient = FakeWorkLinkHttpClient();
-    authenticationService = AuthenticationService(httpClient: httpClient);
+    service = AuthenticationService(httpClient: httpClient);
   });
 
-  test(
-      'GIVEN telefone valido WHEN solicitar OTP THEN deve chamar endpoint correto',
-      () async {
-    // GIVEN
-    httpClient.objectResponses['/api/v1/authentication/otp/request'] = {
-      'message': 'Codigo enviado.',
-      'expiresAt': '2026-05-13T10:00:00Z',
-      'deliveryChannels': ['SMS', 'WHATSAPP', 'EMAIL'],
-      'simulatedDelivery': true,
-    };
-
-    // WHEN
-    final result = await authenticationService.requestAuthenticationOtp(
-      '+5551999999999',
-      deliveryChannel: 'WHATSAPP',
-    );
-
-    // THEN
-    expect(result.message, 'Codigo enviado.');
-    expect(result.deliveryChannels, ['SMS', 'WHATSAPP', 'EMAIL']);
-    expect(result.simulatedDelivery, isTrue);
-    expect(httpClient.requests.single.method, 'POST');
-    expect(
-      httpClient.requests.single.path,
-      '/api/v1/authentication/otp/request',
-    );
-    expect(
-      httpClient.requests.single.data,
-      {
-        'phoneNumber': '+5551999999999',
-        'deliveryChannel': 'WHATSAPP',
-      },
-    );
-  });
+  Map<String, dynamic> sessionJson() => {
+        'principalIdentifier': 'customer-1',
+        'profile': 'CUSTOMER',
+        'accessToken': 'access-token',
+        'refreshToken': 'refresh-token',
+        'accessTokenExpiresAt': '2026-06-11T10:15:00Z',
+        'refreshTokenExpiresAt': '2026-07-11T10:00:00Z',
+      };
 
   test(
-      'GIVEN OTP valido WHEN verificar codigo THEN deve armazenar Bearer token',
+      'GIVEN cadastro local WHEN registrar THEN deve usar contrato REST e Bearer',
       () async {
-    // GIVEN
-    httpClient.objectResponses['/api/v1/authentication/otp/verify'] = {
-      'customerIdentifier': 'customer-1',
-      'accessToken': 'access-token',
-      'refreshToken': 'refresh-token',
-      'accessTokenExpiresAt': '2026-05-13T10:15:00Z',
-      'refreshTokenExpiresAt': '2026-06-13T10:00:00Z',
-    };
+    httpClient.objectResponses['/api/v1/authentication/register'] =
+        sessionJson();
 
-    // WHEN
-    final session = await authenticationService.verifyAuthenticationOtp(
-      phoneNumber: '+5551999999999',
-      oneTimePassword: '123456',
+    final session = await service.registerLocalAccount(
+      fullName: 'Maria da Silva',
+      phoneNumber: '51999991234',
+      emailAddress: 'maria@exemplo.com',
+      password: 'senha-segura-123',
+      passwordConfirmation: 'senha-segura-123',
+      legalTermsAccepted: true,
     );
 
-    // THEN
-    expect(session.customerIdentifier, 'customer-1');
-    expect(httpClient.bearerTokens.single, 'access-token');
+    expect(session.principalIdentifier, 'customer-1');
+    expect(httpClient.requests.single.path, '/api/v1/authentication/register');
     expect(httpClient.requests.single.data, {
-      'phoneNumber': '+5551999999999',
-      'oneTimePassword': '123456',
+      'fullName': 'Maria da Silva',
+      'phoneNumber': '51999991234',
+      'emailAddress': 'maria@exemplo.com',
+      'password': 'senha-segura-123',
+      'passwordConfirmation': 'senha-segura-123',
+      'legalTermsAccepted': true,
+    });
+    expect(httpClient.bearerTokens, ['access-token']);
+  });
+
+  test('GIVEN credenciais WHEN entrar THEN deve usar login local', () async {
+    httpClient.objectResponses['/api/v1/authentication/login'] = sessionJson();
+
+    await service.authenticateWithEmailAndPassword(
+      emailAddress: 'cliente@exemplo.com',
+      password: 'senha-segura-123',
+    );
+
+    expect(httpClient.requests.single.path, '/api/v1/authentication/login');
+    expect(httpClient.requests.single.data, {
+      'emailAddress': 'cliente@exemplo.com',
+      'password': 'senha-segura-123',
     });
   });
 
-  test(
-      'GIVEN refresh token valido WHEN renovar sessao THEN deve trocar Bearer token',
+  test('GIVEN email WHEN solicitar recuperacao THEN deve usar resposta vazia',
       () async {
-    // GIVEN
-    httpClient.objectResponses['/api/v1/authentication/session/refresh'] = {
-      'customerIdentifier': 'customer-1',
-      'accessToken': 'new-access-token',
-      'refreshToken': 'new-refresh-token',
-      'accessTokenExpiresAt': '2026-05-13T10:15:00Z',
-      'refreshTokenExpiresAt': '2026-06-13T10:00:00Z',
-    };
+    await service.requestPasswordRecovery('cliente@exemplo.com');
 
-    // WHEN
-    final session = await authenticationService.refreshAuthenticationSession(
-      'refresh-token',
-    );
-
-    // THEN
-    expect(session.accessToken, 'new-access-token');
-    expect(httpClient.bearerTokens.single, 'new-access-token');
     expect(
       httpClient.requests.single.path,
-      '/api/v1/authentication/session/refresh',
+      '/api/v1/authentication/password-recovery/request',
     );
+    expect(httpClient.requests.single.data, {
+      'emailAddress': 'cliente@exemplo.com',
+    });
   });
 
-  test(
-      'GIVEN sessao ativa WHEN revogar refresh token THEN deve limpar autenticacao',
+  test('GIVEN token WHEN redefinir senha THEN deve enviar confirmacao',
       () async {
-    // WHEN
-    await authenticationService.revokeAuthenticationSession('refresh-token');
+    await service.resetPassword(
+      recoveryToken: 'ABC123',
+      newPassword: 'nova-senha-segura',
+      newPasswordConfirmation: 'nova-senha-segura',
+    );
 
-    // THEN
     expect(
       httpClient.requests.single.path,
-      '/api/v1/authentication/session/revoke',
+      '/api/v1/authentication/password-recovery/reset',
     );
-    expect(httpClient.bearerTokens.single, isNull);
+    expect(httpClient.requests.single.data, {
+      'recoveryToken': 'ABC123',
+      'newPassword': 'nova-senha-segura',
+      'newPasswordConfirmation': 'nova-senha-segura',
+    });
+    expect(httpClient.bearerTokens, [null]);
+  });
+
+  test('GIVEN resposta legada WHEN mapear sessao THEN deve aceitar customer id',
+      () async {
+    httpClient.objectResponses['/api/v1/authentication/login'] = {
+      ...sessionJson(),
+      'principalIdentifier': null,
+      'customerIdentifier': 'legacy-customer',
+    };
+
+    final session = await service.authenticateWithEmailAndPassword(
+      emailAddress: 'cliente@exemplo.com',
+      password: 'senha-segura-123',
+    );
+
+    expect(session.principalIdentifier, 'legacy-customer');
+  });
+
+  test('GIVEN canal OTP futuro WHEN solicitar e validar THEN deve preservar contrato',
+      () async {
+    httpClient.objectResponses['/api/v1/authentication/otp/request'] = {
+      'message': 'Mensagem generica',
+      'expiresAt': '2026-06-11T10:05:00Z',
+      'deliveryChannels': ['SMS'],
+      'simulatedDelivery': true,
+    };
+    httpClient.objectResponses['/api/v1/authentication/otp/verify'] =
+        sessionJson();
+
+    final requestResult = await service.requestAuthenticationOtp(
+      '51999991234',
+      deliveryChannel: 'SMS',
+      emailAddress: 'cliente@example.com',
+    );
+    final session = await service.verifyAuthenticationOtp(
+      phoneNumber: '51999991234',
+      oneTimePassword: '123456',
+    );
+
+    expect(requestResult.deliveryChannels, ['SMS']);
+    expect(session.principalIdentifier, 'customer-1');
+    expect(httpClient.bearerTokens, ['access-token']);
+  });
+
+  test('GIVEN refresh e logout WHEN operar sessao THEN deve atualizar Bearer',
+      () async {
+    httpClient.objectResponses['/api/v1/authentication/session/refresh'] =
+        sessionJson();
+
+    final session =
+        await service.refreshAuthenticationSession('refresh-token-antigo');
+    await service.revokeAuthenticationSession(session.refreshToken);
+
+    expect(
+      httpClient.requests.map((request) => request.path),
+      [
+        '/api/v1/authentication/session/refresh',
+        '/api/v1/authentication/session/revoke',
+      ],
+    );
+    expect(httpClient.bearerTokens, ['access-token', null]);
   });
 }

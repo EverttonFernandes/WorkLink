@@ -76,4 +76,21 @@ class AuthenticationInfrastructureAdapterTest {
         assertThat(issuedAccessToken.expiresAt()).isEqualTo(issuedAt.plusSeconds(900));
         assertThat(issuedAccessToken.accessToken()).doesNotContain("refresh");
     }
+
+    @Test
+    @DisplayName("GIVEN senha WHEN proteger com BCrypt THEN deve usar salt e validar sem texto puro")
+    void shouldHashAndMatchPasswordUsingBcrypt() {
+        // GIVEN
+        BcryptPasswordHashingAdapter adapter = new BcryptPasswordHashingAdapter(4);
+
+        // WHEN
+        String firstHash = adapter.hashPassword("senha-segura-123");
+        String secondHash = adapter.hashPassword("senha-segura-123");
+
+        // THEN
+        assertThat(firstHash).startsWith("$2");
+        assertThat(firstHash).isNotEqualTo(secondHash);
+        assertThat(adapter.matchesPassword("senha-segura-123", firstHash)).isTrue();
+        assertThat(adapter.matchesPassword("senha-incorreta", firstHash)).isFalse();
+    }
 }

@@ -17,37 +17,37 @@ class CustomerAuthenticationScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
     return AnimatedBuilder(
       animation: customerAuthenticationController,
       builder: (context, _) {
-        final authenticationState = customerAuthenticationController.state;
+        final state = customerAuthenticationController.state;
         return Scaffold(
           backgroundColor: const Color(0xFFF8FBFF),
           appBar: AppBar(title: const Text('Profissional Perto')),
           body: SafeArea(
             child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
               children: [
-                _BrandHeader(colorScheme: colorScheme),
-                const SizedBox(height: 24),
-                if (authenticationState.authenticationStep ==
-                    CustomerAuthenticationStep.phoneEntry)
-                  _PhoneEntryStep(
-                    customerAuthenticationController:
-                        customerAuthenticationController,
-                    authenticationState: authenticationState,
-                  )
-                else if (authenticationState.authenticationStep ==
-                    CustomerAuthenticationStep.codeVerification)
-                  _CodeVerificationStep(
-                    customerAuthenticationController:
-                        customerAuthenticationController,
-                    authenticationState: authenticationState,
+                const _BrandHeader(),
+                const SizedBox(height: 22),
+                if (state.mode == CustomerAuthenticationMode.authenticated)
+                  _AuthenticatedContent(state: state)
+                else ...[
+                  const _HeroCopy(),
+                  const SizedBox(height: 18),
+                  const _RegionChip(),
+                  const SizedBox(height: 22),
+                  _AuthenticationCard(
+                    controller: customerAuthenticationController,
+                    state: state,
                     onAuthenticationCompleted: onAuthenticationCompleted,
-                  )
-                else
-                  _AuthenticatedStep(authenticationState: authenticationState),
+                  ),
+                  const SizedBox(height: 20),
+                  const _SecurityCallout(),
+                  const SizedBox(height: 20),
+                  const _LegalFooter(),
+                ],
               ],
             ),
           ),
@@ -57,514 +57,702 @@ class CustomerAuthenticationScreen extends StatelessWidget {
   }
 }
 
-class _PhoneEntryStep extends StatelessWidget {
-  const _PhoneEntryStep({
-    required this.customerAuthenticationController,
-    required this.authenticationState,
-  });
-
-  final CustomerAuthenticationController customerAuthenticationController;
-  final CustomerAuthenticationState authenticationState;
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        RichText(
-          textAlign: TextAlign.center,
-          text: TextSpan(
-            style: textTheme.displaySmall?.copyWith(
-              fontWeight: FontWeight.w700,
-              color: const Color(0xFF13243C),
-              height: 1.12,
-            ),
-            children: const [
-              TextSpan(text: 'Encontre profissionais\n'),
-              TextSpan(
-                text: 'perto de voce',
-                style: TextStyle(color: Color(0xFF16C35B)),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 14),
-        Text(
-          'Encontre eletricistas, encanadores e pedreiros\nna sua regiao com rapidez e confianca.',
-          textAlign: TextAlign.center,
-          style: textTheme.titleMedium?.copyWith(
-            color: const Color(0xFF6A7D96),
-            height: 1.45,
-          ),
-        ),
-        const SizedBox(height: 20),
-        const _RegionChip(),
-        const SizedBox(height: 22),
-        Container(
-          padding: const EdgeInsets.all(22),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(30),
-            border: Border.all(color: const Color(0xFFE4EBF2)),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x140E223D),
-                blurRadius: 24,
-                offset: Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: CircleAvatar(
-                  radius: 28,
-                  backgroundColor: Color(0xFFEAF8EF),
-                  child: Icon(
-                    Icons.phone_outlined,
-                    color: Color(0xFF16C35B),
-                  ),
-                ),
-                title: Text('Continuar com seu celular'),
-                subtitle: Text(
-                  'Escolha onde receber o codigo: SMS, WhatsApp ou email.',
-                ),
-              ),
-              const SizedBox(height: 18),
-              _PhoneNumberInputField(
-                onChanged: customerAuthenticationController.changePhoneNumber,
-              ),
-              const SizedBox(height: 16),
-              _VerificationChannelSelector(
-                selectedChannel: authenticationState.verificationChannel,
-                onChanged:
-                    customerAuthenticationController.changeVerificationChannel,
-              ),
-              if (authenticationState.emailAddressRequired) ...[
-                const SizedBox(height: 16),
-                _EmailAddressInputField(
-                  onChanged:
-                      customerAuthenticationController.changeEmailAddress,
-                ),
-              ],
-              if (authenticationState.errorMessage != null) ...[
-                const SizedBox(height: 10),
-                Text(
-                  authenticationState.errorMessage!,
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
-                ),
-              ],
-              const SizedBox(height: 18),
-              FilledButton.icon(
-                key: const ValueKey('request-code-button'),
-                onPressed: customerAuthenticationController
-                    .requestVerificationCodeAsync,
-                icon: const Icon(Icons.arrow_forward_rounded),
-                label: const Text('Continuar'),
-              ),
-              const SizedBox(height: 22),
-              const Row(
-                children: [
-                  Expanded(child: Divider()),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 14),
-                    child: Text(
-                      'ou continue com',
-                      style: TextStyle(color: Color(0xFF8B99AB), fontSize: 15),
-                    ),
-                  ),
-                  Expanded(child: Divider()),
-                ],
-              ),
-              const SizedBox(height: 18),
-              const _SocialProviderButton(
-                icon: Icons.g_mobiledata_rounded,
-                label: 'Continuar com Google',
-              ),
-              const SizedBox(height: 12),
-              const _SocialProviderButton(
-                icon: Icons.apple_rounded,
-                label: 'Continuar com Apple',
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 22),
-        const _OnboardingCallout(),
-        const SizedBox(height: 22),
-        const Wrap(
-          spacing: 12,
-          runSpacing: 12,
-          children: [
-            _TrustBadge(
-              icon: Icons.location_on_outlined,
-              text: 'Profissionais da sua regiao',
-            ),
-            _TrustBadge(
-              icon: Icons.verified_user_outlined,
-              text: 'Avaliados e verificados',
-            ),
-            _TrustBadge(
-              icon: Icons.bolt_rounded,
-              text: 'Resposta rapida e pratica',
-            ),
-          ],
-        ),
-        const SizedBox(height: 22),
-        const Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: EdgeInsets.only(top: 2),
-              child: Icon(
-                Icons.lock_outline_rounded,
-                color: Color(0xFF7D8FA8),
-              ),
-            ),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Ao continuar, voce concorda com os Termos de Uso e nossa Politica de Privacidade.',
-                style: TextStyle(
-                  color: Color(0xFF6A7D96),
-                  fontSize: 16,
-                  height: 1.5,
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _CodeVerificationStep extends StatelessWidget {
-  const _CodeVerificationStep({
-    required this.customerAuthenticationController,
-    required this.authenticationState,
+class _AuthenticationCard extends StatelessWidget {
+  const _AuthenticationCard({
+    required this.controller,
+    required this.state,
     required this.onAuthenticationCompleted,
   });
 
-  final CustomerAuthenticationController customerAuthenticationController;
-  final CustomerAuthenticationState authenticationState;
+  final CustomerAuthenticationController controller;
+  final CustomerAuthenticationState state;
   final ValueChanged<String>? onAuthenticationCompleted;
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: const Color(0xFFE4EBF2)),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x140E223D),
+            blurRadius: 24,
+            offset: Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          if (state.mode == CustomerAuthenticationMode.signIn ||
+              state.mode == CustomerAuthenticationMode.signUp) ...[
+            _AuthenticationModeSelector(controller: controller, state: state),
+            const SizedBox(height: 20),
+          ],
+          if (state.mode == CustomerAuthenticationMode.signIn)
+            _SignInForm(
+              controller: controller,
+              state: state,
+              onAuthenticationCompleted: onAuthenticationCompleted,
+            )
+          else if (state.mode == CustomerAuthenticationMode.signUp)
+            _SignUpForm(
+              controller: controller,
+              state: state,
+              onAuthenticationCompleted: onAuthenticationCompleted,
+            )
+          else if (state.mode ==
+              CustomerAuthenticationMode.passwordRecoveryRequest)
+            _RecoveryRequestForm(controller: controller, state: state)
+          else
+            _RecoveryResetForm(controller: controller, state: state),
+          if (state.errorMessage != null) ...[
+            const SizedBox(height: 14),
+            _FeedbackMessage(
+              icon: Icons.error_outline_rounded,
+              message: state.errorMessage!,
+              color: Theme.of(context).colorScheme.error,
+            ),
+          ],
+          if (state.statusMessage != null) ...[
+            const SizedBox(height: 14),
+            _FeedbackMessage(
+              icon: Icons.info_outline_rounded,
+              message: state.statusMessage!,
+              color: const Color(0xFF176B3A),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _AuthenticationModeSelector extends StatelessWidget {
+  const _AuthenticationModeSelector({
+    required this.controller,
+    required this.state,
+  });
+
+  final CustomerAuthenticationController controller;
+  final CustomerAuthenticationState state;
+
+  @override
+  Widget build(BuildContext context) {
+    return SegmentedButton<CustomerAuthenticationMode>(
+      showSelectedIcon: false,
+      segments: const [
+        ButtonSegment(
+          value: CustomerAuthenticationMode.signIn,
+          label: Text(
+            'Entrar',
+            key: ValueKey('sign-in-mode-button'),
+          ),
+          icon: Icon(Icons.login_rounded),
+        ),
+        ButtonSegment(
+          value: CustomerAuthenticationMode.signUp,
+          label: Text(
+            'Criar conta',
+            key: ValueKey('sign-up-mode-button'),
+          ),
+          icon: Icon(Icons.person_add_alt_1_rounded),
+        ),
+      ],
+      selected: {state.mode},
+      onSelectionChanged: state.loading
+          ? null
+          : (selection) => controller.selectMode(selection.single),
+    );
+  }
+}
+
+class _SignInForm extends StatelessWidget {
+  const _SignInForm({
+    required this.controller,
+    required this.state,
+    required this.onAuthenticationCompleted,
+  });
+
+  final CustomerAuthenticationController controller;
+  final CustomerAuthenticationState state;
+  final ValueChanged<String>? onAuthenticationCompleted;
+
+  @override
+  Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          'Verifique seu numero',
-          textAlign: TextAlign.center,
-          style: textTheme.displaySmall?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF13243C),
+        const _FormTitle(
+          icon: Icons.lock_open_rounded,
+          title: 'Acesse sua conta',
+          subtitle: 'Use seu email e sua senha para continuar.',
+        ),
+        const SizedBox(height: 18),
+        _EmailField(onChanged: controller.changeEmailAddress),
+        const SizedBox(height: 14),
+        _PasswordField(
+          fieldKey: const ValueKey('authentication-password-field'),
+          label: 'Senha',
+          obscureText: state.passwordObscured,
+          visibilityKey: const ValueKey('toggle-password-visibility'),
+          onChanged: controller.changePassword,
+          onToggleVisibility: controller.togglePasswordVisibility,
+        ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: TextButton(
+            onPressed: state.loading ? null : controller.openPasswordRecovery,
+            child: const Text('Esqueci minha senha'),
+          ),
+        ),
+        const SizedBox(height: 4),
+        _PrimaryActionButton(
+          key: const ValueKey('sign-in-button'),
+          loading: state.loading,
+          icon: Icons.arrow_forward_rounded,
+          label: 'Entrar',
+          onPressed: () async {
+            final accepted = await controller.signIn();
+            if (accepted) {
+              onAuthenticationCompleted?.call(
+                controller.state.authenticatedEmailAddress,
+              );
+            }
+            return accepted;
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class _SignUpForm extends StatelessWidget {
+  const _SignUpForm({
+    required this.controller,
+    required this.state,
+    required this.onAuthenticationCompleted,
+  });
+
+  final CustomerAuthenticationController controller;
+  final CustomerAuthenticationState state;
+  final ValueChanged<String>? onAuthenticationCompleted;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _FormTitle(
+          icon: Icons.person_add_alt_1_rounded,
+          title: 'Crie sua conta',
+          subtitle: 'Cadastre-se somente quando precisar falar com alguém.',
+        ),
+        const SizedBox(height: 18),
+        _TextField(
+          fieldKey: const ValueKey('authentication-full-name-field'),
+          label: 'Nome completo',
+          icon: Icons.person_outline_rounded,
+          textInputAction: TextInputAction.next,
+          autofillHints: const [AutofillHints.name],
+          onChanged: controller.changeFullName,
+        ),
+        const SizedBox(height: 14),
+        _TextField(
+          fieldKey: const ValueKey('authentication-phone-field'),
+          label: 'Celular',
+          hintText: '(51) 9 9999-9999',
+          icon: Icons.phone_outlined,
+          keyboardType: TextInputType.phone,
+          textInputAction: TextInputAction.next,
+          autofillHints: const [AutofillHints.telephoneNumber],
+          onChanged: controller.changePhoneNumber,
+        ),
+        const SizedBox(height: 6),
+        const Text(
+          'Celular não verificado',
+          style: TextStyle(
+            color: Color(0xFF6A7D96),
+            fontSize: 13,
           ),
         ),
         const SizedBox(height: 14),
-        Text(
-          'Enviamos um codigo de 4 digitos por ${authenticationState.verificationChannelDisplayName} para',
-          textAlign: TextAlign.center,
-          style: textTheme.titleLarge?.copyWith(
-            color: const Color(0xFF6A7D96),
-            height: 1.45,
-          ),
+        _EmailField(onChanged: controller.changeEmailAddress),
+        const SizedBox(height: 14),
+        _PasswordField(
+          fieldKey: const ValueKey('authentication-password-field'),
+          label: 'Senha',
+          obscureText: state.passwordObscured,
+          visibilityKey: const ValueKey('toggle-password-visibility'),
+          onChanged: controller.changePassword,
+          onToggleVisibility: controller.togglePasswordVisibility,
         ),
-        const SizedBox(height: 6),
-        Text(
-          authenticationState.verificationDestination,
-          textAlign: TextAlign.center,
-          style: textTheme.headlineSmall?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF16C35B),
-          ),
+        const SizedBox(height: 14),
+        _PasswordField(
+          fieldKey:
+              const ValueKey('authentication-password-confirmation-field'),
+          label: 'Confirmar senha',
+          obscureText: state.passwordConfirmationObscured,
+          visibilityKey:
+              const ValueKey('toggle-password-confirmation-visibility'),
+          onChanged: controller.changePasswordConfirmation,
+          onToggleVisibility: controller.togglePasswordConfirmationVisibility,
         ),
-        const SizedBox(height: 28),
-        _VerificationCodeBoxes(
-          verificationCode: authenticationState.verificationCode,
-        ),
-        Opacity(
-          opacity: 0.02,
-          child: SizedBox(
-            height: 1,
-            child: TextField(
-              key: const ValueKey('verification-code-field'),
-              keyboardType: TextInputType.number,
-              maxLength: 4,
-              decoration: const InputDecoration(
-                border: InputBorder.none,
-                counterText: '',
-              ),
-              onChanged:
-                  customerAuthenticationController.changeVerificationCode,
-            ),
-          ),
-        ),
-        const SizedBox(height: 18),
-        TextButton.icon(
-          key: const ValueKey('edit-phone-button'),
-          onPressed: customerAuthenticationController.editPhoneNumber,
-          icon: const Icon(Icons.edit_outlined),
-          label: const Text('Editar numero'),
+        const SizedBox(height: 8),
+        const Text(
+          'Use pelo menos 12 caracteres. Senhas longas e gerenciadores são bem-vindos.',
+          style: TextStyle(color: Color(0xFF6A7D96), height: 1.35),
         ),
         const SizedBox(height: 10),
-        Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: const Color(0xFFF5FBF7),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: const Color(0xFFD4EFDE)),
-          ),
-          child: const Row(
+        Semantics(
+          label: 'Aceitar Termos de Uso e Política de Privacidade',
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                radius: 24,
-                backgroundColor: Color(0xFFEAF8EF),
-                child: Icon(
-                  Icons.verified_user_outlined,
-                  color: Color(0xFF16C35B),
-                ),
+              Checkbox(
+                value: state.legalTermsAccepted,
+                onChanged: state.loading
+                    ? null
+                    : (value) =>
+                        controller.changeLegalTermsAccepted(value ?? false),
               ),
-              SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'Em homologacao, o envio pode ser simulado. Em producao, use o canal escolhido para receber o codigo antes de falar com um profissional.',
-                  style: TextStyle(
-                    color: Color(0xFF51657F),
-                    fontSize: 16,
-                    height: 1.5,
+              const SizedBox(width: 6),
+              const Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: Text(
+                    'Li e aceito os Termos de Uso e a Política de Privacidade.',
                   ),
                 ),
               ),
             ],
           ),
         ),
-        const SizedBox(height: 24),
-        const Divider(height: 1),
-        const SizedBox(height: 20),
-        const Text(
-          'Nao recebeu o codigo?',
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            color: Color(0xFF13243C),
-            fontSize: 18,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
         const SizedBox(height: 8),
-        TextButton(
-          key: const ValueKey('resend-code-button'),
-          onPressed: customerAuthenticationController.resendVerificationCode,
-          child: Text(
-            authenticationState.resendCount == 0
-                ? 'Reenviar codigo'
-                : 'Reenviar novamente',
-          ),
-        ),
-        if (authenticationState.statusMessage != null) ...[
-          const SizedBox(height: 6),
-          Text(
-            authenticationState.statusMessage!,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Color(0xFF73839B),
-              fontSize: 15,
-            ),
-          ),
-        ],
-        if (authenticationState.errorMessage != null) ...[
-          const SizedBox(height: 8),
-          Text(
-            authenticationState.errorMessage!,
-            textAlign: TextAlign.center,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
-          ),
-        ],
-        const SizedBox(height: 18),
-        FilledButton.icon(
-          key: const ValueKey('confirm-code-button'),
+        _PrimaryActionButton(
+          key: const ValueKey('sign-up-button'),
+          loading: state.loading,
+          icon: Icons.person_add_alt_1_rounded,
+          label: 'Criar conta',
           onPressed: () async {
-            final verificationAccepted = await customerAuthenticationController
-                .confirmVerificationCodeAsync();
-            if (verificationAccepted) {
+            final accepted = await controller.signUp();
+            if (accepted) {
               onAuthenticationCompleted?.call(
-                customerAuthenticationController.state.normalizedPhoneNumber,
+                controller.state.authenticatedEmailAddress,
               );
             }
+            return accepted;
           },
-          icon: const Icon(Icons.arrow_forward_rounded),
-          label: const Text('Confirmar'),
         ),
-        const SizedBox(height: 24),
-        const _SecurityCallout(),
       ],
     );
   }
 }
 
-class _BrandHeader extends StatelessWidget {
-  const _BrandHeader({
-    required this.colorScheme,
+class _RecoveryRequestForm extends StatelessWidget {
+  const _RecoveryRequestForm({
+    required this.controller,
+    required this.state,
   });
 
-  final ColorScheme colorScheme;
+  final CustomerAuthenticationController controller;
+  final CustomerAuthenticationState state;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CircleAvatar(
-          radius: 28,
-          backgroundColor: colorScheme.primary,
-          child: const Icon(
-            Icons.verified_rounded,
-            color: Colors.white,
-            size: 30,
-          ),
+        const _FormTitle(
+          icon: Icons.mark_email_read_outlined,
+          title: 'Recuperar acesso',
+          subtitle:
+              'Informe seu email. A resposta será a mesma exista ou não uma conta.',
         ),
-        const SizedBox(width: 14),
-        const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'ache',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF13243C),
-              ),
-            ),
-            Text(
-              'profissional',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: Color(0xFF16C35B),
-              ),
-            ),
-          ],
+        const SizedBox(height: 18),
+        _EmailField(onChanged: controller.changeEmailAddress),
+        const SizedBox(height: 18),
+        _PrimaryActionButton(
+          key: const ValueKey('request-recovery-button'),
+          loading: state.loading,
+          icon: Icons.send_outlined,
+          label: 'Enviar instruções',
+          onPressed: controller.requestRecovery,
+        ),
+        TextButton.icon(
+          onPressed: state.loading
+              ? null
+              : () => controller.selectMode(CustomerAuthenticationMode.signIn),
+          icon: const Icon(Icons.arrow_back_rounded),
+          label: const Text('Voltar para entrar'),
         ),
       ],
     );
   }
 }
 
-class _PhoneNumberInputField extends StatelessWidget {
-  const _PhoneNumberInputField({
-    required this.onChanged,
+class _RecoveryResetForm extends StatelessWidget {
+  const _RecoveryResetForm({
+    required this.controller,
+    required this.state,
   });
 
-  final ValueChanged<String> onChanged;
+  final CustomerAuthenticationController controller;
+  final CustomerAuthenticationState state;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: const Color(0xFFD9E3EE)),
-      ),
-      child: Row(
-        children: [
-          const Text(
-            '🇧🇷',
-            style: TextStyle(fontSize: 24),
-          ),
-          const SizedBox(width: 10),
-          const Text(
-            '+55',
-            style: TextStyle(
-              color: Color(0xFF13243C),
-              fontSize: 18,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            width: 1,
-            height: 26,
-            color: const Color(0xFFDCE4EE),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: TextField(
-              key: const ValueKey('customer-phone-field'),
-              keyboardType: TextInputType.phone,
-              decoration: const InputDecoration(
-                hintText: '(11) 9 9999-9999',
-                border: InputBorder.none,
-              ),
-              onChanged: onChanged,
-            ),
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const _FormTitle(
+          icon: Icons.password_rounded,
+          title: 'Definir nova senha',
+          subtitle: 'Use o código recebido por email e escolha uma nova senha.',
+        ),
+        const SizedBox(height: 18),
+        _TextField(
+          fieldKey: const ValueKey('recovery-token-field'),
+          label: 'Código de recuperação',
+          icon: Icons.key_rounded,
+          textCapitalization: TextCapitalization.characters,
+          textInputAction: TextInputAction.next,
+          onChanged: controller.changeRecoveryToken,
+        ),
+        const SizedBox(height: 14),
+        _PasswordField(
+          fieldKey: const ValueKey('authentication-password-field'),
+          label: 'Nova senha',
+          obscureText: state.passwordObscured,
+          visibilityKey: const ValueKey('toggle-password-visibility'),
+          onChanged: controller.changePassword,
+          onToggleVisibility: controller.togglePasswordVisibility,
+        ),
+        const SizedBox(height: 14),
+        _PasswordField(
+          fieldKey:
+              const ValueKey('authentication-password-confirmation-field'),
+          label: 'Confirmar nova senha',
+          obscureText: state.passwordConfirmationObscured,
+          visibilityKey:
+              const ValueKey('toggle-password-confirmation-visibility'),
+          onChanged: controller.changePasswordConfirmation,
+          onToggleVisibility: controller.togglePasswordConfirmationVisibility,
+        ),
+        const SizedBox(height: 18),
+        _PrimaryActionButton(
+          key: const ValueKey('reset-password-button'),
+          loading: state.loading,
+          icon: Icons.check_rounded,
+          label: 'Alterar senha',
+          onPressed: controller.completePasswordReset,
+        ),
+        TextButton(
+          onPressed: state.loading ? null : controller.openPasswordRecovery,
+          child: const Text('Solicitar novo código'),
+        ),
+      ],
     );
   }
 }
 
-class _EmailAddressInputField extends StatelessWidget {
-  const _EmailAddressInputField({
+class _TextField extends StatelessWidget {
+  const _TextField({
+    required this.fieldKey,
+    required this.label,
+    required this.icon,
     required this.onChanged,
+    this.hintText,
+    this.keyboardType,
+    this.textInputAction,
+    this.textCapitalization = TextCapitalization.none,
+    this.autofillHints,
   });
 
+  final Key fieldKey;
+  final String label;
+  final String? hintText;
+  final IconData icon;
   final ValueChanged<String> onChanged;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+  final TextCapitalization textCapitalization;
+  final Iterable<String>? autofillHints;
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      key: const ValueKey('customer-email-field'),
-      keyboardType: TextInputType.emailAddress,
+      key: fieldKey,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      textCapitalization: textCapitalization,
+      autofillHints: autofillHints,
       decoration: InputDecoration(
-        prefixIcon: const Icon(Icons.alternate_email_rounded),
-        hintText: 'voce@email.com',
-        labelText: 'Email para receber o codigo',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(22)),
+        labelText: label,
+        hintText: hintText,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
       ),
       onChanged: onChanged,
     );
   }
 }
 
-class _VerificationChannelSelector extends StatelessWidget {
-  const _VerificationChannelSelector({
-    required this.selectedChannel,
-    required this.onChanged,
-  });
+class _EmailField extends StatelessWidget {
+  const _EmailField({required this.onChanged});
 
-  final CustomerAuthenticationVerificationChannel selectedChannel;
-  final ValueChanged<CustomerAuthenticationVerificationChannel> onChanged;
+  final ValueChanged<String> onChanged;
 
   @override
   Widget build(BuildContext context) {
-    return SegmentedButton<CustomerAuthenticationVerificationChannel>(
-      showSelectedIcon: false,
-      segments: const [
-        ButtonSegment(
-          value: CustomerAuthenticationVerificationChannel.sms,
-          icon: Icon(Icons.sms_outlined),
-          label: Text('SMS'),
+    return _TextField(
+      fieldKey: const ValueKey('authentication-email-field'),
+      label: 'Email',
+      hintText: 'voce@email.com',
+      icon: Icons.alternate_email_rounded,
+      keyboardType: TextInputType.emailAddress,
+      textInputAction: TextInputAction.next,
+      autofillHints: const [AutofillHints.email],
+      onChanged: onChanged,
+    );
+  }
+}
+
+class _PasswordField extends StatelessWidget {
+  const _PasswordField({
+    required this.fieldKey,
+    required this.label,
+    required this.obscureText,
+    required this.visibilityKey,
+    required this.onChanged,
+    required this.onToggleVisibility,
+  });
+
+  final Key fieldKey;
+  final String label;
+  final bool obscureText;
+  final Key visibilityKey;
+  final ValueChanged<String> onChanged;
+  final VoidCallback onToggleVisibility;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      key: fieldKey,
+      obscureText: obscureText,
+      enableSuggestions: false,
+      autocorrect: false,
+      autofillHints: const [AutofillHints.password],
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: const Icon(Icons.lock_outline_rounded),
+        suffixIcon: IconButton(
+          key: visibilityKey,
+          tooltip: obscureText ? 'Mostrar senha' : 'Ocultar senha',
+          onPressed: onToggleVisibility,
+          icon: Icon(
+            obscureText
+                ? Icons.visibility_outlined
+                : Icons.visibility_off_outlined,
+          ),
         ),
-        ButtonSegment(
-          value: CustomerAuthenticationVerificationChannel.whatsapp,
-          icon: Icon(Icons.chat_outlined),
-          label: Text('WhatsApp'),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
+      ),
+      onChanged: onChanged,
+    );
+  }
+}
+
+class _PrimaryActionButton extends StatelessWidget {
+  const _PrimaryActionButton({
+    super.key,
+    required this.loading,
+    required this.icon,
+    required this.label,
+    required this.onPressed,
+  });
+
+  final bool loading;
+  final IconData icon;
+  final String label;
+  final Future<bool> Function() onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return FilledButton.icon(
+      onPressed: loading ? null : onPressed,
+      icon: loading
+          ? const SizedBox.square(
+              dimension: 18,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : Icon(icon),
+      label: Text(loading ? 'Aguarde...' : label),
+    );
+  }
+}
+
+class _FormTitle extends StatelessWidget {
+  const _FormTitle({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(
+          radius: 25,
+          backgroundColor: const Color(0xFFEAF8EF),
+          child: Icon(icon, color: const Color(0xFF16C35B)),
         ),
-        ButtonSegment(
-          value: CustomerAuthenticationVerificationChannel.email,
-          icon: Icon(Icons.alternate_email_rounded),
-          label: Text('Email'),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  color: Color(0xFF13243C),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  color: Color(0xFF6A7D96),
+                  height: 1.35,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
-      selected: {selectedChannel},
-      onSelectionChanged: (channels) => onChanged(channels.single),
+    );
+  }
+}
+
+class _FeedbackMessage extends StatelessWidget {
+  const _FeedbackMessage({
+    required this.icon,
+    required this.message,
+    required this.color,
+  });
+
+  final IconData icon;
+  final String message;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      liveRegion: true,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: TextStyle(color: color, height: 1.35),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _BrandHeader extends StatelessWidget {
+  const _BrandHeader();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        CircleAvatar(
+          radius: 28,
+          backgroundColor: Color(0xFF16C35B),
+          child: Icon(Icons.verified_rounded, color: Colors.white, size: 30),
+        ),
+        SizedBox(width: 14),
+        Flexible(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'profissional',
+                  style: TextStyle(
+                    fontSize: 21,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF13243C),
+                  ),
+                ),
+              ),
+              Text(
+                'perto',
+                style: TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF16C35B),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _HeroCopy extends StatelessWidget {
+  const _HeroCopy();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        RichText(
+          textAlign: TextAlign.center,
+          text: TextSpan(
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: const Color(0xFF13243C),
+                  height: 1.12,
+                ),
+            children: const [
+              TextSpan(text: 'Encontre profissionais\n'),
+              TextSpan(
+                text: 'perto de você',
+                style: TextStyle(color: Color(0xFF16C35B)),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        const Text(
+          'Acesse sua conta somente quando precisar falar com um profissional.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: Color(0xFF6A7D96), height: 1.45),
+        ),
+      ],
     );
   }
 }
@@ -576,7 +764,7 @@ class _RegionChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Align(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: const Color(0xFFF0FBF4),
           borderRadius: BorderRadius.circular(999),
@@ -585,192 +773,18 @@ class _RegionChip extends StatelessWidget {
         child: const Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              Icons.location_on_rounded,
-              color: Color(0xFF16C35B),
-            ),
-            SizedBox(width: 10),
-            Text(
-              'Sua regiao: Charqueadas e arredores',
-              style: TextStyle(
-                color: Color(0xFF2E6A4F),
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+            Icon(Icons.location_on_rounded, color: Color(0xFF16C35B)),
+            SizedBox(width: 8),
+            Flexible(
+              child: Text(
+                'Sua região: Charqueadas e arredores',
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: Color(0xFF2E6A4F)),
               ),
-            ),
-            SizedBox(width: 10),
-            Icon(
-              Icons.keyboard_arrow_down_rounded,
-              color: Color(0xFF2E6A4F),
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _SocialProviderButton extends StatelessWidget {
-  const _SocialProviderButton({
-    required this.icon,
-    required this.label,
-  });
-
-  final IconData icon;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return OutlinedButton.icon(
-      onPressed: () {},
-      style: OutlinedButton.styleFrom(
-        minimumSize: const Size.fromHeight(58),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
-      ),
-      icon: Icon(icon),
-      label: Text(label),
-    );
-  }
-}
-
-class _OnboardingCallout extends StatelessWidget {
-  const _OnboardingCallout();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5FBF7),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: const Color(0xFFD4EFDE)),
-      ),
-      child: const Row(
-        children: [
-          CircleAvatar(
-            radius: 34,
-            backgroundColor: Colors.white,
-            child: Icon(
-              Icons.groups_rounded,
-              color: Color(0xFF16C35B),
-              size: 34,
-            ),
-          ),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Cadastre-se apenas quando for falar com um profissional',
-                  style: TextStyle(
-                    color: Color(0xFF13243C),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    height: 1.35,
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Sua conta e criada so na hora do contato. Sem pressao, do seu jeito.',
-                  style: TextStyle(
-                    color: Color(0xFF5E738E),
-                    fontSize: 16,
-                    height: 1.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _TrustBadge extends StatelessWidget {
-  const _TrustBadge({
-    required this.icon,
-    required this.text,
-  });
-
-  final IconData icon;
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 164,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CircleAvatar(
-            radius: 22,
-            backgroundColor: const Color(0xFFEAF8EF),
-            child: Icon(icon, color: const Color(0xFF16C35B)),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              text,
-              style: const TextStyle(
-                color: Color(0xFF2F445F),
-                fontSize: 15,
-                height: 1.35,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _VerificationCodeBoxes extends StatelessWidget {
-  const _VerificationCodeBoxes({
-    required this.verificationCode,
-  });
-
-  final String verificationCode;
-
-  @override
-  Widget build(BuildContext context) {
-    final digits = verificationCode.padRight(4).split('');
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        for (var index = 0; index < 4; index++)
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(right: index == 3 ? 0 : 12),
-              child: Container(
-                height: 112,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(26),
-                  border: Border.all(
-                    color: index == verificationCode.length
-                        ? const Color(0xFF16C35B)
-                        : const Color(0xFFDCE4EE),
-                    width: index == verificationCode.length ? 2 : 1,
-                  ),
-                ),
-                child: Center(
-                  child: Text(
-                    digits[index].trim().isEmpty ? '' : digits[index],
-                    style: const TextStyle(
-                      color: Color(0xFF13243C),
-                      fontSize: 34,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-      ],
     );
   }
 }
@@ -781,28 +795,20 @@ class _SecurityCallout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(18),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: const Color(0xFFF5FBF7),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(20),
         border: Border.all(color: const Color(0xFFD4EFDE)),
       ),
       child: const Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            Icons.verified_user_outlined,
-            color: Color(0xFF16C35B),
-          ),
-          SizedBox(width: 8),
+          Icon(Icons.verified_user_outlined, color: Color(0xFF16C35B)),
+          SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Usamos criptografia para manter seus dados seguros e protegidos.',
-              style: TextStyle(
-                color: Color(0xFF2F445F),
-                fontSize: 16,
-                height: 1.45,
-              ),
+              'Sua senha é protegida e nunca deve ser compartilhada.',
+              style: TextStyle(color: Color(0xFF2F445F), height: 1.4),
             ),
           ),
         ],
@@ -811,45 +817,54 @@ class _SecurityCallout extends StatelessWidget {
   }
 }
 
-class _AuthenticatedStep extends StatelessWidget {
-  const _AuthenticatedStep({
-    required this.authenticationState,
-  });
+class _LegalFooter extends StatelessWidget {
+  const _LegalFooter();
 
-  final CustomerAuthenticationState authenticationState;
+  @override
+  Widget build(BuildContext context) {
+    return const Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.lock_outline_rounded, color: Color(0xFF7D8FA8)),
+        SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            'Seus dados são usados conforme os Termos de Uso e a Política de Privacidade.',
+            style: TextStyle(color: Color(0xFF6A7D96), height: 1.45),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _AuthenticatedContent extends StatelessWidget {
+  const _AuthenticatedContent({required this.state});
+
+  final CustomerAuthenticationState state;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        const SizedBox(height: 36),
+        const SizedBox(height: 40),
         const CircleAvatar(
-          radius: 74,
+          radius: 62,
           backgroundColor: Color(0xFFEAF8EF),
-          child: Icon(
-            Icons.check_rounded,
-            size: 82,
-            color: Color(0xFF16C35B),
-          ),
+          child: Icon(Icons.check_rounded, size: 70, color: Color(0xFF16C35B)),
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 24),
         Text(
-          'Telefone verificado',
+          'Conta autenticada',
           style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                 color: const Color(0xFF13243C),
                 fontWeight: FontWeight.w700,
               ),
-          textAlign: TextAlign.center,
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Text(
-          authenticationState.displayPhoneNumber,
-          style: const TextStyle(
-            color: Color(0xFF16C35B),
-            fontSize: 22,
-            fontWeight: FontWeight.w600,
-          ),
-          textAlign: TextAlign.center,
+          state.authenticatedEmailAddress,
+          style: const TextStyle(color: Color(0xFF16C35B), fontSize: 18),
         ),
       ],
     );

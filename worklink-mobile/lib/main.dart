@@ -95,7 +95,6 @@ class WorkLinkApp extends StatefulWidget {
 
 class _WorkLinkAppState extends State<WorkLinkApp> {
   bool customerAuthenticated = false;
-  String customerPhoneNumber = '(51) 9 9999-9999';
   CustomerProfileState? customerProfileState;
   List<PostContactFeedbackRequest> pendingPostContactFeedbackRequests =
       const [];
@@ -225,11 +224,9 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
             builder: (authenticationContext) => CustomerAuthenticationScreen(
               customerAuthenticationController:
                   _buildCustomerAuthenticationController(),
-              onAuthenticationCompleted: (authenticatedPhoneNumber) {
+              onAuthenticationCompleted: (_) {
                 setState(() {
                   customerAuthenticated = true;
-                  customerPhoneNumber =
-                      _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
                 });
                 unawaited(_refreshPendingPostContactFeedbackRequests());
                 Navigator.of(authenticationContext).pop();
@@ -274,11 +271,9 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
             builder: (authenticationContext) => CustomerAuthenticationScreen(
               customerAuthenticationController:
                   _buildCustomerAuthenticationController(),
-              onAuthenticationCompleted: (authenticatedPhoneNumber) {
+              onAuthenticationCompleted: (_) {
                 setState(() {
                   customerAuthenticated = true;
-                  customerPhoneNumber =
-                      _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
                 });
                 unawaited(_refreshPendingPostContactFeedbackRequests());
                 Navigator.of(authenticationContext).pop();
@@ -327,17 +322,29 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
               return persistedCustomerProfileState;
             },
           ),
-          onLogout: () {
-            setState(() {
-              customerAuthenticated = false;
-              customerProfileState = null;
-              pendingPostContactFeedbackRequests = const [];
-            });
-            Navigator.of(profileContext).pop();
-          },
+          onLogout: () => unawaited(_logoutCustomer(profileContext)),
         ),
       ),
     );
+  }
+
+  Future<void> _logoutCustomer(BuildContext profileContext) async {
+    try {
+      await widget.applicationGateway.logout();
+    } catch (_) {
+      // A sessão local deve ser encerrada mesmo quando a revogação remota falhar.
+    }
+    if (!mounted) {
+      return;
+    }
+    setState(() {
+      customerAuthenticated = false;
+      customerProfileState = null;
+      pendingPostContactFeedbackRequests = const [];
+    });
+    if (profileContext.mounted) {
+      Navigator.of(profileContext).pop();
+    }
   }
 
   Future<void> _openAdministrativeConsole(BuildContext context) async {
@@ -369,18 +376,12 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
 
   CustomerAuthenticationController _buildCustomerAuthenticationController() {
     return CustomerAuthenticationController(
-      requestCustomerAuthenticationCode: ({
-        required phoneNumber,
-        required verificationChannel,
-        emailAddress,
-      }) =>
-          widget.applicationGateway.requestCustomerAuthenticationCode(
-        phoneNumber,
-        verificationChannel: verificationChannel,
-        emailAddress: emailAddress,
-      ),
-      confirmCustomerAuthenticationCode:
-          widget.applicationGateway.confirmCustomerAuthenticationCode,
+      authenticateWithEmailAndPassword:
+          widget.applicationGateway.authenticateWithEmailAndPassword,
+      registerLocalAccount: widget.applicationGateway.registerLocalAccount,
+      requestPasswordRecovery:
+          widget.applicationGateway.requestPasswordRecovery,
+      resetPassword: widget.applicationGateway.resetPassword,
     );
   }
 
@@ -442,19 +443,6 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
     );
   }
 
-  String _formatAuthenticatedPhoneNumber(String phoneNumber) {
-    if (phoneNumber.length == 11) {
-      return '(${phoneNumber.substring(0, 2)}) '
-          '${phoneNumber.substring(2, 3)} '
-          '${phoneNumber.substring(3, 7)}-${phoneNumber.substring(7)}';
-    }
-    if (phoneNumber.length == 10) {
-      return '(${phoneNumber.substring(0, 2)}) '
-          '${phoneNumber.substring(2, 6)}-${phoneNumber.substring(6)}';
-    }
-    return phoneNumber;
-  }
-
   bool _isProfessionalSavedByCustomer(String professionalIdentifier) {
     return customerProfileState?.savedProfessionals.any(
           (savedProfessional) =>
@@ -501,11 +489,9 @@ class _WorkLinkAppState extends State<WorkLinkApp> {
         builder: (authenticationContext) => CustomerAuthenticationScreen(
           customerAuthenticationController:
               _buildCustomerAuthenticationController(),
-          onAuthenticationCompleted: (authenticatedPhoneNumber) {
+          onAuthenticationCompleted: (_) {
             setState(() {
               customerAuthenticated = true;
-              customerPhoneNumber =
-                  _formatAuthenticatedPhoneNumber(authenticatedPhoneNumber);
             });
             unawaited(_refreshPendingPostContactFeedbackRequests());
             authenticationCompleter.complete(true);

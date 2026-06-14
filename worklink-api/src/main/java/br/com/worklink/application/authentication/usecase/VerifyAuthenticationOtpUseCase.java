@@ -30,6 +30,7 @@ public class VerifyAuthenticationOtpUseCase {
     private final ProtectSensitiveValuePort protectSensitiveValuePort;
     private final CurrentTimePort currentTimePort;
     private final AuthenticationSessionTokenFactory authenticationSessionTokenFactory;
+    private final boolean enabled;
 
     public VerifyAuthenticationOtpUseCase(
             LoadActiveAuthenticationOtpChallengePort loadActiveAuthenticationOtpChallengePort,
@@ -42,6 +43,27 @@ public class VerifyAuthenticationOtpUseCase {
             GenerateSecureTokenPort generateSecureTokenPort,
             SaveRefreshSessionPort saveRefreshSessionPort,
             Duration refreshTokenDuration
+    ) {
+        this(
+                loadActiveAuthenticationOtpChallengePort, updateAuthenticationOtpChallengePort,
+                loadCustomerAccountByPhoneNumberPort, saveCustomerAccountPort, protectSensitiveValuePort,
+                currentTimePort, issueAccessTokenPort, generateSecureTokenPort, saveRefreshSessionPort,
+                refreshTokenDuration, true
+        );
+    }
+
+    public VerifyAuthenticationOtpUseCase(
+            LoadActiveAuthenticationOtpChallengePort loadActiveAuthenticationOtpChallengePort,
+            UpdateAuthenticationOtpChallengePort updateAuthenticationOtpChallengePort,
+            LoadCustomerAccountByPhoneNumberPort loadCustomerAccountByPhoneNumberPort,
+            SaveCustomerAccountPort saveCustomerAccountPort,
+            ProtectSensitiveValuePort protectSensitiveValuePort,
+            CurrentTimePort currentTimePort,
+            IssueAccessTokenPort issueAccessTokenPort,
+            GenerateSecureTokenPort generateSecureTokenPort,
+            SaveRefreshSessionPort saveRefreshSessionPort,
+            Duration refreshTokenDuration,
+            boolean enabled
     ) {
         this.loadActiveAuthenticationOtpChallengePort = loadActiveAuthenticationOtpChallengePort;
         this.updateAuthenticationOtpChallengePort = updateAuthenticationOtpChallengePort;
@@ -56,9 +78,13 @@ public class VerifyAuthenticationOtpUseCase {
                 saveRefreshSessionPort,
                 refreshTokenDuration
         );
+        this.enabled = enabled;
     }
 
     public AuthenticationTokenResponse verifyAuthenticationOtp(VerifyAuthenticationOtpRequest request) {
+        if (!enabled) {
+            throw new ApplicationRuleViolationException("A autenticacao por codigo esta indisponivel.");
+        }
         String normalizedPhoneNumber = AuthenticationPhoneNumberNormalizer.normalizePhoneNumber(request.phoneNumber());
         Instant currentInstant = currentTimePort.currentInstant();
         AuthenticationOtpChallenge authenticationOtpChallenge = loadActiveAuthenticationOtpChallengePort

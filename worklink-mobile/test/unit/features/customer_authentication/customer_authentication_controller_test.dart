@@ -1,366 +1,304 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/features/customer_authentication/customer_authentication_controller.dart';
 import 'package:worklink_mobile/features/customer_authentication/customer_authentication_state.dart';
 
 void main() {
   test(
-      'GIVEN telefone valido WHEN solicitar codigo THEN deve abrir verificacao sem autenticar',
-      () {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-
-    // WHEN
-    customerAuthenticationController.changePhoneNumber('(51) 9 9999-1234');
-    final requestAccepted =
-        customerAuthenticationController.requestVerificationCode();
-
-    // THEN
-    expect(requestAccepted, isTrue);
-    expect(
-      customerAuthenticationController.state.authenticationStep,
-      CustomerAuthenticationStep.codeVerification,
-    );
-    expect(
-      customerAuthenticationController.state.normalizedPhoneNumber,
-      '51999991234',
-    );
-    expect(customerAuthenticationController.state.authenticated, isFalse);
-    expect(
-      customerAuthenticationController.state.statusMessage,
-      'Enviamos um codigo por SMS.',
-    );
-  });
-
-  test(
-      'GIVEN WhatsApp selecionado WHEN solicitar codigo THEN deve manter canal escolhido na verificacao',
-      () {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-
-    // WHEN
-    customerAuthenticationController.changePhoneNumber('(51) 9 9999-1234');
-    customerAuthenticationController.changeVerificationChannel(
-      CustomerAuthenticationVerificationChannel.whatsapp,
-    );
-    final requestAccepted =
-        customerAuthenticationController.requestVerificationCode();
-
-    // THEN
-    expect(requestAccepted, isTrue);
-    expect(
-      customerAuthenticationController.state.verificationChannel,
-      CustomerAuthenticationVerificationChannel.whatsapp,
-    );
-    expect(
-      customerAuthenticationController.state.statusMessage,
-      'Enviamos um codigo por WhatsApp.',
-    );
-  });
-
-  test(
-      'GIVEN email selecionado sem endereco valido WHEN solicitar codigo THEN deve bloquear verificacao',
-      () {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-
-    // WHEN
-    customerAuthenticationController.changePhoneNumber('(51) 9 9999-1234');
-    customerAuthenticationController.changeVerificationChannel(
-      CustomerAuthenticationVerificationChannel.email,
-    );
-    customerAuthenticationController.changeEmailAddress('email-invalido');
-    final requestAccepted =
-        customerAuthenticationController.requestVerificationCode();
-
-    // THEN
-    expect(requestAccepted, isFalse);
-    expect(
-      customerAuthenticationController.state.errorMessage,
-      'Informe um email valido.',
-    );
-  });
-
-  test(
-      'GIVEN email selecionado com endereco valido WHEN solicitar codigo THEN deve mostrar destino email',
-      () {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-
-    // WHEN
-    customerAuthenticationController.changePhoneNumber('(51) 9 9999-1234');
-    customerAuthenticationController.changeVerificationChannel(
-      CustomerAuthenticationVerificationChannel.email,
-    );
-    customerAuthenticationController
-        .changeEmailAddress('Cliente@WorkLink.Test');
-    final requestAccepted =
-        customerAuthenticationController.requestVerificationCode();
-
-    // THEN
-    expect(requestAccepted, isTrue);
-    expect(
-      customerAuthenticationController.state.verificationDestination,
-      'cliente@worklink.test',
-    );
-  });
-
-  test(
-      'GIVEN telefone com codigo do pais WHEN solicitar codigo THEN deve autenticar telefone nacional',
-      () {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-
-    // WHEN
-    customerAuthenticationController.changePhoneNumber('+55 (51) 9 9999-1234');
-    final requestAccepted =
-        customerAuthenticationController.requestVerificationCode();
-
-    // THEN
-    expect(requestAccepted, isTrue);
-    expect(
-      customerAuthenticationController.state.normalizedPhoneNumber,
-      '51999991234',
-    );
-  });
-
-  test(
-      'GIVEN telefone invalido WHEN solicitar codigo THEN deve permanecer na entrada de telefone',
-      () {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-
-    // WHEN
-    customerAuthenticationController.changePhoneNumber('51');
-    final requestAccepted =
-        customerAuthenticationController.requestVerificationCode();
-
-    // THEN
-    expect(requestAccepted, isFalse);
-    expect(
-      customerAuthenticationController.state.authenticationStep,
-      CustomerAuthenticationStep.phoneEntry,
-    );
-    expect(
-      customerAuthenticationController.state.errorMessage,
-      'Informe um telefone valido.',
-    );
-  });
-
-  test(
-      'GIVEN codigo correto WHEN confirmar verificacao THEN deve autenticar cliente',
-      () {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-    customerAuthenticationController.changePhoneNumber('51999991234');
-    customerAuthenticationController.requestVerificationCode();
-
-    // WHEN
-    customerAuthenticationController.changeVerificationCode('1234');
-    final verificationAccepted =
-        customerAuthenticationController.confirmVerificationCode();
-
-    // THEN
-    expect(verificationAccepted, isTrue);
-    expect(customerAuthenticationController.state.authenticated, isTrue);
-    expect(
-      customerAuthenticationController.state.authenticationStep,
-      CustomerAuthenticationStep.authenticated,
-    );
-  });
-
-  test(
-      'GIVEN codigo incorreto WHEN confirmar verificacao THEN deve exibir mensagem generica',
-      () {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-    customerAuthenticationController.changePhoneNumber('51999991234');
-    customerAuthenticationController.requestVerificationCode();
-
-    // WHEN
-    customerAuthenticationController.changeVerificationCode('0000');
-    final verificationAccepted =
-        customerAuthenticationController.confirmVerificationCode();
-
-    // THEN
-    expect(verificationAccepted, isFalse);
-    expect(customerAuthenticationController.state.authenticated, isFalse);
-    expect(
-      customerAuthenticationController.state.errorMessage,
-      'Nao foi possivel concluir a autenticacao.',
-    );
-  });
-
-  test(
-      'GIVEN telefone em verificacao WHEN reenviar codigo THEN deve limpar codigo e manter telefone',
-      () {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-    customerAuthenticationController.changePhoneNumber('51999991234');
-    customerAuthenticationController.requestVerificationCode();
-    customerAuthenticationController.changeVerificationCode('12');
-
-    // WHEN
-    customerAuthenticationController.resendVerificationCode();
-
-    // THEN
-    expect(customerAuthenticationController.state.verificationCode, isEmpty);
-    expect(customerAuthenticationController.state.resendCount, 1);
-    expect(
-      customerAuthenticationController.state.normalizedPhoneNumber,
-      '51999991234',
-    );
-  });
-
-  test(
-      'GIVEN entrada de telefone WHEN reenviar codigo THEN deve ignorar solicitacao fora da verificacao',
-      () {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-    customerAuthenticationController.changePhoneNumber('51999991234');
-
-    // WHEN
-    customerAuthenticationController.resendVerificationCode();
-
-    // THEN
-    expect(customerAuthenticationController.state.resendCount, 0);
-    expect(
-      customerAuthenticationController.state.authenticationStep,
-      CustomerAuthenticationStep.phoneEntry,
-    );
-  });
-
-  test(
-      'GIVEN telefone em verificacao WHEN editar telefone THEN deve voltar para entrada',
-      () {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController();
-    customerAuthenticationController.changePhoneNumber('51999991234');
-    customerAuthenticationController.requestVerificationCode();
-
-    // WHEN
-    customerAuthenticationController.editPhoneNumber();
-
-    // THEN
-    expect(
-      customerAuthenticationController.state.authenticationStep,
-      CustomerAuthenticationStep.phoneEntry,
-    );
-    expect(customerAuthenticationController.state.verificationCode, isEmpty);
-  });
-
-  test(
-      'GIVEN servico remoto WHEN solicitar codigo THEN deve usar telefone normalizado',
+      'GIVEN credenciais validas WHEN entrar THEN deve autenticar email normalizado',
       () async {
-    // GIVEN
-    final requestedPhoneNumbers = <String>[];
-    final requestedChannels = <CustomerAuthenticationVerificationChannel>[];
-    final requestedEmails = <String?>[];
-    final customerAuthenticationController = CustomerAuthenticationController(
-      requestCustomerAuthenticationCode: ({
-        required phoneNumber,
-        required verificationChannel,
-        emailAddress,
+    final calls = <String>[];
+    final controller = CustomerAuthenticationController(
+      authenticateWithEmailAndPassword: ({
+        required emailAddress,
+        required password,
       }) async {
-        requestedPhoneNumbers.add(phoneNumber);
-        requestedChannels.add(verificationChannel);
-        requestedEmails.add(emailAddress);
+        calls.add('$emailAddress:$password');
       },
-    );
+    )
+      ..changeEmailAddress(' Cliente@Exemplo.COM ')
+      ..changePassword('senha-segura-123');
 
-    // WHEN
-    customerAuthenticationController.changePhoneNumber('+55 (51) 9 9999-1234');
-    final requestAccepted =
-        await customerAuthenticationController.requestVerificationCodeAsync();
+    final accepted = await controller.signIn();
 
-    // THEN
-    expect(requestAccepted, isTrue);
-    expect(requestedPhoneNumbers, ['51999991234']);
-    expect(requestedChannels, [CustomerAuthenticationVerificationChannel.sms]);
-    expect(requestedEmails, [null]);
+    expect(accepted, isTrue);
+    expect(calls, ['cliente@exemplo.com:senha-segura-123']);
+    expect(controller.state.authenticated, isTrue);
+    expect(controller.state.authenticatedEmailAddress, 'cliente@exemplo.com');
+  });
+
+  test('GIVEN credencial recusada WHEN entrar THEN deve mostrar erro generico',
+      () async {
+    final controller = CustomerAuthenticationController(
+      authenticateWithEmailAndPassword: ({
+        required emailAddress,
+        required password,
+      }) async {
+        throw StateError('conta inexistente');
+      },
+    )
+      ..changeEmailAddress('cliente@exemplo.com')
+      ..changePassword('senha-segura-123');
+
+    final accepted = await controller.signIn();
+
+    expect(accepted, isFalse);
     expect(
-      customerAuthenticationController.state.authenticationStep,
-      CustomerAuthenticationStep.codeVerification,
+      controller.state.errorMessage,
+      'Não foi possível entrar. Confira seus dados e tente novamente.',
     );
+  });
+
+  test('GIVEN login pendente WHEN aguardar backend THEN deve expor loading',
+      () async {
+    final completer = Completer<void>();
+    final controller = CustomerAuthenticationController(
+      authenticateWithEmailAndPassword: ({
+        required emailAddress,
+        required password,
+      }) =>
+          completer.future,
+    )
+      ..changeEmailAddress('cliente@exemplo.com')
+      ..changePassword('senha-segura-123');
+
+    final future = controller.signIn();
+
+    expect(controller.state.loading, isTrue);
+    completer.complete();
+    await future;
+    expect(controller.state.loading, isFalse);
+  });
+
+  test('GIVEN cadastro valido WHEN criar conta THEN deve enviar todos os dados',
+      () async {
+    final calls = <Map<String, Object>>[];
+    final controller = CustomerAuthenticationController(
+      registerLocalAccount: ({
+        required fullName,
+        required phoneNumber,
+        required emailAddress,
+        required password,
+        required passwordConfirmation,
+        required legalTermsAccepted,
+      }) async {
+        calls.add({
+          'fullName': fullName,
+          'phoneNumber': phoneNumber,
+          'emailAddress': emailAddress,
+          'password': password,
+          'passwordConfirmation': passwordConfirmation,
+          'legalTermsAccepted': legalTermsAccepted,
+        });
+      },
+    )
+      ..selectMode(CustomerAuthenticationMode.signUp)
+      ..changeFullName('Maria da Silva')
+      ..changePhoneNumber('(51) 9 9999-1234')
+      ..changeEmailAddress('Maria@Exemplo.COM')
+      ..changePassword('senha-segura-123')
+      ..changePasswordConfirmation('senha-segura-123')
+      ..changeLegalTermsAccepted(true);
+
+    final accepted = await controller.signUp();
+
+    expect(accepted, isTrue);
+    expect(calls.single, {
+      'fullName': 'Maria da Silva',
+      'phoneNumber': '51999991234',
+      'emailAddress': 'maria@exemplo.com',
+      'password': 'senha-segura-123',
+      'passwordConfirmation': 'senha-segura-123',
+      'legalTermsAccepted': true,
+    });
+    expect(controller.state.phoneVerified, isFalse);
+    expect(controller.state.authenticated, isTrue);
+  });
+
+  test('GIVEN cadastro invalido WHEN criar conta THEN deve validar localmente',
+      () async {
+    final controller = CustomerAuthenticationController()
+      ..selectMode(CustomerAuthenticationMode.signUp)
+      ..changeFullName('Maria')
+      ..changePhoneNumber('51')
+      ..changeEmailAddress('email-invalido')
+      ..changePassword('curta')
+      ..changePasswordConfirmation('diferente');
+
+    final accepted = await controller.signUp();
+
+    expect(accepted, isFalse);
+    expect(controller.state.errorMessage, contains('Revise'));
   });
 
   test(
-      'GIVEN falha remota WHEN solicitar codigo THEN deve exibir erro generico',
+      'GIVEN email WHEN solicitar recuperacao THEN deve confirmar sem enumerar conta',
       () async {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController(
-      requestCustomerAuthenticationCode: ({
-        required phoneNumber,
-        required verificationChannel,
-        emailAddress,
-      }) async {
-        throw StateError('backend indisponivel');
+    final requested = <String>[];
+    final controller = CustomerAuthenticationController(
+      requestPasswordRecovery: ({required emailAddress}) async {
+        requested.add(emailAddress);
       },
-    );
+    )
+      ..openPasswordRecovery()
+      ..changeEmailAddress(' Cliente@Exemplo.COM ');
 
-    // WHEN
-    customerAuthenticationController.changePhoneNumber('51999991234');
-    final requestAccepted =
-        await customerAuthenticationController.requestVerificationCodeAsync();
+    final accepted = await controller.requestRecovery();
 
-    // THEN
-    expect(requestAccepted, isFalse);
+    expect(accepted, isTrue);
+    expect(requested, ['cliente@exemplo.com']);
     expect(
-      customerAuthenticationController.state.errorMessage,
-      'Nao foi possivel enviar o codigo agora.',
+      controller.state.mode,
+      CustomerAuthenticationMode.passwordRecoveryReset,
+    );
+    expect(
+      controller.state.statusMessage,
+      contains('Se existir uma conta'),
     );
   });
 
-  test('GIVEN codigo remoto aceito WHEN confirmar THEN deve autenticar cliente',
+  test('GIVEN token e nova senha WHEN redefinir THEN deve voltar ao login',
       () async {
-    // GIVEN
-    final confirmedCredentials = <String>[];
-    final customerAuthenticationController = CustomerAuthenticationController(
-      confirmCustomerAuthenticationCode: ({
-        required phoneNumber,
-        required verificationCode,
+    final calls = <String>[];
+    final controller = CustomerAuthenticationController(
+      resetPassword: ({
+        required recoveryToken,
+        required newPassword,
+        required newPasswordConfirmation,
       }) async {
-        confirmedCredentials.add('$phoneNumber:$verificationCode');
+        calls.add('$recoveryToken:$newPassword:$newPasswordConfirmation');
       },
+      initialState: const CustomerAuthenticationState(
+        mode: CustomerAuthenticationMode.passwordRecoveryReset,
+        emailAddress: 'cliente@exemplo.com',
+      ),
+    )
+      ..changeRecoveryToken('ABC123')
+      ..changePassword('nova-senha-segura')
+      ..changePasswordConfirmation('nova-senha-segura');
+
+    final accepted = await controller.completePasswordReset();
+
+    expect(accepted, isTrue);
+    expect(
+      calls,
+      ['ABC123:nova-senha-segura:nova-senha-segura'],
     );
-    customerAuthenticationController.changePhoneNumber('51999991234');
-    customerAuthenticationController.requestVerificationCode();
-    customerAuthenticationController.changeVerificationCode('9876');
+    expect(controller.state.mode, CustomerAuthenticationMode.signIn);
+    expect(controller.state.statusMessage, 'Senha alterada. Entre novamente.');
+  });
 
-    // WHEN
-    final verificationAccepted =
-        await customerAuthenticationController.confirmVerificationCodeAsync();
+  test('GIVEN senha oculta WHEN alternar THEN deve mostrar e ocultar novamente',
+      () {
+    final controller = CustomerAuthenticationController();
 
-    // THEN
-    expect(verificationAccepted, isTrue);
-    expect(confirmedCredentials, ['51999991234:9876']);
-    expect(customerAuthenticationController.state.authenticated, isTrue);
+    controller.togglePasswordVisibility();
+    expect(controller.state.passwordObscured, isFalse);
+
+    controller.togglePasswordVisibility();
+    expect(controller.state.passwordObscured, isTrue);
   });
 
   test(
-      'GIVEN codigo remoto recusado WHEN confirmar THEN deve exibir erro generico',
+      'GIVEN confirmacao oculta e modo alterado WHEN interagir THEN deve limpar campos temporarios',
+      () {
+    final controller = CustomerAuthenticationController()
+      ..changePassword('senha-temporaria')
+      ..changePasswordConfirmation('confirmacao-temporaria')
+      ..changeRecoveryToken('token-temporario');
+
+    controller.togglePasswordConfirmationVisibility();
+    expect(controller.state.passwordConfirmationObscured, isFalse);
+
+    controller.selectMode(CustomerAuthenticationMode.signUp);
+
+    expect(controller.state.password, isEmpty);
+    expect(controller.state.passwordConfirmation, isEmpty);
+    expect(controller.state.recoveryToken, isEmpty);
+  });
+
+  test('GIVEN login incompleto WHEN entrar THEN deve rejeitar localmente',
       () async {
-    // GIVEN
-    final customerAuthenticationController = CustomerAuthenticationController(
-      confirmCustomerAuthenticationCode: ({
-        required phoneNumber,
-        required verificationCode,
-      }) async {
-        throw StateError('otp invalido');
+    final controller = CustomerAuthenticationController()
+      ..changeEmailAddress('email-invalido');
+
+    final accepted = await controller.signIn();
+
+    expect(accepted, isFalse);
+    expect(controller.state.errorMessage, contains('email válido'));
+  });
+
+  test('GIVEN recuperacao invalida ou indisponivel WHEN operar THEN deve falhar',
+      () async {
+    final invalidController = CustomerAuthenticationController()
+      ..openPasswordRecovery()
+      ..changeEmailAddress('email-invalido');
+    expect(await invalidController.requestRecovery(), isFalse);
+
+    final unavailableController = CustomerAuthenticationController(
+      requestPasswordRecovery: ({required emailAddress}) async {
+        throw StateError('indisponivel');
       },
-    );
-    customerAuthenticationController.changePhoneNumber('51999991234');
-    customerAuthenticationController.requestVerificationCode();
-    customerAuthenticationController.changeVerificationCode('0000');
+    )
+      ..openPasswordRecovery()
+      ..changeEmailAddress('cliente@example.com');
+    expect(await unavailableController.requestRecovery(), isFalse);
+    expect(unavailableController.state.errorMessage, contains('Tente novamente'));
+  });
 
-    // WHEN
-    final verificationAccepted =
-        await customerAuthenticationController.confirmVerificationCodeAsync();
-
-    // THEN
-    expect(verificationAccepted, isFalse);
-    expect(
-      customerAuthenticationController.state.errorMessage,
-      'Nao foi possivel concluir a autenticacao.',
+  test('GIVEN reset invalido ou recusado WHEN concluir THEN deve manter recuperacao',
+      () async {
+    final invalidController = CustomerAuthenticationController(
+      initialState: const CustomerAuthenticationState(
+        mode: CustomerAuthenticationMode.passwordRecoveryReset,
+      ),
     );
+    expect(await invalidController.completePasswordReset(), isFalse);
+
+    final refusedController = CustomerAuthenticationController(
+      resetPassword: ({
+        required recoveryToken,
+        required newPassword,
+        required newPasswordConfirmation,
+      }) async {
+        throw StateError('token expirado');
+      },
+      initialState: const CustomerAuthenticationState(
+        mode: CustomerAuthenticationMode.passwordRecoveryReset,
+      ),
+    )
+      ..changeRecoveryToken('TOKEN')
+      ..changePassword('nova-senha-segura')
+      ..changePasswordConfirmation('nova-senha-segura');
+
+    expect(await refusedController.completePasswordReset(), isFalse);
+    expect(refusedController.state.errorMessage, contains('novo código'));
+  });
+
+  test('GIVEN cadastro recusado WHEN criar THEN deve mostrar erro generico',
+      () async {
+    final controller = CustomerAuthenticationController(
+      registerLocalAccount: ({
+        required fullName,
+        required phoneNumber,
+        required emailAddress,
+        required password,
+        required passwordConfirmation,
+        required legalTermsAccepted,
+      }) async {
+        throw StateError('email duplicado');
+      },
+    )
+      ..selectMode(CustomerAuthenticationMode.signUp)
+      ..changeFullName('Maria da Silva')
+      ..changePhoneNumber('51999991234')
+      ..changeEmailAddress('maria@example.com')
+      ..changePassword('senha-segura-123')
+      ..changePasswordConfirmation('senha-segura-123')
+      ..changeLegalTermsAccepted(true);
+
+    expect(await controller.signUp(), isFalse);
+    expect(controller.state.errorMessage, contains('criar a conta'));
   });
 }

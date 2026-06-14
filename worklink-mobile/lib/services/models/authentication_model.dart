@@ -27,22 +27,29 @@ class AuthenticationOtpRequestResult {
 
 class AuthenticationSession {
   const AuthenticationSession({
-    required this.customerIdentifier,
+    required this.principalIdentifier,
+    required this.profile,
     required this.accessToken,
     required this.refreshToken,
     required this.accessTokenExpiresAt,
     required this.refreshTokenExpiresAt,
   });
 
-  final String customerIdentifier;
+  final String principalIdentifier;
+  final String profile;
   final String accessToken;
   final String refreshToken;
   final DateTime accessTokenExpiresAt;
   final DateTime refreshTokenExpiresAt;
 
+  String get customerIdentifier => principalIdentifier;
+
   factory AuthenticationSession.fromJson(Map<String, dynamic> json) {
     return AuthenticationSession(
-      customerIdentifier: json['customerIdentifier']?.toString() ?? '',
+      principalIdentifier: json['principalIdentifier']?.toString() ??
+          json['customerIdentifier']?.toString() ??
+          '',
+      profile: json['profile']?.toString() ?? 'CUSTOMER',
       accessToken: json['accessToken']?.toString() ?? '',
       refreshToken: json['refreshToken']?.toString() ?? '',
       accessTokenExpiresAt:

@@ -4,8 +4,9 @@ const workLinkGreen = Color(0xFF16C35B);
 const workLinkDark = Color(0xFF10233F);
 const workLinkSurface = Color(0xFFF7FBF8);
 
-ThemeData buildWorkLinkTheme() {
+ThemeData buildWorkLinkTheme({String? fontFamily}) {
   return ThemeData(
+    fontFamily: fontFamily,
     useMaterial3: true,
     splashFactory: InkRipple.splashFactory,
     scaffoldBackgroundColor: Colors.white,

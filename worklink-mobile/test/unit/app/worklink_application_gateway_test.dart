@@ -23,6 +23,97 @@ void main() {
   });
 
   test(
+      'GIVEN autenticacao local WHEN cadastrar entrar e recuperar THEN deve delegar contratos completos',
+      () async {
+    // GIVEN
+    final sessionResponse = {
+      'principalIdentifier': 'customer-1',
+      'profile': 'CUSTOMER',
+      'accessToken': 'access-token',
+      'refreshToken': 'refresh-token',
+      'accessTokenExpiresAt': '2026-06-11T10:15:00Z',
+      'refreshTokenExpiresAt': '2026-07-11T10:00:00Z',
+    };
+    httpClient.objectResponses['/api/v1/authentication/register'] =
+        sessionResponse;
+    httpClient.objectResponses['/api/v1/authentication/login'] =
+        sessionResponse;
+
+    // WHEN
+    await gateway.registerLocalAccount(
+      fullName: 'Maria da Silva',
+      phoneNumber: '51999991234',
+      emailAddress: 'maria@example.com',
+      password: 'senha-segura-123',
+      passwordConfirmation: 'senha-segura-123',
+      legalTermsAccepted: true,
+    );
+    await gateway.authenticateWithEmailAndPassword(
+      emailAddress: 'maria@example.com',
+      password: 'senha-segura-123',
+    );
+    await gateway.requestPasswordRecovery(
+      emailAddress: 'maria@example.com',
+    );
+    await gateway.resetPassword(
+      recoveryToken: 'recovery-token',
+      newPassword: 'nova-senha-segura',
+      newPasswordConfirmation: 'nova-senha-segura',
+    );
+
+    // THEN
+    expect(
+      httpClient.requests.map((request) => request.path),
+      [
+        '/api/v1/authentication/register',
+        '/api/v1/authentication/login',
+        '/api/v1/authentication/password-recovery/request',
+        '/api/v1/authentication/password-recovery/reset',
+      ],
+    );
+    expect(httpClient.bearerTokens, ['access-token', 'access-token', null]);
+  });
+
+  test(
+      'GIVEN sessao local ativa WHEN sair THEN deve revogar refresh token e limpar bearer',
+      () async {
+    // GIVEN
+    httpClient.objectResponses['/api/v1/authentication/login'] = {
+      'principalIdentifier': 'customer-1',
+      'profile': 'CUSTOMER',
+      'accessToken': 'access-token',
+      'refreshToken': 'refresh-token',
+      'accessTokenExpiresAt': '2026-06-11T10:15:00Z',
+      'refreshTokenExpiresAt': '2026-07-11T10:00:00Z',
+    };
+    await gateway.authenticateWithEmailAndPassword(
+      emailAddress: 'maria@example.com',
+      password: 'senha-segura-123',
+    );
+
+    // WHEN
+    await gateway.logout();
+
+    // THEN
+    expect(
+      httpClient.requests.last.path,
+      '/api/v1/authentication/session/revoke',
+    );
+    expect(httpClient.requests.last.data, {'refreshToken': 'refresh-token'});
+    expect(httpClient.bearerTokens, ['access-token', null, null]);
+  });
+
+  test('GIVEN nenhuma sessao WHEN sair THEN deve somente limpar bearer',
+      () async {
+    // GIVEN / WHEN
+    await gateway.logout();
+
+    // THEN
+    expect(httpClient.requests, isEmpty);
+    expect(httpClient.bearerTokens, [null]);
+  });
+
+  test(
       'GIVEN contratos publicos do backend WHEN carregar home THEN deve mapear telas principais',
       () async {
     // GIVEN

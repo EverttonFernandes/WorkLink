@@ -8,6 +8,7 @@ import br.com.worklink.application.catalog.port.LoadServiceCityByIdentifierPort;
 import br.com.worklink.application.catalog.port.SaveServiceCategoryPort;
 import br.com.worklink.application.catalog.port.SaveServiceCityPort;
 import br.com.worklink.application.authentication.port.CurrentTimePort;
+import br.com.worklink.application.authentication.port.ExecuteInTransactionPort;
 import br.com.worklink.application.authentication.port.GenerateOneTimePasswordPort;
 import br.com.worklink.application.authentication.port.GenerateSecureTokenPort;
 import br.com.worklink.application.authentication.port.IssueAccessTokenPort;
@@ -89,6 +90,12 @@ class WorkLinkUseCaseConfigurationTest {
         GenerateOneTimePasswordPort generateOneTimePasswordPort = () -> "123456";
         SaveAuthenticationOtpChallengePort saveAuthenticationOtpChallengePort = challenge -> challenge;
         CurrentTimePort currentTimePort = () -> Instant.parse("2026-05-08T20:00:00Z");
+        ExecuteInTransactionPort executeInTransactionPort = new ExecuteInTransactionPort() {
+            @Override
+            public <T> T execute(java.util.function.Supplier<T> action) {
+                return action.get();
+            }
+        };
         LoadActiveAuthenticationOtpChallengePort loadActiveAuthenticationOtpChallengePort = phoneNumber -> Optional.empty();
         UpdateAuthenticationOtpChallengePort updateAuthenticationOtpChallengePort = challenge -> challenge;
         LoadCustomerAccountByPhoneNumberPort loadCustomerAccountByPhoneNumberPort = phoneNumber -> Optional.empty();
@@ -194,7 +201,8 @@ class WorkLinkUseCaseConfigurationTest {
                 protectSensitiveValuePort,
                 saveAuthenticationOtpChallengePort,
                 currentTimePort,
-                5
+                5,
+                true
         )).isNotNull();
         assertThat(configuration.verifyAuthenticationOtpUseCase(
                 loadActiveAuthenticationOtpChallengePort,
@@ -206,13 +214,15 @@ class WorkLinkUseCaseConfigurationTest {
                 issueAccessTokenPort,
                 generateSecureTokenPort,
                 saveRefreshSessionPort,
-                30
+                30,
+                true
         )).isNotNull();
         assertThat(configuration.refreshAuthenticationSessionUseCase(
                 loadRefreshSessionByTokenHashPort,
                 updateRefreshSessionPort,
                 protectSensitiveValuePort,
                 currentTimePort,
+                executeInTransactionPort,
                 issueAccessTokenPort,
                 generateSecureTokenPort,
                 saveRefreshSessionPort,

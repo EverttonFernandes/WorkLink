@@ -2,6 +2,7 @@ package br.com.worklink.application.authentication.usecase;
 
 import br.com.worklink.application.ApplicationRuleViolationException;
 import br.com.worklink.application.authentication.port.CurrentTimePort;
+import br.com.worklink.application.authentication.port.ExecuteInTransactionPort;
 import br.com.worklink.application.authentication.port.GenerateOneTimePasswordPort;
 import br.com.worklink.application.authentication.port.GenerateSecureTokenPort;
 import br.com.worklink.application.authentication.port.IssueAccessTokenPort;
@@ -239,6 +240,7 @@ class AuthenticationUseCaseTest {
                 gateway,
                 gateway,
                 gateway,
+                new InlineTransactionPort(),
                 gateway,
                 gateway,
                 gateway,
@@ -350,6 +352,24 @@ class AuthenticationUseCaseTest {
                 refreshSession = authenticationRefreshSession;
             }
             return authenticationRefreshSession;
+        }
+
+        @Override
+        public boolean revokeRefreshSessionIfActive(AuthenticationRefreshSession authenticationRefreshSession) {
+            if (refreshSession == null || refreshSession.revoked()) {
+                return false;
+            }
+            revokedRefreshSession = authenticationRefreshSession.revoke();
+            refreshSession = revokedRefreshSession;
+            return true;
+        }
+    }
+
+    private static class InlineTransactionPort implements ExecuteInTransactionPort {
+
+        @Override
+        public <T> T execute(java.util.function.Supplier<T> action) {
+            return action.get();
         }
     }
 }

@@ -4,20 +4,87 @@ const { createAuthorizationHeader, createSignedJwtAccessToken } = require('./aut
 const { createWorkLinkHttpClient } = require('./worklinkHttpClient');
 
 const worklinkHttpClient = createWorkLinkHttpClient();
-const fixedOtp = process.env.WORKLINK_TEST_SUPPORT_FIXED_OTP || '123456';
+const defaultLocalPassword = 'Senha local segura 123!';
 
-async function authenticateCustomerByPhone(phoneNumber) {
-  const otpRequestResponse = await worklinkHttpClient.post('/api/v1/authentication/otp/request', {
+async function registerLocalCustomer({
+  fullName = uniqueText('Cliente funcional'),
+  phoneNumber = uniquePhoneNumber(),
+  emailAddress = uniqueEmailAddress(),
+  password = defaultLocalPassword,
+} = {}) {
+  const response = await worklinkHttpClient.post('/api/v1/authentication/register', {
+    fullName,
     phoneNumber,
+    emailAddress,
+    password,
+    passwordConfirmation: password,
+    legalAccepted: true,
   });
-  assertStatus(otpRequestResponse, 200);
+  assertStatus(response, 201);
+  return {
+    account: response.data,
+    credentials: {
+      emailAddress,
+      password,
+    },
+  };
+}
 
-  const otpVerificationResponse = await worklinkHttpClient.post('/api/v1/authentication/otp/verify', {
-    phoneNumber,
-    oneTimePassword: fixedOtp,
+async function loginWithEmailAndPassword(emailAddress, password) {
+  return worklinkHttpClient.post('/api/v1/authentication/login', {
+    emailAddress,
+    password,
   });
-  assertStatus(otpVerificationResponse, 200);
-  return otpVerificationResponse.data;
+}
+
+async function authenticateCustomerWithLocalAccount(accountData = {}) {
+  const normalizedAccountData = typeof accountData === 'string'
+    ? {
+        phoneNumber: accountData,
+        emailAddress: uniqueEmailAddress('cliente.local'),
+      }
+    : accountData;
+  const registration = await registerLocalCustomer(normalizedAccountData);
+  const loginResponse = await loginWithEmailAndPassword(
+    registration.credentials.emailAddress,
+    registration.credentials.password,
+  );
+  assertStatus(loginResponse, 200);
+  return loginResponse.data;
+}
+
+async function refreshAuthenticationSession(refreshToken) {
+  return worklinkHttpClient.post('/api/v1/authentication/session/refresh', {
+    refreshToken,
+  });
+}
+
+async function revokeAuthenticationSession(refreshToken) {
+  return worklinkHttpClient.post('/api/v1/authentication/session/revoke', {
+    refreshToken,
+  });
+}
+
+async function requestPasswordRecovery(emailAddress) {
+  return worklinkHttpClient.post('/api/v1/authentication/password-recovery/request', {
+    emailAddress,
+  });
+}
+
+async function loadPasswordRecoveryToken(emailAddress) {
+  const response = await worklinkHttpClient.get('/api/v1/test-support/password-recovery', {
+    params: { emailAddress },
+  });
+  assertStatus(response, 200);
+  return response.data.recoveryToken;
+}
+
+async function resetPassword(recoveryToken, newPassword) {
+  return worklinkHttpClient.post('/api/v1/authentication/password-recovery/reset', {
+    recoveryToken,
+    newPassword,
+    newPasswordConfirmation: newPassword,
+  });
 }
 
 async function createCategoryWithAdministrator(categoryName) {
@@ -187,6 +254,10 @@ function uniquePhoneNumber() {
   return `51${randomDigits}`;
 }
 
+function uniqueEmailAddress(prefix = 'cliente.funcional') {
+  return `${prefix}.${crypto.randomUUID()}@worklink.test`;
+}
+
 function uniqueText(prefix) {
   return `${prefix} ${crypto.randomUUID().slice(0, 8)}`;
 }
@@ -200,21 +271,30 @@ function assertStatus(response, expectedStatus) {
 module.exports = {
   administratorAuthorizationHeader,
   assertStatus,
-  authenticateCustomerByPhone,
+  authenticateCustomerWithLocalAccount,
   blockProfessionalAsAdministrator,
   createCategoryWithAdministrator,
   createCityWithAdministrator,
+  defaultLocalPassword,
   listPendingFeedbackRequests,
   listProfessionalsByCategoryAndCity,
+  loadPasswordRecoveryToken,
   loadCustomerProfile,
   loadProfessionalReviewProfile,
+  loginWithEmailAndPassword,
   professionalAuthorizationHeader,
   registerAnonymousReviewAsCustomer,
+  registerLocalCustomer,
   registerPostContactFeedbackAsCustomer,
   registerProfessional,
   registerProfessionalReportAsCustomer,
+  requestPasswordRecovery,
+  resetPassword,
+  refreshAuthenticationSession,
+  revokeAuthenticationSession,
   saveProfessionalAsCustomer,
   startContactAsCustomer,
+  uniqueEmailAddress,
   uniquePhoneNumber,
   uniqueText,
   worklinkHttpClient,

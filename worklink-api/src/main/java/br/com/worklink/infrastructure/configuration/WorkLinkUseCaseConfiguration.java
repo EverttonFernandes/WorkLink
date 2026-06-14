@@ -28,18 +28,28 @@ import br.com.worklink.application.catalog.usecase.ListServiceCitiesUseCase;
 import br.com.worklink.application.catalog.usecase.RegisterServiceCategoryUseCase;
 import br.com.worklink.application.catalog.usecase.RegisterServiceCityUseCase;
 import br.com.worklink.application.authentication.port.CurrentTimePort;
+import br.com.worklink.application.authentication.port.ExecuteInTransactionPort;
 import br.com.worklink.application.authentication.port.GenerateOneTimePasswordPort;
 import br.com.worklink.application.authentication.port.GenerateSecureTokenPort;
 import br.com.worklink.application.authentication.port.IssueAccessTokenPort;
 import br.com.worklink.application.authentication.port.LoadActiveAuthenticationOtpChallengePort;
 import br.com.worklink.application.authentication.port.LoadCustomerAccountByPhoneNumberPort;
 import br.com.worklink.application.authentication.port.LoadRefreshSessionByTokenHashPort;
+import br.com.worklink.application.authentication.port.LocalAuthenticationAccountRepositoryPort;
+import br.com.worklink.application.authentication.port.PasswordHashingPort;
+import br.com.worklink.application.authentication.port.PasswordRecoveryChallengeRepositoryPort;
+import br.com.worklink.application.authentication.port.DeliverPasswordRecoveryTokenPort;
+import br.com.worklink.application.authentication.port.RevokeAllCustomerRefreshSessionsPort;
 import br.com.worklink.application.authentication.port.SaveAuthenticationOtpChallengePort;
 import br.com.worklink.application.authentication.port.SaveCustomerAccountPort;
 import br.com.worklink.application.authentication.port.SaveRefreshSessionPort;
 import br.com.worklink.application.authentication.port.UpdateAuthenticationOtpChallengePort;
 import br.com.worklink.application.authentication.port.UpdateRefreshSessionPort;
 import br.com.worklink.application.authentication.usecase.RefreshAuthenticationSessionUseCase;
+import br.com.worklink.application.authentication.usecase.LoginLocalAuthenticationUseCase;
+import br.com.worklink.application.authentication.usecase.RegisterLocalAuthenticationUseCase;
+import br.com.worklink.application.authentication.usecase.RequestPasswordRecoveryUseCase;
+import br.com.worklink.application.authentication.usecase.ResetPasswordUseCase;
 import br.com.worklink.application.authentication.usecase.RequestAuthenticationOtpUseCase;
 import br.com.worklink.application.authentication.usecase.RevokeAuthenticationSessionUseCase;
 import br.com.worklink.application.authentication.usecase.VerifyAuthenticationOtpUseCase;
@@ -94,8 +104,10 @@ import br.com.worklink.application.review.usecase.RequestProfessionalReviewAnaly
 import br.com.worklink.application.report.port.SaveProfessionalReportPort;
 import br.com.worklink.application.report.usecase.RegisterProfessionalReportUseCase;
 import br.com.worklink.application.storage.usecase.PrepareFileUploadUseCase;
+import br.com.worklink.infrastructure.authentication.DisabledPasswordRecoveryDeliveryAdapter;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -103,6 +115,12 @@ import java.time.Duration;
 
 @Configuration
 public class WorkLinkUseCaseConfiguration {
+
+    @Bean
+    @ConditionalOnMissingBean(DeliverPasswordRecoveryTokenPort.class)
+    DeliverPasswordRecoveryTokenPort disabledPasswordRecoveryDeliveryAdapter() {
+        return new DisabledPasswordRecoveryDeliveryAdapter();
+    }
 
     @Bean
     RegisterServiceCategoryUseCase registerServiceCategoryUseCase(SaveServiceCategoryPort saveServiceCategoryPort) {
@@ -224,14 +242,16 @@ public class WorkLinkUseCaseConfiguration {
             ProtectSensitiveValuePort protectSensitiveValuePort,
             SaveAuthenticationOtpChallengePort saveAuthenticationOtpChallengePort,
             CurrentTimePort currentTimePort,
-            @Value("${worklink.security.otp-expiration-minutes}") long otpExpirationMinutes
+            @Value("${worklink.security.otp-expiration-minutes}") long otpExpirationMinutes,
+            @Value("${worklink.features.otp-authentication-enabled}") boolean enabled
     ) {
         return new RequestAuthenticationOtpUseCase(
                 generateOneTimePasswordPort,
                 protectSensitiveValuePort,
                 saveAuthenticationOtpChallengePort,
                 currentTimePort,
-                Duration.ofMinutes(otpExpirationMinutes)
+                Duration.ofMinutes(otpExpirationMinutes),
+                enabled
         );
     }
 
@@ -246,7 +266,8 @@ public class WorkLinkUseCaseConfiguration {
             IssueAccessTokenPort issueAccessTokenPort,
             GenerateSecureTokenPort generateSecureTokenPort,
             SaveRefreshSessionPort saveRefreshSessionPort,
-            @Value("${worklink.security.refresh-token-expiration-days}") long refreshTokenExpirationDays
+            @Value("${worklink.security.refresh-token-expiration-days}") long refreshTokenExpirationDays,
+            @Value("${worklink.features.otp-authentication-enabled}") boolean enabled
     ) {
         return new VerifyAuthenticationOtpUseCase(
                 loadActiveAuthenticationOtpChallengePort,
@@ -258,7 +279,8 @@ public class WorkLinkUseCaseConfiguration {
                 issueAccessTokenPort,
                 generateSecureTokenPort,
                 saveRefreshSessionPort,
-                Duration.ofDays(refreshTokenExpirationDays)
+                Duration.ofDays(refreshTokenExpirationDays),
+                enabled
         );
     }
 
@@ -268,6 +290,7 @@ public class WorkLinkUseCaseConfiguration {
             UpdateRefreshSessionPort updateRefreshSessionPort,
             ProtectSensitiveValuePort protectSensitiveValuePort,
             CurrentTimePort currentTimePort,
+            ExecuteInTransactionPort executeInTransactionPort,
             IssueAccessTokenPort issueAccessTokenPort,
             GenerateSecureTokenPort generateSecureTokenPort,
             SaveRefreshSessionPort saveRefreshSessionPort,
@@ -278,6 +301,7 @@ public class WorkLinkUseCaseConfiguration {
                 updateRefreshSessionPort,
                 protectSensitiveValuePort,
                 currentTimePort,
+                executeInTransactionPort,
                 issueAccessTokenPort,
                 generateSecureTokenPort,
                 saveRefreshSessionPort,
@@ -295,6 +319,83 @@ public class WorkLinkUseCaseConfiguration {
                 loadRefreshSessionByTokenHashPort,
                 updateRefreshSessionPort,
                 protectSensitiveValuePort
+        );
+    }
+
+    @Bean
+    RegisterLocalAuthenticationUseCase registerLocalAuthenticationUseCase(
+            LocalAuthenticationAccountRepositoryPort accountRepository,
+            LoadCustomerAccountByPhoneNumberPort loadCustomerByPhone,
+            SaveCustomerAccountPort saveCustomer,
+            PasswordHashingPort passwordHashingPort,
+            CurrentTimePort currentTimePort,
+            ExecuteInTransactionPort executeInTransactionPort,
+            IssueAccessTokenPort issueAccessTokenPort,
+            GenerateSecureTokenPort generateSecureTokenPort,
+            ProtectSensitiveValuePort protectSensitiveValuePort,
+            SaveRefreshSessionPort saveRefreshSessionPort,
+            @Value("${worklink.security.refresh-token-expiration-days}") long refreshTokenExpirationDays,
+            @Value("${worklink.features.local-authentication-enabled}") boolean enabled
+    ) {
+        return new RegisterLocalAuthenticationUseCase(
+                accountRepository, loadCustomerByPhone, saveCustomer, passwordHashingPort, currentTimePort,
+                executeInTransactionPort,
+                issueAccessTokenPort, generateSecureTokenPort, protectSensitiveValuePort, saveRefreshSessionPort,
+                Duration.ofDays(refreshTokenExpirationDays), enabled
+        );
+    }
+
+    @Bean
+    LoginLocalAuthenticationUseCase loginLocalAuthenticationUseCase(
+            LocalAuthenticationAccountRepositoryPort accountRepository,
+            PasswordHashingPort passwordHashingPort,
+            CurrentTimePort currentTimePort,
+            IssueAccessTokenPort issueAccessTokenPort,
+            GenerateSecureTokenPort generateSecureTokenPort,
+            ProtectSensitiveValuePort protectSensitiveValuePort,
+            SaveRefreshSessionPort saveRefreshSessionPort,
+            @Value("${worklink.security.refresh-token-expiration-days}") long refreshTokenExpirationDays,
+            @Value("${worklink.security.maximum-failed-login-attempts}") int maximumFailedAttempts,
+            @Value("${worklink.security.login-blocking-minutes}") long blockingMinutes,
+            @Value("${worklink.features.local-authentication-enabled}") boolean enabled
+    ) {
+        return new LoginLocalAuthenticationUseCase(
+                accountRepository, passwordHashingPort, currentTimePort, issueAccessTokenPort,
+                generateSecureTokenPort, protectSensitiveValuePort, saveRefreshSessionPort,
+                Duration.ofDays(refreshTokenExpirationDays), maximumFailedAttempts,
+                Duration.ofMinutes(blockingMinutes), enabled
+        );
+    }
+
+    @Bean
+    RequestPasswordRecoveryUseCase requestPasswordRecoveryUseCase(
+            LocalAuthenticationAccountRepositoryPort accountRepository,
+            PasswordRecoveryChallengeRepositoryPort challengeRepository,
+            GenerateSecureTokenPort generateSecureTokenPort,
+            ProtectSensitiveValuePort protectSensitiveValuePort,
+            DeliverPasswordRecoveryTokenPort deliveryPort,
+            CurrentTimePort currentTimePort,
+            @Value("${worklink.security.password-recovery-expiration-minutes}") long expirationMinutes
+    ) {
+        return new RequestPasswordRecoveryUseCase(
+                accountRepository, challengeRepository, generateSecureTokenPort, protectSensitiveValuePort,
+                deliveryPort, currentTimePort, Duration.ofMinutes(expirationMinutes)
+        );
+    }
+
+    @Bean
+    ResetPasswordUseCase resetPasswordUseCase(
+            PasswordRecoveryChallengeRepositoryPort challengeRepository,
+            LocalAuthenticationAccountRepositoryPort accountRepository,
+            PasswordHashingPort passwordHashingPort,
+            ProtectSensitiveValuePort protectSensitiveValuePort,
+            RevokeAllCustomerRefreshSessionsPort revokeAllSessionsPort,
+            CurrentTimePort currentTimePort,
+            ExecuteInTransactionPort executeInTransactionPort
+    ) {
+        return new ResetPasswordUseCase(
+                challengeRepository, accountRepository, passwordHashingPort, protectSensitiveValuePort,
+                revokeAllSessionsPort, currentTimePort, executeInTransactionPort
         );
     }
 

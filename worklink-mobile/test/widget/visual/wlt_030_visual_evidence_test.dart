@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:worklink_mobile/app/worklink_theme.dart';
 import 'package:worklink_mobile/features/city_selection/city_selection_city.dart';
@@ -30,8 +33,20 @@ import 'package:worklink_mobile/features/professional_review/professional_review
 import 'package:worklink_mobile/features/professional_review/professional_review_screen.dart';
 
 const _rootKey = ValueKey<String>('visual-evidence-root');
+const _goldenFontFamily = 'GoldenDejaVuSans';
 
 void main() {
+  setUpAll(() async {
+    final fontBytes = await File(
+      '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+    ).readAsBytes();
+    await (FontLoader(_goldenFontFamily)
+          ..addFont(
+            Future.value(ByteData.sublistView(Uint8List.fromList(fontBytes))),
+          ))
+        .load();
+  });
+
   Future<void> pumpEvidenceScreen(
     WidgetTester widgetTester,
     Widget screen, {
@@ -43,7 +58,7 @@ void main() {
     addTearDown(widgetTester.view.resetDevicePixelRatio);
     await widgetTester.pumpWidget(
       MaterialApp(
-        theme: buildWorkLinkTheme(),
+        theme: buildWorkLinkTheme(fontFamily: _goldenFontFamily),
         home: RepaintBoundary(
           key: _rootKey,
           child: screen,
@@ -64,7 +79,7 @@ void main() {
   }
 
   group('WLT-030 visual evidence', () {
-    testWidgets('captures auth phone entry screen', (widgetTester) async {
+    testWidgets('captures auth sign in screen', (widgetTester) async {
       final controller = CustomerAuthenticationController();
 
       await pumpEvidenceScreen(
@@ -72,13 +87,13 @@ void main() {
         CustomerAuthenticationScreen(
           customerAuthenticationController: controller,
         ),
-        viewportSize: const Size(800, 1400),
+        viewportSize: const Size(430, 932),
       );
 
-      await captureGolden(widgetTester, '01-auth-phone-entry.png');
+      await captureGolden(widgetTester, '01-auth-sign-in.png');
     });
 
-    testWidgets('captures auth verification screen', (widgetTester) async {
+    testWidgets('captures auth sign up screen', (widgetTester) async {
       final controller = CustomerAuthenticationController();
 
       await pumpEvidenceScreen(
@@ -86,20 +101,15 @@ void main() {
         CustomerAuthenticationScreen(
           customerAuthenticationController: controller,
         ),
-        viewportSize: const Size(800, 1400),
+        viewportSize: const Size(430, 932),
       );
 
-      await widgetTester.enterText(
-        find.byKey(const ValueKey('customer-phone-field')),
-        '(51) 9 8446-3545',
+      await widgetTester.tap(
+        find.byKey(const ValueKey('sign-up-mode-button')),
       );
-      await widgetTester.ensureVisible(
-        find.byKey(const ValueKey('request-code-button')),
-      );
-      await widgetTester.tap(find.byKey(const ValueKey('request-code-button')));
       await widgetTester.pumpAndSettle();
 
-      await captureGolden(widgetTester, '02-auth-verification.png');
+      await captureGolden(widgetTester, '02-auth-sign-up.png');
     });
 
     testWidgets('captures city selection screen', (widgetTester) async {

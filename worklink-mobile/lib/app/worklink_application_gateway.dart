@@ -19,6 +19,7 @@ import '../services/contact_service.dart';
 import '../services/customer_service.dart';
 import '../services/exceptions.dart';
 import '../services/models/admin_model.dart' as admin_models;
+import '../services/models/authentication_model.dart';
 import '../services/models/catalog_model.dart';
 import '../services/models/contact_model.dart' as contact_models;
 import '../services/models/customer_model.dart' as customer_models;
@@ -54,6 +55,33 @@ abstract interface class WorkLinkApplicationGateway {
 
   Future<WorkLinkHomeData> loadHomeData();
 
+  Future<void> registerLocalAccount({
+    required String fullName,
+    required String phoneNumber,
+    required String emailAddress,
+    required String password,
+    required String passwordConfirmation,
+    required bool legalTermsAccepted,
+  });
+
+  Future<void> authenticateWithEmailAndPassword({
+    required String emailAddress,
+    required String password,
+  });
+
+  Future<void> logout();
+
+  Future<void> requestPasswordRecovery({
+    required String emailAddress,
+  });
+
+  Future<void> resetPassword({
+    required String recoveryToken,
+    required String newPassword,
+    required String newPasswordConfirmation,
+  });
+
+  // Preserved for future feature-flagged OTP channels.
   Future<void> requestCustomerAuthenticationCode(
     String phoneNumber, {
     CustomerAuthenticationVerificationChannel verificationChannel,
@@ -181,6 +209,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
   final WorkLinkHttpClient _httpClient;
   final WorkLinkHttpClient? _administrativeHttpClient;
   final String? _administrativeAccessToken;
+  AuthenticationSession? _activeAuthenticationSession;
 
   @override
   bool get administrativeConsoleAvailable =>
@@ -263,6 +292,79 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
           cities.map((city) => city.displayName).toList()..sort(),
       categoryIdentifiersByName: categoryIdentifiersByName,
       cityIdentifiersByDisplayName: cityIdentifiersByDisplayName,
+    );
+  }
+
+  @override
+  Future<void> registerLocalAccount({
+    required String fullName,
+    required String phoneNumber,
+    required String emailAddress,
+    required String password,
+    required String passwordConfirmation,
+    required bool legalTermsAccepted,
+  }) async {
+    _activeAuthenticationSession =
+        await AuthenticationService(httpClient: _httpClient)
+            .registerLocalAccount(
+      fullName: fullName,
+      phoneNumber: phoneNumber,
+      emailAddress: emailAddress,
+      password: password,
+      passwordConfirmation: passwordConfirmation,
+      legalTermsAccepted: legalTermsAccepted,
+    );
+  }
+
+  @override
+  Future<void> authenticateWithEmailAndPassword({
+    required String emailAddress,
+    required String password,
+  }) async {
+    _activeAuthenticationSession =
+        await AuthenticationService(httpClient: _httpClient)
+            .authenticateWithEmailAndPassword(
+      emailAddress: emailAddress,
+      password: password,
+    );
+  }
+
+  @override
+  Future<void> logout() async {
+    final activeAuthenticationSession = _activeAuthenticationSession;
+    _activeAuthenticationSession = null;
+    if (activeAuthenticationSession == null) {
+      _httpClient.clearBearerToken();
+      return;
+    }
+    try {
+      await AuthenticationService(httpClient: _httpClient)
+          .revokeAuthenticationSession(
+        activeAuthenticationSession.refreshToken,
+      );
+    } finally {
+      _httpClient.clearBearerToken();
+    }
+  }
+
+  @override
+  Future<void> requestPasswordRecovery({
+    required String emailAddress,
+  }) async {
+    await AuthenticationService(httpClient: _httpClient)
+        .requestPasswordRecovery(emailAddress);
+  }
+
+  @override
+  Future<void> resetPassword({
+    required String recoveryToken,
+    required String newPassword,
+    required String newPasswordConfirmation,
+  }) async {
+    await AuthenticationService(httpClient: _httpClient).resetPassword(
+      recoveryToken: recoveryToken,
+      newPassword: newPassword,
+      newPasswordConfirmation: newPasswordConfirmation,
     );
   }
 
@@ -1183,6 +1285,45 @@ class WorkLinkPreviewGateway implements WorkLinkApplicationGateway {
   @override
   Future<WorkLinkHomeData> loadHomeData() async {
     return previewHomeData;
+  }
+
+  @override
+  Future<void> registerLocalAccount({
+    required String fullName,
+    required String phoneNumber,
+    required String emailAddress,
+    required String password,
+    required String passwordConfirmation,
+    required bool legalTermsAccepted,
+  }) async {}
+
+  @override
+  Future<void> authenticateWithEmailAndPassword({
+    required String emailAddress,
+    required String password,
+  }) async {
+    if (password.length < 12) {
+      throw StateError('Credenciais de preview invalidas.');
+    }
+  }
+
+  @override
+  Future<void> logout() async {}
+
+  @override
+  Future<void> requestPasswordRecovery({
+    required String emailAddress,
+  }) async {}
+
+  @override
+  Future<void> resetPassword({
+    required String recoveryToken,
+    required String newPassword,
+    required String newPasswordConfirmation,
+  }) async {
+    if (recoveryToken.isEmpty || newPassword != newPasswordConfirmation) {
+      throw StateError('Recuperacao de preview invalida.');
+    }
   }
 
   @override
