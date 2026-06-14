@@ -1,0 +1,30 @@
+2026-06-14 - Iteracao 1
+
+- WLT-038 iniciada como proxima historia elegivel do Kanban.
+- Bootstrap da task criado em:
+  - `docs/tasks/WLT-038/TASK.md`
+  - `docs/tasks/WLT-038/IMPLEMENTATION.md`
+  - `docs/tasks/WLT-038/progress.txt`
+- Kanban atualizado para mover WLT-038 de `To Do` para `Doing`.
+- Mapeado estado atual do codigo:
+  - `local-authentication-enabled`: ativo por padrao.
+  - `otp-authentication-enabled`: desativado por padrao.
+  - Flags existentes para `sms`, `whatsapp`, `google`, `microsoft` e `facebook`.
+  - Recuperacao de senha com modos `disabled`, `smtp` e `test-support`.
+  - Fluxo OTP existente ainda retorna canais `SMS`, `WHATSAPP` e `EMAIL`, mas sem adapter real de entrega.
+- Objetivo tecnico da proxima iteracao:
+  - consolidar contrato de mensageria/sandbox;
+  - documentar custo/ativacao;
+  - endurecer limites anti-abuso e protecao de logs onde faltar.
+- Primeiro incremento concluido:
+  - criado contrato `DeliverAuthenticationOtpPort`;
+  - criado adapter `DisabledAuthenticationOtpDeliveryAdapter`;
+  - criado adapter `SandboxAuthenticationOtpDeliveryAdapter`;
+  - OTP agora respeita canais habilitados por flag;
+  - OTP agora aplica cooldown de reenvio por telefone (`WORKLINK_OTP_REQUEST_COOLDOWN_SECONDS`);
+  - criado documento `docs/operacao/autenticacao-mensageria-custos.md`;
+  - atualizado `.env.example` com variaveis da WLT-038.
+- Validacoes desta iteracao:
+  - `docker compose ... mvn -q test -Dtest=AuthenticationUseCaseTest,AuthenticationControllerTest,AuthenticationOtpDeliveryAdapterTest,WorkLinkUseCaseConfigurationTest`: PASS.
+  - `docker compose ... mvn -q -DskipITs test`: PASS.
+  - `git diff --check`: PASS.

@@ -1,7 +1,9 @@
 package br.com.worklink.application.authentication.usecase;
 
 import br.com.worklink.application.ApplicationRuleViolationException;
+import br.com.worklink.application.authentication.port.AuthenticationOtpDeliveryRequest;
 import br.com.worklink.application.authentication.port.CurrentTimePort;
+import br.com.worklink.application.authentication.port.DeliverAuthenticationOtpPort;
 import br.com.worklink.application.authentication.port.ExecuteInTransactionPort;
 import br.com.worklink.application.authentication.port.GenerateOneTimePasswordPort;
 import br.com.worklink.application.authentication.port.GenerateSecureTokenPort;
@@ -51,7 +53,10 @@ class AuthenticationUseCaseTest {
                 gateway,
                 gateway,
                 gateway,
-                OTP_DURATION
+                gateway,
+                gateway,
+                OTP_DURATION,
+                Duration.ofSeconds(45)
         );
 
         // WHEN
@@ -68,6 +73,63 @@ class AuthenticationUseCaseTest {
         assertThat(gateway.savedAuthenticationOtpChallenge.phoneNumber()).isEqualTo("51999999999");
         assertThat(gateway.savedAuthenticationOtpChallenge.otpHash()).isEqualTo("protected-ONE_TIME_PASSWORD-123456");
         assertThat(gateway.savedAuthenticationOtpChallenge.otpHash()).isNotEqualTo("123456");
+        assertThat(gateway.lastOtpDeliveryRequest.deliveryChannel()).isEqualTo("WHATSAPP");
+        assertThat(gateway.lastOtpDeliveryRequest.rawOneTimePassword()).isEqualTo("123456");
+    }
+
+    @Test
+    @DisplayName("GIVEN canal indisponivel WHEN solicitar OTP THEN deve falhar")
+    void shouldRejectOtpRequestWhenRequestedChannelIsUnavailable() {
+        // GIVEN
+        InMemoryAuthenticationGateway gateway = new InMemoryAuthenticationGateway(CURRENT_INSTANT);
+        gateway.availableDeliveryChannels = List.of("SMS");
+        RequestAuthenticationOtpUseCase useCase = new RequestAuthenticationOtpUseCase(
+                () -> "123456",
+                gateway,
+                gateway,
+                gateway,
+                gateway,
+                gateway,
+                OTP_DURATION,
+                Duration.ofSeconds(45)
+        );
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> useCase.requestAuthenticationOtp(
+                new RequestAuthenticationOtpRequest("(51) 99999-9999", "EMAIL", "cliente@example.com")
+        ))
+                .isInstanceOf(ApplicationRuleViolationException.class)
+                .hasMessage("O canal de entrega informado esta indisponivel.");
+    }
+
+    @Test
+    @DisplayName("GIVEN desafio ativo recente WHEN solicitar novo OTP THEN deve aplicar cooldown")
+    void shouldApplyCooldownWhenRequestingOtpAgainTooSoon() {
+        // GIVEN
+        InMemoryAuthenticationGateway gateway = new InMemoryAuthenticationGateway(CURRENT_INSTANT);
+        gateway.authenticationOtpChallenge = AuthenticationOtpChallenge.requestOtpChallenge(
+                "51999999999",
+                "protected-ONE_TIME_PASSWORD-654321",
+                CURRENT_INSTANT.plus(OTP_DURATION),
+                CURRENT_INSTANT.minusSeconds(10)
+        );
+        RequestAuthenticationOtpUseCase useCase = new RequestAuthenticationOtpUseCase(
+                () -> "123456",
+                gateway,
+                gateway,
+                gateway,
+                gateway,
+                gateway,
+                OTP_DURATION,
+                Duration.ofSeconds(45)
+        );
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> useCase.requestAuthenticationOtp(
+                new RequestAuthenticationOtpRequest("(51) 99999-9999", "SMS", null)
+        ))
+                .isInstanceOf(ApplicationRuleViolationException.class)
+                .hasMessage("Aguarde um instante antes de solicitar um novo codigo.");
     }
 
     @Test
@@ -254,6 +316,7 @@ class AuthenticationUseCaseTest {
             LoadActiveAuthenticationOtpChallengePort,
             SaveAuthenticationOtpChallengePort,
             UpdateAuthenticationOtpChallengePort,
+            DeliverAuthenticationOtpPort,
             LoadCustomerAccountByPhoneNumberPort,
             SaveCustomerAccountPort,
             IssueAccessTokenPort,
@@ -267,10 +330,12 @@ class AuthenticationUseCaseTest {
         private final List<AuthenticationRefreshSession> savedRefreshSessions = new ArrayList<>();
         private AuthenticationOtpChallenge authenticationOtpChallenge;
         private AuthenticationOtpChallenge savedAuthenticationOtpChallenge;
+        private AuthenticationOtpDeliveryRequest lastOtpDeliveryRequest;
         private CustomerAccount customerAccount;
         private CustomerAccount savedCustomerAccount;
         private AuthenticationRefreshSession refreshSession;
         private AuthenticationRefreshSession revokedRefreshSession;
+        private List<String> availableDeliveryChannels = List.of("SMS", "WHATSAPP", "EMAIL");
 
         InMemoryAuthenticationGateway(Instant currentInstant) {
             this.currentInstant = currentInstant;
@@ -301,6 +366,21 @@ class AuthenticationUseCaseTest {
             this.authenticationOtpChallenge = authenticationOtpChallenge;
             this.savedAuthenticationOtpChallenge = authenticationOtpChallenge;
             return authenticationOtpChallenge;
+        }
+
+        @Override
+        public List<String> availableDeliveryChannels() {
+            return availableDeliveryChannels;
+        }
+
+        @Override
+        public boolean isSimulatedDelivery() {
+            return true;
+        }
+
+        @Override
+        public void deliverAuthenticationOtp(AuthenticationOtpDeliveryRequest request) {
+            this.lastOtpDeliveryRequest = request;
         }
 
         @Override

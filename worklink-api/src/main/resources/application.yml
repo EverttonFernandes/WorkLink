@@ -72,8 +72,11 @@ worklink:
     maximum-failed-login-attempts: ${WORKLINK_MAXIMUM_FAILED_LOGIN_ATTEMPTS:5}
     login-blocking-minutes: ${WORKLINK_LOGIN_BLOCKING_MINUTES:15}
     password-recovery-expiration-minutes: ${WORKLINK_PASSWORD_RECOVERY_EXPIRATION_MINUTES:30}
+    otp-request-cooldown-seconds: ${WORKLINK_OTP_REQUEST_COOLDOWN_SECONDS:45}
   integrations:
     sms-provider-api-key: ${WORKLINK_SMS_PROVIDER_API_KEY}
+    authentication-otp:
+      delivery-mode: ${WORKLINK_AUTHENTICATION_OTP_DELIVERY_MODE:disabled}
     password-recovery:
       delivery-mode: ${WORKLINK_PASSWORD_RECOVERY_DELIVERY_MODE:disabled}
       sender-email-address: ${WORKLINK_PASSWORD_RECOVERY_SENDER_EMAIL_ADDRESS:no-reply@profissionalperto.local}
@@ -88,6 +91,7 @@ worklink:
     local-authentication-enabled: ${WORKLINK_FEATURE_LOCAL_AUTHENTICATION_ENABLED:true}
     otp-authentication-enabled: ${WORKLINK_FEATURE_OTP_AUTHENTICATION_ENABLED:false}
     sms-enabled: ${WORKLINK_FEATURE_SMS_ENABLED}
+    email-otp-enabled: ${WORKLINK_FEATURE_EMAIL_OTP_ENABLED:false}
     whatsapp-enabled: ${WORKLINK_FEATURE_WHATSAPP_ENABLED:false}
     google-enabled: ${WORKLINK_FEATURE_GOOGLE_ENABLED:false}
     microsoft-enabled: ${WORKLINK_FEATURE_MICROSOFT_ENABLED:false}

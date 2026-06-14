@@ -28,6 +28,7 @@ import br.com.worklink.application.catalog.usecase.ListServiceCitiesUseCase;
 import br.com.worklink.application.catalog.usecase.RegisterServiceCategoryUseCase;
 import br.com.worklink.application.catalog.usecase.RegisterServiceCityUseCase;
 import br.com.worklink.application.authentication.port.CurrentTimePort;
+import br.com.worklink.application.authentication.port.DeliverAuthenticationOtpPort;
 import br.com.worklink.application.authentication.port.ExecuteInTransactionPort;
 import br.com.worklink.application.authentication.port.GenerateOneTimePasswordPort;
 import br.com.worklink.application.authentication.port.GenerateSecureTokenPort;
@@ -105,6 +106,7 @@ import br.com.worklink.application.report.port.SaveProfessionalReportPort;
 import br.com.worklink.application.report.usecase.RegisterProfessionalReportUseCase;
 import br.com.worklink.application.storage.usecase.PrepareFileUploadUseCase;
 import br.com.worklink.infrastructure.authentication.DisabledPasswordRecoveryDeliveryAdapter;
+import br.com.worklink.infrastructure.authentication.DisabledAuthenticationOtpDeliveryAdapter;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
@@ -120,6 +122,12 @@ public class WorkLinkUseCaseConfiguration {
     @ConditionalOnMissingBean(DeliverPasswordRecoveryTokenPort.class)
     DeliverPasswordRecoveryTokenPort disabledPasswordRecoveryDeliveryAdapter() {
         return new DisabledPasswordRecoveryDeliveryAdapter();
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(DeliverAuthenticationOtpPort.class)
+    DeliverAuthenticationOtpPort disabledAuthenticationOtpDeliveryAdapter() {
+        return new DisabledAuthenticationOtpDeliveryAdapter();
     }
 
     @Bean
@@ -241,16 +249,22 @@ public class WorkLinkUseCaseConfiguration {
             GenerateOneTimePasswordPort generateOneTimePasswordPort,
             ProtectSensitiveValuePort protectSensitiveValuePort,
             SaveAuthenticationOtpChallengePort saveAuthenticationOtpChallengePort,
+            LoadActiveAuthenticationOtpChallengePort loadActiveAuthenticationOtpChallengePort,
+            DeliverAuthenticationOtpPort deliverAuthenticationOtpPort,
             CurrentTimePort currentTimePort,
             @Value("${worklink.security.otp-expiration-minutes}") long otpExpirationMinutes,
+            @Value("${worklink.security.otp-request-cooldown-seconds:45}") long otpRequestCooldownSeconds,
             @Value("${worklink.features.otp-authentication-enabled}") boolean enabled
     ) {
         return new RequestAuthenticationOtpUseCase(
                 generateOneTimePasswordPort,
                 protectSensitiveValuePort,
                 saveAuthenticationOtpChallengePort,
+                loadActiveAuthenticationOtpChallengePort,
+                deliverAuthenticationOtpPort,
                 currentTimePort,
                 Duration.ofMinutes(otpExpirationMinutes),
+                Duration.ofSeconds(otpRequestCooldownSeconds),
                 enabled
         );
     }

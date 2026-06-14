@@ -8,6 +8,7 @@ import br.com.worklink.application.catalog.port.LoadServiceCityByIdentifierPort;
 import br.com.worklink.application.catalog.port.SaveServiceCategoryPort;
 import br.com.worklink.application.catalog.port.SaveServiceCityPort;
 import br.com.worklink.application.authentication.port.CurrentTimePort;
+import br.com.worklink.application.authentication.port.DeliverAuthenticationOtpPort;
 import br.com.worklink.application.authentication.port.ExecuteInTransactionPort;
 import br.com.worklink.application.authentication.port.GenerateOneTimePasswordPort;
 import br.com.worklink.application.authentication.port.GenerateSecureTokenPort;
@@ -89,6 +90,23 @@ class WorkLinkUseCaseConfigurationTest {
         SaveStoredFileMetadataPort saveStoredFileMetadataPort = storedFile -> storedFile;
         GenerateOneTimePasswordPort generateOneTimePasswordPort = () -> "123456";
         SaveAuthenticationOtpChallengePort saveAuthenticationOtpChallengePort = challenge -> challenge;
+        DeliverAuthenticationOtpPort deliverAuthenticationOtpPort = new DeliverAuthenticationOtpPort() {
+            @Override
+            public java.util.List<String> availableDeliveryChannels() {
+                return java.util.List.of("SMS");
+            }
+
+            @Override
+            public boolean isSimulatedDelivery() {
+                return true;
+            }
+
+            @Override
+            public void deliverAuthenticationOtp(
+                    br.com.worklink.application.authentication.port.AuthenticationOtpDeliveryRequest request
+            ) {
+            }
+        };
         CurrentTimePort currentTimePort = () -> Instant.parse("2026-05-08T20:00:00Z");
         ExecuteInTransactionPort executeInTransactionPort = new ExecuteInTransactionPort() {
             @Override
@@ -200,8 +218,11 @@ class WorkLinkUseCaseConfigurationTest {
                 generateOneTimePasswordPort,
                 protectSensitiveValuePort,
                 saveAuthenticationOtpChallengePort,
+                loadActiveAuthenticationOtpChallengePort,
+                deliverAuthenticationOtpPort,
                 currentTimePort,
                 5,
+                45,
                 true
         )).isNotNull();
         assertThat(configuration.verifyAuthenticationOtpUseCase(
