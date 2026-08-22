@@ -68,7 +68,11 @@ for android_secret in \
   WORKLINK_ANDROID_HOMOLOGATION_KEYSTORE_BASE64 \
   WORKLINK_ANDROID_HOMOLOGATION_KEYSTORE_PASSWORD \
   WORKLINK_ANDROID_HOMOLOGATION_KEY_ALIAS \
-  WORKLINK_ANDROID_HOMOLOGATION_KEY_PASSWORD; do
+  WORKLINK_ANDROID_HOMOLOGATION_KEY_PASSWORD \
+  WORKLINK_ANDROID_STORE_KEYSTORE_BASE64 \
+  WORKLINK_ANDROID_STORE_KEYSTORE_PASSWORD \
+  WORKLINK_ANDROID_STORE_KEY_ALIAS \
+  WORKLINK_ANDROID_STORE_KEY_PASSWORD; do
   require_pattern "${CI_WORKFLOW}" "${android_secret}" \
     "Workflow CI nao referencia o secret Android esperado: ${android_secret}"
   require_pattern "${GOVERNANCE_DOC}" "${android_secret}" \
@@ -92,6 +96,8 @@ done
 
 require_pattern "${ROOT_ENV_EXAMPLE}" 'WORKLINK_HOMOLOGATION_API_BASE_URL' \
   ".env.example precisa documentar a URL de homologacao mobile."
+require_pattern "${ROOT_ENV_EXAMPLE}" 'WORKLINK_PLAY_STORE_API_BASE_URL' \
+  ".env.example precisa documentar a URL de backend usada para Play Store."
 require_pattern "${MOBILE_ENV_EXAMPLE}" 'WORKLINK_USE_PREVIEW_DATA' \
   "worklink-mobile/.env.example precisa documentar o modo de dados de preview."
 require_pattern "${GOVERNANCE_DOC}" 'Rotacao e revogacao' \

@@ -25,6 +25,13 @@ Depois da Play Store, o iOS precisa de conta Apple Developer, certificados, prov
 - Documentar screenshots, política, privacidade e revisão Apple.
 - Validar instalação TestFlight em iPhone real quando conta/secrets existirem.
 
+## Ações manuais esperadas
+
+- Everton contratar/ativar Apple Developer Program.
+- Everton criar ou confirmar o app no App Store Connect.
+- Everton cadastrar secrets/certificados reais fora do repositório.
+- Everton executar ou acompanhar smoke test em iPhone real via TestFlight.
+
 ## Fora do escopo
 
 - Publicação pública imediata na App Store.

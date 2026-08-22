@@ -47,6 +47,7 @@ Store em seguida.
 ## Acoes tecnicas do projeto
 
 - Gerar AAB assinado e rastreavel.
+- Gerar artifact `worklink-android-play-internal-<commit>` pela CI quando backend/store secrets estiverem presentes.
 - Configurar `applicationId` definitivo Android: `br.com.worklink.mobile`.
 - Controlar `versionName` e `versionCode`.
 - Garantir que app de loja use API HTTPS estavel.

@@ -27,6 +27,13 @@ Publicar na loja sem observabilidade mínima pode transformar a vitrine em risco
 - Registrar versão, commit, AAB/IPA, loja e data de publicação.
 - Documentar primeiros indicadores de sucesso: downloads, cadastros, contatos iniciados e feedbacks.
 
+## Ações manuais esperadas
+
+- Everton decidir o momento exato de abrir produção.
+- Everton aprovar o go/no-go final.
+- Everton executar ou supervisionar a publicação efetiva na loja.
+- Everton acompanhar feedback inicial e priorizar reação caso surjam incidentes.
+
 ## Fora do escopo
 
 - Marketing pago.

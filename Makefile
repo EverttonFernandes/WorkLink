@@ -5,8 +5,9 @@ DOCKER_COMPOSE = WORKLINK_ENV_FILE=$(COMPOSE_ENV_FILE) $(DOCKER) compose --env-f
 .PHONY: up down restart logs api db redis storage migrate clean cloud-db-migrate cloud-api-readiness-check cloud-deployment-contract-test \
 	backend-static-analysis mobile-static-analysis static-analysis \
 	backend-unit-test backend-integration-test backend-test backend-image-build \
-	mobile-unit-test mobile-screen-test mobile-integration-test mobile-android-build \
+	mobile-unit-test mobile-screen-test mobile-integration-test mobile-android-build mobile-android-appbundle-build \
 	mobile-android-test-candidate mobile-android-local-fullstack-candidate mobile-android-homologation-candidate mobile-emulator-prereqs \
+	mobile-android-play-store-candidate \
 	mobile-visual-qa-gate mobile-product-homologation-gate mobile-signing-governance mobile-release-promotion-governance ios-readiness-check \
 	mobile-web-preview mobile-web-preview-wait mobile-web-preview-stop mobile-web-preview-logs \
 	mobile-test mobile-emulator-up mobile-emulator-wait mobile-emulator-install \
@@ -82,6 +83,17 @@ mobile-android-build: $(COMPOSE_ENV_FILE)
 	rm -rf worklink-mobile/android/.gradle
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && if [ -d android ]; then flutter build apk --debug; else echo 'N/A: projeto Android ainda nao foi gerado.'; fi"
 
+mobile-android-appbundle-build: $(COMPOSE_ENV_FILE)
+	rm -rf worklink-mobile/android/.gradle
+	@test -n "$(MOBILE_PLAY_STORE_API_BASE_URL)" || (echo "Defina MOBILE_PLAY_STORE_API_BASE_URL com a URL HTTPS da API usada na loja." >&2; exit 1)
+	$(DOCKER_COMPOSE) run --rm \
+		-e WORKLINK_ANDROID_STORE_KEYSTORE_BASE64 \
+		-e WORKLINK_ANDROID_STORE_KEYSTORE_PASSWORD \
+		-e WORKLINK_ANDROID_STORE_KEY_ALIAS \
+		-e WORKLINK_ANDROID_STORE_KEY_PASSWORD \
+		-e WORKLINK_ANDROID_STORE_KEYSTORE_PATH=android/app/store-upload.jks \
+		mobile-tests sh -lc "/workspace/scripts/prepare_android_store_signing.sh && flutter pub get && flutter build appbundle --release '--dart-define=API_BASE_URL=$(MOBILE_PLAY_STORE_API_BASE_URL)'"
+
 mobile-android-test-candidate: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "flutter pub get && flutter build apk --debug --dart-define=WORKLINK_USE_PREVIEW_DATA=true"
 	./scripts/prepare_android_test_candidate.sh
@@ -115,6 +127,22 @@ mobile-android-homologation-candidate: $(COMPOSE_ENV_FILE)
 		APP_DATA_MODE=homologation-fullstack \
 		API_BASE_URL="$(MOBILE_HOMOLOGATION_API_BASE_URL)" \
 		./scripts/prepare_android_test_candidate.sh
+
+mobile-android-play-store-candidate: $(COMPOSE_ENV_FILE)
+	@test -n "$(MOBILE_PLAY_STORE_API_BASE_URL)" || (echo "Defina MOBILE_PLAY_STORE_API_BASE_URL com a URL HTTPS da API usada na loja." >&2; exit 1)
+	./scripts/validate_homologation_api_base_url.sh "$(MOBILE_PLAY_STORE_API_BASE_URL)"
+	$(MAKE) mobile-android-appbundle-build MOBILE_PLAY_STORE_API_BASE_URL="$(MOBILE_PLAY_STORE_API_BASE_URL)"
+	OUTPUT_DIR=artifacts/android-play-internal-candidate \
+		AAB_NAME=profissional-perto-play-internal.aab \
+		AAB_SOURCE=worklink-mobile/build/app/outputs/bundle/release/app-release.aab \
+		ARTIFACT_TYPE=android-play-internal-candidate \
+		ARTIFACT_CLASS=release-candidate \
+		BUILD_TYPE=release \
+		SIGNING=android_store_upload_key \
+		APP_DATA_MODE=store-release \
+		API_BASE_URL="$(MOBILE_PLAY_STORE_API_BASE_URL)" \
+		PLAY_TRACK=internal \
+		./scripts/prepare_android_store_bundle_candidate.sh
 
 mobile-visual-qa-gate:
 	@test -n "$(TASK_KEY)" || (echo "Defina TASK_KEY=WLT-000 para validar as evidencias visuais da historia." >&2; exit 1)

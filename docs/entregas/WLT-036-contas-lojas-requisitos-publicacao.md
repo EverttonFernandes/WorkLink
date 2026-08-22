@@ -34,7 +34,8 @@ O app ainda nao deve ir para producao publica na loja. Antes disso, o backlog pr
 
 - WLT-037: backend cloud minimo para app nas lojas.
 - WLT-038: autenticacao real, custo minimo e anti-abuso.
-- WLT-039: AAB, assinatura e Play Store Internal/Closed Testing.
+- WLT-039: AAB, assinatura e artifact Android de loja.
+- WLT-042: execucao manual da Play Console e validacao real via Internal/Closed Testing.
 - WLT-041: publicacao controlada, suporte, monitoramento e rollback.
 
 ## Proxima historia

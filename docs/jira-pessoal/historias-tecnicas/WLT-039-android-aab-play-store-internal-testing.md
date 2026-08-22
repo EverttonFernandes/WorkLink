@@ -22,14 +22,15 @@ A Play Store usa Android App Bundle como formato principal. Esta história trans
 - Configurar assinatura Android compatível com Play App Signing.
 - Criar workflow GitHub Actions para gerar AAB.
 - Registrar checksum e metadados do AAB.
-- Preparar upload manual ou automatizado para Internal Testing.
-- Preparar Closed Testing com pelo menos 12 testers por 14 dias continuos quando a conta pessoal nova exigir.
-- Documentar passos no Google Play Console.
-- Validar instalação pela Play Store em aparelho real.
+- Preparar artifact e checklist para upload manual em `Internal testing`.
+- Documentar passos no Google Play Console para continuação operacional.
 - Definir checklist de aprovação antes de liberar produção.
 
 ## Fora do escopo
 
+- Upload manual na Play Console.
+- Execução do `Internal testing` pelo dono do produto.
+- Execução do `Closed testing` com testers reais.
 - Publicação pública em produção.
 - Campanha de marketing.
 - iOS/TestFlight.
@@ -41,9 +42,7 @@ A Play Store usa Android App Bundle como formato principal. Esta história trans
 - AAB aponta para API HTTPS estável.
 - Assinatura de loja documentada.
 - Artifact é rastreável por commit/tag.
-- Internal Testing configurado ou checklist manual completo.
-- Closed Testing planejado quando produção estiver bloqueada pelos requisitos de conta pessoal nova.
-- App instalado pela trilha interna abre e carrega dados reais.
+- Checklist manual da Play Console criado e apontando para a continuação operacional.
 - Bloqueio explícito se backend, autenticação ou políticas estiverem incompletos.
 
 ## Entrega versionável

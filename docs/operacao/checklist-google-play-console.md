@@ -54,6 +54,8 @@
 
 - [ ] Lista de testers criada.
 - [ ] AAB release gerado pela CI.
+- [ ] Artifact `worklink-android-play-internal-<commit>` baixado e conferido.
+- [ ] `BUILD-METADATA.txt` validado contra commit/tag/backend esperados.
 - [ ] `versionCode` incrementado.
 - [ ] API cloud HTTPS configurada.
 - [ ] App instalado via Play Store Internal Testing.

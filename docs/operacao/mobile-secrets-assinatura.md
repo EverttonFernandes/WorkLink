@@ -17,6 +17,11 @@ certificados, provisioning profiles, chaves privadas ou credenciais de loja.
 | `WORKLINK_ANDROID_HOMOLOGATION_KEY_ALIAS` | Homologacao | Android | Obrigatorio para CD | Alias da chave usada no APK de homologacao. |
 | `WORKLINK_ANDROID_HOMOLOGATION_KEY_PASSWORD` | Homologacao | Android | Obrigatorio para CD | Senha da chave usada no APK de homologacao. |
 | `WORKLINK_ANDROID_HOMOLOGATION_CERT_SHA256` | Homologacao | Android | Obrigatorio para promocao estavel | Fingerprint SHA-256 esperado para validar APK promovido. |
+| `WORKLINK_PLAY_STORE_API_BASE_URL` | Loja | Android | Obrigatorio para AAB de loja | Backend HTTPS estavel usado na build Android distribuida pela Play Store. |
+| `WORKLINK_ANDROID_STORE_KEYSTORE_BASE64` | Loja | Android | Obrigatorio para CD | Upload keystore JKS do Android para Play App Signing, codificado em base64. |
+| `WORKLINK_ANDROID_STORE_KEYSTORE_PASSWORD` | Loja | Android | Obrigatorio para CD | Senha do upload keystore Android da loja. |
+| `WORKLINK_ANDROID_STORE_KEY_ALIAS` | Loja | Android | Obrigatorio para CD | Alias da upload key usada na build AAB da loja. |
+| `WORKLINK_ANDROID_STORE_KEY_PASSWORD` | Loja | Android | Obrigatorio para CD | Senha da upload key Android da loja. |
 | `WORKLINK_APPLE_TEAM_ID` | TestFlight/Producao | iOS | Obrigatorio para CD | Team ID da Apple Developer Account. |
 | `WORKLINK_IOS_BUNDLE_IDENTIFIER` | TestFlight/Producao | iOS | Obrigatorio para CD | Bundle identifier definitivo do app iOS. |
 | `WORKLINK_APP_STORE_CONNECT_API_KEY_ID` | TestFlight/Producao | iOS | Obrigatorio para CD | Key ID da App Store Connect API. |
@@ -38,6 +43,15 @@ Android homologacao full-stack:
 - `WORKLINK_ANDROID_HOMOLOGATION_KEY_PASSWORD`
 - `WORKLINK_ANDROID_HOMOLOGATION_CERT_SHA256`
 
+Android loja/internal testing:
+
+- `WORKLINK_PLAY_STORE_API_BASE_URL`
+- `WORKLINK_HOMOLOGATION_ALLOWED_HOSTS`
+- `WORKLINK_ANDROID_STORE_KEYSTORE_BASE64`
+- `WORKLINK_ANDROID_STORE_KEYSTORE_PASSWORD`
+- `WORKLINK_ANDROID_STORE_KEY_ALIAS`
+- `WORKLINK_ANDROID_STORE_KEY_PASSWORD`
+
 iOS TestFlight/producao:
 
 - `WORKLINK_APPLE_TEAM_ID`
@@ -54,13 +68,16 @@ iOS TestFlight/producao:
 - `SONAR_TOKEN`, `SONAR_ORGANIZATION` e `SONAR_PROJECT_KEY`: sem eles o SonarCloud e pulado.
 - `WORKLINK_HOMOLOGATION_API_BASE_URL`: sem ele a CI ainda valida qualidade e gera APK tecnico, mas nao gera APK Android
   full-stack homologavel.
+- `WORKLINK_PLAY_STORE_API_BASE_URL`: sem ele a CI ainda valida qualidade e gera APK tecnico, mas nao gera o AAB da Play
+  Store para trilha interna.
 
 ## Politica de assinatura
 
 | Tipo | Android | iOS |
 | ---- | ------- | --- |
 | Debug local | Assinatura debug gerada pelo toolchain Flutter/Android. | `flutter build ios --no-codesign` quando a validacao for apenas estrutural. |
-| Homologacao/internal testing | Keystore dedicada de homologacao, diferente da futura chave de producao. | Certificado e profile de distribuicao TestFlight. |
+| Homologacao | Keystore dedicada de homologacao, diferente da futura chave de producao. | Certificado e profile de distribuicao TestFlight. |
+| Loja/internal testing | Upload key dedicada da Play App Signing, separada da chave de homologacao. | Certificado e profile de distribuicao TestFlight. |
 | Producao | Chave de producao sob conta de loja, com fingerprint registrado e backup controlado. | Certificado/profile de distribuicao associados ao bundle definitivo. |
 
 ## Rotacao e revogacao

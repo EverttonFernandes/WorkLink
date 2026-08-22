@@ -11,6 +11,10 @@ on:
         description: Backend URL used to build the Android homologation APK.
         required: false
         type: string
+      play_store_api_base_url:
+        description: Backend URL used to build the Android Play Store AAB.
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -105,6 +109,9 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
+      - name: Mobile signing governance gate
+        run: make mobile-signing-governance
+
       - name: Resolve Android homologation backend
         id: android_homologation_backend
         if: github.event_name != 'pull_request'
@@ -140,6 +147,43 @@ jobs:
         with:
           name: worklink-android-homologation-${{ github.sha }}
           path: artifacts/android-homologation-candidate
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Resolve Android Play Store backend
+        id: android_play_store_backend
+        if: github.event_name != 'pull_request'
+        env:
+          INPUT_API_BASE_URL: ${{ inputs.play_store_api_base_url }}
+          VARIABLE_API_BASE_URL: ${{ vars.WORKLINK_PLAY_STORE_API_BASE_URL }}
+          SECRET_API_BASE_URL: ${{ secrets.WORKLINK_PLAY_STORE_API_BASE_URL }}
+        run: |
+          API_BASE_URL="${INPUT_API_BASE_URL:-${VARIABLE_API_BASE_URL:-${SECRET_API_BASE_URL:-}}}"
+          if [ -z "$API_BASE_URL" ]; then
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "Android Play Store AAB skipped because no store backend URL was configured."
+            exit 0
+          fi
+          echo "enabled=true" >> "$GITHUB_OUTPUT"
+          echo "api_base_url=$API_BASE_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Prepare Android Play Store candidate
+        if: steps.android_play_store_backend.outputs.enabled == 'true'
+        env:
+          MOBILE_PLAY_STORE_API_BASE_URL: ${{ steps.android_play_store_backend.outputs.api_base_url }}
+          WORKLINK_HOMOLOGATION_ALLOWED_HOSTS: ${{ vars.WORKLINK_HOMOLOGATION_ALLOWED_HOSTS }}
+          WORKLINK_ANDROID_STORE_KEYSTORE_BASE64: ${{ secrets.WORKLINK_ANDROID_STORE_KEYSTORE_BASE64 }}
+          WORKLINK_ANDROID_STORE_KEYSTORE_PASSWORD: ${{ secrets.WORKLINK_ANDROID_STORE_KEYSTORE_PASSWORD }}
+          WORKLINK_ANDROID_STORE_KEY_ALIAS: ${{ secrets.WORKLINK_ANDROID_STORE_KEY_ALIAS }}
+          WORKLINK_ANDROID_STORE_KEY_PASSWORD: ${{ secrets.WORKLINK_ANDROID_STORE_KEY_PASSWORD }}
+        run: make mobile-android-play-store-candidate
+
+      - name: Upload Android Play Store candidate
+        if: steps.android_play_store_backend.outputs.enabled == 'true'
+        uses: actions/upload-artifact@v7
+        with:
+          name: worklink-android-play-internal-${{ github.sha }}
+          path: artifacts/android-play-internal-candidate
           if-no-files-found: error
           retention-days: 30
 
