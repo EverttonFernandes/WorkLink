@@ -45,10 +45,30 @@ coverage/
 *.provisionprofile
 GoogleService-Info.plist
 google-services.json
-# Local tooling folders used in this repository
-.codex
-*.agents
-*.agent-packages
+
+# Local agent/AI tooling. These files can contain local prompts, scripts,
+# operational notes or credentials and must not be published with the product.
+.agents/
+.codex/
+.agent-packages/
+
+# Local CLI/cloud credentials and secret material.
+.aws/
+.azure/
+.config/gh/
+.digitalocean/
+.doctl/
+.kube/
+*.pem
+*.crt
+*.csr
+*.der
+*.json.key
+*service-account*.json
+*credentials*.json
+*secret*.json
+secrets/
+credentials/
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
@@ -58,5 +78,6 @@ replay_pid*
 artifacts/android-test-candidate*/
 artifacts/android-local-fullstack-candidate*/
 artifacts/android-homologation-candidate*/
+artifacts/mobile-emulator-diagnostics*/
 artifacts/local-secrets/
 worklink-mobile/test/widget/visual/failures/
