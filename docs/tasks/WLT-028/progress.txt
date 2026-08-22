@@ -1,8 +1,0 @@
-2026-06-04 - Iteracao 1
-- WLT-028 iniciada apos WLT-027 fechar com CI verde.
-- Gaps principais: checklist de promocao, rastreabilidade tag/commit/artifact, rollback e separacao CI/CD manual.
-
-2026-06-04 - Iteracao 2
-- Criado procedimento de promocao e rollback mobile.
-- Criado target `mobile-release-promotion-governance` e gate no `Dependency scan`.
-- Teste sintetico confirmou que documento sem rollback e bloqueado.

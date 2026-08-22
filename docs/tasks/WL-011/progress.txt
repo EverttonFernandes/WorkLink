@@ -1,7 +1,0 @@
-WL-011 progress
-
-- 2026-05-09: História iniciada como próxima demanda oficial após WL-010/v0.26.0.
-- 2026-05-09: Functional test discovery identifica infraestrutura Jest/Axios sem cenários reais executáveis; gate funcional planejado como N/A nesta história.
-- 2026-05-09: Backend implementado com caso de uso, ownership por cliente, persistência JDBC e migração V011.
-- 2026-05-09: Mobile implementado com tela/controller pós-contato e navegação a partir do contato WhatsApp concluído.
-- 2026-05-09: Gates executados em Docker: backend unit/integration/static, mobile unit/static/screen, functional N/A, mobile integration N/A, backend image e varredura de segredos.

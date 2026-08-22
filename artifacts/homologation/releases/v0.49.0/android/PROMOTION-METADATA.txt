@@ -1,9 +1,0 @@
-version=v0.49.0
-source_run_id=26948049311
-source_artifact=worklink-android-homologation-6883e468d74c989f37fe62b76e84d2a2fe843490
-release_tag=v0.49.0
-release_asset=worklink-android-homologation.apk
-release_upload_enabled=true
-android_cert_sha256=fff1b9ba121d85805d3a92ba11441a43e62be9a30531dd8c63166828878763ea
-promoted_at_utc=2026-06-04T11:48:35Z
-repository=EverttonFernandes/WorkLink

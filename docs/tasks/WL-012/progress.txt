@@ -1,7 +1,0 @@
-WL-012 progress
-
-- 2026-05-09: História iniciada como próxima demanda oficial após WL-011/v0.27.0.
-- 2026-05-09: Functional test discovery identifica infraestrutura Jest/Axios sem cenários reais executáveis; gate funcional planejado como N/A nesta história.
-- 2026-05-09: Backend implementado com domínio, caso de uso, endpoint, persistência, auditoria e migração V012.
-- 2026-05-09: Mobile implementado com tela de avaliação, nota obrigatória, comentário opcional e anonimato público.
-- 2026-05-09: Gates executados: backend unit/static/integration, mobile static/unit/screen, mobile integration N/A, functional N/A, imagem backend, diff check e security diff scan.

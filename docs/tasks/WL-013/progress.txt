@@ -1,8 +1,0 @@
-WL-013 progress
-
-- 2026-05-09: História iniciada como próxima demanda oficial após WL-012/v0.28.0.
-- 2026-05-09: Functional test discovery identifica infraestrutura Jest/Axios sem cenários reais executáveis; gate funcional planejado como N/A nesta história.
-- 2026-05-09: Implementada projeção pública de avaliações no backend com média, quantidade, comentários e anonimato público.
-- 2026-05-09: Implementada solicitação rastreável de análise de avaliação pelo profissional avaliado.
-- 2026-05-09: Tela mobile de perfil passou a exibir resumo de avaliações, comentários públicos e ação de análise.
-- 2026-05-09: Gates executados com sucesso; integração mobile e funcional permaneceram N/A por limitação de ambiente/cenários.

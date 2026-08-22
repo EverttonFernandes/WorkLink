@@ -1,7 +1,0 @@
-WLT-016 progress
-
-- 2026-05-09: História iniciada como próxima demanda oficial após WL-015/v0.31.0.
-- 2026-05-09: Escopo confirmado como reforço operacional da API sem introduzir cache funcional ou orquestração pesada.
-- 2026-05-09: Configurados graceful shutdown, readiness healthcheck, timeouts operacionais e contrato de retry finito.
-- 2026-05-09: Documento de arquitetura stateless criado com decisões, limites e regra de cache-aside futuro.
-- 2026-05-09: Gates backend unit/static/integration, build de imagem e readiness real em container concluídos com sucesso.

@@ -69,6 +69,11 @@ google-services.json
 *secret*.json
 secrets/
 credentials/
+
+# Internal project knowledge and operational assets. The public repository
+# should not expose planning, delivery history, deployment manifests or artifacts.
+artifacts/
+docs/
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*

@@ -1,8 +1,0 @@
-WLT-018 progress
-
-- 2026-05-09: História técnica iniciada como próxima demanda oficial após WL-017/v0.34.0.
-- 2026-05-09: Escopo definido como documentação e fechamento de release, sem alteração de código funcional.
-- 2026-05-09: Criados ADRs iniciais, C4 Model, OpenAPI estático, guias operacionais, documentação de segurança e
-  estratégia de release mobile.
-- 2026-05-09: `git diff --check` concluído sem problemas; gates de código ficaram N/A por se tratar de entrega
-  documental.

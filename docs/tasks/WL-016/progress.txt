@@ -1,8 +1,0 @@
-WL-016 progress
-
-- 2026-05-09: História iniciada como próxima demanda oficial após WLT-016/v0.32.0.
-- 2026-05-09: Escopo pragmático definido como backend administrativo mínimo; não há protótipo de tela admin no projeto.
-- 2026-05-09: Endpoints administrativos criados para profissionais, bloqueio/desbloqueio, denúncias, contestações e métricas.
-- 2026-05-09: Bloqueio de profissional persistido em `professionals.blocked`; descoberta pública passou a filtrar bloqueados.
-- 2026-05-09: Primeiras execuções de `make backend-unit-test` falharam por cobertura global abaixo de 95%; adicionados testes de use case, controller e adapter administrativo.
-- 2026-05-09: `make backend-static-analysis`, `make backend-unit-test`, `make backend-integration-test`, `make backend-image-build`, `make functional-test`, `git diff --check` e varredura de segredos concluídos.

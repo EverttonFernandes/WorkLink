@@ -1,8 +1,0 @@
-WL-015 progress
-
-- 2026-05-09: História iniciada como próxima demanda oficial após WL-014/v0.30.0.
-- 2026-05-09: Functional test discovery identifica infraestrutura Jest/Axios sem cenários reais executáveis; gate funcional planejado como N/A nesta história.
-- 2026-05-09: Implementado perfil mobile do cliente com dados mínimos, cidades selecionadas, profissionais salvos, avaliações enviadas, preferências e logout.
-- 2026-05-09: Integração com descoberta exige autenticação local antes de abrir o perfil.
-- 2026-05-09: Testes unitários e de tela criados em Given/When/Then para controller, tela de perfil e fluxo de autenticação.
-- 2026-05-09: Gates executados: mobile static/unit/screen, backend unit/static/integration, functional N/A, mobile integration N/A e backend image build.

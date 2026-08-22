@@ -1,7 +1,0 @@
-2026-05-30 00:00 - WLT-032 iniciada manualmente porque `.agents/workflows/start-work.md` nao existe neste checkout.
-2026-05-30 00:01 - Functional Test Discovery: Jest detectado em `functional-tests/src/specs`; seed de homologacao detectado em `functional-tests/src/scripts/seedHomologationScenario.js`.
-2026-05-30 00:02 - Gap confirmado: seed cobre somente Charqueadas, Sao Jeronimo, Butia e Arroio dos Ratos; faltam Triunfo, Eldorado do Sul e General Camara.
-2026-05-30 00:30 - Seed funcional ampliado para 7 cidades e 9 profissionais; preview mobile ampliado para 7 profissionais regionais.
-2026-05-30 00:45 - Preview web deixou de usar `flutter run -d web-server`; passou a usar `flutter build web` e `python3 -m http.server`, corrigindo tela branca/queda por WebSocket.
-2026-05-30 01:05 - Gates aprovados: mobile-static-analysis, mobile-unit-test, mobile-screen-test e functional-test.
-2026-05-30 01:20 - Security, arquitetura e final review aprovados; diff sem segredos reais, mudanca restrita ao escopo WLT-032 e pronta para commit/tag PATCH.

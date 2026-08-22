@@ -1,9 +1,0 @@
-WL-017 progress
-
-- 2026-05-09: História iniciada como próxima demanda oficial após WL-016/v0.33.0.
-- 2026-05-09: Escopo pragmático definido como backend analítico mínimo; sem tela vinculada em protótipos.
-- 2026-05-09: Criada migração `V016__create_functional_search_events.sql` para persistir buscas de profissionais.
-- 2026-05-09: Endpoint `/api/v1/admin/functional-metrics` criado com sinais de busca, contato, responsividade,
-  disponibilidade e reputação, mantendo `rankingAlgorithmEnabled=false`.
-- 2026-05-09: Gates concluídos: análise estática, unitários com 255 testes, integração com Flyway v016, imagem Docker,
-  teste funcional N/A, diff limpo e varredura de segredos no diff.

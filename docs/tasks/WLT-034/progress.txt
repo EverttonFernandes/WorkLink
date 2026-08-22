@@ -1,6 +1,0 @@
-2026-06-03 23:50 - WLT-034 aguardou fechamento da WLT-033 antes de iniciar, respeitando hard gate entre historias.
-2026-06-03 23:55 - CI da WLT-033 concluida com sucesso no run 26926338620, incluindo APK de teste, APK de homologacao e emulador Android.
-2026-06-04 00:00 - WLT-034 iniciada como proxima historia oficial do Kanban. Workflow start-work.md nao existe no checkout; artefatos Ralph Loop criados manualmente.
-2026-06-04 00:15 - Gate visual oficial criado com matriz obrigatoria, screenshots reais, veredito do especialista mobile e classes de artifact.
-2026-06-04 00:20 - Script check_mobile_visual_evidence_gate.sh e target make mobile-visual-qa-gate adicionados para bloquear evidencia ausente ou reprovada.
-2026-06-04 00:25 - Teste do gate visual aprovado: fixture valida passa e fixture com FAIL bloqueia. sh -n e git diff --check aprovados.

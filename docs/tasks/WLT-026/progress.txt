@@ -1,4 +1,0 @@
-2026-06-04 09:30 - WLT-026 iniciada como proxima historia elegivel apos WLT-029/v0.49.0.
-2026-06-04 09:35 - Decisao registrada: workflow iOS sera manual e sem upload real ate existirem Apple Developer Account e secrets.
-2026-06-04 09:50 - Criados guia iOS/TestFlight, workflow manual macOS, script check_ios_project_readiness.sh e target make ios-readiness-check.
-2026-06-04 09:55 - Gates locais aprovados: make ios-readiness-check, sh -n, make -n e git diff --check.
