@@ -2,6 +2,24 @@
 
 Este arquivo e mandatorio para qualquer agente de IA que altere este repositorio.
 
+## Regra inegociavel de inicio da demanda: TDD e BDD
+
+Toda demanda deve comecar por comportamento esperado antes de implementacao.
+
+Antes de alterar codigo produtivo, o agente deve:
+
+1. Escrever ou atualizar o cenario funcional/BDD que descreve a regra de negocio esperada.
+2. Executar esse cenario e confirmar que ele falha pelo motivo correto quando a funcionalidade ainda nao existe ou esta
+   incorreta.
+3. Implementar a menor mudanca necessaria para fazer o cenario funcional passar obedecendo a regra de negocio.
+4. Reexecutar o cenario funcional e os testes funcionais relacionados ate ficarem verdes.
+5. Somente depois dos testes funcionais verdes, escrever ou ajustar testes unitarios para maximizar cobertura do codigo
+   alterado.
+6. Reexecutar os testes unitarios, analises e gates aplicaveis antes do commit.
+
+Se a demanda for exclusivamente documental, operacional ou de governanca, o agente deve declarar que TDD/BDD nao se
+aplica diretamente e validar a mudanca com o gate mais proximo, como `git diff --cached --check`, `sh -n` ou `make -n`.
+
 ## Regra inegociavel de push na main
 
 Nenhum agente de IA pode fazer push para `main` se existir qualquer teste, analise ou gate quebrando.
