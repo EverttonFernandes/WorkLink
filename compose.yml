@@ -77,8 +77,8 @@ services:
       - -url=jdbc:postgresql://postgres:5432/${WORKLINK_POSTGRES_DATABASE}
       - -user=${WORKLINK_POSTGRES_USERNAME}
       - -password=${WORKLINK_POSTGRES_PASSWORD}
-      - -defaultSchema=public
-      - -schemas=public,worklink
+      - -defaultSchema=worklink
+      - -schemas=worklink
       - -connectRetries=10
       - migrate
 
