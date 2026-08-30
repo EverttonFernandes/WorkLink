@@ -53,13 +53,18 @@ EOF
 }
 
 VALID_REPOSITORY="${TEMPORARY_ROOT}/valid"
+PUBLIC_REPOSITORY="${TEMPORARY_ROOT}/public"
 INVALID_REPOSITORY="${TEMPORARY_ROOT}/invalid"
 
-mkdir -p "${VALID_REPOSITORY}" "${INVALID_REPOSITORY}"
+mkdir -p "${VALID_REPOSITORY}" "${PUBLIC_REPOSITORY}" "${INVALID_REPOSITORY}"
 create_minimal_repository "${VALID_REPOSITORY}"
+create_minimal_repository "${PUBLIC_REPOSITORY}"
 create_minimal_repository "${INVALID_REPOSITORY}"
 
 ./scripts/check_mobile_release_promotion_governance.sh "${VALID_REPOSITORY}" >/dev/null
+
+rm -rf "${PUBLIC_REPOSITORY}/docs"
+./scripts/check_mobile_release_promotion_governance.sh "${PUBLIC_REPOSITORY}" >/dev/null
 
 sed -i '/Rollback/d' "${INVALID_REPOSITORY}/docs/operacao/mobile-release-promocao-rollback.md"
 

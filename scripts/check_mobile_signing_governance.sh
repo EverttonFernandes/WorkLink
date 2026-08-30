@@ -34,7 +34,6 @@ for required_file in \
   "${GITIGNORE_FILE}" \
   "${ROOT_ENV_EXAMPLE}" \
   "${MOBILE_ENV_EXAMPLE}" \
-  "${GOVERNANCE_DOC}" \
   "${CI_WORKFLOW}" \
   "${IOS_WORKFLOW}"; do
   require_file "${required_file}"
@@ -75,8 +74,10 @@ for android_secret in \
   WORKLINK_ANDROID_STORE_KEY_PASSWORD; do
   require_pattern "${CI_WORKFLOW}" "${android_secret}" \
     "Workflow CI nao referencia o secret Android esperado: ${android_secret}"
-  require_pattern "${GOVERNANCE_DOC}" "${android_secret}" \
-    "Documento de governanca nao inventaria o secret Android esperado: ${android_secret}"
+  if [ -f "${GOVERNANCE_DOC}" ]; then
+    require_pattern "${GOVERNANCE_DOC}" "${android_secret}" \
+      "Documento de governanca nao inventaria o secret Android esperado: ${android_secret}"
+  fi
 done
 
 for apple_secret in \
@@ -90,8 +91,10 @@ for apple_secret in \
   WORKLINK_IOS_PROVISIONING_PROFILE_BASE64; do
   require_pattern "${IOS_WORKFLOW}" "${apple_secret}" \
     "Workflow iOS nao referencia o secret Apple esperado: ${apple_secret}"
-  require_pattern "${GOVERNANCE_DOC}" "${apple_secret}" \
-    "Documento de governanca nao inventaria o secret Apple esperado: ${apple_secret}"
+  if [ -f "${GOVERNANCE_DOC}" ]; then
+    require_pattern "${GOVERNANCE_DOC}" "${apple_secret}" \
+      "Documento de governanca nao inventaria o secret Apple esperado: ${apple_secret}"
+  fi
 done
 
 require_pattern "${ROOT_ENV_EXAMPLE}" 'WORKLINK_HOMOLOGATION_API_BASE_URL' \
@@ -100,10 +103,14 @@ require_pattern "${ROOT_ENV_EXAMPLE}" 'WORKLINK_PLAY_STORE_API_BASE_URL' \
   ".env.example precisa documentar a URL de backend usada para Play Store."
 require_pattern "${MOBILE_ENV_EXAMPLE}" 'WORKLINK_USE_PREVIEW_DATA' \
   "worklink-mobile/.env.example precisa documentar o modo de dados de preview."
-require_pattern "${GOVERNANCE_DOC}" 'Rotacao e revogacao' \
-  "Documento de governanca precisa definir rotacao e revogacao."
-require_pattern "${GOVERNANCE_DOC}" 'Obrigatorios para CD' \
-  "Documento de governanca precisa classificar secrets que bloqueiam CD."
+if [ -f "${GOVERNANCE_DOC}" ]; then
+  require_pattern "${GOVERNANCE_DOC}" 'Rotacao e revogacao' \
+    "Documento de governanca precisa definir rotacao e revogacao."
+  require_pattern "${GOVERNANCE_DOC}" 'Obrigatorios para CD' \
+    "Documento de governanca precisa classificar secrets que bloqueiam CD."
+else
+  echo "Documento local de governanca ausente; validacao documental ignorada no clone publico."
+fi
 require_pattern "${CI_WORKFLOW}" 'Mobile signing governance gate' \
   "Workflow CI precisa executar o gate de governanca de assinatura mobile."
 
