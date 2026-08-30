@@ -23,9 +23,10 @@ Uma história só pode ir para `Done` quando:
 
 | Ordem | História                                                                       | Tipo    | Título                                                      | Relação com outras histórias                                         | Execução                                 | Versão | Entrega                                                                                |
 | ----- | ------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------- | ------ | -------------------------------------------------------------------------------------- |
-| 66    | [WLT-042](historias-tecnicas/WLT-042-operacao-manual-play-console-testes-internos-fechados.md) | Técnica | Operação manual da Play Console para testes internos e fechados | Executa a etapa humana após a esteira técnica Android da WLT-039 e depois da nova jornada de autenticação | Manual assistida com checklist | PATCH  | [Entrega WLT-042](../entregas/WLT-042-operacao-manual-play-console-testes-internos-fechados.md) |
-| 67    | [WLT-040](historias-tecnicas/WLT-040-ios-testflight-app-store-preparacao.md)    | Técnica | iOS TestFlight e preparação App Store                       | Prepara segunda loja após caminho Android                             | Separada com ações manuais               | MINOR  | [Entrega WLT-040](../entregas/WLT-040-ios-testflight-app-store-preparacao.md)          |
-| 68    | [WLT-041](historias-tecnicas/WLT-041-publicacao-controlada-lojas-monitoramento.md) | Técnica | Publicação controlada nas lojas e monitoramento inicial   | Fecha lançamento loja-first com go/no-go, suporte e rollback          | Separada com ações manuais               | MINOR  | [Entrega WLT-041](../entregas/WLT-041-publicacao-controlada-lojas-monitoramento.md)    |
+| 66    | [WLT-037](historias-tecnicas/WLT-037-backend-cloud-minimo-para-app-lojas.md)    | Técnica | Backend cloud mínimo para aplicativo nas lojas              | Pré-requisito para AAB de loja funcionar fora do ambiente local      | Manual assistida + SRE                   | MINOR  | [Entrega WLT-037](../entregas/WLT-037-backend-cloud-minimo-para-app-lojas.md)          |
+| 67    | [WLT-042](historias-tecnicas/WLT-042-operacao-manual-play-console-testes-internos-fechados.md) | Técnica | Operação manual da Play Console para testes internos e fechados | Executa a etapa humana após backend cloud, WLT-039 e nova jornada de autenticação | Manual assistida com checklist | PATCH  | [Entrega WLT-042](../entregas/WLT-042-operacao-manual-play-console-testes-internos-fechados.md) |
+| 68    | [WLT-040](historias-tecnicas/WLT-040-ios-testflight-app-store-preparacao.md)    | Técnica | iOS TestFlight e preparação App Store                       | Prepara segunda loja após caminho Android                             | Separada com ações manuais               | MINOR  | [Entrega WLT-040](../entregas/WLT-040-ios-testflight-app-store-preparacao.md)          |
+| 69    | [WLT-041](historias-tecnicas/WLT-041-publicacao-controlada-lojas-monitoramento.md) | Técnica | Publicação controlada nas lojas e monitoramento inicial   | Fecha lançamento loja-first com go/no-go, suporte e rollback          | Separada com ações manuais               | MINOR  | [Entrega WLT-041](../entregas/WLT-041-publicacao-controlada-lojas-monitoramento.md)    |
 
 ### TODOs de produto já identificados na fila
 
@@ -41,12 +42,7 @@ _Vazio._
 
 ## Backlog
 
-Histórias abaixo foram movidas para a base da fila porque dependem da correção dos débitos de homologação mobile.
-Elas devem voltar para `To Do` apenas depois que WLT-030 a WLT-035 estiverem concluídas ou formalmente replanejadas.
-
-| Ordem | História                                                                       | Tipo    | Título                                                      | Relação com outras histórias                                         | Execução                                 | Versão | Entrega                                                                                |
-| ----- | ------------------------------------------------------------------------------ | ------- | ----------------------------------------------------------- | -------------------------------------------------------------------- | ---------------------------------------- | ------ | -------------------------------------------------------------------------------------- |
-| 61    | [WLT-037](historias-tecnicas/WLT-037-backend-cloud-minimo-para-app-lojas.md)    | Técnica | Backend cloud mínimo para aplicativo nas lojas              | Bloqueada por provisionamento cloud e credenciais manuais            | Retomar antes da publicação nas lojas    | MINOR  | [Entrega WLT-037](../entregas/WLT-037-backend-cloud-minimo-para-app-lojas.md)          |
+_Vazio._
 
 ## Done
 
