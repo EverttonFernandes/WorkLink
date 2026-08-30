@@ -31,7 +31,7 @@ void main() {
     // THEN
     expect(categories, isA<List<ServiceCategory>>());
     expect(cities, isA<List<ServiceCity>>());
-    expect(professionals, isA<List<Professional>>());
+    expect(professionals, isA<List<ProfessionalSummary>>());
   });
 }
 

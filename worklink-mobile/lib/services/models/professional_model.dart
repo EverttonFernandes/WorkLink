@@ -1,5 +1,68 @@
 // ignore_for_file: sort_constructors_first
 
+class ProfessionalSummary {
+  const ProfessionalSummary({
+    required this.professionalIdentifier,
+    required this.professionalName,
+    required this.cityIdentifier,
+    required this.categoryIdentifier,
+    required this.shortDescription,
+    this.profilePhotoFileIdentifier,
+    this.availabilityStatus = '',
+    this.availabilityBadgeLabel = '',
+    this.availabilityReducesListingHighlight = false,
+    this.phoneNumberVerified = false,
+    this.qualityGuarantee = false,
+  });
+
+  final String professionalIdentifier;
+  final String professionalName;
+  final String cityIdentifier;
+  final String categoryIdentifier;
+  final String shortDescription;
+  final String? profilePhotoFileIdentifier;
+  final String availabilityStatus;
+  final String availabilityBadgeLabel;
+  final bool availabilityReducesListingHighlight;
+  final bool phoneNumberVerified;
+  final bool qualityGuarantee;
+
+  factory ProfessionalSummary.fromJson(Map<String, dynamic> json) {
+    return ProfessionalSummary(
+      professionalIdentifier: json['professionalIdentifier']?.toString() ?? '',
+      professionalName: json['professionalName']?.toString() ?? '',
+      cityIdentifier: json['cityIdentifier']?.toString() ?? '',
+      categoryIdentifier: json['categoryIdentifier']?.toString() ?? '',
+      shortDescription: json['shortDescription']?.toString() ?? '',
+      profilePhotoFileIdentifier:
+          json['profilePhotoFileIdentifier']?.toString(),
+      availabilityStatus: json['availabilityStatus']?.toString() ?? '',
+      availabilityBadgeLabel: json['availabilityBadgeLabel']?.toString() ?? '',
+      availabilityReducesListingHighlight:
+          json['availabilityReducesListingHighlight'] == true,
+      phoneNumberVerified: json['phoneNumberVerified'] == true,
+      qualityGuarantee: json['qualityGuarantee'] == true,
+    );
+  }
+
+  Map<String, Object?> toJson() {
+    return {
+      'professionalIdentifier': professionalIdentifier,
+      'professionalName': professionalName,
+      'cityIdentifier': cityIdentifier,
+      'categoryIdentifier': categoryIdentifier,
+      'shortDescription': shortDescription,
+      'profilePhotoFileIdentifier': profilePhotoFileIdentifier,
+      'availabilityStatus': availabilityStatus,
+      'availabilityBadgeLabel': availabilityBadgeLabel,
+      'availabilityReducesListingHighlight':
+          availabilityReducesListingHighlight,
+      'phoneNumberVerified': phoneNumberVerified,
+      'qualityGuarantee': qualityGuarantee,
+    };
+  }
+}
+
 class Professional {
   const Professional({
     required this.professionalIdentifier,

@@ -8,7 +8,7 @@ class ProfessionalService {
 
   final WorkLinkHttpClient _httpClient;
 
-  Future<List<Professional>> listProfessionals({
+  Future<List<ProfessionalSummary>> listProfessionals({
     DiscoveryRequest request = const DiscoveryRequest(),
   }) async {
     final response = await _httpClient.getList(
@@ -17,10 +17,28 @@ class ProfessionalService {
     );
     return response
         .map(
-          (json) =>
-              Professional.fromJson(Map<String, dynamic>.from(json as Map)),
+          (json) => ProfessionalSummary.fromJson(
+            Map<String, dynamic>.from(json as Map),
+          ),
         )
         .toList();
+  }
+
+  Future<Professional> loadProfessionalDetail(
+    String professionalIdentifier,
+  ) async {
+    final response = await _httpClient.getObject(
+      '/api/v1/professionals/$professionalIdentifier',
+    );
+    return Professional.fromJson(response);
+  }
+
+  Future<void> recordAnonymousProfessionalDetailAttempt(
+    String professionalIdentifier,
+  ) async {
+    await _httpClient.postEmpty(
+      '/api/v1/professionals/$professionalIdentifier/detail-access-attempts',
+    );
   }
 
   Future<Professional> registerBasicProfessional(

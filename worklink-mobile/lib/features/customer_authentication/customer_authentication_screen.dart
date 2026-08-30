@@ -23,7 +23,7 @@ class CustomerAuthenticationScreen extends StatelessWidget {
         final state = customerAuthenticationController.state;
         return Scaffold(
           backgroundColor: const Color(0xFFF8FBFF),
-          appBar: AppBar(title: const Text('Profissional Perto')),
+          appBar: AppBar(),
           body: SafeArea(
             child: ListView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -189,7 +189,8 @@ class _SignInForm extends StatelessWidget {
         const _FormTitle(
           icon: Icons.lock_open_rounded,
           title: 'Acesse sua conta',
-          subtitle: 'Use seu email e sua senha para continuar.',
+          subtitle:
+              'Use seu email e sua senha para ver perfis completos e continuar.',
         ),
         const SizedBox(height: 18),
         _EmailField(onChanged: controller.changeEmailAddress),
@@ -249,7 +250,8 @@ class _SignUpForm extends StatelessWidget {
         const _FormTitle(
           icon: Icons.person_add_alt_1_rounded,
           title: 'Crie sua conta',
-          subtitle: 'Cadastre-se somente quando precisar falar com alguém.',
+          subtitle:
+              'Crie sua conta para ver perfis completos e seguir com segurança.',
         ),
         const SizedBox(height: 18),
         _TextField(
@@ -748,7 +750,7 @@ class _HeroCopy extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         const Text(
-          'Acesse sua conta somente quando precisar falar com um profissional.',
+          'Entre ou crie sua conta para ver o perfil completo do profissional.',
           textAlign: TextAlign.center,
           style: TextStyle(color: Color(0xFF6A7D96), height: 1.45),
         ),

@@ -14,6 +14,7 @@ import '../features/professional_review/professional_review_state.dart';
 import '../services/admin_service.dart';
 import '../services/api_client.dart';
 import '../services/authentication_service.dart';
+import '../services/authentication_session_store.dart';
 import '../services/catalog_service.dart';
 import '../services/contact_service.dart';
 import '../services/customer_service.dart';
@@ -55,6 +56,14 @@ abstract interface class WorkLinkApplicationGateway {
 
   Future<WorkLinkHomeData> loadHomeData();
 
+  Future<ProfessionalProfile> loadProfessionalProfile(
+    String professionalIdentifier,
+  );
+
+  Future<void> recordAnonymousProfessionalDetailAttempt(
+    String professionalIdentifier,
+  );
+
   Future<void> registerLocalAccount({
     required String fullName,
     required String phoneNumber,
@@ -68,6 +77,8 @@ abstract interface class WorkLinkApplicationGateway {
     required String emailAddress,
     required String password,
   });
+
+  Future<bool> restoreCustomerSession();
 
   Future<void> logout();
 
@@ -196,9 +207,12 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
     WorkLinkHttpClient? httpClient,
     WorkLinkHttpClient? administrativeHttpClient,
     String? administrativeAccessToken,
+    AuthenticationSessionStore? authenticationSessionStore,
   })  : _httpClient = httpClient ?? ApiClient(),
         _administrativeHttpClient = administrativeHttpClient,
-        _administrativeAccessToken = administrativeAccessToken;
+        _administrativeAccessToken = administrativeAccessToken,
+        _authenticationSessionStore = authenticationSessionStore ??
+            FlutterSecureAuthenticationSessionStore();
 
   static const _missingCategoryName = 'Categoria não informada';
   static const _missingCityDisplayName = 'Cidade não informada';
@@ -209,6 +223,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
   final WorkLinkHttpClient _httpClient;
   final WorkLinkHttpClient? _administrativeHttpClient;
   final String? _administrativeAccessToken;
+  final AuthenticationSessionStore _authenticationSessionStore;
   AuthenticationSession? _activeAuthenticationSession;
 
   @override
@@ -224,7 +239,6 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
   Future<WorkLinkHomeData> loadHomeData() async {
     final catalogService = CatalogService(httpClient: _httpClient);
     final professionalService = ProfessionalService(httpClient: _httpClient);
-    final reviewService = ReviewService(httpClient: _httpClient);
 
     final categories = await catalogService.listServiceCategories();
     final cities = await catalogService.listServiceCities();
@@ -245,23 +259,6 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       for (final city in cities) city.displayName: city.cityIdentifier,
     };
 
-    final reviewProfilesByProfessionalIdentifier =
-        <String, review_models.ProfessionalReviewProfile>{};
-    final portfolioItemsByProfessionalIdentifier =
-        <String, List<professional_models.ProfessionalPortfolioItem>>{};
-    for (final professional in professionals) {
-      reviewProfilesByProfessionalIdentifier[
-              professional.professionalIdentifier] =
-          await reviewService.listProfessionalReviewProfile(
-        professional.professionalIdentifier,
-      );
-      portfolioItemsByProfessionalIdentifier[
-              professional.professionalIdentifier] =
-          await professionalService.listProfessionalPortfolioItems(
-        professional.professionalIdentifier,
-      );
-    }
-
     return WorkLinkHomeData(
       discoveryProfessionals: professionals
           .map(
@@ -272,20 +269,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
             ),
           )
           .toList(),
-      professionalProfiles: professionals
-          .map(
-            (professional) => _mapProfessionalProfile(
-              professional,
-              categoryNamesByIdentifier,
-              cityDisplayNamesByIdentifier,
-              reviewProfilesByProfessionalIdentifier[
-                  professional.professionalIdentifier],
-              portfolioItemsByProfessionalIdentifier[
-                      professional.professionalIdentifier] ??
-                  const [],
-            ),
-          )
-          .toList(),
+      professionalProfiles: const [],
       professionalRegistrationCategoryNames:
           categories.map((category) => category.categoryName).toList()..sort(),
       professionalRegistrationCityDisplayNames:
@@ -293,6 +277,49 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       categoryIdentifiersByName: categoryIdentifiersByName,
       cityIdentifiersByDisplayName: cityIdentifiersByDisplayName,
     );
+  }
+
+  @override
+  Future<ProfessionalProfile> loadProfessionalProfile(
+    String professionalIdentifier,
+  ) async {
+    final catalogService = CatalogService(httpClient: _httpClient);
+    final professionalService = ProfessionalService(httpClient: _httpClient);
+    final reviewService = ReviewService(httpClient: _httpClient);
+
+    final categories = await catalogService.listServiceCategories();
+    final cities = await catalogService.listServiceCities();
+    final professional = await professionalService.loadProfessionalDetail(
+      professionalIdentifier,
+    );
+    final reviewProfile = await reviewService.listProfessionalReviewProfile(
+      professionalIdentifier,
+    );
+    final portfolioItems =
+        await professionalService.listProfessionalPortfolioItems(
+      professionalIdentifier,
+    );
+
+    return _mapProfessionalProfile(
+      professional,
+      {
+        for (final category in categories)
+          category.categoryIdentifier: category.categoryName,
+      },
+      {
+        for (final city in cities) city.cityIdentifier: city.displayName,
+      },
+      reviewProfile,
+      portfolioItems,
+    );
+  }
+
+  @override
+  Future<void> recordAnonymousProfessionalDetailAttempt(
+    String professionalIdentifier,
+  ) async {
+    await ProfessionalService(httpClient: _httpClient)
+        .recordAnonymousProfessionalDetailAttempt(professionalIdentifier);
   }
 
   @override
@@ -314,6 +341,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       passwordConfirmation: passwordConfirmation,
       legalTermsAccepted: legalTermsAccepted,
     );
+    await _persistActiveAuthenticationSession();
   }
 
   @override
@@ -327,12 +355,41 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       emailAddress: emailAddress,
       password: password,
     );
+    await _persistActiveAuthenticationSession();
+  }
+
+  @override
+  Future<bool> restoreCustomerSession() async {
+    final persistedRefreshCredentials = await _authenticationSessionStore
+        .loadAuthenticationSessionRefreshCredentials();
+    if (persistedRefreshCredentials == null) {
+      _httpClient.clearBearerToken();
+      return false;
+    }
+    if (persistedRefreshCredentials.refreshTokenExpiresAt
+        .isBefore(DateTime.now())) {
+      await _clearActiveAuthenticationSession();
+      return false;
+    }
+    try {
+      _activeAuthenticationSession =
+          await AuthenticationService(httpClient: _httpClient)
+              .refreshAuthenticationSession(
+        persistedRefreshCredentials.refreshToken,
+      );
+      await _persistActiveAuthenticationSession();
+      return true;
+    } catch (_) {
+      await _clearActiveAuthenticationSession();
+      return false;
+    }
   }
 
   @override
   Future<void> logout() async {
     final activeAuthenticationSession = _activeAuthenticationSession;
     _activeAuthenticationSession = null;
+    await _authenticationSessionStore.clearAuthenticationSession();
     if (activeAuthenticationSession == null) {
       _httpClient.clearBearerToken();
       return;
@@ -345,6 +402,28 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
     } finally {
       _httpClient.clearBearerToken();
     }
+  }
+
+  Future<void> _persistActiveAuthenticationSession() async {
+    final activeAuthenticationSession = _activeAuthenticationSession;
+    if (activeAuthenticationSession == null) {
+      await _authenticationSessionStore.clearAuthenticationSession();
+      return;
+    }
+    await _authenticationSessionStore
+        .persistAuthenticationSessionRefreshCredentials(
+      AuthenticationSessionRefreshCredentials(
+        refreshToken: activeAuthenticationSession.refreshToken,
+        refreshTokenExpiresAt:
+            activeAuthenticationSession.refreshTokenExpiresAt,
+      ),
+    );
+  }
+
+  Future<void> _clearActiveAuthenticationSession() async {
+    _activeAuthenticationSession = null;
+    _httpClient.clearBearerToken();
+    await _authenticationSessionStore.clearAuthenticationSession();
   }
 
   @override
@@ -751,7 +830,7 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
   }
 
   DiscoveryProfessional _mapDiscoveryProfessional(
-    professional_models.Professional professional,
+    professional_models.ProfessionalSummary professional,
     Map<String, String> categoryNamesByIdentifier,
     Map<String, String> cityDisplayNamesByIdentifier,
   ) {
@@ -768,9 +847,6 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       cityName: cityParts.first,
       stateCode: cityParts.length > 1 ? cityParts.last : '',
       shortDescription: professional.shortDescription,
-      profileBadgeLabel: _mapProfileClassificationLabel(
-        professional.profileClassification,
-      ),
       availabilityStatus:
           _mapAvailabilityStatus(professional.availabilityStatus),
       recentActivityLabel: professional.phoneNumberVerified
@@ -821,8 +897,9 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
         if (professional.portfolioDescription != null)
           professional.portfolioDescription!,
       ],
-      profileCompletenessPercentage: professional.profileCompletenessPercentage,
-      documentProvided: professional.documentProvided,
+      profileCompletenessPercentage: _mapProfileCompletenessPercentage(
+        professional.profileClassification,
+      ),
       phoneNumberVerified: professional.phoneNumberVerified,
       availabilityStatus:
           _mapAvailabilityStatus(professional.availabilityStatus),
@@ -884,6 +961,13 @@ class WorkLinkBackendGateway implements WorkLinkApplicationGateway {
       'TEMPORARILY_UNAVAILABLE' =>
         ProfessionalAvailabilityStatus.temporarilyUnavailable,
       _ => ProfessionalAvailabilityStatus.acceptingNewClients,
+    };
+  }
+
+  int _mapProfileCompletenessPercentage(String profileClassification) {
+    return switch (profileClassification.trim().toUpperCase()) {
+      'COMPLETE' || 'COMPLETE_PROFILE' => 100,
+      _ => 50,
     };
   }
 
@@ -1288,6 +1372,21 @@ class WorkLinkPreviewGateway implements WorkLinkApplicationGateway {
   }
 
   @override
+  Future<ProfessionalProfile> loadProfessionalProfile(
+    String professionalIdentifier,
+  ) async {
+    return previewHomeData.professionalProfiles.firstWhere(
+      (professionalProfile) =>
+          professionalProfile.professionalIdentifier == professionalIdentifier,
+    );
+  }
+
+  @override
+  Future<void> recordAnonymousProfessionalDetailAttempt(
+    String professionalIdentifier,
+  ) async {}
+
+  @override
   Future<void> registerLocalAccount({
     required String fullName,
     required String phoneNumber,
@@ -1305,6 +1404,11 @@ class WorkLinkPreviewGateway implements WorkLinkApplicationGateway {
     if (password.length < 12) {
       throw StateError('Credenciais de preview invalidas.');
     }
+  }
+
+  @override
+  Future<bool> restoreCustomerSession() async {
+    return false;
   }
 
   @override

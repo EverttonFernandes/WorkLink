@@ -3,6 +3,7 @@ package br.com.worklink.application.professional.usecase;
 import br.com.worklink.application.catalog.port.LoadServiceCategoryByIdentifierPort;
 import br.com.worklink.application.catalog.port.LoadServiceCityByIdentifierPort;
 import br.com.worklink.application.ApplicationRuleViolationException;
+import br.com.worklink.application.ResourceNotFoundException;
 import br.com.worklink.application.professional.port.LoadProfessionalByIdentifierPort;
 import br.com.worklink.application.professional.port.ListProfessionalsPort;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
@@ -132,12 +133,65 @@ class ProfessionalUseCaseTest {
         );
 
         // WHEN
-        List<ProfessionalResponse> professionals = listProfessionalsUseCase.listProfessionals(professionalSearchCriteria);
+        List<ProfessionalSummaryResponse> professionals =
+                listProfessionalsUseCase.listProfessionals(professionalSearchCriteria);
 
         // THEN
         assertThat(professionals)
-                .extracting(ProfessionalResponse::professionalIdentifier)
+                .extracting(ProfessionalSummaryResponse::professionalIdentifier)
                 .containsExactly(professional.professionalIdentifier());
+        assertThat(professionals.getFirst().professionalName()).isEqualTo("Maria Eletricista");
+    }
+
+    @Test
+    @DisplayName("GIVEN profissional ativo WHEN carregar detalhe THEN deve retornar dados sem WhatsApp e documento")
+    void shouldLoadProfessionalDetailWithoutWhatsappAndDocumentWhenProfessionalIsActive() {
+        // GIVEN
+        Professional professional = completedProfessional(false);
+        LoadProfessionalDetailUseCase loadProfessionalDetailUseCase = new LoadProfessionalDetailUseCase(
+                professionalIdentifier -> Optional.of(professional)
+        );
+
+        // WHEN
+        ProfessionalDetailResponse professionalDetailResponse =
+                loadProfessionalDetailUseCase.loadProfessionalDetail(professional.professionalIdentifier());
+
+        // THEN
+        assertThat(professionalDetailResponse.professionalIdentifier()).isEqualTo(professional.professionalIdentifier());
+        assertThat(professionalDetailResponse.professionalName()).isEqualTo(professional.professionalName());
+        assertThat(professionalDetailResponse.usefulLink()).isEqualTo(professional.usefulLink());
+        assertThat(professionalDetailResponse.serviceDescription()).isEqualTo(professional.serviceDescription());
+    }
+
+    @Test
+    @DisplayName("GIVEN profissional inexistente WHEN carregar detalhe THEN deve retornar recurso nao encontrado")
+    void shouldRejectProfessionalDetailWhenProfessionalDoesNotExist() {
+        // GIVEN
+        LoadProfessionalDetailUseCase loadProfessionalDetailUseCase = new LoadProfessionalDetailUseCase(
+                professionalIdentifier -> Optional.empty()
+        );
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> loadProfessionalDetailUseCase.loadProfessionalDetail(UUID.randomUUID()))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Profissional nao encontrado.");
+    }
+
+    @Test
+    @DisplayName("GIVEN profissional bloqueado WHEN carregar detalhe THEN deve ocultar recurso")
+    void shouldRejectProfessionalDetailWhenProfessionalIsBlocked() {
+        // GIVEN
+        Professional blockedProfessional = completedProfessional(true);
+        LoadProfessionalDetailUseCase loadProfessionalDetailUseCase = new LoadProfessionalDetailUseCase(
+                professionalIdentifier -> Optional.of(blockedProfessional)
+        );
+
+        // WHEN / THEN
+        assertThatThrownBy(() -> loadProfessionalDetailUseCase.loadProfessionalDetail(
+                blockedProfessional.professionalIdentifier()
+        ))
+                .isInstanceOf(ResourceNotFoundException.class)
+                .hasMessage("Profissional nao encontrado.");
     }
 
     @Test
@@ -340,6 +394,28 @@ class ProfessionalUseCaseTest {
                 CITY_IDENTIFIER,
                 CATEGORY_IDENTIFIER,
                 "Atendimento residencial."
+        );
+    }
+
+    private Professional completedProfessional(boolean blocked) {
+        return Professional.restoreProfessional(
+                UUID.randomUUID(),
+                "Maria Eletricista",
+                "51999999999",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial.",
+                UUID.randomUUID(),
+                "protected-document",
+                "https://worklink.example/maria-eletricista",
+                "Instalacoes residenciais recentes.",
+                "Instalacoes e manutencoes eletricas.",
+                100,
+                ProfessionalProfileClassification.COMPLETE_PROFILE,
+                ProfessionalAvailabilityStatus.AVAILABLE_TODAY,
+                true,
+                false,
+                blocked
         );
     }
 

@@ -31,6 +31,13 @@ void main() {
       (tester) async {
     await pumpScreen(tester, CustomerAuthenticationController());
 
+    expect(find.widgetWithText(AppBar, 'Profissional Perto'), findsNothing);
+    expect(
+      find.text(
+        'Entre ou crie sua conta para ver o perfil completo do profissional.',
+      ),
+      findsOneWidget,
+    );
     expect(find.text('Entrar'), findsWidgets);
     expect(find.text('Criar conta'), findsOneWidget);
     expect(
@@ -77,7 +84,8 @@ void main() {
     expect(authenticated, ['cliente@exemplo.com']);
   });
 
-  testWidgets('GIVEN login pendente WHEN aguardar THEN deve exibir carregamento',
+  testWidgets(
+      'GIVEN login pendente WHEN aguardar THEN deve exibir carregamento',
       (tester) async {
     final authenticationCompleter = Completer<void>();
     final controller = CustomerAuthenticationController(
@@ -130,7 +138,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(
-      find.text('Não foi possível entrar. Confira seus dados e tente novamente.'),
+      find.text(
+        'Não foi possível entrar. Confira seus dados e tente novamente.',
+      ),
       findsOneWidget,
     );
   });
@@ -142,6 +152,12 @@ void main() {
     await tester.tap(find.byKey(const ValueKey('sign-up-mode-button')));
     await tester.pumpAndSettle();
 
+    expect(
+      find.text(
+        'Crie sua conta para ver perfis completos e seguir com segurança.',
+      ),
+      findsOneWidget,
+    );
     expect(
       find.byKey(const ValueKey('authentication-full-name-field')),
       findsOneWidget,

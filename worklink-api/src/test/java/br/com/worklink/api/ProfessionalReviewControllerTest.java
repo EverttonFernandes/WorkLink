@@ -147,11 +147,17 @@ class ProfessionalReviewControllerTest {
     }
 
     @Test
-    @DisplayName("GIVEN avaliacoes existentes WHEN listar perfil THEN deve retornar media e comentarios publicos")
-    void shouldListProfessionalReviewProfileThroughApi() throws Exception {
+    @DisplayName("GIVEN principal autenticado WHEN listar avaliacoes THEN deve retornar media e comentarios publicos")
+    void shouldListProfessionalReviewProfileWhenPrincipalIsAuthenticated() throws Exception {
         // GIVEN
         UUID professionalIdentifier = UUID.randomUUID();
         UUID professionalReviewIdentifier = UUID.randomUUID();
+        AuthenticatedPrincipal customerPrincipal = new AuthenticatedPrincipal(
+                UUID.randomUUID(),
+                AuthenticatedProfile.CUSTOMER
+        );
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER))
+                .thenReturn(customerPrincipal);
         when(listProfessionalReviewProfileUseCase.listProfessionalReviewProfile(professionalIdentifier))
                 .thenReturn(new ProfessionalReviewProfileResponse(
                         professionalIdentifier,
@@ -168,7 +174,8 @@ class ProfessionalReviewControllerTest {
                 ));
 
         // WHEN / THEN
-        mockMvc.perform(get("/api/v1/professional-reviews/professionals/{professionalIdentifier}", professionalIdentifier))
+        mockMvc.perform(get("/api/v1/professional-reviews/professionals/{professionalIdentifier}", professionalIdentifier)
+                        .header("Authorization", AUTHORIZATION_HEADER))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.professionalIdentifier").value(professionalIdentifier.toString()))
                 .andExpect(jsonPath("$.summary.averageRating").value(4.5))
@@ -176,6 +183,22 @@ class ProfessionalReviewControllerTest {
                 .andExpect(jsonPath("$.reviews[0].professionalReviewIdentifier").value(professionalReviewIdentifier.toString()))
                 .andExpect(jsonPath("$.reviews[0].publicAuthorIdentifier").doesNotExist())
                 .andExpect(jsonPath("$.reviews[0].publicAuthorDisplayName").value("Usuario anonimo"));
+        verify(authenticatedPrincipalHttpResolver).resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER);
+    }
+
+    @Test
+    @DisplayName("GIVEN requisicao anonima WHEN listar avaliacoes THEN deve exigir autenticacao")
+    void shouldRequireAuthenticationBeforeListingProfessionalReviewProfile() throws Exception {
+        // GIVEN
+        UUID professionalIdentifier = UUID.randomUUID();
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(null))
+                .thenThrow(new AuthenticationRequiredException("Autenticacao obrigatoria para este recurso."));
+
+        // WHEN / THEN
+        mockMvc.perform(get("/api/v1/professional-reviews/professionals/{professionalIdentifier}", professionalIdentifier))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Autenticacao obrigatoria para este recurso."));
+        verify(listProfessionalReviewProfileUseCase, never()).listProfessionalReviewProfile(professionalIdentifier);
     }
 
     @Test

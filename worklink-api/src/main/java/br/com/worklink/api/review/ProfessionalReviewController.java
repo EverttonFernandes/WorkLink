@@ -53,8 +53,10 @@ public class ProfessionalReviewController {
 
     @GetMapping("/professionals/{professionalIdentifier}")
     ProfessionalReviewProfileHttpResponse listProfessionalReviewProfile(
-            @PathVariable UUID professionalIdentifier
+            @PathVariable UUID professionalIdentifier,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
     ) {
+        authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(authorizationHeader);
         return ProfessionalReviewProfileHttpResponse.fromUseCaseResponse(
                 listProfessionalReviewProfileUseCase.listProfessionalReviewProfile(professionalIdentifier)
         );

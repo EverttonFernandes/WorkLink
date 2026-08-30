@@ -44,6 +44,17 @@ class AuthenticationSession {
 
   String get customerIdentifier => principalIdentifier;
 
+  Map<String, dynamic> toJson() {
+    return {
+      'principalIdentifier': principalIdentifier,
+      'profile': profile,
+      'accessToken': accessToken,
+      'refreshToken': refreshToken,
+      'accessTokenExpiresAt': accessTokenExpiresAt.toIso8601String(),
+      'refreshTokenExpiresAt': refreshTokenExpiresAt.toIso8601String(),
+    };
+  }
+
   factory AuthenticationSession.fromJson(Map<String, dynamic> json) {
     return AuthenticationSession(
       principalIdentifier: json['principalIdentifier']?.toString() ??

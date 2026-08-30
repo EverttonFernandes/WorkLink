@@ -18,7 +18,7 @@ void main() {
       () async {
     // GIVEN
     httpClient.listResponses['/api/v1/professionals'] = [
-      professionalJson(),
+      professionalSummaryJson(),
     ];
     final discoveryService = DiscoveryService(httpClient: httpClient);
 
@@ -71,11 +71,11 @@ void main() {
   });
 
   test(
-      'GIVEN nenhum filtro WHEN listar profissionais THEN deve retornar DTOs do backend',
+      'GIVEN resumo publico minimo WHEN listar profissionais THEN deve mapear somente dados de descoberta',
       () async {
     // GIVEN
     httpClient.listResponses['/api/v1/professionals'] = [
-      professionalJson(),
+      professionalSummaryJson(),
     ];
     final professionalService = ProfessionalService(httpClient: httpClient);
 
@@ -83,12 +83,52 @@ void main() {
     final professionals = await professionalService.listProfessionals();
 
     // THEN
-    expect(professionals.single.toJson(), professionalJson());
+    expect(professionals.single.toJson(), professionalSummaryJson());
     expect(httpClient.requests.single.queryParameters, {
       'categoryIdentifier': null,
       'cityIdentifier': null,
       'keyword': null,
     });
+  });
+
+  test(
+      'GIVEN profissional autenticado WHEN carregar detalhe THEN deve consultar endpoint individual',
+      () async {
+    // GIVEN
+    httpClient.objectResponses['/api/v1/professionals/professional-1'] =
+        professionalDetailJson();
+    final professionalService = ProfessionalService(httpClient: httpClient);
+
+    // WHEN
+    final professional =
+        await professionalService.loadProfessionalDetail('professional-1');
+
+    // THEN
+    expect(professional.professionalIdentifier, 'professional-1');
+    expect(professional.serviceDescription, 'Instalacoes e manutencoes.');
+    expect(
+      httpClient.requests.single.path,
+      '/api/v1/professionals/professional-1',
+    );
+  });
+
+  test(
+      'GIVEN tentativa anonima de detalhe WHEN registrar observabilidade THEN deve chamar endpoint dedicado',
+      () async {
+    // GIVEN
+    final professionalService = ProfessionalService(httpClient: httpClient);
+
+    // WHEN
+    await professionalService.recordAnonymousProfessionalDetailAttempt(
+      'professional-1',
+    );
+
+    // THEN
+    expect(httpClient.requests.single.method, 'POST');
+    expect(
+      httpClient.requests.single.path,
+      '/api/v1/professionals/professional-1/detail-access-attempts',
+    );
   });
 
   test(
@@ -111,6 +151,24 @@ void main() {
       'categoryIdentifier': 'category-1',
       'shortDescription': 'Atendimento residencial.',
     });
+  });
+
+  test(
+      'GIVEN respostas completas WHEN serializar modelos THEN deve preservar contratos do backend',
+      () {
+    // GIVEN
+    final professional = Professional.fromJson(professionalJson());
+    final portfolioItem = ProfessionalPortfolioItem.fromJson(
+      portfolioItemJson(),
+    );
+
+    // WHEN
+    final serializedProfessional = professional.toJson();
+    final serializedPortfolioItem = portfolioItem.toJson();
+
+    // THEN
+    expect(serializedProfessional, professionalJson());
+    expect(serializedPortfolioItem, portfolioItemJson());
   });
 
   test(
@@ -270,6 +328,44 @@ Map<String, dynamic> professionalJson({bool phoneNumberVerified = false}) {
     'availabilityBadgeLabel': 'Disponivel hoje',
     'availabilityReducesListingHighlight': false,
     'phoneNumberVerified': phoneNumberVerified,
+    'qualityGuarantee': true,
+  };
+}
+
+Map<String, dynamic> professionalSummaryJson({
+  bool phoneNumberVerified = false,
+}) {
+  return {
+    'professionalIdentifier': 'professional-1',
+    'professionalName': 'Maria Eletricista',
+    'cityIdentifier': 'city-1',
+    'categoryIdentifier': 'category-1',
+    'shortDescription': 'Atendimento residencial.',
+    'profilePhotoFileIdentifier': null,
+    'availabilityStatus': 'AVAILABLE_TODAY',
+    'availabilityBadgeLabel': 'Disponivel hoje',
+    'availabilityReducesListingHighlight': false,
+    'phoneNumberVerified': phoneNumberVerified,
+    'qualityGuarantee': true,
+  };
+}
+
+Map<String, dynamic> professionalDetailJson() {
+  return {
+    'professionalIdentifier': 'professional-1',
+    'professionalName': 'Maria Eletricista',
+    'cityIdentifier': 'city-1',
+    'categoryIdentifier': 'category-1',
+    'shortDescription': 'Atendimento residencial.',
+    'profilePhotoFileIdentifier': null,
+    'usefulLink': 'https://portfolio.example/maria',
+    'portfolioDescription': 'Quadros eletricos.',
+    'serviceDescription': 'Instalacoes e manutencoes.',
+    'profileClassification': 'COMPLETE',
+    'availabilityStatus': 'AVAILABLE_TODAY',
+    'availabilityBadgeLabel': 'Disponivel hoje',
+    'availabilityReducesListingHighlight': false,
+    'phoneNumberVerified': false,
     'qualityGuarantee': true,
   };
 }

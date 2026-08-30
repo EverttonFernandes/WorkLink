@@ -16,7 +16,7 @@ ThemeData buildWorkLinkTheme({String? fontFamily}) {
       secondary: const Color(0xFF7D8FA8),
       surface: workLinkSurface,
     ),
-    appBarTheme: const AppBarTheme(
+    appBarTheme: AppBarTheme(
       backgroundColor: Colors.white,
       foregroundColor: workLinkDark,
       elevation: 0,
@@ -26,6 +26,7 @@ ThemeData buildWorkLinkTheme({String? fontFamily}) {
         color: workLinkDark,
         fontSize: 20,
         fontWeight: FontWeight.w700,
+        fontFamily: fontFamily,
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
@@ -60,9 +61,10 @@ ThemeData buildWorkLinkTheme({String? fontFamily}) {
       backgroundColor: const Color(0xFFEAF8EF),
       selectedColor: const Color(0xFFEAF8EF),
       side: const BorderSide(color: Color(0xFFBFEBCF)),
-      labelStyle: const TextStyle(
+      labelStyle: TextStyle(
         color: workLinkDark,
         fontWeight: FontWeight.w600,
+        fontFamily: fontFamily,
       ),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(999),
@@ -76,18 +78,20 @@ ThemeData buildWorkLinkTheme({String? fontFamily}) {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(22),
         ),
-        textStyle: const TextStyle(
+        textStyle: TextStyle(
           fontSize: 18,
           fontWeight: FontWeight.w700,
+          fontFamily: fontFamily,
         ),
       ),
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         foregroundColor: workLinkGreen,
-        textStyle: const TextStyle(
+        textStyle: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
+          fontFamily: fontFamily,
         ),
       ),
     ),

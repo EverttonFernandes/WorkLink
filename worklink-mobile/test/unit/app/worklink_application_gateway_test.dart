@@ -1,4 +1,8 @@
+import 'dart:convert';
+
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:worklink_mobile/app/worklink_application_gateway.dart';
 import 'package:worklink_mobile/features/customer_authentication/customer_authentication_state.dart';
 import 'package:worklink_mobile/features/post_contact_feedback/post_contact_feedback_request.dart';
@@ -7,6 +11,7 @@ import 'package:worklink_mobile/features/professional_availability/professional_
 import 'package:worklink_mobile/features/professional_registration/professional_registration_draft.dart';
 import 'package:worklink_mobile/features/professional_report/professional_report_state.dart';
 import 'package:worklink_mobile/features/professional_review/professional_review_state.dart';
+import 'package:worklink_mobile/services/authentication_session_store.dart';
 import 'package:worklink_mobile/services/exceptions.dart';
 
 import '../services/fake_worklink_http_client.dart';
@@ -14,12 +19,163 @@ import '../services/fake_worklink_http_client.dart';
 void main() {
   late FakeWorkLinkHttpClient httpClient;
   late FakeWorkLinkHttpClient administrativeHttpClient;
+  late _InMemoryAuthenticationSessionStore authenticationSessionStore;
   late WorkLinkBackendGateway gateway;
 
   setUp(() {
     httpClient = FakeWorkLinkHttpClient();
     administrativeHttpClient = FakeWorkLinkHttpClient();
-    gateway = WorkLinkBackendGateway(httpClient: httpClient);
+    authenticationSessionStore = _InMemoryAuthenticationSessionStore();
+    gateway = WorkLinkBackendGateway(
+      httpClient: httpClient,
+      authenticationSessionStore: authenticationSessionStore,
+    );
+  });
+
+  test(
+      'GIVEN credenciais de renovacao WHEN persistir sessao THEN deve gravar somente refresh token e expiracao',
+      () async {
+    // GIVEN
+    final secureStorage = _MockFlutterSecureStorage();
+    final authenticationSessionStore =
+        FlutterSecureAuthenticationSessionStore(secureStorage: secureStorage);
+    final refreshTokenExpiresAt = DateTime.parse('2026-07-11T10:00:00Z');
+    when(
+      () => secureStorage.write(
+        key: any(named: 'key'),
+        value: any(named: 'value'),
+      ),
+    ).thenAnswer((_) async {});
+
+    // WHEN
+    await authenticationSessionStore
+        .persistAuthenticationSessionRefreshCredentials(
+      AuthenticationSessionRefreshCredentials(
+        refreshToken: 'refresh-token',
+        refreshTokenExpiresAt: refreshTokenExpiresAt,
+      ),
+    );
+
+    // THEN
+    final capturedWrite = verify(
+      () => secureStorage.write(
+        key: captureAny(named: 'key'),
+        value: captureAny(named: 'value'),
+      ),
+    ).captured;
+    expect(
+      capturedWrite.first,
+      'worklink.authentication.refresh-credentials',
+    );
+    expect(
+      jsonDecode(capturedWrite.last as String),
+      {
+        'refreshToken': 'refresh-token',
+        'refreshTokenExpiresAt': '2026-07-11T10:00:00.000Z',
+      },
+    );
+  });
+
+  test(
+      'GIVEN credenciais seguras corrompidas WHEN carregar sessao THEN deve remover conteudo invalido',
+      () async {
+    // GIVEN
+    final secureStorage = _MockFlutterSecureStorage();
+    final authenticationSessionStore =
+        FlutterSecureAuthenticationSessionStore(secureStorage: secureStorage);
+    when(
+      () => secureStorage.read(key: any(named: 'key')),
+    ).thenAnswer((_) async => 'conteudo-invalido');
+    when(
+      () => secureStorage.delete(key: any(named: 'key')),
+    ).thenAnswer((_) async {});
+
+    // WHEN
+    final refreshCredentials = await authenticationSessionStore
+        .loadAuthenticationSessionRefreshCredentials();
+
+    // THEN
+    expect(refreshCredentials, isNull);
+    verify(
+      () => secureStorage.delete(
+        key: 'worklink.authentication.refresh-credentials',
+      ),
+    ).called(1);
+  });
+
+  test(
+      'GIVEN credenciais seguras validas WHEN carregar sessao THEN deve devolver refresh token e expiracao',
+      () async {
+    // GIVEN
+    final secureStorage = _MockFlutterSecureStorage();
+    final authenticationSessionStore =
+        FlutterSecureAuthenticationSessionStore(secureStorage: secureStorage);
+    when(
+      () => secureStorage.read(key: any(named: 'key')),
+    ).thenAnswer(
+      (_) async => jsonEncode({
+        'refreshToken': 'refresh-token',
+        'refreshTokenExpiresAt': '2026-07-11T10:00:00Z',
+      }),
+    );
+
+    // WHEN
+    final refreshCredentials = await authenticationSessionStore
+        .loadAuthenticationSessionRefreshCredentials();
+
+    // THEN
+    expect(refreshCredentials?.refreshToken, 'refresh-token');
+    expect(
+      refreshCredentials?.refreshTokenExpiresAt,
+      DateTime.parse('2026-07-11T10:00:00Z'),
+    );
+  });
+
+  test(
+      'GIVEN storage seguro vazio WHEN carregar sessao THEN deve manter usuario anonimo',
+      () async {
+    // GIVEN
+    final secureStorage = _MockFlutterSecureStorage();
+    final authenticationSessionStore =
+        FlutterSecureAuthenticationSessionStore(secureStorage: secureStorage);
+    when(
+      () => secureStorage.read(key: any(named: 'key')),
+    ).thenAnswer((_) async => '');
+
+    // WHEN
+    final refreshCredentials = await authenticationSessionStore
+        .loadAuthenticationSessionRefreshCredentials();
+
+    // THEN
+    expect(refreshCredentials, isNull);
+    verifyNever(() => secureStorage.delete(key: any(named: 'key')));
+  });
+
+  test(
+      'GIVEN payload seguro sem campos obrigatorios WHEN carregar sessao THEN deve limpar credenciais',
+      () async {
+    // GIVEN
+    final secureStorage = _MockFlutterSecureStorage();
+    final authenticationSessionStore =
+        FlutterSecureAuthenticationSessionStore(secureStorage: secureStorage);
+    when(
+      () => secureStorage.read(key: any(named: 'key')),
+    ).thenAnswer((_) async => jsonEncode({'refreshToken': ''}));
+    when(
+      () => secureStorage.delete(key: any(named: 'key')),
+    ).thenAnswer((_) async {});
+
+    // WHEN
+    final refreshCredentials = await authenticationSessionStore
+        .loadAuthenticationSessionRefreshCredentials();
+
+    // THEN
+    expect(refreshCredentials, isNull);
+    verify(
+      () => secureStorage.delete(
+        key: 'worklink.authentication.refresh-credentials',
+      ),
+    ).called(1);
   });
 
   test(
@@ -72,6 +228,15 @@ void main() {
       ],
     );
     expect(httpClient.bearerTokens, ['access-token', 'access-token', null]);
+    expect(
+      authenticationSessionStore.persistedRefreshCredentials?.refreshToken,
+      'refresh-token',
+    );
+    expect(
+      authenticationSessionStore
+          .persistedRefreshCredentials?.refreshTokenExpiresAt,
+      DateTime.parse('2026-07-11T10:00:00Z'),
+    );
   });
 
   test(
@@ -114,7 +279,65 @@ void main() {
   });
 
   test(
-      'GIVEN contratos publicos do backend WHEN carregar home THEN deve mapear telas principais',
+      'GIVEN sessao persistida valida WHEN restaurar app THEN deve renovar sessao e reativar autenticacao local',
+      () async {
+    // GIVEN
+    authenticationSessionStore.persistedRefreshCredentials =
+        AuthenticationSessionRefreshCredentials(
+      refreshToken: 'refresh-token-antigo',
+      refreshTokenExpiresAt: DateTime.now().add(const Duration(days: 7)),
+    );
+    httpClient.objectResponses['/api/v1/authentication/session/refresh'] = {
+      'principalIdentifier': 'customer-1',
+      'profile': 'CUSTOMER',
+      'accessToken': 'access-token-renovado',
+      'refreshToken': 'refresh-token-renovado',
+      'accessTokenExpiresAt': '2026-06-18T10:15:00Z',
+      'refreshTokenExpiresAt': '2026-07-18T10:00:00Z',
+    };
+
+    // WHEN
+    final restored = await gateway.restoreCustomerSession();
+
+    // THEN
+    expect(restored, isTrue);
+    expect(
+      httpClient.requests.single.path,
+      '/api/v1/authentication/session/refresh',
+    );
+    expect(httpClient.requests.single.data, {
+      'refreshToken': 'refresh-token-antigo',
+    });
+    expect(httpClient.bearerTokens, ['access-token-renovado']);
+    expect(
+      authenticationSessionStore.persistedRefreshCredentials?.refreshToken,
+      'refresh-token-renovado',
+    );
+  });
+
+  test(
+      'GIVEN sessao persistida expirada WHEN restaurar app THEN deve limpar sessao local sem chamar backend',
+      () async {
+    // GIVEN
+    authenticationSessionStore.persistedRefreshCredentials =
+        AuthenticationSessionRefreshCredentials(
+      refreshToken: 'refresh-token-antigo',
+      refreshTokenExpiresAt:
+          DateTime.now().subtract(const Duration(minutes: 1)),
+    );
+
+    // WHEN
+    final restored = await gateway.restoreCustomerSession();
+
+    // THEN
+    expect(restored, isFalse);
+    expect(httpClient.requests, isEmpty);
+    expect(httpClient.bearerTokens, [null]);
+    expect(authenticationSessionStore.persistedRefreshCredentials, isNull);
+  });
+
+  test(
+      'GIVEN contratos publicos do backend WHEN carregar home THEN deve buscar somente catalogo e resumos',
       () async {
     // GIVEN
     httpClient.listResponses['/api/v1/categories'] = [
@@ -133,14 +356,7 @@ void main() {
       },
     ];
     httpClient.listResponses['/api/v1/professionals'] = [
-      professionalJson(),
-    ];
-    httpClient.objectResponses[
-            '/api/v1/professional-reviews/professionals/professional-1'] =
-        reviewProfileJson();
-    httpClient.listResponses[
-        '/api/v1/professionals/professional-1/portfolio-items'] = [
-      portfolioItemJson(),
+      professionalSummaryJson(),
     ];
 
     // WHEN
@@ -150,28 +366,24 @@ void main() {
     expect(homeData.discoveryProfessionals.single.professionalName, 'Maria');
     expect(homeData.discoveryProfessionals.single.categoryName, 'Eletricista');
     expect(
-      homeData.discoveryProfessionals.single.comparisonSignalLabels,
-      contains('Perfil completo'),
-    );
-    expect(
-      homeData.discoveryProfessionals.single.comparisonSignalLabels,
-      isNot(contains('COMPLETE')),
-    );
-    expect(
       homeData.discoveryProfessionals.single.cityDisplayName,
       'Canoas - RS',
     );
-    expect(homeData.professionalProfiles.single.reviewSummary!.reviewCount, 1);
-    expect(homeData.professionalProfiles.single.portfolioItemDescriptions, [
-      'Quadro eletrico residencial: Instalacao concluida.',
-      'Quadros eletricos.',
-    ]);
+    expect(homeData.professionalProfiles, isEmpty);
     expect(homeData.professionalRegistrationCategoryNames, ['Eletricista']);
     expect(homeData.professionalRegistrationCityDisplayNames, ['Canoas - RS']);
+    expect(
+      httpClient.requests.map((request) => request.path),
+      [
+        '/api/v1/categories',
+        '/api/v1/cities',
+        '/api/v1/professionals',
+      ],
+    );
   });
 
   test(
-      'GIVEN profissionais com dados opcionais WHEN carregar home THEN deve aplicar fallbacks previsiveis',
+      'GIVEN resumos publicos com dados opcionais WHEN carregar home THEN deve aplicar fallbacks previsiveis',
       () async {
     // GIVEN
     httpClient.listResponses['/api/v1/categories'] = [
@@ -190,25 +402,22 @@ void main() {
       },
     ];
     httpClient.listResponses['/api/v1/professionals'] = [
-      professionalJson(
+      professionalSummaryJson(
         professionalIdentifier: 'professional-week',
         availabilityStatus: 'AVAILABLE_THIS_WEEK',
         qualityGuarantee: false,
       ),
-      professionalJson(
+      professionalSummaryJson(
         professionalIdentifier: 'professional-emergency',
         availabilityStatus: 'EMERGENCY_SERVICE',
-        usefulLink: null,
-        portfolioDescription: null,
-        serviceDescription: null,
       ),
-      professionalJson(
+      professionalSummaryJson(
         professionalIdentifier: 'professional-unavailable',
         availabilityStatus: 'TEMPORARILY_UNAVAILABLE',
         categoryIdentifier: 'category-not-found',
         cityIdentifier: 'city-not-found',
       ),
-      professionalJson(
+      professionalSummaryJson(
         professionalIdentifier: 'professional-default',
         availabilityStatus: 'UNKNOWN_STATUS',
       ),
@@ -227,12 +436,6 @@ void main() {
       homeData.discoveryProfessionals[1].availabilityStatus,
       ProfessionalAvailabilityStatus.emergencyService,
     );
-    expect(
-      homeData.professionalProfiles[1].aboutDescription,
-      'Atendimento residencial.',
-    );
-    expect(homeData.professionalProfiles[1].usefulLinks, isEmpty);
-    expect(homeData.professionalProfiles[1].portfolioItemDescriptions, isEmpty);
     expect(
       homeData.discoveryProfessionals[2].availabilityStatus,
       ProfessionalAvailabilityStatus.temporarilyUnavailable,
@@ -269,7 +472,7 @@ void main() {
       },
     ];
     httpClient.listResponses['/api/v1/professionals'] = [
-      professionalJson(phoneNumberVerified: true),
+      professionalSummaryJson(phoneNumberVerified: true),
     ];
 
     // WHEN
@@ -280,11 +483,10 @@ void main() {
       homeData.discoveryProfessionals.single.recentActivityLabel,
       'Telefone verificado',
     );
-    expect(homeData.professionalProfiles.single.phoneNumberVerified, isTrue);
   });
 
   test(
-      'GIVEN backend retorna classificacao tecnica WHEN carregar home THEN deve expor label publica',
+      'GIVEN sessao autenticada WHEN carregar perfil THEN deve buscar detalhe avaliacoes e portfolio sob demanda',
       () async {
     // GIVEN
     httpClient.listResponses['/api/v1/categories'] = [
@@ -302,21 +504,63 @@ void main() {
         'citySlug': 'canoas-rs',
       },
     ];
-    httpClient.listResponses['/api/v1/professionals'] = [
-      professionalJson(profileClassification: 'BASIC_PROFILE'),
+    httpClient.objectResponses['/api/v1/professionals/professional-1'] =
+        professionalDetailJson(profileClassification: 'BASIC_PROFILE');
+    httpClient.objectResponses[
+            '/api/v1/professional-reviews/professionals/professional-1'] =
+        reviewProfileJson();
+    httpClient.listResponses[
+        '/api/v1/professionals/professional-1/portfolio-items'] = [
+      portfolioItemJson(),
+      portfolioItemJson(
+        portfolioItemIdentifier: 'portfolio-2',
+        title: 'Disjuntor residencial',
+        description: null,
+      ),
     ];
 
     // WHEN
-    final homeData = await gateway.loadHomeData();
+    final professionalProfile =
+        await gateway.loadProfessionalProfile('professional-1');
 
     // THEN
     expect(
-      homeData.discoveryProfessionals.single.comparisonSignalLabels,
+      professionalProfile.visibleProfileBadgeLabels,
       contains('Perfil básico'),
     );
+    expect(professionalProfile.reviewSummary!.reviewCount, 1);
+    expect(professionalProfile.portfolioItemDescriptions, [
+      'Quadro eletrico residencial: Instalacao concluida.',
+      'Disjuntor residencial',
+      'Quadros eletricos.',
+    ]);
     expect(
-      homeData.discoveryProfessionals.single.comparisonSignalLabels.join(' '),
+      professionalProfile.visibleProfileBadgeLabels.join(' '),
       isNot(contains('BASIC_PROFILE')),
+    );
+    expect(
+      httpClient.requests.map((request) => request.path),
+      [
+        '/api/v1/categories',
+        '/api/v1/cities',
+        '/api/v1/professionals/professional-1',
+        '/api/v1/professional-reviews/professionals/professional-1',
+        '/api/v1/professionals/professional-1/portfolio-items',
+      ],
+    );
+  });
+
+  test(
+      'GIVEN tentativa anonima de abrir detalhe WHEN registrar evento THEN deve delegar observabilidade',
+      () async {
+    // GIVEN / WHEN
+    await gateway.recordAnonymousProfessionalDetailAttempt('professional-1');
+
+    // THEN
+    expect(httpClient.requests.single.method, 'POST');
+    expect(
+      httpClient.requests.single.path,
+      '/api/v1/professionals/professional-1/detail-access-attempts',
     );
   });
 
@@ -344,8 +588,7 @@ void main() {
       },
     ];
     httpClient.listResponses['/api/v1/professionals'] = [
-      professionalJson(
-        profileClassification: 'BASIC_PROFILE',
+      professionalSummaryJson(
         categoryIdentifier: 'category-sem-mapa',
         cityIdentifier: 'city-sem-mapa',
       ),
@@ -1499,6 +1742,12 @@ void main() {
 
     // WHEN
     final homeData = await previewGateway.loadHomeData();
+    final profile = await previewGateway.loadProfessionalProfile(
+      previewProfessionalIdentifier,
+    );
+    final restoredSession = await previewGateway.restoreCustomerSession();
+    final pendingFeedbackRequests =
+        await previewGateway.loadPendingPostContactFeedbackRequests();
     final contact = await previewGateway.startProfessionalContact(
       previewProfessionalIdentifier,
     );
@@ -1517,6 +1766,9 @@ void main() {
     await previewGateway.requestProfessionalReviewAnalysis(
       'review-ana-costa-1',
     );
+    await previewGateway.recordAnonymousProfessionalDetailAttempt(
+      previewProfessionalIdentifier,
+    );
 
     // THEN
     expect(previewGateway.initialHomeData.discoveryProfessionals, isNotEmpty);
@@ -1524,6 +1776,9 @@ void main() {
       homeData.professionalProfiles.first.professionalName,
       'Ana Costa Energia Residencial',
     );
+    expect(profile.professionalName, 'Ana Costa Energia Residencial');
+    expect(restoredSession, isFalse);
+    expect(pendingFeedbackRequests, isEmpty);
     expect(contact.whatsappContactLink, startsWith('https://wa.me/'));
   });
 
@@ -1595,6 +1850,31 @@ void main() {
   });
 }
 
+class _InMemoryAuthenticationSessionStore
+    implements AuthenticationSessionStore {
+  AuthenticationSessionRefreshCredentials? persistedRefreshCredentials;
+
+  @override
+  Future<void> clearAuthenticationSession() async {
+    persistedRefreshCredentials = null;
+  }
+
+  @override
+  Future<AuthenticationSessionRefreshCredentials?>
+      loadAuthenticationSessionRefreshCredentials() async {
+    return persistedRefreshCredentials;
+  }
+
+  @override
+  Future<void> persistAuthenticationSessionRefreshCredentials(
+    AuthenticationSessionRefreshCredentials refreshCredentials,
+  ) async {
+    persistedRefreshCredentials = refreshCredentials;
+  }
+}
+
+class _MockFlutterSecureStorage extends Mock implements FlutterSecureStorage {}
+
 Map<String, dynamic> professionalJson({
   String professionalIdentifier = 'professional-1',
   String categoryIdentifier = 'category-1',
@@ -1626,6 +1906,51 @@ Map<String, dynamic> professionalJson({
     'availabilityReducesListingHighlight': false,
     'phoneNumberVerified': phoneNumberVerified,
     'qualityGuarantee': qualityGuarantee,
+  };
+}
+
+Map<String, dynamic> professionalSummaryJson({
+  String professionalIdentifier = 'professional-1',
+  String categoryIdentifier = 'category-1',
+  String cityIdentifier = 'city-1',
+  String availabilityStatus = 'AVAILABLE_TODAY',
+  bool phoneNumberVerified = false,
+  bool qualityGuarantee = true,
+}) {
+  return {
+    'professionalIdentifier': professionalIdentifier,
+    'professionalName': 'Maria',
+    'cityIdentifier': cityIdentifier,
+    'categoryIdentifier': categoryIdentifier,
+    'shortDescription': 'Atendimento residencial.',
+    'profilePhotoFileIdentifier': null,
+    'availabilityStatus': availabilityStatus,
+    'availabilityBadgeLabel': 'Disponivel hoje',
+    'availabilityReducesListingHighlight': false,
+    'phoneNumberVerified': phoneNumberVerified,
+    'qualityGuarantee': qualityGuarantee,
+  };
+}
+
+Map<String, dynamic> professionalDetailJson({
+  String profileClassification = 'COMPLETE',
+}) {
+  return {
+    'professionalIdentifier': 'professional-1',
+    'professionalName': 'Maria',
+    'cityIdentifier': 'city-1',
+    'categoryIdentifier': 'category-1',
+    'shortDescription': 'Atendimento residencial.',
+    'profilePhotoFileIdentifier': null,
+    'usefulLink': 'https://portfolio.example/maria',
+    'portfolioDescription': 'Quadros eletricos.',
+    'serviceDescription': 'Instalacoes e manutencoes.',
+    'profileClassification': profileClassification,
+    'availabilityStatus': 'AVAILABLE_TODAY',
+    'availabilityBadgeLabel': 'Disponivel hoje',
+    'availabilityReducesListingHighlight': false,
+    'phoneNumberVerified': false,
+    'qualityGuarantee': true,
   };
 }
 
@@ -1772,13 +2097,17 @@ Map<String, dynamic> reviewJson() {
   };
 }
 
-Map<String, dynamic> portfolioItemJson() {
+Map<String, dynamic> portfolioItemJson({
+  String portfolioItemIdentifier = 'portfolio-1',
+  String title = 'Quadro eletrico residencial',
+  String? description = 'Instalacao concluida.',
+}) {
   return {
-    'portfolioItemIdentifier': 'portfolio-1',
+    'portfolioItemIdentifier': portfolioItemIdentifier,
     'professionalIdentifier': 'professional-1',
     'fileIdentifier': 'file-1',
-    'title': 'Quadro eletrico residencial',
-    'description': 'Instalacao concluida.',
+    'title': title,
+    'description': description,
     'displayOrder': 1,
   };
 }

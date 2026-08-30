@@ -53,8 +53,10 @@ public class ProfessionalPortfolioController {
 
     @GetMapping
     List<ProfessionalPortfolioItemHttpResponse> listProfessionalPortfolioItems(
-            @PathVariable UUID professionalIdentifier
+            @PathVariable UUID professionalIdentifier,
+            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
     ) {
+        authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(authorizationHeader);
         return listProfessionalPortfolioItemsUseCase.listProfessionalPortfolioItems(professionalIdentifier)
                 .stream()
                 .map(ProfessionalPortfolioItemHttpResponse::fromResponse)

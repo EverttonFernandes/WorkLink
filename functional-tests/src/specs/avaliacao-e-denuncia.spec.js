@@ -56,7 +56,10 @@ describe('Specs funcionais E2E reais - avaliacao e denuncia', () => {
     expect(reviewResponse.data.publicAuthorIdentifier).toBeNull();
     expect(reviewResponse.data.publicAuthorDisplayName).toBe('Usuario anonimo');
 
-    const reviewProfile = await loadProfessionalReviewProfile(professional.professionalIdentifier);
+    const reviewProfile = await loadProfessionalReviewProfile(
+      customerAuthentication.accessToken,
+      professional.professionalIdentifier,
+    );
 
     expect(reviewProfile.summary.reviewCount).toBe(1);
     expect(reviewProfile.reviews[0].publicAuthorIdentifier).toBeNull();

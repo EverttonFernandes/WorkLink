@@ -12,9 +12,9 @@ public class ListProfessionalsUseCase {
         this.listProfessionalsPort = listProfessionalsPort;
     }
 
-    public List<ProfessionalResponse> listProfessionals(ProfessionalSearchCriteria professionalSearchCriteria) {
+    public List<ProfessionalSummaryResponse> listProfessionals(ProfessionalSearchCriteria professionalSearchCriteria) {
         return listProfessionalsPort.listProfessionals(professionalSearchCriteria).stream()
-                .map(ProfessionalResponse::fromProfessional)
+                .map(ProfessionalSummaryResponse::fromProfessional)
                 .toList();
     }
 }

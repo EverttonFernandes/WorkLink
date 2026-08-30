@@ -89,6 +89,7 @@ import br.com.worklink.application.location.usecase.PreviewCitySelectionUseCase;
 import br.com.worklink.application.professional.usecase.AddProfessionalPortfolioItemUseCase;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
 import br.com.worklink.application.professional.usecase.ConfirmProfessionalPhoneVerificationUseCase;
+import br.com.worklink.application.professional.usecase.LoadProfessionalDetailUseCase;
 import br.com.worklink.application.professional.usecase.ListProfessionalPortfolioItemsUseCase;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
@@ -174,6 +175,13 @@ public class WorkLinkUseCaseConfiguration {
     @Bean
     ListProfessionalsUseCase listProfessionalsUseCase(ListProfessionalsPort listProfessionalsPort) {
         return new ListProfessionalsUseCase(listProfessionalsPort);
+    }
+
+    @Bean
+    LoadProfessionalDetailUseCase loadProfessionalDetailUseCase(
+            LoadProfessionalByIdentifierPort loadProfessionalByIdentifierPort
+    ) {
+        return new LoadProfessionalDetailUseCase(loadProfessionalByIdentifierPort);
     }
 
     @Bean

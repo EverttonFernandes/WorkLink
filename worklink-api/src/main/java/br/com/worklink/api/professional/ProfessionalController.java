@@ -21,6 +21,7 @@ import br.com.worklink.application.professional.usecase.CompleteProfessionalProf
 import br.com.worklink.application.professional.usecase.ConfirmProfessionalPhoneVerificationRequest;
 import br.com.worklink.application.professional.usecase.ConfirmProfessionalPhoneVerificationUseCase;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
+import br.com.worklink.application.professional.usecase.LoadProfessionalDetailUseCase;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.ProfessionalResponse;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalRequest;
@@ -52,8 +53,11 @@ import java.util.UUID;
 @RequestMapping("/api/v1/professionals")
 public class ProfessionalController {
 
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+
     private final RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase;
     private final ListProfessionalsUseCase listProfessionalsUseCase;
+    private final LoadProfessionalDetailUseCase loadProfessionalDetailUseCase;
     private final CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase;
     private final RequestProfessionalPhoneVerificationUseCase requestProfessionalPhoneVerificationUseCase;
     private final ConfirmProfessionalPhoneVerificationUseCase confirmProfessionalPhoneVerificationUseCase;
@@ -66,6 +70,7 @@ public class ProfessionalController {
     public ProfessionalController(
             RegisterBasicProfessionalUseCase registerBasicProfessionalUseCase,
             ListProfessionalsUseCase listProfessionalsUseCase,
+            LoadProfessionalDetailUseCase loadProfessionalDetailUseCase,
             CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase,
             RequestProfessionalPhoneVerificationUseCase requestProfessionalPhoneVerificationUseCase,
             ConfirmProfessionalPhoneVerificationUseCase confirmProfessionalPhoneVerificationUseCase,
@@ -77,6 +82,7 @@ public class ProfessionalController {
     ) {
         this.registerBasicProfessionalUseCase = registerBasicProfessionalUseCase;
         this.listProfessionalsUseCase = listProfessionalsUseCase;
+        this.loadProfessionalDetailUseCase = loadProfessionalDetailUseCase;
         this.completeProfessionalProfileUseCase = completeProfessionalProfileUseCase;
         this.requestProfessionalPhoneVerificationUseCase = requestProfessionalPhoneVerificationUseCase;
         this.confirmProfessionalPhoneVerificationUseCase = confirmProfessionalPhoneVerificationUseCase;
@@ -103,7 +109,7 @@ public class ProfessionalController {
     }
 
     @GetMapping
-    List<ProfessionalHttpResponse> listProfessionals(
+    List<ProfessionalSummaryHttpResponse> listProfessionals(
             @RequestParam(required = false) UUID categoryIdentifier,
             @RequestParam(required = false) UUID cityIdentifier,
             @RequestParam(required = false) List<UUID> cityIdentifiers,
@@ -114,19 +120,41 @@ public class ProfessionalController {
                 selectedCityIdentifiers(cityIdentifier, cityIdentifiers),
                 Optional.ofNullable(keyword)
         );
-        List<ProfessionalHttpResponse> professionalResponses = listProfessionalsUseCase
+        List<ProfessionalSummaryHttpResponse> professionalResponses = listProfessionalsUseCase
                 .listProfessionals(professionalSearchCriteria)
                 .stream()
-                .map(ProfessionalHttpResponse::fromProfessionalResponse)
+                .map(ProfessionalSummaryHttpResponse::fromProfessionalSummaryResponse)
                 .toList();
         recordProfessionalSearch(professionalSearchCriteria, professionalResponses.size());
         return professionalResponses;
     }
 
+    @GetMapping("/{professionalIdentifier}")
+    ProfessionalDetailHttpResponse loadProfessionalDetail(
+            @PathVariable UUID professionalIdentifier,
+            @RequestHeader(value = AUTHORIZATION_HEADER, required = false) String authorizationHeader
+    ) {
+        authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(authorizationHeader);
+        return ProfessionalDetailHttpResponse.fromProfessionalDetailResponse(
+                loadProfessionalDetailUseCase.loadProfessionalDetail(professionalIdentifier)
+        );
+    }
+
+    @PostMapping("/{professionalIdentifier}/detail-access-attempts")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    void recordAnonymousProfessionalDetailAttempt(@PathVariable UUID professionalIdentifier) {
+        recordOperationalEventUseCase.recordOperationalEvent(new OperationalEvent(
+                OperationalEventType.AUTHENTICATION_FLOW,
+                OperationalEventSeverity.INFO,
+                "Usuario anonimo redirecionado para autenticacao antes do detalhe profissional.",
+                Map.of("professionalIdentifier", professionalIdentifier.toString())
+        ));
+    }
+
     @PatchMapping("/{professionalIdentifier}/profile")
     ProfessionalHttpResponse completeProfessionalProfile(
             @PathVariable UUID professionalIdentifier,
-            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+            @RequestHeader(value = AUTHORIZATION_HEADER, required = false) String authorizationHeader,
             @RequestBody CompleteProfessionalProfileHttpRequest request
     ) {
         AuthenticatedPrincipal authenticatedPrincipal = authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(
@@ -161,7 +189,7 @@ public class ProfessionalController {
     @PostMapping("/{professionalIdentifier}/phone-verification/request")
     RequestProfessionalPhoneVerificationHttpResponse requestProfessionalPhoneVerification(
             @PathVariable UUID professionalIdentifier,
-            @RequestHeader(value = "Authorization", required = false) String authorizationHeader
+            @RequestHeader(value = AUTHORIZATION_HEADER, required = false) String authorizationHeader
     ) {
         AuthenticatedPrincipal authenticatedPrincipal = authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(
                 authorizationHeader
@@ -184,7 +212,7 @@ public class ProfessionalController {
     @PostMapping("/{professionalIdentifier}/phone-verification/confirm")
     ProfessionalHttpResponse confirmProfessionalPhoneVerification(
             @PathVariable UUID professionalIdentifier,
-            @RequestHeader(value = "Authorization", required = false) String authorizationHeader,
+            @RequestHeader(value = AUTHORIZATION_HEADER, required = false) String authorizationHeader,
             @RequestBody ConfirmProfessionalPhoneVerificationHttpRequest request
     ) {
         AuthenticatedPrincipal authenticatedPrincipal = authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(

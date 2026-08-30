@@ -133,6 +133,16 @@ async function listProfessionalsByCategoryAndCity(categoryIdentifier, cityIdenti
   return response.data;
 }
 
+async function loadProfessionalDetail(professionalIdentifier, customerAccessToken) {
+  const requestConfiguration = customerAccessToken
+    ? { headers: createAuthorizationHeader(customerAccessToken) }
+    : {};
+  return worklinkHttpClient.get(
+    `/api/v1/professionals/${professionalIdentifier}`,
+    requestConfiguration,
+  );
+}
+
 async function startContactAsCustomer(customerAccessToken, professionalIdentifier) {
   const response = await worklinkHttpClient.post(
     '/api/v1/contact-intentions',
@@ -186,8 +196,11 @@ async function registerAnonymousReviewAsCustomer(customerAccessToken, contactInt
   return response;
 }
 
-async function loadProfessionalReviewProfile(professionalIdentifier) {
-  const response = await worklinkHttpClient.get(`/api/v1/professional-reviews/professionals/${professionalIdentifier}`);
+async function loadProfessionalReviewProfile(customerAccessToken, professionalIdentifier) {
+  const response = await worklinkHttpClient.get(
+    `/api/v1/professional-reviews/professionals/${professionalIdentifier}`,
+    { headers: createAuthorizationHeader(customerAccessToken) },
+  );
   assertStatus(response, 200);
   return response.data;
 }
@@ -278,6 +291,7 @@ module.exports = {
   defaultLocalPassword,
   listPendingFeedbackRequests,
   listProfessionalsByCategoryAndCity,
+  loadProfessionalDetail,
   loadPasswordRecoveryToken,
   loadCustomerProfile,
   loadProfessionalReviewProfile,

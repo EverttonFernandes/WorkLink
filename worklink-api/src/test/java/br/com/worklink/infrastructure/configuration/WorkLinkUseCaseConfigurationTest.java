@@ -199,6 +199,7 @@ class WorkLinkUseCaseConfigurationTest {
         assertThat(configuration.listServiceCitiesUseCase(listServiceCitiesPort)).isNotNull();
         assertThat(registerBasicProfessionalUseCase).isNotNull();
         assertThat(configuration.listProfessionalsUseCase(listProfessionalsPort)).isNotNull();
+        assertThat(configuration.loadProfessionalDetailUseCase(loadProfessionalByIdentifierPort)).isNotNull();
         assertThat(configuration.addProfessionalPortfolioItemUseCase(
                 loadProfessionalByIdentifierPort,
                 loadStoredFileMetadataPort,

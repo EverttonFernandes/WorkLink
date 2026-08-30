@@ -3,6 +3,7 @@ package br.com.worklink.api;
 import br.com.worklink.api.authorization.AuthenticatedPrincipalHttpResolver;
 import br.com.worklink.api.professional.ProfessionalController;
 import br.com.worklink.application.ApplicationRuleViolationException;
+import br.com.worklink.application.AuthenticationRequiredException;
 import br.com.worklink.application.AuthorizationDeniedException;
 import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventRequest;
 import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventUseCase;
@@ -18,12 +19,15 @@ import br.com.worklink.application.metrics.usecase.RecordProfessionalSearchEvent
 import br.com.worklink.application.observability.usecase.OperationalEventType;
 import br.com.worklink.application.observability.usecase.RecordOperationalEventUseCase;
 import br.com.worklink.application.professional.port.ProfessionalSearchCriteria;
+import br.com.worklink.application.professional.usecase.LoadProfessionalDetailUseCase;
 import br.com.worklink.application.professional.usecase.ListProfessionalsUseCase;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileRequest;
 import br.com.worklink.application.professional.usecase.CompleteProfessionalProfileUseCase;
 import br.com.worklink.application.professional.usecase.ConfirmProfessionalPhoneVerificationRequest;
 import br.com.worklink.application.professional.usecase.ConfirmProfessionalPhoneVerificationUseCase;
 import br.com.worklink.application.professional.usecase.ProfessionalResponse;
+import br.com.worklink.application.professional.usecase.ProfessionalDetailResponse;
+import br.com.worklink.application.professional.usecase.ProfessionalSummaryResponse;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalRequest;
 import br.com.worklink.application.professional.usecase.RegisterBasicProfessionalUseCase;
 import br.com.worklink.application.professional.usecase.RequestProfessionalPhoneVerificationRequest;
@@ -74,6 +78,9 @@ class ProfessionalControllerTest {
 
     @MockBean
     private ListProfessionalsUseCase listProfessionalsUseCase;
+
+    @MockBean
+    private LoadProfessionalDetailUseCase loadProfessionalDetailUseCase;
 
     @MockBean
     private CompleteProfessionalProfileUseCase completeProfessionalProfileUseCase;
@@ -171,12 +178,12 @@ class ProfessionalControllerTest {
     }
 
     @Test
-    @DisplayName("Deve expor busca de profissionais por cidade e categoria pela API")
+    @DisplayName("GIVEN busca publica WHEN listar profissionais THEN deve retornar somente o resumo de descoberta")
     void shouldExposeProfessionalSearchByCityAndCategoryThroughApi() throws Exception {
         // GIVEN
-        ProfessionalResponse professionalResponse = validProfessionalResponse();
+        ProfessionalSummaryResponse professionalSummaryResponse = validProfessionalSummaryResponse();
         when(listProfessionalsUseCase.listProfessionals(argThat(this::matchesExpectedSearchCriteria)))
-                .thenReturn(List.of(professionalResponse));
+                .thenReturn(List.of(professionalSummaryResponse));
 
         // WHEN / THEN
         mockMvc.perform(get("/api/v1/professionals")
@@ -187,7 +194,13 @@ class ProfessionalControllerTest {
                 .andExpect(jsonPath("$[0].professionalName").value("Maria Eletricista"))
                 .andExpect(jsonPath("$[0].availabilityBadgeLabel").value("Aceitando novos clientes"))
                 .andExpect(jsonPath("$[0].phoneNumberVerified").value(false))
-                .andExpect(jsonPath("$[0].qualityGuarantee").value(false));
+                .andExpect(jsonPath("$[0].qualityGuarantee").value(false))
+                .andExpect(jsonPath("$[0].whatsappNumber").doesNotExist())
+                .andExpect(jsonPath("$[0].usefulLink").doesNotExist())
+                .andExpect(jsonPath("$[0].portfolioDescription").doesNotExist())
+                .andExpect(jsonPath("$[0].serviceDescription").doesNotExist())
+                .andExpect(jsonPath("$[0].profileCompletenessPercentage").doesNotExist())
+                .andExpect(jsonPath("$[0].documentProvided").doesNotExist());
         verify(recordProfessionalSearchEventUseCase).recordProfessionalSearchEvent(argThat(searchEventRequest ->
                 searchEventRequest.categoryIdentifier().equals(CATEGORY_IDENTIFIER)
                         && searchEventRequest.cityIdentifiers().equals(Set.of(CITY_IDENTIFIER))
@@ -198,6 +211,75 @@ class ProfessionalControllerTest {
                 operationalEvent.operationalEventType() == OperationalEventType.FUNCTIONAL_METRIC_FLOW
                         && operationalEvent.safeContext().get("resultCount").equals("1")
         ));
+    }
+
+    @Test
+    @DisplayName("GIVEN usuario anonimo WHEN tentar abrir detalhe THEN deve registrar redirecionamento sem dados pessoais")
+    void shouldRecordAnonymousProfessionalDetailRedirectWithoutPersonalData() throws Exception {
+        // GIVEN
+        UUID professionalIdentifier = UUID.randomUUID();
+
+        // WHEN / THEN
+        mockMvc.perform(post(
+                        "/api/v1/professionals/{professionalIdentifier}/detail-access-attempts",
+                        professionalIdentifier
+                ))
+                .andExpect(status().isNoContent());
+        verify(recordOperationalEventUseCase).recordOperationalEvent(argThat(operationalEvent ->
+                operationalEvent.operationalEventType() == OperationalEventType.AUTHENTICATION_FLOW
+                        && operationalEvent.safeContext().size() == 1
+                        && operationalEvent.safeContext()
+                        .get("professionalIdentifier")
+                        .equals(professionalIdentifier.toString())
+        ));
+    }
+
+    @Test
+    @DisplayName("GIVEN principal autenticado WHEN abrir profissional THEN deve retornar detalhe protegido sem dados sensiveis")
+    void shouldReturnProtectedProfessionalDetailWithoutSensitiveDataWhenPrincipalIsAuthenticated() throws Exception {
+        // GIVEN
+        UUID professionalIdentifier = UUID.randomUUID();
+        AuthenticatedPrincipal customerPrincipal = new AuthenticatedPrincipal(
+                UUID.randomUUID(),
+                AuthenticatedProfile.CUSTOMER
+        );
+        ProfessionalDetailResponse professionalDetailResponse = completedProfessionalDetailResponse(
+                professionalIdentifier
+        );
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER))
+                .thenReturn(customerPrincipal);
+        when(loadProfessionalDetailUseCase.loadProfessionalDetail(professionalIdentifier))
+                .thenReturn(professionalDetailResponse);
+
+        // WHEN / THEN
+        mockMvc.perform(get("/api/v1/professionals/{professionalIdentifier}", professionalIdentifier)
+                        .header("Authorization", AUTHORIZATION_HEADER))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.professionalIdentifier").value(professionalIdentifier.toString()))
+                .andExpect(jsonPath("$.professionalName").value("Maria Eletricista"))
+                .andExpect(jsonPath("$.usefulLink").value("https://worklink.example/maria-eletricista"))
+                .andExpect(jsonPath("$.portfolioDescription").value("Instalacoes residenciais recentes."))
+                .andExpect(jsonPath("$.serviceDescription").value("Instalacoes e manutencoes eletricas."))
+                .andExpect(jsonPath("$.whatsappNumber").doesNotExist())
+                .andExpect(jsonPath("$.documentNumberHash").doesNotExist())
+                .andExpect(jsonPath("$.documentProvided").doesNotExist());
+        verify(authenticatedPrincipalHttpResolver).resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER);
+        verify(loadProfessionalDetailUseCase).loadProfessionalDetail(professionalIdentifier);
+    }
+
+    @Test
+    @DisplayName("GIVEN requisicao anonima WHEN abrir profissional THEN deve exigir autenticacao antes do detalhe")
+    void shouldRequireAuthenticationBeforeLoadingProfessionalDetail() throws Exception {
+        // GIVEN
+        UUID professionalIdentifier = UUID.randomUUID();
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(null))
+                .thenThrow(new AuthenticationRequiredException("Autenticacao obrigatoria para este recurso."));
+
+        // WHEN / THEN
+        mockMvc.perform(get("/api/v1/professionals/{professionalIdentifier}", professionalIdentifier))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Autenticacao obrigatoria para este recurso."));
+        verify(loadProfessionalDetailUseCase, never()).loadProfessionalDetail(professionalIdentifier);
     }
 
     @Test
@@ -350,6 +432,42 @@ class ProfessionalControllerTest {
                 "BASIC_PROFILE",
                 "ACCEPTING_NEW_CLIENTS",
                 "Aceitando novos clientes",
+                false,
+                false,
+                false
+        );
+    }
+
+    private ProfessionalSummaryResponse validProfessionalSummaryResponse() {
+        return new ProfessionalSummaryResponse(
+                UUID.randomUUID(),
+                "Maria Eletricista",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial.",
+                null,
+                "ACCEPTING_NEW_CLIENTS",
+                "Aceitando novos clientes",
+                false,
+                false,
+                false
+        );
+    }
+
+    private ProfessionalDetailResponse completedProfessionalDetailResponse(UUID professionalIdentifier) {
+        return new ProfessionalDetailResponse(
+                professionalIdentifier,
+                "Maria Eletricista",
+                CITY_IDENTIFIER,
+                CATEGORY_IDENTIFIER,
+                "Atendimento residencial.",
+                UUID.randomUUID(),
+                "https://worklink.example/maria-eletricista",
+                "Instalacoes residenciais recentes.",
+                "Instalacoes e manutencoes eletricas.",
+                "COMPLETE_PROFILE",
+                "AVAILABLE_TODAY",
+                "Disponível hoje",
                 false,
                 false,
                 false

@@ -1,0 +1,46 @@
+TASK_KEY=WL-026
+FASE=CONCLUIDA
+
+ULTIMA_HIPOTESE:
+- A WL-026 foi fechada com descoberta anonima publica, detalhe autenticado, sessao segura no mobile e contratos backend separados.
+
+ULTIMO_RESULTADO:
+- Endpoint publico de profissionais passou a devolver apenas resumo de descoberta.
+- Detalhe completo do profissional passou a exigir autenticacao.
+- Mobile permite explorar sem login, mas exige conta para abrir detalhe, contato, salvos e perfil do cliente.
+- Sessao local usa armazenamento seguro para refresh token e nao persiste access token.
+- `401` limpa sessao e redireciona para autenticacao; `403` exibe falta de permissao sem logout indevido.
+- Evidencias visuais da jornada anonima, gate e retorno pos-login foram geradas.
+- Gates oficiais rodaram em Docker e passaram.
+
+GATES_OBSERVADOS:
+- QA: PASS
+- MOBILE_UX: PASS
+- SRE: PASS
+- SECURITY: PASS
+- ARCH_REVIEW: PASS
+- FINAL_REVIEW: PASS
+
+PROXIMA_ACAO_RECOMENDADA:
+- Criar commit semantico de fechamento da WL-026 e tag `MINOR` sobre o mesmo hash.
+
+RISCOS_ABERTOS:
+- `integration_test` mobile em device real ficou N/A no container atual por ausencia de Android/iOS/Chrome visivel; o contrato Dart de integracao passou no alvo oficial.
+- A publicacao em loja ainda depende das historias tecnicas seguintes e acoes manuais da Play Console/App Store.
+2026-06-18 - Iteracao 1: fluxo principal da WL-026 implementado e validado em analyze, unit e widget.
+- A descoberta segue anonima, mas o toque no profissional agora leva para autenticacao e, apos sucesso, retorna ao detalhe.
+- Foi criada uma persistencia minima de sessao para reaproveitar login ao reabrir o app.
+- O teste de integracao mobile nao rodou nesta janela porque o projeto nao possui target linux e nao havia emulador/dispositivo conectado ao container.
+2026-06-22 - Iteracao 2: revisao normativa bloqueou a persistencia atual de sessao.
+- `shared_preferences` nao e armazenamento seguro para refresh token.
+- Correcao critica aberta para usar armazenamento seguro e minimizar os dados persistidos.
+2026-06-22 - Iteracao 3: QA e especialista mobile reabriram gates da WL-026.
+- O backend precisa separar listagem publica e detalhe autenticado.
+- Testes de sessao, integracao e evidencia visual precisam ser completados.
+2026-08-30 - Iteracao 4: fila de correcao da WL-026 fechada.
+- `make mobile-unit-test`: PASS com 172 testes e cobertura 95.35%.
+- `make mobile-screen-test`: PASS com 89 testes.
+- `WORKLINK_POSTGRES_PORT=55432 make backend-unit-test`: PASS com 350 testes e JaCoCo aprovado.
+- `WORKLINK_POSTGRES_PORT=55432 make backend-integration-test`: PASS.
+- `WORKLINK_POSTGRES_PORT=55432 make functional-test`: PASS com 21 cenarios reais.
+- `WORKLINK_POSTGRES_PORT=55432 make mobile-integration-test`: PASS para contrato Dart; device real N/A no container.

@@ -2,6 +2,7 @@ package br.com.worklink.api;
 
 import br.com.worklink.api.authorization.AuthenticatedPrincipalHttpResolver;
 import br.com.worklink.api.professional.ProfessionalPortfolioController;
+import br.com.worklink.application.AuthenticationRequiredException;
 import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventRequest;
 import br.com.worklink.application.audit.usecase.RecordSensitiveAuditEventUseCase;
 import br.com.worklink.application.audit.usecase.SensitiveAuditAction;
@@ -30,6 +31,7 @@ import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.argThat;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -64,11 +66,17 @@ class ProfessionalPortfolioControllerTest {
     private RecordSensitiveAuditEventUseCase recordSensitiveAuditEventUseCase;
 
     @Test
-    @DisplayName("GIVEN portfolio publico WHEN listar itens THEN deve expor somente metadados publicos")
-    void shouldExposePublicPortfolioItemsWhenListingProfessionalPortfolio() throws Exception {
+    @DisplayName("GIVEN principal autenticado WHEN listar portfolio THEN deve expor os itens do profissional")
+    void shouldExposeProfessionalPortfolioItemsWhenPrincipalIsAuthenticated() throws Exception {
         // GIVEN
         UUID professionalIdentifier = UUID.randomUUID();
         UUID fileIdentifier = UUID.randomUUID();
+        AuthenticatedPrincipal customerPrincipal = new AuthenticatedPrincipal(
+                UUID.randomUUID(),
+                AuthenticatedProfile.CUSTOMER
+        );
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER))
+                .thenReturn(customerPrincipal);
         when(listProfessionalPortfolioItemsUseCase.listProfessionalPortfolioItems(professionalIdentifier))
                 .thenReturn(List.of(new ProfessionalPortfolioItemResponse(
                         UUID.randomUUID(),
@@ -83,7 +91,7 @@ class ProfessionalPortfolioControllerTest {
         mockMvc.perform(get(
                         "/api/v1/professionals/{professionalIdentifier}/portfolio-items",
                         professionalIdentifier
-                ))
+                ).header("Authorization", AUTHORIZATION_HEADER))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].professionalIdentifier").value(professionalIdentifier.toString()))
                 .andExpect(jsonPath("$[0].fileIdentifier").value(fileIdentifier.toString()))
@@ -91,6 +99,26 @@ class ProfessionalPortfolioControllerTest {
                 .andExpect(jsonPath("$[0].description").value("Instalacao concluida em apartamento."))
                 .andExpect(jsonPath("$[0].displayOrder").value(1))
                 .andExpect(jsonPath("$[0].storageObjectKey").doesNotExist());
+        verify(authenticatedPrincipalHttpResolver).resolveAuthenticatedPrincipal(AUTHORIZATION_HEADER);
+    }
+
+    @Test
+    @DisplayName("GIVEN requisicao anonima WHEN listar portfolio THEN deve exigir autenticacao")
+    void shouldRequireAuthenticationBeforeListingProfessionalPortfolioItems() throws Exception {
+        // GIVEN
+        UUID professionalIdentifier = UUID.randomUUID();
+        when(authenticatedPrincipalHttpResolver.resolveAuthenticatedPrincipal(null))
+                .thenThrow(new AuthenticationRequiredException("Autenticacao obrigatoria para este recurso."));
+
+        // WHEN / THEN
+        mockMvc.perform(get(
+                        "/api/v1/professionals/{professionalIdentifier}/portfolio-items",
+                        professionalIdentifier
+                ))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.message").value("Autenticacao obrigatoria para este recurso."));
+        verify(listProfessionalPortfolioItemsUseCase, never())
+                .listProfessionalPortfolioItems(professionalIdentifier);
     }
 
     @Test
