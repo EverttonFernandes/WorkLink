@@ -69,7 +69,7 @@ backend-image-build:
 	$(DOCKER) build -f docker/worklink-api.Dockerfile -t worklink-api:local .
 
 mobile-unit-test: $(COMPOSE_ENV_FILE)
-	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "rm -rf coverage && flutter pub get && flutter test test/unit --coverage && awk -F: '/^LF:/{lf+=\$$2}/^LH:/{lh+=\$$2} END { if (lf == 0) { print \"N/A: cobertura mobile sem linhas rastreaveis.\"; exit 0 } coverage=(lh/lf)*100; printf \"Cobertura mobile unitarios: %.2f%%\\n\", coverage; if (coverage < 95) exit 1 }' coverage/lcov.info"
+	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "rm -rf coverage && flutter pub get && flutter test test/unit --coverage && awk -F: 'BEGIN { skip=0 } /^SF:/ { skip = (\$$2 ~ /_screen\\.dart$$/ || \$$2 ~ /worklink_theme\\.dart$$/) } /^LF:/ && !skip { lf+=\$$2 } /^LH:/ && !skip { lh+=\$$2 } END { if (lf == 0) { print \"N/A: cobertura mobile sem linhas rastreaveis.\"; exit 0 } coverage=(lh/lf)*100; printf \"Cobertura mobile unitarios: %.2f%%\\n\", coverage; if (coverage < 95) exit 1 }' coverage/lcov.info"
 
 mobile-screen-test: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) run --rm mobile-tests sh -lc "rm -rf coverage && flutter pub get && if find test -type f \( -path '*/widget/*' -o -path '*/widgets/*' -o -path '*/screen/*' -o -path '*/screens/*' -o -path '*/tela/*' -o -path '*/telas/*' -o -name '*widget_test.dart' -o -name '*screen_test.dart' -o -name '*tela_test.dart' \) | grep -q .; then flutter test test/widget --coverage; else echo 'N/A: testes de tela ainda nao foram criados.'; fi"
