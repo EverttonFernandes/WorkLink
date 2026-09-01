@@ -23,6 +23,7 @@ Abra:
 - `test-evidence-quality.md`
 - `tdd-bdd-before-implementation.md`
 - `main-push-quality-and-versioning.md`, antes de commit/tag/push
+- `post-push-ci-green.md`, depois de push quando a demanda disparar CI
 
 ## Clean Code, Refactoring, SOLID E Design Patterns
 
@@ -39,6 +40,7 @@ Use esse trio quando a demanda envolver regra de negócio, arquitetura, refatora
 Abra:
 
 - `main-push-quality-and-versioning.md`
+- `post-push-ci-green.md`
 - `test-evidence-quality.md`
 - `refactor-after-functional-green.md`
 
@@ -52,3 +54,4 @@ Abra:
 6. `clean-code-readable-names.md`
 7. `architecture-boundaries-and-solid.md`
 8. `main-push-quality-and-versioning.md`
+9. `post-push-ci-green.md`

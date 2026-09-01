@@ -14,6 +14,7 @@ complements:
   - .agents/rules/tdd-bdd-before-implementation.md
   - .agents/rules/test-evidence-quality.md
   - .agents/rules/refactor-after-functional-green.md
+  - .agents/rules/post-push-ci-green.md
 ---
 
 # Rule: Push na main somente com qualidade e versionamento
@@ -28,6 +29,7 @@ ou tag semantica inconsistente.
 - Confirme que `tdd-bdd-before-implementation.md` foi respeitada quando houve código produtivo.
 - Confirme que `test-evidence-quality.md` foi respeitada nos testes alterados.
 - Confirme que `refactor-after-functional-green.md` foi respeitada antes do fechamento.
+- Confirme que `post-push-ci-green.md` foi respeitada antes de declarar a historia concluida.
 
 ## Regra obrigatoria
 
@@ -42,6 +44,7 @@ Antes de fazer push para `main`, o agente deve:
 5. Criar a tag semantica exata `vMAJOR.MINOR.PATCH` apontando para o mesmo commit.
 6. Validar programaticamente que `git rev-parse HEAD` e `git rev-parse <tag>^{}` retornam o mesmo hash.
 7. Fazer push da branch e da tag correspondente.
+8. Monitorar a CI do commit publicado ate conclusao verde antes de declarar entrega fechada.
 
 ## Gates minimos antes do push
 
@@ -71,6 +74,7 @@ Se houver duvida sobre impacto, execute `make test`.
 
 - Nao usar `--no-verify` em commits ou pushes.
 - Nao empurrar `main` com CI vermelha conhecida.
+- Nao declarar entrega concluida sem verificar a CI pos-push do commit publicado.
 - Nao criar tag depois em outro commit para "corrigir" versionamento.
 - Nao misturar arquivos de outra historia no commit atual.
 - Nao versionar secrets, chaves, keystores, tokens, dumps, artefatos de build ou documentos internos ignorados.

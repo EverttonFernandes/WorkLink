@@ -19,6 +19,7 @@ Use esta skill para investigar e operar CI/CD do WorkLink no GitHub Actions com 
 - `docs/jira-pessoal/KANBAN-OFICIAL.md`
 - `docs/spec-driven-development/padroes-de-testes.md`
 - `.agents/rules/main-push-quality-and-versioning.md`
+- `.agents/rules/post-push-ci-green.md`
 
 ## Pré-Requisito
 
@@ -74,6 +75,7 @@ Cancelar run:
 
 - Leia o YAML real antes de concluir triggers, inputs, branches, paths ou jobs.
 - Não declare sucesso por job parcial; o run precisa estar `completed` com `conclusion=success`.
+- Depois de push para `main`, monitore o run do commit publicado antes de declarar entrega concluída.
 - Não dispare workflow apenas para "ver se passa".
 - Antes de reexecutar, analise o último run falho quando a causa ainda não estiver clara.
 - Use `--force` só para run travado, parâmetros errados ou execução obsoleta bloqueando a branch.

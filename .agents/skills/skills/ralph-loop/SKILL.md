@@ -28,6 +28,7 @@ Leia somente o necessário para a história atual:
 - `.agents/rules/clean-code-readable-names.md`
 - `.agents/rules/architecture-boundaries-and-solid.md`
 - `.agents/rules/main-push-quality-and-versioning.md`
+- `.agents/rules/post-push-ci-green.md`
 - `.agents/workflows/start-work.md`
 
 Para tela mobile, leia também:
@@ -125,6 +126,7 @@ Obrigatório para finalizar:
 - kanban atualizado;
 - commit seletivo da história;
 - tag semântica apontando para o mesmo commit.
+- CI pos-push do commit publicado em `PASS` quando a historia disparar workflow.
 
 ## Regras Inegociáveis
 
@@ -137,3 +139,4 @@ Obrigatório para finalizar:
 - Não esconda dívida manual; crie história/tarefa específica.
 - Não stagear nem reverter mudanças não relacionadas.
 - Persistir decisões em disco; memória conversacional não é fonte de verdade.
+- Se a CI pos-push falhar, reabrir correção e não declarar a história concluída.

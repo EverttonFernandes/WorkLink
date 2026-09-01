@@ -12,6 +12,7 @@ complements:
   - .agents/rules/tdd-bdd-before-implementation.md
   - .agents/rules/refactor-after-functional-green.md
   - .agents/rules/main-push-quality-and-versioning.md
+  - .agents/rules/post-push-ci-green.md
 priority: critical
 ---
 
@@ -24,6 +25,7 @@ Testes existem para provar comportamento de negócio, não para decorar pipeline
 - Use junto de `tdd-bdd-before-implementation.md` antes de alterar código produtivo.
 - Use junto de `refactor-after-functional-green.md` depois dos funcionais verdes.
 - Use junto de `main-push-quality-and-versioning.md` antes de commit, tag ou push.
+- Use junto de `post-push-ci-green.md` depois do push quando a CI executar testes nao reproduzidos localmente.
 
 ## Ordem Obrigatória
 
@@ -56,6 +58,7 @@ Em mobile:
 - cobrir estados de sucesso, vazio, carregamento e erro quando aplicáveis;
 - validar widget ou fluxo conforme risco da tela;
 - usar emulador/simulador quando a história exigir integração mobile.
+- quando o device nao existir localmente, registrar `N/A` apenas como evidencia local e exigir PASS do smoke mobile na CI.
 
 ## Cobertura
 

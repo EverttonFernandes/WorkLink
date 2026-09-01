@@ -16,13 +16,17 @@ void main() {
     // WHEN
     await tester.pumpWidget(application);
     await tester.pumpAndSettle();
-    await tester.tap(
-      find.byKey(
-        const ValueKey(
-          'open-professional-profile-$professionalIdentifier',
-        ),
+    final professionalProfileButton = find.byKey(
+      const ValueKey(
+        'open-professional-profile-$professionalIdentifier',
       ),
     );
+    await tester.scrollUntilVisible(
+      professionalProfileButton,
+      160,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.tap(professionalProfileButton);
     await tester.pumpAndSettle();
     await tester.enterText(
       find.byKey(const ValueKey('authentication-email-field')),
