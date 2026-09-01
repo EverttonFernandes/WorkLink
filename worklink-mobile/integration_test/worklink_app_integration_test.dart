@@ -26,8 +26,17 @@ void main() {
       160,
       scrollable: find.byType(Scrollable).first,
     );
+    await tester.drag(
+      find.byType(Scrollable).first,
+      const Offset(0, -120),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(professionalProfileButton);
     await tester.pumpAndSettle();
+    expect(
+      find.byKey(const ValueKey('authentication-email-field')),
+      findsOneWidget,
+    );
     await tester.enterText(
       find.byKey(const ValueKey('authentication-email-field')),
       'cliente@exemplo.com',
