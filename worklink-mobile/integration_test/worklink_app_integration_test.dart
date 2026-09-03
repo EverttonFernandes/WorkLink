@@ -45,6 +45,10 @@ void main() {
       find.byKey(const ValueKey('authentication-password-field')),
       'senha-segura-123',
     );
+    FocusManager.instance.primaryFocus?.unfocus();
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.byKey(const ValueKey('sign-in-button')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey('sign-in-button')));
     await tester.pumpAndSettle();
 

@@ -210,11 +210,20 @@ mobile-manual-test: $(COMPOSE_ENV_FILE) mobile-emulator-prereqs
 	$(MAKE) mobile-emulator-install
 
 functional-test: $(COMPOSE_ENV_FILE)
-	$(DOCKER_COMPOSE) down -v --remove-orphans
-	$(DOCKER_COMPOSE) up -d postgres redis minio
-	$(DOCKER_COMPOSE) run --rm database-migrations
-	WORKLINK_TEST_SUPPORT_PASSWORD_RECOVERY_TOKEN_EXPOSURE_ENABLED=true $(DOCKER_COMPOSE) up -d --build --wait worklink-api
-	WORKLINK_TEST_SUPPORT_PASSWORD_RECOVERY_TOKEN_EXPOSURE_ENABLED=true $(DOCKER_COMPOSE) run --rm functional-tests
+	@set -e; \
+	functional_env_file=".env.functional-test"; \
+	cp "$(COMPOSE_ENV_FILE)" "$$functional_env_file"; \
+	printf "\nWORKLINK_TEST_SUPPORT_PASSWORD_RECOVERY_TOKEN_EXPOSURE_ENABLED=true\n" >> "$$functional_env_file"; \
+	cleanup() { \
+		WORKLINK_ENV_FILE="$$functional_env_file" $(DOCKER) compose --env-file "$$functional_env_file" down -v --remove-orphans >/dev/null 2>&1 || true; \
+		rm -f "$$functional_env_file"; \
+	}; \
+	trap cleanup EXIT; \
+	WORKLINK_ENV_FILE="$$functional_env_file" $(DOCKER) compose --env-file "$$functional_env_file" down -v --remove-orphans; \
+	WORKLINK_ENV_FILE="$$functional_env_file" $(DOCKER) compose --env-file "$$functional_env_file" up -d postgres redis minio; \
+	WORKLINK_ENV_FILE="$$functional_env_file" $(DOCKER) compose --env-file "$$functional_env_file" run --rm database-migrations; \
+	WORKLINK_ENV_FILE="$$functional_env_file" $(DOCKER) compose --env-file "$$functional_env_file" up -d --build --wait worklink-api; \
+	WORKLINK_ENV_FILE="$$functional_env_file" $(DOCKER) compose --env-file "$$functional_env_file" run --rm functional-tests
 
 homologation-local-up: $(COMPOSE_ENV_FILE)
 	$(DOCKER_COMPOSE) up -d postgres redis minio
