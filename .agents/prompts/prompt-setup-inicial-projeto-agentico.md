@@ -53,14 +53,15 @@ Quero que o projeto nasça com um workflow agêntico completo, independente da s
 15. Harness local para comandos reprodutíveis, preferencialmente via Docker quando fizer sentido.
 16. Versionamento semântico por entrega.
 17. Commit semântico com o nome ou identificador da história entregue.
-18. Tag semântica apontando para o mesmo commit da entrega.
+18. Commit semântico com trailer `Co-authored-by` da LLM colaboradora.
+19. Tag semântica apontando para o mesmo commit da entrega.
 
 Crie ou proponha a seguinte estrutura inicial:
 
 - docs/spec-driven-development/
 - docs/requisitos/
 - docs/jira-pessoal/
-- docs/jira-pessoal/historias/
+- docs/jira-pessoal/historias-de-negocio/
 - docs/jira-pessoal/historias-tecnicas/
 - docs/tasks/
 - docs/entregas/
@@ -83,6 +84,7 @@ Regras centrais do workflow:
 - Nenhum push para main deve acontecer com testes quebrando.
 - Nenhum commit de entrega deve misturar arquivos de outra história.
 - Nenhuma tag semântica deve apontar para commit diferente do commit de fechamento.
+- Todo commit assistido por IA deve terminar com `Co-authored-by: <LLM usada>`, sem inventar email para LLM.
 
 Rules obrigatórias:
 
@@ -103,7 +105,7 @@ Skills recomendadas:
 - security-specialist-agent: valida autenticação, autorização, privacidade e proteção de dados.
 - architect-reviewer-agent: valida arquitetura, SOLID, padrões e manutenibilidade.
 - final-reviewer-agent: cruza critérios de aceite, código, testes, documentação e versionamento.
-- git-operator: faz staging seletivo, commit semântico e tag semântica.
+- git-operator: faz staging seletivo, commit semântico com coautoria IA e tag semântica.
 - especialistas adicionais devem ser criados conforme o domínio do projeto.
 
 Ralph Loop:
