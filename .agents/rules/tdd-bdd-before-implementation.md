@@ -9,6 +9,17 @@ applies_when:
 must_read: true
 priority: critical
 token_hint: Leia o frontmatter primeiro; carregue o corpo completo somente antes de implementar codigo produtivo.
+progressive_disclosure:
+  - Ler este frontmatter para decidir se ha comportamento testavel.
+  - Abrir o corpo completo somente antes de alterar codigo produtivo.
+  - Abrir complements apenas quando conditional_details indicar.
+conditional_details:
+  - if: "demanda altera comportamento, regra de negocio, fluxo mobile ou contrato de API"
+    then: "escreva ou atualize BDD/funcional antes da implementacao e use test-evidence-quality.md"
+  - else_if: "demanda e somente refatoracao com comportamento coberto"
+    then: "confirme funcionais verdes e use refactor-after-functional-green.md"
+  - else: "demanda e somente documental, governanca ou config sem comportamento"
+    then: "declare TDD/BDD nao aplicavel e valide com gate minimo apropriado"
 complements:
   - .agents/rules/test-evidence-quality.md
   - .agents/rules/refactor-after-functional-green.md
@@ -27,6 +38,12 @@ codigo produtivo.
 - Use `test-evidence-quality.md` para detalhes de qualidade, isolamento, BDD e coverage.
 - Use `refactor-after-functional-green.md` depois que os funcionais passarem.
 - Use `main-push-quality-and-versioning.md` antes de commit, tag e push.
+
+## Roteamento Condicional
+
+- Se houver comportamento testável, esta rule é obrigatória e deve vir antes do código produtivo.
+- Se for refatoração sem mudança funcional, valide primeiro os funcionais e carregue `refactor-after-functional-green.md`.
+- Se for documentação ou governança, registre a não aplicabilidade e use o menor gate verificável.
 
 ## Regra obrigatoria
 

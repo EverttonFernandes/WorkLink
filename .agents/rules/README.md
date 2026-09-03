@@ -3,6 +3,17 @@ name: rules-index
 description: Índice de roteamento das rules locais do WorkLink para leitura progressiva e baixo consumo de contexto.
 document_type: rules_reference
 max_lines: 300
+progressive_disclosure:
+  - Ler este indice antes de abrir rules individuais.
+  - Escolher a menor combinacao de rules pelo cenario da demanda.
+  - Abrir o corpo de cada rule somente quando conditional_details justificar.
+conditional_details:
+  - if: "demanda inicia ou retoma historia"
+    then: "abra spec-to-execution-plan.md e as rules que ela apontar"
+  - else_if: "demanda e commit, tag, push ou CI"
+    then: "abra main-push-quality-and-versioning.md e post-push-ci-green.md"
+  - else: "demanda pontual"
+    then: "abra somente a rule diretamente aplicavel"
 ---
 
 # Rules Do WorkLink
@@ -15,6 +26,21 @@ Abra:
 
 - `spec-to-execution-plan.md`
 - `tdd-bdd-before-implementation.md`, se houver comportamento testável
+
+## Progressive Disclosure E Conditional Details
+
+Toda rule deve ser consumida em camadas:
+
+1. Leia o frontmatter para decidir aplicabilidade.
+2. Leia `conditional_details` para escolher a rule complementar correta.
+3. Abra o corpo completo somente quando a condição da demanda exigir.
+4. Siga links em `complements` apenas quando o cenário cair no `if`, `else_if` ou `else` declarado.
+
+Use conditional details assim:
+
+- `if`: cenário principal que obriga a rule.
+- `else_if`: cenários próximos que exigem complemento específico.
+- `else`: cenário fora de escopo, com rule alternativa ou validação mínima.
 
 ## Testes E Evidências
 

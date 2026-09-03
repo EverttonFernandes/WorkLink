@@ -10,6 +10,17 @@ applies_when:
 must_read: true
 priority: critical
 token_hint: Leia o frontmatter primeiro; carregue o corpo completo quando os funcionais passarem e antes dos unitarios finais.
+progressive_disclosure:
+  - Ler este frontmatter quando os funcionais ficarem verdes.
+  - Abrir corpo completo antes da limpeza tecnica final.
+  - Abrir clean-code-readable-names.md ou architecture-boundaries-and-solid.md conforme risco encontrado.
+conditional_details:
+  - if: "funcionais/BDD passaram apos implementacao"
+    then: "refatore nomes, duplicacoes, acoplamento e design antes dos unitarios finais"
+  - else_if: "refatoracao toca fronteiras de camada ou regra de dominio"
+    then: "use architecture-boundaries-and-solid.md junto desta rule"
+  - else: "funcionais ainda nao passaram"
+    then: "volte para tdd-bdd-before-implementation.md antes de limpar codigo"
 complements:
   - .agents/rules/clean-code-readable-names.md
   - .agents/rules/architecture-boundaries-and-solid.md
@@ -28,6 +39,12 @@ nos testes funcionais.
 - Use `clean-code-readable-names.md` para nomenclatura, clareza e limpeza de UI/scripts/testes.
 - Use `architecture-boundaries-and-solid.md` para reduzir acoplamento e proteger camadas.
 - Use `test-evidence-quality.md` para reexecutar evidências após a refatoração.
+
+## Roteamento Condicional
+
+- Se os funcionais estão verdes, esta rule vira obrigatória antes do fechamento.
+- Se a limpeza revelar nomes ruins, abra `clean-code-readable-names.md`.
+- Se a limpeza cruzar camadas ou integrações, abra `architecture-boundaries-and-solid.md`.
 
 ## Regra obrigatoria
 

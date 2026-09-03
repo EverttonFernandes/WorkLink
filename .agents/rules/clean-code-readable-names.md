@@ -12,6 +12,17 @@ complements:
   - .agents/rules/refactor-after-functional-green.md
   - .agents/rules/architecture-boundaries-and-solid.md
   - .agents/rules/test-evidence-quality.md
+progressive_disclosure:
+  - Ler este frontmatter quando a demanda criar ou revisar nomes.
+  - Abrir o corpo completo durante implementacao ou limpeza final.
+  - Abrir source_docs apenas para duvida conceitual de clean code.
+conditional_details:
+  - if: "codigo, teste, script, workflow ou UI recebeu novos nomes"
+    then: "valide intencao, linguagem de dominio e ausencia de labels tecnicas"
+  - else_if: "nome ruim revela acoplamento ou regra na camada errada"
+    then: "use architecture-boundaries-and-solid.md"
+  - else: "sem nomes novos ou alterados"
+    then: "mantenha apenas frontmatter em contexto"
 priority: high
 ---
 
@@ -24,6 +35,12 @@ Código deve ser lido como documentação executável do negócio.
 - Use junto de `refactor-after-functional-green.md` quando os funcionais já estiverem verdes.
 - Use junto de `architecture-boundaries-and-solid.md` quando nomes revelarem vazamento de camada.
 - Use junto de `test-evidence-quality.md` para nomes didáticos em testes, fixtures e cenários.
+
+## Roteamento Condicional
+
+- Se a mudança cria nomes públicos, privados, técnicos ou de teste, aplique esta rule.
+- Se o problema for fronteira de arquitetura, carregue `architecture-boundaries-and-solid.md`.
+- Se for só consulta rápida sem alteração, use o frontmatter e evite carregar detalhes.
 
 ## Nomes
 

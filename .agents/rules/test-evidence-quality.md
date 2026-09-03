@@ -13,6 +13,17 @@ complements:
   - .agents/rules/refactor-after-functional-green.md
   - .agents/rules/main-push-quality-and-versioning.md
   - .agents/rules/post-push-ci-green.md
+progressive_disclosure:
+  - Ler este frontmatter quando criar, revisar ou executar testes.
+  - Abrir corpo completo antes de alterar teste ou declarar evidencia.
+  - Abrir source_docs somente para aprofundar padroes de teste.
+conditional_details:
+  - if: "demanda tem comportamento testavel"
+    then: "use TDD/BDD, evidencie falha correta e depois sucesso"
+  - else_if: "demanda depende de emulador/simulador/CI que nao roda localmente"
+    then: "registre N/A local e exija post-push-ci-green.md"
+  - else: "demanda sem teste automatizado aplicavel"
+    then: "declare justificativa e rode gate minimo verificavel"
 priority: critical
 ---
 
@@ -26,6 +37,12 @@ Testes existem para provar comportamento de negócio, não para decorar pipeline
 - Use junto de `refactor-after-functional-green.md` depois dos funcionais verdes.
 - Use junto de `main-push-quality-and-versioning.md` antes de commit, tag ou push.
 - Use junto de `post-push-ci-green.md` depois do push quando a CI executar testes nao reproduzidos localmente.
+
+## Roteamento Condicional
+
+- Se o comportamento é testável, carregue esta rule por completo.
+- Se a evidência local for `N/A`, carregue `post-push-ci-green.md` antes do fechamento.
+- Se a mudança for documental, use gate mínimo e registre a justificativa.
 
 ## Ordem Obrigatória
 

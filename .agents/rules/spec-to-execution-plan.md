@@ -23,6 +23,17 @@ complements:
   - .agents/rules/refactor-after-functional-green.md
   - .agents/rules/clean-code-readable-names.md
   - .agents/rules/architecture-boundaries-and-solid.md
+progressive_disclosure:
+  - Ler este frontmatter ao iniciar demanda para localizar a fonte oficial.
+  - Abrir corpo completo somente ao criar ou revisar plano de execucao.
+  - Abrir source_docs apenas se a historia exigir aprofundamento em SDD.
+conditional_details:
+  - if: "demanda pede proxima historia, backlog, kanban ou Ralph Loop"
+    then: "siga KANBAN-OFICIAL.md como fonte de verdade e leia a historia oficial"
+  - else_if: "demanda pede padrao tecnico geral vindo de SDD"
+    then: "use source_docs como complemento, sem criar fila paralela"
+  - else: "demanda pontual fora do fluxo de historia"
+    then: "mantenha apenas frontmatter e aplique rules especificas do caso"
 priority: high
 ---
 
@@ -59,6 +70,12 @@ Use:
 - Abra `tdd-bdd-before-implementation.md` e `test-evidence-quality.md` antes de comportamento testável.
 - Abra `clean-code-readable-names.md` e `refactor-after-functional-green.md` antes da limpeza final.
 - Abra `architecture-boundaries-and-solid.md` quando houver regra de negócio, integração externa ou fronteira de camada.
+
+## Roteamento Condicional
+
+- Se for execução de backlog, o `KANBAN-OFICIAL.md` decide a ordem.
+- Se for consulta conceitual, use SDD como referência complementar.
+- Se for demanda pontual, aplique só a rule específica necessária.
 
 ## Critérios Obrigatórios No Plano
 

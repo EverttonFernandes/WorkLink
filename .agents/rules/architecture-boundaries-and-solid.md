@@ -12,6 +12,17 @@ complements:
   - .agents/rules/clean-code-readable-names.md
   - .agents/rules/refactor-after-functional-green.md
   - .agents/rules/test-evidence-quality.md
+progressive_disclosure:
+  - Ler este frontmatter quando a demanda tocar dominio, aplicacao, infraestrutura ou integracao.
+  - Abrir corpo completo somente se houver fronteira arquitetural relevante.
+  - Abrir source_docs apenas para decisao de design mais profunda.
+conditional_details:
+  - if: "regra de negocio atravessa banco, HTTP, storage, cache, auth ou SDK externo"
+    then: "aplique ports/adapters e valide dependencias por abstracao"
+  - else_if: "mudanca e apenas UI ou teste sem nova fronteira"
+    then: "use clean-code-readable-names.md e test-evidence-quality.md"
+  - else: "sem risco arquitetural"
+    then: "mantenha apenas frontmatter em contexto"
 priority: high
 ---
 
@@ -24,6 +35,12 @@ Toda mudança deve preservar domínio e aplicação livres de detalhes de framew
 - Use junto de `clean-code-readable-names.md` para garantir nomes alinhados ao domínio.
 - Use junto de `refactor-after-functional-green.md` na limpeza final.
 - Use junto de `test-evidence-quality.md` para provar regra crítica sem framework.
+
+## Roteamento Condicional
+
+- Se houver fronteira externa ou camada afetada, carregue esta rule por completo.
+- Se o caso for só nomenclatura ou evidência de teste, carregue as rules complementares.
+- Se não houver impacto arquitetural, não aprofunde esta rule.
 
 ## Princípios
 
