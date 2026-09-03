@@ -3,6 +3,9 @@ name: ralph-loop
 description: Kernel de Orquestração Agêntica baseado no padrão Ralph Loop (Perceber → Orientar → Decidir → Agir → Registrar).
 required_env: []
 max_lines: 300
+metadata:
+  progressive_disclosure: "Comece pelo KANBAN e historia atual; abra subagentes, rules e prototipos somente conforme o tipo de demanda."
+  conditional_details: "if historia ativa then orquestrar Perceber-Orientar-Decidir-Agir-Registrar; else_if tela/mobile/CI/security then chamar especialista; else usar menor skill aplicavel."
 ---
 
 # Skill: Ralph Loop

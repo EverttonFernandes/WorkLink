@@ -3,6 +3,9 @@ name: ralph-loop/product-manager
 description: Agente Product Manager do Ralph Loop para o WorkLink V1. Guardião do negócio, escopo funcional, regras de produto, backlog e memória de entrega.
 required_env: []
 max_lines: 300
+metadata:
+  progressive_disclosure: "Leia KANBAN, requisitos e prototipos somente da jornada afetada; aprofunde em entregas quando decidir escopo ou aceite."
+  conditional_details: "if historia altera regra/tela/jornada then validar valor e escopo; else_if novo debito surgiu then ordenar no KANBAN; else manter consulta leve."
 ---
 
 # Skill: Product Manager WorkLink

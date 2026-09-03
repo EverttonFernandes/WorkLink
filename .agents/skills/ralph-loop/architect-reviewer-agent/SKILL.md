@@ -6,6 +6,9 @@ complementary_rules:
   - .agents/rules/architecture-boundaries-and-solid.md
   - .agents/rules/clean-code-readable-names.md
   - .agents/rules/refactor-after-functional-green.md
+metadata:
+  progressive_disclosure: "Leia rules complementares e docs SDD apenas quando revisar fronteiras, SOLID, nomes ou refactor de uma historia."
+  conditional_details: "if mudanca cruza camadas/contratos then auditar arquitetura; else_if ha cheiro de codigo then aplicar clean/refactor; else registrar sem bloqueio."
 ---
 
 # Role: Agente_Arquiteto_Revisor (Technical Review Board)

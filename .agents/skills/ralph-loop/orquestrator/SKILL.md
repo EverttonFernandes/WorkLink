@@ -3,6 +3,9 @@ name: ralph-loop/orquestrator
 description: Orquestrador Senior do Ralph Loop. Coordena subagentes até atingir Exit Bar com máxima qualidade.
 required_env: []
 max_lines: 300
+metadata:
+  progressive_disclosure: "Comece por KANBAN, IMPLEMENTATION e progress; chame subagentes e rules somente quando o estado da historia exigir."
+  conditional_details: "if historia nao iniciada then start-work/execution-plan; else_if gate falhou then acionar especialista; else_if pronta then final-reviewer e git-operator."
 ---
 
 # Skill: Orquestrador Ralph Loop

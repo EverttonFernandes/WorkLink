@@ -3,6 +3,9 @@ name: githubActions-connector
 description: Monitora workflows no GitHub Actions, verifica status, dispara execuções e analisa logs de falha da pipeline de CI/CD.
 required_env: ["GITHUB_TOKEN"]
 max_lines: 300
+metadata:
+  progressive_disclosure: "Leia workflows, Makefile e logs apenas do run/job investigado; abra rules de push/CI somente quando houver commit, tag ou pipeline pós-push."
+  conditional_details: "if CI falhou then coletar run/job/log e aplicar post-push-ci-green; else_if disparar/monitorar workflow then validar auth; else limitar a leitura ao status."
 ---
 
 # Skill: GitHub Actions Connector
@@ -26,7 +29,7 @@ Use esta skill para investigar e operar CI/CD do WorkLink no GitHub Actions com 
 Valide autenticação quando houver dúvida:
 
 ```bash
-.agents/skills/skills/githubActions-connector/scripts/check_connection.sh
+.agents/skills/githubActions-connector/scripts/check_connection.sh
 ```
 
 Token recomendado: fine-grained PAT com `Actions: Read and write`, `Contents: Read`, `Metadata: Read`.
@@ -38,37 +41,37 @@ Nunca exponha token em logs, docs, commits ou respostas.
 Buscar workflow:
 
 ```bash
-.agents/skills/skills/githubActions-connector/scripts/search_workflow.sh "ci"
+.agents/skills/githubActions-connector/scripts/search_workflow.sh "ci"
 ```
 
 Descrever workflow:
 
 ```bash
-.agents/skills/skills/githubActions-connector/scripts/describe_workflow.sh ".github/workflows/ci.yml"
+.agents/skills/githubActions-connector/scripts/describe_workflow.sh ".github/workflows/ci.yml"
 ```
 
 Disparar workflow com `workflow_dispatch`:
 
 ```bash
-.agents/skills/skills/githubActions-connector/scripts/trigger_workflow.sh "<workflow>" "refs/heads/main" '{}'
+.agents/skills/githubActions-connector/scripts/trigger_workflow.sh "<workflow>" "refs/heads/main" '{}'
 ```
 
 Monitorar run:
 
 ```bash
-.agents/skills/skills/githubActions-connector/scripts/watch_run.sh "<workflow>" --run-id <id>
+.agents/skills/githubActions-connector/scripts/watch_run.sh "<workflow>" --run-id <id>
 ```
 
 Analisar falha:
 
 ```bash
-.agents/skills/skills/githubActions-connector/scripts/analyze_run.sh "<workflow>" [run-id] [max-lines]
+.agents/skills/githubActions-connector/scripts/analyze_run.sh "<workflow>" [run-id] [max-lines]
 ```
 
 Cancelar run:
 
 ```bash
-.agents/skills/skills/githubActions-connector/scripts/stop_run.sh "<workflow>" <run-id>
+.agents/skills/githubActions-connector/scripts/stop_run.sh "<workflow>" <run-id>
 ```
 
 ## Regras De Uso

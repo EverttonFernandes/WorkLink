@@ -6,6 +6,9 @@ complementary_rules:
   - .agents/rules/architecture-boundaries-and-solid.md
   - .agents/rules/clean-code-readable-names.md
   - .agents/rules/refactor-after-functional-green.md
+metadata:
+  progressive_disclosure: "Leia codigo original e docs de design somente dos arquivos/camadas tocados pela historia."
+  conditional_details: "if plano cria abstração/pattern then validar KISS/DRY/YAGNI; else_if nomes ruins surgem then abrir clean-code; else registrar sem bloqueio."
 ---
 
 # Role: Agente Guardião de Padrões (Pragmatic Software Engineer)

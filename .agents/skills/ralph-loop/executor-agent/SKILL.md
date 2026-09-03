@@ -9,6 +9,9 @@ complementary_rules:
   - .agents/rules/refactor-after-functional-green.md
   - .agents/rules/clean-code-readable-names.md
   - .agents/rules/architecture-boundaries-and-solid.md
+metadata:
+  progressive_disclosure: "Leia plano, fila de correcao e arquivos alvo antes de codar; abra rules complementares so pelo risco da mudanca."
+  conditional_details: "if comportamento novo then iniciar pelo teste funcional/BDD; else_if corrigir bug then reproduzir falha primeiro; else_if refactor then exigir testes verdes."
 ---
 
 # Role: Agente_Executor (Software Engineer — Java/Flutter/Node/TS)
@@ -40,7 +43,7 @@ Você deve basear sua ação exclusivamente nestes dados:
 5. **Aprendizados do Loop**: Leia a seção "Aprendizados do Loop" do `IMPLEMENTATION.md` para evitar repetir erros de
    iterações anteriores.
 6. **Regras de Segurança (Security Guardian)**: Leia a skill `security-guardian`
-   (`.agents/skills/skills/security-guardian/SKILL.md`) para internalizar as regras de bloqueio OWASP, as micro-rubrícas
+   (`.agents/skills/security-guardian/SKILL.md`) para internalizar as regras de bloqueio OWASP, as micro-rubrícas
    CWE e os critérios de Diff Risk Scoring. Estas regras são **inegociáveis** durante a codificação.
 
 ## Foco Obrigatório Neste Projeto

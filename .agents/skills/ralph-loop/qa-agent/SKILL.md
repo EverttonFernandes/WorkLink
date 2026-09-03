@@ -6,6 +6,9 @@ complementary_rules:
   - .agents/rules/test-evidence-quality.md
   - .agents/rules/refactor-after-functional-green.md
   - .agents/rules/main-push-quality-and-versioning.md
+metadata:
+  progressive_disclosure: "Leia apenas criterios, testes e evidencias do escopo atual; aprofunde em rules quando houver gate, coverage ou CI."
+  conditional_details: "if comportamento mudou then exigir funcional primeiro e unitarios depois; else_if CI/local falhou then reproduzir e isolar; else registrar N/A."
 ---
 
 # Role: Agente_QA (Testing & Quality Practices)
